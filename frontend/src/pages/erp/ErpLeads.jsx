@@ -58,9 +58,6 @@ export default function ErpLeads() {
 
   const reload = () => queryClient.invalidateQueries(['erp-leads']);
 
-  return () => clearInterval(id);
-  }, [reload]);
-
   const filteredItems = items.filter(l => 
     l.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
     l.phone?.toLowerCase().includes(searchQuery.toLowerCase()) ||

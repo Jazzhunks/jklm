@@ -49,9 +49,6 @@ export default function ErpStudents() {
 
   const reload = () => queryClient.invalidateQueries(['erp-students']);
 
-  return () => clearInterval(id);
-  }, [reload]);
-
   return (
     <div className="space-y-6 h-[calc(100vh-120px)] flex flex-col min-h-0 animate-fadeIn" data-testid="erp-students-page">
       {/* Upper Operational Header Card */}
