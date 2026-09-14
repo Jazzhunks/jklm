@@ -41,6 +41,10 @@ export default function ErpExpenses() {
     }
   }, [selectedBranchId]);
 
+  useEffect(() => {
+    setShowCreate(searchParams.get("action") === "new");
+  }, [searchParams]);
+
   // Fetch branches
   const { data: branches = [] } = useQuery({
     queryKey: ['erp-branches'],

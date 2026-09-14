@@ -35,6 +35,10 @@ export default function ErpStudents() {
     }
   }, [selectedBranchId]);
 
+  useEffect(() => {
+    setShowCreate(searchParams.get("action") === "new");
+  }, [searchParams]);
+
   const { data: branches = [] } = useQuery({
     queryKey: ['erp-branches'],
     queryFn: () => erp.listBranches(),
