@@ -690,59 +690,74 @@ def bulk_id_card_pdf(students_data: list) -> bytes:
     buf = io.BytesIO()
     c = canvas.Canvas(buf, pagesize=landscape(A4))
     
+    # Specifications
     W_A4, H_A4 = landscape(A4)
-    card_w = W_A4 / 5.0
+    margin_x = 6.75 * mm
+    margin_y = 20 * mm
+    card_w = 54 * mm
     card_h = 170 * mm
-    y_start = (H_A4 - card_h) / 2.0
+    fold_y = 105 * mm
+    blue_color = (0.231, 0.443, 0.792) # #3B71CA
     
     for idx, data in enumerate(students_data):
         if idx > 0 and idx % 5 == 0:
             c.showPage()
             
         col = idx % 5
-        x_offset = col * card_w
-        y_offset = y_start
+        x_left = margin_x + (col * card_w)
+        x_center = x_left + (card_w / 2.0)
         
-        # Draw front (top half)
-        front_y = y_offset + card_h / 2
-        front_h = card_h / 2
+        # --- GUIDES ---
+        c.setStrokeColorRGB(0.8, 0.8, 0.8)
+        c.setDash(2, 2)
+        c.rect(x_left, margin_y, card_w, card_h, stroke=1, fill=0)
+        c.line(x_left, fold_y, x_left + card_w, fold_y)
+        c.setDash()
         
-        c.setFillColorRGB(0.30, 0.49, 0.74)
-        c.rect(x_offset, front_y + front_h - 35*mm, card_w, 35*mm, stroke=0, fill=1)
+        # --- FRONT PANEL (105mm to 190mm) ---
+        # 1. Header Band
+        c.setFillColorRGB(*blue_color)
+        c.rect(x_left, 150*mm, card_w, 40*mm, stroke=0, fill=1)
         
+        # White pill
+        pill_w = 28 * mm
+        pill_h = 6 * mm
         c.setFillColorRGB(1, 1, 1)
-        c.roundRect(x_offset + 10*mm, front_y + front_h - 12*mm, card_w - 20*mm, 6*mm, 3*mm, stroke=0, fill=1)
+        c.roundRect(x_center - pill_w/2, 175*mm, pill_w, pill_h, 3*mm, stroke=0, fill=1)
         
-        c.setFillColorRGB(0.04, 0.76, 0.43) # unacademy green
-        c.setFont("Helvetica-Bold", 8)
-        c.drawCentredString(x_offset + card_w/2 + 2*mm, front_y + front_h - 10.5*mm, "unacademy")
-        # Draw small icon placeholder (cup shape approximation)
-        icon_x = x_offset + card_w/2 - 12*mm
-        icon_y = front_y + front_h - 9*mm
-        c.circle(icon_x, icon_y + 0.5*mm, 1.5*mm, stroke=0, fill=1)
-        c.rect(icon_x - 1*mm, icon_y - 1.5*mm, 2*mm, 1.5*mm, stroke=0, fill=1)
-        c.rect(icon_x - 1.5*mm, icon_y - 2*mm, 3*mm, 0.5*mm, stroke=0, fill=1)
-        
-        c.setFillColorRGB(1, 1, 1)
+        c.setFillColorRGB(*blue_color)
         c.setFont("Helvetica-Bold", 7)
-        c.drawCentredString(x_offset + card_w/2, front_y + front_h - 18*mm, "Session : 2026 - 27")
+        c.drawCentredString(x_center, 176.5*mm, "unacademy")
+        
+        c.setFillColorRGB(1, 1, 1)
+        c.setFont("Helvetica-Bold", 6.5)
+        c.drawCentredString(x_center, 168*mm, "Session : 2026 - 27")
+        
+        # 2. Profile Picture
+        photo_y = 146 * mm
+        photo_r = 18 * mm
+        c.setLineWidth(1.5)
+        c.setStrokeColorRGB(1, 1, 1)
         
         photo_bytes = data.get("photo_bytes")
         if photo_bytes:
             try:
                 c.saveState()
                 path = c.beginPath()
-                path.circle(x_offset + card_w/2, front_y + front_h - 35*mm, 12*mm)
-                c.clipPath(path, stroke=0, fill=0)
+                path.circle(x_center, photo_y, photo_r)
+                c.clipPath(path, stroke=1, fill=0)
                 img = ImageReader(io.BytesIO(photo_bytes))
-                c.drawImage(img, x_offset + card_w/2 - 12*mm, front_y + front_h - 35*mm - 12*mm, 24*mm, 24*mm, preserveAspectRatio=True, mask="auto")
+                c.drawImage(img, x_center - photo_r, photo_y - photo_r, photo_r*2, photo_r*2, preserveAspectRatio=True, mask="auto")
                 c.restoreState()
+                c.circle(x_center, photo_y, photo_r, stroke=1, fill=0)
             except Exception:
-                pass
+                c.setFillColorRGB(0.9, 0.9, 0.9)
+                c.circle(x_center, photo_y, photo_r, stroke=1, fill=1)
         else:
             c.setFillColorRGB(0.9, 0.9, 0.9)
-            c.circle(x_offset + card_w/2, front_y + front_h - 35*mm, 12*mm, stroke=0, fill=1)
+            c.circle(x_center, photo_y, photo_r, stroke=1, fill=1)
             
+        # 3. Text Block
         course_str = (data.get("course") or "").upper()
         class_str = (data.get("current_class") or "").upper()
         if class_str and course_str:
@@ -753,31 +768,38 @@ def bulk_id_card_pdf(students_data: list) -> bytes:
             display_course = course_str
 
         c.setFillColorRGB(0, 0, 0)
+        c.setFont("Helvetica-Bold", 11)
+        c.drawCentredString(x_center, 117*mm, (data.get("full_name") or "").upper())
+        
+        c.setFillColorRGB(0.3, 0.3, 0.3)
         c.setFont("Helvetica-Bold", 9)
-        c.drawCentredString(x_offset + card_w/2, front_y + front_h - 52*mm, (data.get("full_name") or "").upper())
-        c.setFont("Helvetica-Bold", 8)
-        c.drawCentredString(x_offset + card_w/2, front_y + front_h - 58*mm, display_course)
-        c.setFont("Helvetica-Bold", 8)
-        c.drawCentredString(x_offset + card_w/2, front_y + front_h - 64*mm, data.get("enrollment_number") or data.get("student_no") or "")
+        c.drawCentredString(x_center, 111*mm, display_course)
         
-        # Draw back (bottom half, inverted)
-        back_y = y_offset
-        back_h = card_h / 2
+        c.setFillColorRGB(0, 0, 0)
+        c.setFont("Helvetica-Bold", 9)
+        c.drawCentredString(x_center, 105.5*mm, data.get("enrollment_number") or data.get("student_no") or "")
         
+        # --- BACK PANEL (20mm to 105mm, Inverted) ---
         c.saveState()
-        c.translate(x_offset + card_w/2, back_y + back_h/2)
+        c.translate(x_center, fold_y)
         c.rotate(180)
         
-        c.setFillColorRGB(0.30, 0.49, 0.74)
-        c.rect(-card_w/2, back_h/2 - 25*mm, card_w, 25*mm, stroke=0, fill=1)
+        # Branding Section (Local Y=0 to 40mm -> Page Y=65 to 105)
+        c.setFillColorRGB(*blue_color)
+        c.rect(-card_w/2, 0, card_w, 40*mm, stroke=0, fill=1)
         
         c.setFillColorRGB(1, 1, 1)
-        c.setFont("Helvetica", 6)
-        c.drawCentredString(0, back_h/2 - 10*mm, "UNACADEMY CENTRE")
-        c.drawCentredString(0, back_h/2 - 15*mm, (data.get("branch") or "PARRAYPORA").upper())
+        c.setFont("Helvetica-Bold", 9)
+        c.drawCentredString(0, 15*mm, "UNACADEMY CENTRE")
+        c.setFont("Helvetica-Bold", 8)
+        c.drawCentredString(0, 22*mm, "PARRAYPORA")
         
-        c.circle(0, back_h/2 - 19.5*mm, 2.5*mm, stroke=0, fill=1)
-        c.roundRect(-4.5*mm, back_h/2 - 26*mm, 9*mm, 4*mm, 2*mm, stroke=0, fill=1)
+        c.circle(0, 31*mm, 3*mm, stroke=0, fill=1)
+        c.roundRect(-5*mm, 34*mm, 10*mm, 5*mm, 2*mm, stroke=0, fill=1)
+        
+        # QR Code Section (Local Y=45 to 85mm -> Page Y=20 to 60)
+        c.setFillColorRGB(*blue_color)
+        c.rect(-card_w/2, 45*mm, card_w, 40*mm, stroke=0, fill=1)
         
         qr_data = data.get("enrollment_number") or data.get("student_no") or ""
         if qr_data:
@@ -790,15 +812,9 @@ def bulk_id_card_pdf(students_data: list) -> bytes:
             qr_buf.seek(0)
             
             qr_img = ImageReader(qr_buf)
-            qr_size = 35*mm
-            c.drawImage(qr_img, -qr_size/2, -back_h/2 + 5*mm, width=qr_size, height=qr_size)
-        
+            c.drawImage(qr_img, -15*mm, 50*mm, width=30*mm, height=30*mm)
+            
         c.restoreState()
-        
-        c.setStrokeColorRGB(0.5, 0.5, 0.5)
-        c.setDash(2, 2)
-        c.rect(x_offset, y_offset, card_w, card_h, stroke=1, fill=0)
-        c.line(x_offset, y_offset + card_h/2, x_offset + card_w, y_offset + card_h/2)
         
     c.save()
     return buf.getvalue()
