@@ -785,30 +785,56 @@ function ExpensesViewModal({ erpUser, onClose, refreshRoot }) {
 function CreateStudentModal({ erpUser, onClose, onCreated }) {
   const [branches, setBranches] = useState([]);
   const [courses, setCourses] = useState([]);
-  const [counsellors, setCounsellors] = useState([]);
   const [form, setForm] = useState({
-    full_name: "", contact_phone: "", contact_email: "", parent_name: "", parent_phone: "",
-    address: "", course_id: "", batch: "",
+    full_name: "",
+    gender: "Male",
+    dob: "",
+    address: "",
+    contact_phone: "",
+    contact_email: "",
+    parent_name: "",
+    parent_phone: "",
+    parent_email: "",
+    current_class: "",
+    course_id: "",
+    batch: "",
+    batch_timing: "",
+    course_duration: "",
     branch_id: isSuper(erpUser) ? "" : erpUser.branch_id,
-    counsellor_id: "", total_fee: "", scholarship_percent: 0, discount: 0
+    total_fee: "",
+    notes: "",
   });
   const [busy, setBusy] = useState(false);
 
-  useEffect(() => { 
-    erp.listBranches().then(setBranches);
-    api.get("/courses").then(r => setCourses(Array.isArray(r.data) ? r.data : (r.data?.items || []))).catch(() => setCourses([])); 
-  }, []);
-  
   useEffect(() => {
-    if (form.branch_id) erp.listStaff(form.branch_id).then(s => setCounsellors(s.filter(x => x.role === "counsellor")));
-  }, [form.branch_id]);
+    erp.listBranches().then(setBranches);
+    api.get("/courses").then(r => setCourses(Array.isArray(r.data) ? r.data : (r.data?.items || []))).catch(() => setCourses([]));
+  }, []);
 
   const executeSubmit = async (e) => {
     e.preventDefault();
     setBusy(true);
     try {
-      const payload = { ...form, total_fee: Number(form.total_fee), scholarship_percent: Number(form.scholarship_percent), discount: Number(form.discount) };
-      if (!payload.counsellor_id) delete payload.counsellor_id;
+      const selectedCourse = courses.find(c => c.id === form.course_id);
+      const payload = {
+        full_name: form.full_name.trim(),
+        gender: form.gender,
+        dob: form.dob,
+        address: form.address.trim(),
+        contact_phone: form.contact_phone.trim(),
+        contact_email: form.contact_email.trim() || undefined,
+        parent_name: form.parent_name.trim() || undefined,
+        parent_phone: form.parent_phone.trim() || undefined,
+        parent_email: form.parent_email.trim() || undefined,
+        current_class: form.current_class.trim(),
+        course_id: form.course_id,
+        batch: form.batch.trim() || undefined,
+        batch_timing: form.batch_timing.trim() || undefined,
+        course_duration: form.course_duration.trim() || undefined,
+        branch_id: form.branch_id,
+        total_fee: parseFloat(form.total_fee) || (selectedCourse?.fee || 0),
+        notes: form.notes.trim() || undefined,
+      };
       await erp.createStudent(payload);
       toast.success("New student academic enrollment committed successfully");
       onCreated();
@@ -816,6 +842,9 @@ function CreateStudentModal({ erpUser, onClose, onCreated }) {
       toast.error(formatError(e.response?.data?.detail) || "Failed to commit parameters");
     } finally { setBusy(false); }
   };
+
+  const inputCls = "w-full px-3 py-2 border border-border bg-background/50 rounded-xl text-sm focus:outline-none focus:border-accent font-mono text-foreground placeholder:text-muted-foreground/50";
+  const labelCls = "text-xs uppercase tracking-wider font-bold text-muted-foreground mb-1 block";
 
   return (
     <div className="fixed inset-0 bg-black/20 z-50 grid place-items-center p-4 backdrop-blur-sm overflow-y-auto animate-fadeIn" onClick={onClose}>
@@ -827,25 +856,111 @@ function CreateStudentModal({ erpUser, onClose, onCreated }) {
           </div>
           <button type="button" onClick={onClose} className="p-1 hover:bg-muted/50 rounded-lg"><X size={18}/></button>
         </div>
-        <div className="grid sm:grid-cols-2 gap-4">
-          <InputCard label="Full name" v={form.full_name} on={v => setForm({...form, full_name: v})} req />
-          <InputCard label="Phone String" v={form.contact_phone} on={v => setForm({...form, contact_phone: v})} req />
-          <InputCard label="Email Address" type="email" v={form.contact_email} on={v => setForm({...form, contact_email: v})} />
-          <InputCard label="Parent / Guardian Name" v={form.parent_name} on={v => setForm({...form, parent_name: v})} />
-          <InputCard label="Parent Contact Line" v={form.parent_phone} on={v => setForm({...form, parent_phone: v})} />
-          <InputCard label="Batch Allocation Code" v={form.batch} on={v => setForm({...form, batch: v})} placeholder="e.g. NEET-2026-ALPHA" />
-          <SelectCard label="Operation Branch Center" v={form.branch_id} on={v => setForm({...form, branch_id: v, counsellor_id: ""})} req disabled={!isSuper(erpUser)} opts={branches.map(b => ({ v: b.id, l: b.name }))} />
-          <SelectCard label="Course Academic Target" v={form.course_id} on={v => setForm({...form, course_id: v})} req opts={courses.map(c => ({ v: c.id, l: `${c.title} (${c.category})` }))} />
-          <SelectCard label="Attending Onboarding Counsellor" v={form.counsellor_id} on={v => setForm({...form, counsellor_id: v})} opts={[{ v: "", l: "— Direct Walk In —" }, ...counsellors.map(c => ({ v: c.id, l: c.name }))]} />
-          <InputCard label="Gross Structured Fee (INR) *" type="number" v={form.total_fee} on={v => setForm({...form, total_fee: v})} req />
-          <InputCard label="Franchise Waiver Scholarship %" type="number" v={form.scholarship_percent} on={v => setForm({...form, scholarship_percent: v})} />
-          <InputCard label="Special Management Discount (INR)" type="number" v={form.discount} on={v => setForm({...form, discount: v})} />
-          <div className="sm:col-span-2">
-            <label className="text-xs uppercase tracking-wider font-bold text-muted-foreground mb-1 block">Physical Address</label>
-            <textarea value={form.address} onChange={e => setForm({...form, address: e.target.value})} rows={2} className="w-full px-3 py-2 border border-border bg-background/50 rounded-xl text-sm focus:outline-none focus:border-accent" />
+
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div>
+            <label className={labelCls}>Registered Name *</label>
+            <input type="text" required value={form.full_name} onChange={e => setForm({...form, full_name: e.target.value})} placeholder="Learner full name" className={inputCls} />
+          </div>
+          <div>
+            <label className={labelCls}>Gender *</label>
+            <select value={form.gender} onChange={e => setForm({...form, gender: e.target.value})} className={inputCls}>
+              <option value="Male">Male</option>
+              <option value="Female">Female</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+          <div>
+            <label className={labelCls}>Date of Birth *</label>
+            <input type="date" required value={form.dob} onChange={e => setForm({...form, dob: e.target.value})} className={inputCls} />
           </div>
         </div>
-        <button disabled={busy} type="submit" className="w-full py-3 bg-primary text-primary-foreground rounded-xl font-bold uppercase tracking-wider text-xs disabled:opacity-50 transition shadow-lg">{busy ? "Committing Entry Parameters…" : "Authorize Academic Enrollment"}</button>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label className={labelCls}>Regd. Mobile Number *</label>
+            <input type="tel" required value={form.contact_phone} onChange={e => setForm({...form, contact_phone: e.target.value})} placeholder="10-digit mobile number" className={inputCls} />
+          </div>
+          <div>
+            <label className={labelCls}>Regd. Email ID *</label>
+            <input type="email" required value={form.contact_email} onChange={e => setForm({...form, contact_email: e.target.value})} placeholder="name@example.com" className={inputCls} />
+          </div>
+        </div>
+
+        <div>
+          <label className={labelCls}>Residential Address *</label>
+          <textarea value={form.address} onChange={e => setForm({...form, address: e.target.value})} placeholder="Full residential address" rows={2} className={inputCls} />
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div>
+            <label className={labelCls}>Current Class *</label>
+            <input type="text" required value={form.current_class} onChange={e => setForm({...form, current_class: e.target.value})} placeholder="e.g. 11th / NEET Repeater" className={inputCls} />
+          </div>
+          <div>
+            <label className={labelCls}>Course *</label>
+            <select required value={form.course_id} onChange={e => setForm({...form, course_id: e.target.value})} className={inputCls}>
+              <option value="">Select Course</option>
+              {courses.map(c => <option key={c.id} value={c.id}>{c.title}</option>)}
+            </select>
+          </div>
+          <div>
+            <label className={labelCls}>Branch *</label>
+            <select required value={form.branch_id} onChange={e => setForm({...form, branch_id: e.target.value})} disabled={!isSuper(erpUser)} className={inputCls}>
+              <option value="">Select Branch</option>
+              {branches.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}
+            </select>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div>
+            <label className={labelCls}>Batch Name</label>
+            <input type="text" value={form.batch} onChange={e => setForm({...form, batch: e.target.value})} placeholder="e.g. NEET-2026-B1" className={inputCls} />
+          </div>
+          <div>
+            <label className={labelCls}>Morning / Afternoon / Evening</label>
+            <select value={form.batch_timing} onChange={e => setForm({...form, batch_timing: e.target.value})} className={inputCls}>
+              <option value="">Select Timing</option>
+              <option value="Morning">Morning</option>
+              <option value="Afternoon">Afternoon</option>
+              <option value="Evening">Evening</option>
+            </select>
+          </div>
+          <div>
+            <label className={labelCls}>Course Duration</label>
+            <input type="text" value={form.course_duration} onChange={e => setForm({...form, course_duration: e.target.value})} placeholder="e.g. 1 Year" className={inputCls} />
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label className={labelCls}>Parent / Guardian Name *</label>
+            <input type="text" required value={form.parent_name} onChange={e => setForm({...form, parent_name: e.target.value})} placeholder="Father or guardian full name" className={inputCls} />
+          </div>
+          <div>
+            <label className={labelCls}>Parent Mobile Number *</label>
+            <input type="tel" required value={form.parent_phone} onChange={e => setForm({...form, parent_phone: e.target.value})} placeholder="Primary parent mobile" className={inputCls} />
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label className={labelCls}>Parent Email Address</label>
+            <input type="email" value={form.parent_email} onChange={e => setForm({...form, parent_email: e.target.value})} placeholder="parent@example.com" className={inputCls} />
+          </div>
+          <div>
+            <label className={labelCls}>Total Fee (INR) *</label>
+            <input type="number" required value={form.total_fee} onChange={e => setForm({...form, total_fee: e.target.value})} placeholder="Auto-filled from course" className={inputCls} />
+          </div>
+        </div>
+
+        <div>
+          <label className={labelCls}>Feedback / Questions</label>
+          <textarea value={form.notes} onChange={e => setForm({...form, notes: e.target.value})} placeholder="Any feedback or questions..." rows={2} className={inputCls} />
+        </div>
+
+        <button disabled={busy} type="submit" className="w-full py-3 bg-primary text-primary-foreground rounded-xl font-bold uppercase tracking-wider text-xs disabled:opacity-50 transition shadow-lg">{busy ? "Committing Entry Parameters…" : "Submit Admission"}</button>
       </form>
     </div>
   );

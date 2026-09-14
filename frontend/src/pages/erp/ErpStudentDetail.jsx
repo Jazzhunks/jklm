@@ -513,6 +513,8 @@ function EditStudentProfileModal({ student, onClose, onUpdated, onPhotoSelect, e
     parent_email: student.parent_email || "",
     emergency_phone: student.emergency_phone || "",
     batch: student.batch || "",
+    batch_timing: student.batch_timing || "",
+    course_duration: student.course_duration || "",
     address: student.address || "",
     luid: student.luid || "",
     enrollment_number: student.enrollment_number || "",
@@ -521,6 +523,7 @@ function EditStudentProfileModal({ student, onClose, onUpdated, onPhotoSelect, e
     admission_date: student.admission_date ? student.admission_date.slice(0, 10) : "",
     gender: student.gender || "Male",
     dob: student.dob || "",
+    current_class: student.current_class || "",
     school_institute: student.school_institute || "",
     board: student.board || "JKBOSE",
     category: student.category || "General",
@@ -701,6 +704,23 @@ function EditStudentProfileModal({ student, onClose, onUpdated, onPhotoSelect, e
                 <option value="inactive">INACTIVE</option>
                 <option value="temporary">TEMPORARY</option>
               </select>
+            </div>
+            <div>
+              <label className="text-xs uppercase tracking-wider font-bold text-muted-foreground mb-1 block">Current Class</label>
+              <input type="text" value={form.current_class} onChange={e => setForm({...form, current_class: e.target.value})} placeholder="e.g. 11th / NEET Repeater" className="w-full px-3 py-2 border border-border bg-background/50 rounded-xl text-sm focus:outline-none focus:border-accent" />
+            </div>
+            <div>
+              <label className="text-xs uppercase tracking-wider font-bold text-muted-foreground mb-1 block">Batch Timing</label>
+              <select value={form.batch_timing} onChange={e => setForm({...form, batch_timing: e.target.value})} className="w-full px-3 py-2 border border-border bg-background rounded-xl text-sm text-foreground focus:outline-none">
+                <option value="">Select Timing</option>
+                <option value="Morning">Morning</option>
+                <option value="Afternoon">Afternoon</option>
+                <option value="Evening">Evening</option>
+              </select>
+            </div>
+            <div>
+              <label className="text-xs uppercase tracking-wider font-bold text-muted-foreground mb-1 block">Course Duration</label>
+              <input type="text" value={form.course_duration} onChange={e => setForm({...form, course_duration: e.target.value})} placeholder="e.g. 1 Year" className="w-full px-3 py-2 border border-border bg-background/50 rounded-xl text-sm focus:outline-none focus:border-accent" />
             </div>
           </div>
           <div>
