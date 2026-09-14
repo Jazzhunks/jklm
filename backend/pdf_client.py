@@ -761,7 +761,7 @@ def bulk_id_card_pdf(students_data: list) -> bytes:
         try:
             import os
             from reportlab.lib.utils import ImageReader
-            logo_path = os.path.join(os.path.dirname(__file__), "white_logo_cropped.png")
+            logo_path = os.path.join(os.path.dirname(__file__), "white_logo_transparent.png")
             logo_img = ImageReader(logo_path)
             target_w = 24 * mm
             target_h = 4 * mm
