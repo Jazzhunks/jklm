@@ -1,6 +1,7 @@
 import { useEffect, useRef, useCallback } from "react";
 
-const API_BASE = `${process.env.REACT_APP_BACKEND_URL}/api`;
+const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || "";
+const API_BASE = `${BACKEND_URL}/api`;
 
 export function useWAAnalyticsStream(campaignId, onEvent) {
   const eventSourceRef = useRef(null);

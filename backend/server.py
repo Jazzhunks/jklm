@@ -773,6 +773,10 @@ async def register(payload: RegisterIn, response: Response, background: Backgrou
     return {"user": doc, "access_token": access}
 
 @api.post("/auth/login")
+@api.post("/login")
+@app.post("/api/login")
+@app.post("/api/auth/login")
+@app.post("/login")
 async def login(payload: LoginIn, request: Request, response: Response):
     email = payload.email.lower().strip()
     client_ip = request.client.host if request.client else "unknown"
@@ -801,7 +805,15 @@ async def login(payload: LoginIn, request: Request, response: Response):
     user.pop("_id", None)
     return {"user": user, "access_token": access, "refresh_token": refresh}
 
+@app.get("/login")
+@api.get("/login")
+async def login_page():
+    return {"message": "Northend authentication endpoint. Please POST credentials to authenticate."}
+
 @api.post("/auth/logout")
+@api.post("/logout")
+@app.post("/api/logout")
+@app.post("/logout")
 async def logout(response: Response):
     cookie_samesite = os.environ.get("COOKIE_SAMESITE", "none").lower()
     cookie_secure = os.environ.get("COOKIE_SECURE", "true").lower() in ("true", "1", "yes")
@@ -812,6 +824,8 @@ async def logout(response: Response):
     return {"ok": True}
 
 @api.get("/auth/me")
+@api.get("/me")
+@app.get("/api/me")
 async def me(user: dict = Depends(get_current_user)):
     return user
 
