@@ -7,7 +7,7 @@ import { api, formatError, API_BASE } from "@/lib/api";
 import { 
   Search, Plus, Download, X, GraduationCap, Users, User, 
   Mail, Smartphone, ChevronLeft, ChevronRight, Filter, BookOpen, 
-  CheckCircle2, AlertCircle, ArrowUpRight
+  CheckCircle2, AlertCircle, ArrowUpRight, Trash2, AlertTriangle
 } from "lucide-react";
 
 export default function ErpStudents() {
@@ -23,6 +23,8 @@ export default function ErpStudents() {
   const [statusFilter, setStatusFilter] = useState("");
   const [page, setPage] = useState(1);
   const [showCreate, setShowCreate] = useState(searchParams.get("action") === "new");
+  const [deleteModal, setDeleteModal] = useState(null);
+  const [deleting, setDeleting] = useState(false);
   const limit = 25;
 
   // Sync branch with global context
@@ -271,13 +273,25 @@ export default function ErpStudents() {
                     </td>
                     <td className="px-5 py-3.5 text-xs text-muted-foreground whitespace-nowrap">{fmtDate(s.admission_date)}</td>
                     <td className="px-5 py-3.5 text-right whitespace-nowrap pr-6">
-                      <Link 
-                        to={`/erp/students/${encodeURIComponent(s.student_no || s.id)}`} 
-                        className="inline-flex px-3 py-1 text-xs font-bold uppercase tracking-wider text-accent bg-accent/10 border border-accent/20 hover:bg-accent/20 rounded-lg transition" 
-                        data-testid={`view-student-${s.student_no || s.id}`}
-                      >
-                        Dossier →
-                      </Link>
+                      <div className="flex items-center justify-end gap-1.5">
+                        <Link 
+                          to={`/erp/students/${encodeURIComponent(s.student_no || s.id)}`} 
+                          className="inline-flex px-3 py-1 text-xs font-bold uppercase tracking-wider text-accent bg-accent/10 border border-accent/20 hover:bg-accent/20 rounded-lg transition" 
+                          data-testid={`view-student-${s.student_no || s.id}`}
+                        >
+                          Dossier →
+                        </Link>
+                        {isSuper(erpUser) && (
+                          <button
+                            onClick={() => setDeleteModal(s)}
+                            className="p-1 hover:bg-rose-500/10 text-rose-500 border border-transparent hover:border-rose-500/20 rounded-lg transition"
+                            title="Purge Student Record"
+                            data-testid={`delete-student-${s.id}`}
+                          >
+                            <Trash2 size={14} />
+                          </button>
+                        )}
+                      </div>
                     </td>
                   </tr>
                 );
@@ -329,6 +343,52 @@ export default function ErpStudents() {
           onClose={() => { setShowCreate(false); setSearchParams({}); }}
           onCreated={() => { setShowCreate(false); setSearchParams({}); reload(); }}
         />
+      )}
+
+      {deleteModal && (
+        <div className="fixed inset-0 bg-black/50 z-50 grid place-items-center p-4 backdrop-blur-sm animate-fadeIn" onClick={() => !deleting && setDeleteModal(null)}>
+          <div onClick={e => e.stopPropagation()} className="bg-background border border-border rounded-2xl max-w-sm w-full p-6 space-y-4 shadow-2xl">
+            <div className="flex items-center gap-3 text-rose-500">
+              <div className="p-2.5 bg-rose-500/10 rounded-xl"><AlertTriangle size={24}/></div>
+              <div>
+                <h3 className="font-display font-medium text-lg text-foreground">Purge Student</h3>
+                <p className="text-[10px] text-rose-500 uppercase tracking-widest font-bold">Irreversible Action</p>
+              </div>
+            </div>
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              Are you sure you want to permanently delete <strong className="text-foreground font-mono">{deleteModal.full_name} ({deleteModal.student_no})</strong>?
+              This will purge all associated financial, enrollment, and attendance records.
+            </p>
+            <div className="flex gap-2.5 pt-2">
+              <button
+                disabled={deleting}
+                onClick={async () => {
+                  setDeleting(true);
+                  try {
+                    await erp.deleteStudent(deleteModal.id);
+                    toast.success(`Student ${deleteModal.student_no} deleted successfully.`);
+                    queryClient.invalidateQueries();
+                    setDeleteModal(null);
+                  } catch (err) {
+                    toast.error(formatError(err.response?.data?.detail) || "Failed to delete student");
+                  } finally {
+                    setDeleting(false);
+                  }
+                }}
+                className="flex-1 py-2.5 bg-rose-600 text-white rounded-xl text-xs uppercase tracking-wider font-bold hover:bg-rose-700 disabled:opacity-50 transition shadow-md flex items-center justify-center gap-1.5"
+              >
+                <Trash2 size={13}/> {deleting ? "Purging..." : "Confirm Purge"}
+              </button>
+              <button
+                disabled={deleting}
+                onClick={() => setDeleteModal(null)}
+                className="px-4 py-2.5 border border-border rounded-xl text-xs uppercase tracking-wider font-bold text-muted-foreground hover:text-foreground hover:bg-muted/50 transition"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

@@ -6,7 +6,8 @@ import { formatError } from "@/lib/api";
 import { api, API_BASE } from "@/lib/api";
 import { 
   ArrowLeft, Plus, FileDown, Receipt as ReceiptIcon, Edit3, 
-  X, Save, CheckCircle, Smartphone, Mail, MapPin, Milestone, User, Users, ClipboardList, Badge, Printer, Camera
+  X, Save, CheckCircle, Smartphone, Mail, MapPin, Milestone, User, Users, ClipboardList, Badge, Printer, Camera,
+  Trash2, AlertTriangle
 } from "lucide-react";
 import ReactCrop, { centerCrop, makeAspectCrop, convertToPixelCrop } from "react-image-crop";
 import "react-image-crop/dist/ReactCrop.css";
@@ -30,6 +31,29 @@ export default function ErpStudentDetail() {
   const [cropSrc, setCropSrc] = useState(null);
   const [cropBlob, setCropBlob] = useState(null);
   const [selectedReceipt, setSelectedReceipt] = useState(null);
+  const [deleteModal, setDeleteModal] = useState(null); // { type: 'student'|'payment', id, label }
+  const [deleting, setDeleting] = useState(false);
+
+  const confirmDelete = async () => {
+    if (!deleteModal) return;
+    setDeleting(true);
+    try {
+      if (deleteModal.type === "student") {
+        await erp.deleteStudent(deleteModal.id);
+        toast.success(`Student ${deleteModal.label} purged successfully.`);
+        nav("/erp/students");
+      } else if (deleteModal.type === "payment") {
+        await erp.deletePayment(deleteModal.id);
+        toast.success(`Payment ${deleteModal.label} purged successfully.`);
+        reload();
+      }
+      setDeleteModal(null);
+    } catch (err) {
+      toast.error(formatError(err.response?.data?.detail) || "Failed to execute delete operation");
+    } finally {
+      setDeleting(false);
+    }
+  };
 
   const reload = () => {
     erp.studentStatement(studentIdentifier)
@@ -142,12 +166,23 @@ export default function ErpStudentDetail() {
         >
           <ArrowLeft size={14}/> Back to directory
         </button>
-        <button 
-          onClick={() => setShowEditProfile(true)} 
-          className="inline-flex items-center gap-1.5 px-3 py-1.5 border border-border rounded-xl text-xs uppercase tracking-wider font-bold text-muted-foreground hover:text-foreground hover:bg-muted/50 transition"
-        >
-          <Edit3 size={13}/> Modify Profile
-        </button>
+        <div className="flex items-center gap-2">
+          <button 
+            onClick={() => setShowEditProfile(true)} 
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 border border-border rounded-xl text-xs uppercase tracking-wider font-bold text-muted-foreground hover:text-foreground hover:bg-muted/50 transition"
+          >
+            <Edit3 size={13}/> Modify Profile
+          </button>
+          {isSuper(erpUser) && (
+            <button 
+              onClick={() => setDeleteModal({ type: "student", id: s.id, label: s.student_no || s.full_name })}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 border border-rose-500/30 bg-rose-500/10 text-rose-500 rounded-xl text-xs uppercase tracking-wider font-bold hover:bg-rose-500/20 transition"
+              data-testid="delete-student-top-btn"
+            >
+              <Trash2 size={13}/> Delete Student
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Profile dossier card */}
@@ -206,6 +241,15 @@ export default function ErpStudentDetail() {
             >
               <Edit3 size={13}/> Modify Profile
             </button>
+            {isSuper(erpUser) && (
+              <button 
+                onClick={() => setDeleteModal({ type: "student", id: s.id, label: s.student_no || s.full_name })}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 border border-rose-500/30 bg-rose-500/10 text-rose-500 rounded-xl text-xs uppercase tracking-wider font-bold hover:bg-rose-500/20 transition"
+                data-testid="delete-student-btn"
+              >
+                <Trash2 size={13}/> Delete Student
+              </button>
+            )}
             {s.luid && s.enrollment_number && (
               <button 
                 onClick={queueIdCard} 
@@ -311,6 +355,16 @@ export default function ErpStudentDetail() {
                       >
                         <FileDown size={14}/>
                       </a>
+                      {isSuper(erpUser) && (
+                        <button
+                          onClick={() => setDeleteModal({ type: "payment", id: p.id, label: p.receipt_no })}
+                          className="p-1.5 hover:bg-rose-500/10 border border-transparent hover:border-rose-500/20 rounded-lg text-rose-500 transition"
+                          title="Purge Payment Transaction (Super Admin Only)"
+                          data-testid={`delete-payment-${p.id}`}
+                        >
+                          <Trash2 size={14}/>
+                        </button>
+                      )}
                     </div>
                   </td>
 
@@ -351,6 +405,7 @@ export default function ErpStudentDetail() {
       {showEditProfile && (
         <EditStudentProfileModal 
           student={s}
+          erpUser={erpUser}
           onClose={() => setShowEditProfile(false)}
           onUpdated={() => { setShowEditProfile(false); reload(); }}
           onPhotoSelect={handlePhotoSelect}
@@ -372,6 +427,40 @@ export default function ErpStudentDetail() {
           student={s}
           onClose={() => setSelectedReceipt(null)}
         />
+      )}
+      {deleteModal && (
+        <div className="fixed inset-0 bg-black/50 z-50 grid place-items-center p-4 backdrop-blur-sm animate-fadeIn" onClick={() => !deleting && setDeleteModal(null)}>
+          <div onClick={e => e.stopPropagation()} className="bg-background border border-border rounded-2xl max-w-sm w-full p-6 space-y-4 shadow-2xl">
+            <div className="flex items-center gap-3 text-rose-500">
+              <div className="p-2.5 bg-rose-500/10 rounded-xl"><AlertTriangle size={24}/></div>
+              <div>
+                <h3 className="font-display font-medium text-lg text-foreground">Confirm Permanent Purge</h3>
+                <p className="text-[10px] text-rose-500 uppercase tracking-widest font-bold">Irreversible Action</p>
+              </div>
+            </div>
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              Are you sure you want to permanently delete {deleteModal.type === "student" ? "student" : "payment receipt"}{" "}
+              <strong className="text-foreground font-mono">{deleteModal.label}</strong>?
+              {deleteModal.type === "student" && " This will permanently erase the student's profile, financial records, attendance logs, and generated certificates."}
+            </p>
+            <div className="flex gap-2.5 pt-2">
+              <button
+                disabled={deleting}
+                onClick={confirmDelete}
+                className="flex-1 py-2.5 bg-rose-600 text-white rounded-xl text-xs uppercase tracking-wider font-bold hover:bg-rose-700 disabled:opacity-50 transition shadow-md flex items-center justify-center gap-1.5"
+              >
+                <Trash2 size={13}/> {deleting ? "Purging..." : "Confirm Purge"}
+              </button>
+              <button
+                disabled={deleting}
+                onClick={() => setDeleteModal(null)}
+                className="px-4 py-2.5 border border-border rounded-xl text-xs uppercase tracking-wider font-bold text-muted-foreground hover:text-foreground hover:bg-muted/50 transition"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
       )}
 
     </div>
@@ -401,7 +490,7 @@ function StatCard({ label, value, sub, accent, actionElement, testid }) {
   );
 }
 
-function EditStudentProfileModal({ student, onClose, onUpdated, onPhotoSelect }) {
+function EditStudentProfileModal({ student, onClose, onUpdated, onPhotoSelect, erpUser }) {
   const [form, setForm] = useState({
     full_name: student.full_name || "",
     contact_phone: student.contact_phone || "",
@@ -412,16 +501,33 @@ function EditStudentProfileModal({ student, onClose, onUpdated, onPhotoSelect })
     address: student.address || "",
     luid: student.luid || "",
     enrollment_number: student.enrollment_number || "",
-    status: student.status || "active"
+    status: student.status || "active",
+    student_no: student.student_no || "",
+    admission_date: student.admission_date ? student.admission_date.slice(0, 10) : "",
+    total_fee: student.total_fee != null ? student.total_fee : "",
+    scholarship_percent: student.scholarship_percent != null ? student.scholarship_percent : 0,
+    discount: student.discount != null ? student.discount : 0,
   });
   const [busy, setBusy] = useState(false);
+
+  const canEditFinances = isSuper(erpUser) || isFinance(erpUser);
+
+  const computedNet = Math.max(0, Math.round(
+    ((Number(form.total_fee) || 0) * (1 - (Number(form.scholarship_percent) || 0) / 100)) - (Number(form.discount) || 0)
+  ));
 
   const submitProfileChanges = async (e) => {
     e.preventDefault();
     setBusy(true);
     try {
-      await erp.updateStudent(student.id, form);
-      toast.success("Student profile infrastructure records customized cleanly");
+      const payload = { ...form };
+      if (canEditFinances && form.total_fee !== "") {
+        payload.total_fee = Number(form.total_fee);
+        payload.scholarship_percent = Number(form.scholarship_percent);
+        payload.discount = Number(form.discount);
+      }
+      await erp.updateStudent(student.id, payload);
+      toast.success("Student profile records updated successfully");
       onUpdated();
     } catch (err) {
       toast.error(formatError(err.response?.data?.detail) || "Failed to commit mutation array");
@@ -446,6 +552,44 @@ function EditStudentProfileModal({ student, onClose, onUpdated, onPhotoSelect })
             <label className="text-xs uppercase tracking-wider font-bold text-muted-foreground mb-1 block">Full Registration Name *</label>
             <input required type="text" value={form.full_name} onChange={e => setForm({...form, full_name: e.target.value})} className="w-full px-3 py-2 border border-border bg-background/50 rounded-xl text-sm text-foreground focus:outline-none focus:border-accent" />
           </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="text-xs uppercase tracking-wider font-bold text-muted-foreground mb-1 block">Student Roll / ID</label>
+              <input type="text" value={form.student_no} onChange={e => setForm({...form, student_no: e.target.value})} className="w-full px-3 py-2 border border-border bg-background/50 rounded-xl text-sm font-mono focus:outline-none focus:border-accent" />
+            </div>
+            <div>
+              <label className="text-xs uppercase tracking-wider font-bold text-muted-foreground mb-1 block">Admission Date</label>
+              <input type="date" value={form.admission_date} onChange={e => setForm({...form, admission_date: e.target.value})} className="w-full px-3 py-2 border border-border bg-background/50 rounded-xl text-sm focus:outline-none focus:border-accent" />
+            </div>
+          </div>
+
+          {canEditFinances && (
+            <div className="p-3.5 rounded-xl border border-accent/30 bg-accent/5 space-y-3">
+              <div className="text-[11px] uppercase tracking-wider font-bold text-accent">
+                Fee Schedule & Financial Overrides
+              </div>
+              <div className="grid grid-cols-3 gap-2.5">
+                <div>
+                  <label className="text-[10px] uppercase font-bold text-muted-foreground mb-1 block">Gross Fee (₹)</label>
+                  <input type="number" value={form.total_fee} onChange={e => setForm({...form, total_fee: e.target.value})} className="w-full px-2 py-1.5 border border-border bg-background rounded-lg text-xs font-mono focus:outline-none focus:border-accent" />
+                </div>
+                <div>
+                  <label className="text-[10px] uppercase font-bold text-muted-foreground mb-1 block">Scholarship %</label>
+                  <input type="number" min="0" max="100" value={form.scholarship_percent} onChange={e => setForm({...form, scholarship_percent: e.target.value})} className="w-full px-2 py-1.5 border border-border bg-background rounded-lg text-xs font-mono focus:outline-none focus:border-accent" />
+                </div>
+                <div>
+                  <label className="text-[10px] uppercase font-bold text-muted-foreground mb-1 block">Discount (₹)</label>
+                  <input type="number" min="0" value={form.discount} onChange={e => setForm({...form, discount: e.target.value})} className="w-full px-2 py-1.5 border border-border bg-background rounded-lg text-xs font-mono focus:outline-none focus:border-accent" />
+                </div>
+              </div>
+              <div className="flex justify-between items-center pt-1 border-t border-accent/20 text-xs">
+                <span className="text-muted-foreground">Computed Net Fee:</span>
+                <span className="font-mono font-bold text-accent">{fmtINR(computedNet)}</span>
+              </div>
+            </div>
+          )}
+
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="text-xs uppercase tracking-wider font-bold text-muted-foreground mb-1 block">Contact Phone *</label>

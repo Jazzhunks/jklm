@@ -7,7 +7,7 @@ import { formatError, API_BASE } from "@/lib/api";
 import { 
   Plus, Download, X, Check, Ban, Wallet, Search, Calendar, 
   ChevronLeft, ChevronRight, AlertCircle, CheckCircle2, TrendingDown,
-  Building, Clock, FileSpreadsheet
+  Building, Clock, FileSpreadsheet, Trash2, AlertTriangle
 } from "lucide-react";
 
 const CATEGORIES = ["Salary", "Rent", "Electricity", "Internet", "Marketing", "Maintenance", "Miscellaneous"];
@@ -29,6 +29,8 @@ export default function ErpExpenses() {
   const [page, setPage] = useState(1);
   const [showCreate, setShowCreate] = useState(searchParams.get("action") === "new");
   const [busyRows, setBusyRows] = useState(new Set());
+  const [deleteModal, setDeleteModal] = useState(null);
+  const [deleting, setDeleting] = useState(false);
   const limit = 25;
 
   // Sync branch with global context
@@ -320,28 +322,40 @@ export default function ErpExpenses() {
                   </td>
                   <td className="px-5 py-3.5 font-mono text-right font-bold text-rose-600 whitespace-nowrap text-sm">{fmtINR(e.amount)}</td>
                   <td className="px-5 py-3.5 text-right whitespace-nowrap">
-                    {isManagerPlus(erpUser) && e.status === "pending" && (
-                      <div className="flex gap-1.5 justify-end">
+                    <div className="flex gap-1.5 justify-end items-center">
+                      {isManagerPlus(erpUser) && e.status === "pending" && (
+                        <>
+                          <button 
+                            disabled={busyRows.has(e.id)}
+                            onClick={() => decide(e.id, "approve")} 
+                            title="Approve & Settle" 
+                            className="p-1.5 text-emerald-600 hover:bg-emerald-500/10 border border-transparent hover:border-emerald-500/20 rounded-lg transition disabled:opacity-40" 
+                            data-testid={`approve-${e.id}`}
+                          >
+                            <Check size={14}/>
+                          </button>
+                          <button 
+                            disabled={busyRows.has(e.id)}
+                            onClick={() => decide(e.id, "reject")} 
+                            title="Reject Outflow" 
+                            className="p-1.5 text-rose-600 hover:bg-rose-500/10 border border-transparent hover:border-rose-500/20 rounded-lg transition disabled:opacity-40" 
+                            data-testid={`reject-${e.id}`}
+                          >
+                            <Ban size={14}/>
+                          </button>
+                        </>
+                      )}
+                      {isSuper(erpUser) && (
                         <button 
-                          disabled={busyRows.has(e.id)}
-                          onClick={() => decide(e.id, "approve")} 
-                          title="Approve & Settle" 
-                          className="p-1.5 text-emerald-600 hover:bg-emerald-500/10 border border-transparent hover:border-emerald-500/20 rounded-lg transition disabled:opacity-40" 
-                          data-testid={`approve-${e.id}`}
+                          onClick={() => setDeleteModal(e)} 
+                          title="Purge Expense Record" 
+                          className="p-1.5 text-muted-foreground hover:text-rose-500 hover:bg-rose-500/10 border border-transparent hover:border-rose-500/20 rounded-lg transition" 
+                          data-testid={`delete-expense-${e.id}`}
                         >
-                          <Check size={14}/>
+                          <Trash2 size={14}/>
                         </button>
-                        <button 
-                          disabled={busyRows.has(e.id)}
-                          onClick={() => decide(e.id, "reject")} 
-                          title="Reject Outflow" 
-                          className="p-1.5 text-rose-600 hover:bg-rose-500/10 border border-transparent hover:border-rose-500/20 rounded-lg transition disabled:opacity-40" 
-                          data-testid={`reject-${e.id}`}
-                        >
-                          <Ban size={14}/>
-                        </button>
-                      </div>
-                    )}
+                      )}
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -392,6 +406,52 @@ export default function ErpExpenses() {
           branches={branches}
           isSuper={isSuper(erpUser)}
         />
+      )}
+
+      {deleteModal && (
+        <div className="fixed inset-0 bg-black/50 z-50 grid place-items-center p-4 backdrop-blur-sm animate-fadeIn" onClick={() => !deleting && setDeleteModal(null)}>
+          <div onClick={e => e.stopPropagation()} className="bg-background border border-border rounded-2xl max-w-sm w-full p-6 space-y-4 shadow-2xl">
+            <div className="flex items-center gap-3 text-rose-500">
+              <div className="p-2.5 bg-rose-500/10 rounded-xl"><AlertTriangle size={24}/></div>
+              <div>
+                <h3 className="font-display font-medium text-lg text-foreground">Purge Expense Record</h3>
+                <p className="text-[10px] text-rose-500 uppercase tracking-widest font-bold">Irreversible Action</p>
+              </div>
+            </div>
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              Are you sure you want to delete expense record for <strong className="text-foreground">{deleteModal.category}</strong> ({fmtINR(deleteModal.amount)})?
+              {deleteModal.vendor && <span> Vendor: <strong className="text-foreground">{deleteModal.vendor}</strong></span>}
+            </p>
+            <div className="flex gap-2.5 pt-2">
+              <button
+                disabled={deleting}
+                onClick={async () => {
+                  setDeleting(true);
+                  try {
+                    await erp.deleteExpense(deleteModal.id);
+                    toast.success("Expense record purged successfully.");
+                    queryClient.invalidateQueries();
+                    setDeleteModal(null);
+                  } catch (err) {
+                    toast.error(formatError(err.response?.data?.detail) || "Failed to delete expense");
+                  } finally {
+                    setDeleting(false);
+                  }
+                }}
+                className="flex-1 py-2.5 bg-rose-600 text-white rounded-xl text-xs uppercase tracking-wider font-bold hover:bg-rose-700 disabled:opacity-50 transition shadow-md flex items-center justify-center gap-1.5"
+              >
+                <Trash2 size={13}/> {deleting ? "Purging..." : "Confirm Purge"}
+              </button>
+              <button
+                disabled={deleting}
+                onClick={() => setDeleteModal(null)}
+                className="px-4 py-2.5 border border-border rounded-xl text-xs uppercase tracking-wider font-bold text-muted-foreground hover:text-foreground hover:bg-muted/50 transition"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

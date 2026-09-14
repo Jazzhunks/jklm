@@ -7,7 +7,8 @@ import { API_BASE, formatError } from "@/lib/api";
 import { 
   Download, Search, Calendar, FileText, CreditCard, Banknote, 
   Plus, MessageSquare, CheckCircle, ChevronLeft, ChevronRight, 
-  ArrowUpRight, DollarSign, X, Receipt as ReceiptIcon, ShieldCheck, Printer
+  ArrowUpRight, DollarSign, X, Receipt as ReceiptIcon, ShieldCheck, Printer,
+  Trash2, AlertTriangle
 } from "lucide-react";
 import ReceiptModal from "./modals/ReceiptModal";
 
@@ -29,6 +30,8 @@ export default function ErpPayments() {
   const [page, setPage] = useState(1);
   const [showCreate, setShowCreate] = useState(searchParams.get("action") === "new");
   const [selectedReceipt, setSelectedReceipt] = useState(null);
+  const [deleteModal, setDeleteModal] = useState(null);
+  const [deleting, setDeleting] = useState(false);
   const limit = 25;
 
   // Keep branch in sync with global header switcher if super admin
@@ -305,6 +308,16 @@ export default function ErpPayments() {
                       >
                         <Download size={14} />
                       </a>
+                      {isSuper(erpUser) && (
+                        <button
+                          onClick={() => setDeleteModal(p)}
+                          className="p-1.5 text-muted-foreground hover:text-rose-500 hover:bg-rose-500/10 rounded-lg transition"
+                          title="Purge Payment Transaction"
+                          data-testid={`delete-payment-${p.id}`}
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                      )}
                     </div>
                   </td>
 
@@ -366,6 +379,51 @@ export default function ErpPayments() {
           payment={selectedReceipt}
           onClose={() => setSelectedReceipt(null)}
         />
+      )}
+
+      {deleteModal && (
+        <div className="fixed inset-0 bg-black/50 z-50 grid place-items-center p-4 backdrop-blur-sm animate-fadeIn" onClick={() => !deleting && setDeleteModal(null)}>
+          <div onClick={e => e.stopPropagation()} className="bg-background border border-border rounded-2xl max-w-sm w-full p-6 space-y-4 shadow-2xl">
+            <div className="flex items-center gap-3 text-rose-500">
+              <div className="p-2.5 bg-rose-500/10 rounded-xl"><AlertTriangle size={24}/></div>
+              <div>
+                <h3 className="font-display font-medium text-lg text-foreground">Purge Transaction</h3>
+                <p className="text-[10px] text-rose-500 uppercase tracking-widest font-bold">Irreversible Action</p>
+              </div>
+            </div>
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              Are you sure you want to delete payment receipt <strong className="text-foreground font-mono">{deleteModal.receipt_no}</strong> for amount <strong className="text-emerald-500 font-mono">{fmtINR(deleteModal.amount)}</strong>?
+            </p>
+            <div className="flex gap-2.5 pt-2">
+              <button
+                disabled={deleting}
+                onClick={async () => {
+                  setDeleting(true);
+                  try {
+                    await erp.deletePayment(deleteModal.id);
+                    toast.success(`Payment ${deleteModal.receipt_no} purged successfully.`);
+                    queryClient.invalidateQueries();
+                    setDeleteModal(null);
+                  } catch (err) {
+                    toast.error(formatError(err.response?.data?.detail) || "Failed to delete payment transaction");
+                  } finally {
+                    setDeleting(false);
+                  }
+                }}
+                className="flex-1 py-2.5 bg-rose-600 text-white rounded-xl text-xs uppercase tracking-wider font-bold hover:bg-rose-700 disabled:opacity-50 transition shadow-md flex items-center justify-center gap-1.5"
+              >
+                <Trash2 size={13}/> {deleting ? "Purging..." : "Confirm Purge"}
+              </button>
+              <button
+                disabled={deleting}
+                onClick={() => setDeleteModal(null)}
+                className="px-4 py-2.5 border border-border rounded-xl text-xs uppercase tracking-wider font-bold text-muted-foreground hover:text-foreground hover:bg-muted/50 transition"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
 

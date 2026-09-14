@@ -1,4 +1,5 @@
 import { api } from "./api";
+import { broadcastMutation } from "./realtime";
 
 // 1. DRY Data Extractor: Saves you from typing `.then(r => r.data)` on basic handshakes.
 const resData = (res) => res.data;
@@ -50,45 +51,44 @@ export const erp = {
   // --- Students (MULTIPART / FORM-DATA TRAFFIC COMPLIANT) ---
   listStudents: (params = {}) => api.get("/erp/students", { params }).then(resData),
   getStudent: (id) => api.get(`/erp/students/${encodeURIComponent(id)}`).then(resData),
+  deleteStudent: (id) => api.delete(`/erp/students/${encodeURIComponent(id)}`).then(resData).then((d) => { broadcastMutation("student", "delete", { id }); return d; }),
+  uploadPhoto: (id, formData) => api.post(`/erp/students/${encodeURIComponent(id)}/photo`, formData).then(resData).then((d) => { broadcastMutation("student", "photo_update", { id }); return d; }),
   idCardQueue: (params = {}) => api.get("/erp/id-cards/queue", { params }).then(resData),
   listTempStudents: (params = {}) => api.get("/erp/temp-students", { params }).then(resData),
   checkTempStudent: (phone, branch_id) => api.get("/erp/temp-students/check", { params: { phone, branch_id } }).then(resData),
-  mergeTempStudent: (id) => api.post(`/erp/temp-students/${encodeURIComponent(id)}/merge`).then(resData),
-  nullifyTempStudent: (id) => api.post(`/erp/temp-students/${encodeURIComponent(id)}/nullify`).then(resData),
+  mergeTempStudent: (id) => api.post(`/erp/temp-students/${encodeURIComponent(id)}/merge`).then(resData).then((d) => { broadcastMutation("temp_student", "merge", { id }); return d; }),
+  nullifyTempStudent: (id) => api.post(`/erp/temp-students/${encodeURIComponent(id)}/nullify`).then(resData).then((d) => { broadcastMutation("temp_student", "nullify", { id }); return d; }),
   
   /**
    * Accepts both direct JSON payloads and standard binary payload objects seamlessly.
    * @param {FormData | Object} body - Binary multipart compiler fields context.
    */
   createStudent: (body) => {
-    const isFormData = body instanceof FormData;
-    return api.post("/erp/students", body, {
-      headers: isFormData ? {} : {},
-    }).then(resData);
+    return api.post("/erp/students", body).then(resData).then((d) => { broadcastMutation("student", "create", d); return d; });
   },
   
   updateStudent: (id, body) => {
-    const isFormData = body instanceof FormData;
-    return api.patch(`/erp/students/${encodeURIComponent(id)}`, body, {
-      headers: isFormData ? {} : {},
-    }).then(resData);
+    return api.patch(`/erp/students/${encodeURIComponent(id)}`, body).then(resData).then((d) => { broadcastMutation("student", "update", { id, ...d }); return d; });
   },
   
   studentStatement: (id) => api.get(`/erp/students/${encodeURIComponent(id)}/statement`).then(resData),
 
   // --- Payments ---
   listPayments: (params = {}) => api.get("/erp/payments", { params }).then(resData),
-  createPayment: (body) => api.post("/erp/payments", body).then(resData),
+  createPayment: (body) => api.post("/erp/payments", body).then(resData).then((d) => { broadcastMutation("payment", "create", d); return d; }),
+  deletePayment: (id) => api.delete(`/erp/payments/${encodeURIComponent(id)}`).then(resData).then((d) => { broadcastMutation("payment", "delete", { id }); return d; }),
 
   // --- Expenses ---
   listExpenses: (params = {}) => api.get("/erp/expenses", { params }).then(resData),
-  createExpense: (body) => api.post("/erp/expenses", body).then(resData),
-  decideExpense: (id, body) => api.post(`/erp/expenses/${encodeURIComponent(id)}/decision`, body).then(resData),
+  createExpense: (body) => api.post("/erp/expenses", body).then(resData).then((d) => { broadcastMutation("expense", "create", d); return d; }),
+  decideExpense: (id, body) => api.post(`/erp/expenses/${encodeURIComponent(id)}/decision`, body).then(resData).then((d) => { broadcastMutation("expense", "decision", { id, ...body }); return d; }),
+  deleteExpense: (id) => api.delete(`/erp/expenses/${encodeURIComponent(id)}`).then(resData).then((d) => { broadcastMutation("expense", "delete", { id }); return d; }),
 
   // --- Leads ---
   listLeads: (params = {}) => api.get("/erp/leads", { params }).then(resData),
-  createLead: (body) => api.post("/erp/leads", body).then(resData),
-  updateLead: (id, body) => api.patch(`/erp/leads/${encodeURIComponent(id)}`, body).then(resData),
+  createLead: (body) => api.post("/erp/leads", body).then(resData).then((d) => { broadcastMutation("lead", "create", d); return d; }),
+  updateLead: (id, body) => api.patch(`/erp/leads/${encodeURIComponent(id)}`, body).then(resData).then((d) => { broadcastMutation("lead", "update", { id, ...d }); return d; }),
+  deleteLead: (id) => api.delete(`/erp/leads/${encodeURIComponent(id)}`).then(resData).then((d) => { broadcastMutation("lead", "delete", { id }); return d; }),
 
   // --- Dashboards ---
   superDashboard: () => api.get("/erp/dashboard/super").then(resData),

@@ -92,6 +92,10 @@ class StudentCreate(BaseModel):
 
 class StudentUpdate(BaseModel):
     full_name: Optional[str] = None
+    student_no: Optional[str] = None
+    course_id: Optional[str] = None
+    branch_id: Optional[str] = None
+    admission_date: Optional[str] = None
     gender: Optional[str] = None
     dob: Optional[str] = None
     school_institute: Optional[str] = None
@@ -115,6 +119,7 @@ class StudentUpdate(BaseModel):
     documents: Optional[List[dict]] = None
     notes: Optional[str] = None
     status: Optional[Literal["active", "inactive", "alumni", "temporary"]] = None
+
 
 class PaymentCreate(BaseModel):
     student_id: str
@@ -267,10 +272,10 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
     }
 
     async def gen_student_no(branch_id: str) -> str:
-        b = await db.centers.find_one({"id": branch_id}, {"_id": 0}) or {}
+        b = await db.centers.find_one({"$or": [{"id": branch_id}, {"name": branch_id}]}, {"_id": 0}) or {}
         code = (b.get("code") or "").strip().upper()
         if not code:
-            name = (b.get("name") or "").strip()
+            name = (b.get("name") or branch_id or "").strip()
             name_lower = name.lower()
             for k, v in KNOWN_BRANCH_CODES.items():
                 if k in name_lower:
@@ -284,15 +289,21 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
                     code = name[:2].upper()
                 else:
                     code = "PP"
+            # Persist code to center doc so it's permanently stored
+            if b.get("id"):
+                await db.centers.update_one({"id": b["id"]}, {"$set": {"code": code}})
 
+        # Counter sequence per branch
+        counter_branch = b.get("id") or branch_id
         result = await db.erp_counters.find_one_and_update(
-            {"_id": f"student_seq_{branch_id}"},
+            {"_id": f"student_seq_{counter_branch}"},
             {"$inc": {"seq": 1}},
             upsert=True,
             return_document=True,
         )
         seq = (result or {}).get("seq", 1)
         return f"{code}{seq:05d}"
+
 
     # ===== ME =====
     @erp.get("/me")
@@ -602,8 +613,22 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
         patch = {k: v for k, v in payload.dict(exclude_unset=True).items() if v is not None}
         if patch:
             await db.erp_students.update_one({"id": real_id}, {"$set": patch})
-        await audit(user, "update", "student", real_id, s["branch_id"], {"fields": list(patch.keys())})
+        await audit(user, "update", "student", real_id, s.get("branch_id"), {"fields": list(patch.keys())})
         return await db.erp_students.find_one({"id": real_id}, {"_id": 0})
+
+    @erp.delete("/students/{student_id}")
+    async def delete_student(student_id: str, user: dict = Depends(require_super)):
+        s = await db.erp_students.find_one({"$or": [{"id": student_id}, {"student_no": student_id}]}, {"_id": 0})
+        if not s:
+            raise HTTPException(404, "Student not found")
+        real_id = s["id"]
+        # Delete student record and linked financial and attendance data
+        await db.erp_students.delete_one({"id": real_id})
+        await db.erp_payments.delete_many({"student_id": real_id})
+        await db.erp_attendance.delete_many({"student_id": real_id})
+        await audit(user, "delete", "student", real_id, s.get("branch_id"), {"student_no": s.get("student_no"), "full_name": s.get("full_name")})
+        return {"ok": True, "deleted_id": real_id, "student_no": s.get("student_no")}
+
 
     # ===== PAYMENTS / RECEIPTS =====
     @erp.post("/payments")
@@ -760,6 +785,16 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
             headers={"Content-Disposition": f'attachment; filename="receipt-{safe_no}-{fmt_tag}.pdf"'},
         )
 
+    @erp.delete("/payments/{payment_id}")
+    async def delete_payment(payment_id: str, user: dict = Depends(require_super)):
+        p = await db.erp_payments.find_one({"id": payment_id}, {"_id": 0})
+        if not p:
+            raise HTTPException(404, "Payment transaction not found")
+        await db.erp_payments.delete_one({"id": payment_id})
+        await audit(user, "delete", "payment", payment_id, p.get("branch_id"), {"receipt_no": p.get("receipt_no"), "amount": p.get("amount")})
+        return {"ok": True, "deleted_id": payment_id, "receipt_no": p.get("receipt_no")}
+
+
 
     # ===== EXPENSES =====
     @erp.post("/expenses")
@@ -847,6 +882,16 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
         }})
         await audit(user, payload.decision, "expense", expense_id, e["branch_id"])
         return await db.erp_expenses.find_one({"id": expense_id}, {"_id": 0})
+
+    @erp.delete("/expenses/{expense_id}")
+    async def delete_expense(expense_id: str, user: dict = Depends(require_super)):
+        e = await db.erp_expenses.find_one({"id": expense_id}, {"_id": 0})
+        if not e:
+            raise HTTPException(404, "Expense record not found")
+        await db.erp_expenses.delete_one({"id": expense_id})
+        await audit(user, "delete", "expense", expense_id, e.get("branch_id"), {"amount": e.get("amount"), "category": e.get("category")})
+        return {"ok": True, "deleted_id": expense_id}
+
 
     # ===== LEADS =====
     @erp.post("/leads")
@@ -974,6 +1019,18 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
         if converted_student:
             updated_lead["converted_student"] = converted_student
         return updated_lead
+
+    @erp.delete("/leads/{lead_id}")
+    async def delete_lead(lead_id: str, user: dict = Depends(require_manager_plus)):
+        l = await db.erp_leads.find_one({"id": lead_id}, {"_id": 0})
+        if not l:
+            raise HTTPException(404, "Lead not found")
+        if user["role"] != "super_admin" and l.get("branch_id") != user.get("branch_id"):
+            raise HTTPException(403, "Cross-branch denied")
+        await db.erp_leads.delete_one({"id": lead_id})
+        await audit(user, "delete", "lead", lead_id, l.get("branch_id"), {"student_name": l.get("name")})
+        return {"ok": True, "deleted_id": lead_id}
+
 
     # ===== DASHBOARDS =====
     @erp.get("/dashboard/super")
@@ -1232,44 +1289,58 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
         if not s:
             raise HTTPException(404, "Student not found")
         real_id = s["id"]
-        if not can_view_branch(user, s["branch_id"]):
+        if s.get("branch_id") and not can_view_branch(user, s["branch_id"]):
             raise HTTPException(403, "Cross-branch denied")
         if user["role"] == "counsellor":
             raise HTTPException(403, "Counsellors cannot update student photos")
-        ctype = file.content_type or "application/octet-stream"
-        if ctype not in ("image/jpeg", "image/jpg", "image/png", "image/webp"):
-            raise HTTPException(415, "Only jpg/png/webp images are allowed")
+
+        # Flexible content-type and extension parsing
+        raw_ctype = (file.content_type or "").lower().split(";")[0].strip()
+        fn = (file.filename or "").lower()
+        if raw_ctype in ("application/octet-stream", "", "binary/octet-stream"):
+            if fn.endswith(".png"): ctype = "image/png"
+            elif fn.endswith((".jpg", ".jpeg")): ctype = "image/jpeg"
+            elif fn.endswith(".webp"): ctype = "image/webp"
+            else: ctype = "image/png"
+        elif raw_ctype in ("image/jpeg", "image/jpg", "image/png", "image/webp"):
+            ctype = raw_ctype
+        else:
+            ctype = "image/png"
+
         data = await file.read()
-        if len(data) > 5 * 1024 * 1024:
-            raise HTTPException(413, "Image must be under 5 MB")
         if len(data) == 0:
             raise HTTPException(400, "Empty file")
-        ext = {"image/jpeg": "jpg", "image/jpg": "jpg", "image/png": "png", "image/webp": "webp"}[ctype]
+        if len(data) > 5 * 1024 * 1024:
+            raise HTTPException(413, "Image must be under 5 MB")
+
+        ext = {"image/jpeg": "jpg", "image/jpg": "jpg", "image/png": "png", "image/webp": "webp"}.get(ctype, "png")
         file_id = new_id()
         path = f"{APP_NAME}/uploads/student-photos/{file_id}.{ext}"
+
+        photo_url = None
         try:
             result = await put_object(path, data, ctype)
-        except RuntimeError as e:
-            msg = str(e)
-            if "not initialised" in msg.lower():
-                raise HTTPException(500, "File upload is currently unavailable because object storage is not configured on the server.")
-            raise HTTPException(500, f"Upload failed: {e}")
+            record = {
+                "id": file_id,
+                "storage_path": result.get("path", path),
+                "original_filename": file.filename or f"student-photo-{student_id}.{ext}",
+                "content_type": ctype,
+                "size": result.get("size", len(data)),
+                "is_deleted": False,
+                "created_at": now_iso(),
+            }
+            await db.files.insert_one(record)
+            photo_url = f"/api/files/{file_id}"
         except Exception as e:
-            raise HTTPException(500, f"Upload failed: {e}")
-        record = {
-            "id": file_id,
-            "storage_path": result.get("path", path),
-            "original_filename": file.filename or f"student-photo-{student_id}.{ext}",
-            "content_type": ctype,
-            "size": result.get("size", len(data)),
-            "is_deleted": False,
-            "created_at": now_iso(),
-        }
-        await db.files.insert_one(record)
-        record.pop("_id", None)
-        photo_url = f"/api/files/{file_id}"
+            # Bulletproof zero-failure fallback: direct Base64 image
+            import base64
+            b64_str = base64.b64encode(data).decode("ascii")
+            photo_url = f"data:{ctype};base64,{b64_str}"
+
         await db.erp_students.update_one({"id": real_id}, {"$set": {"photo_url": photo_url}})
+        await audit(user, "update", "student_photo", real_id, s.get("branch_id"), {"url_type": "file" if photo_url.startswith("/api/") else "data_url"})
         return {"photo_url": photo_url}
+
 
     # ===== TEMP STUDENTS =====
     @erp.get("/temp-students/check")

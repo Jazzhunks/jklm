@@ -33,44 +33,49 @@ self.addEventListener("fetch", (event) => {
   const { request } = event;
   const url = new URL(request.url);
 
+  // 1. Only intercept GET requests
   if (request.method !== "GET") {
     return;
   }
 
-  if (url.origin === self.location.origin) {
+  // 2. NEVER intercept API routes, SSE streams, or file downloads - let network handle directly
+  if (url.pathname.startsWith("/api/") || url.pathname.startsWith("/erp/stream") || url.pathname.startsWith("/push/")) {
+    return;
+  }
+
+  // 3. For SPA page navigations: try network first, fallback to cached index.html
+  if (request.mode === "navigate") {
     event.respondWith(
-      caches.match(request).then((cached) => {
-        const fetchPromise = fetch(request)
-          .then((response) => {
-            if (response && response.status === 200) {
-              const clone = response.clone();
-              caches.open(RUNTIME_CACHE).then((cache) => cache.put(request, clone).catch(() => {}));
-            }
-            return response;
-          })
-          .catch(() => cached);
-        return cached || fetchPromise;
+      fetch(request).catch(async () => {
+        const cachedIndex = await caches.match("/index.html");
+        const cachedRoot = await caches.match("/");
+        return cachedIndex || cachedRoot || new Response("Offline", { status: 503, headers: { "Content-Type": "text/plain" } });
       })
     );
     return;
   }
 
-  if (url.pathname.startsWith("/api/")) {
+  // 4. For static assets on same origin
+  if (url.origin === self.location.origin) {
     event.respondWith(
-      caches.open(RUNTIME_CACHE).then((cache) => {
-        return fetch(request)
-          .then((response) => {
-            if (response && response.status === 200) {
-              cache.put(request, response.clone()).catch(() => {});
-            }
-            return response;
-          })
-          .catch(() => cache.match(request));
+      caches.match(request).then((cached) => {
+        if (cached) return cached;
+        return fetch(request).then((response) => {
+          if (response && response.status === 200) {
+            const clone = response.clone();
+            caches.open(RUNTIME_CACHE).then((cache) => cache.put(request, clone).catch(() => {}));
+          }
+          return response;
+        }).catch(() => {
+          // Return a 404 response instead of undefined
+          return new Response("Resource not available offline", { status: 404, headers: { "Content-Type": "text/plain" } });
+        });
       })
     );
     return;
   }
 });
+
 
 self.addEventListener("push", (event) => {
   let payload = { title: "Northend Admin", body: "You have a new notification." };

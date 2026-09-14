@@ -4,6 +4,7 @@ import { toast } from "sonner";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { api } from "@/lib/api";
+import { broadcastMutation } from "@/lib/realtime";
 import { addNotification, getNotifications, markAsRead as storeMarkAsRead, markAllAsRead as storeMarkAllAsRead } from "@/lib/notificationStore";
 
 const TYPE_ICONS = {
@@ -164,6 +165,13 @@ export default function NotificationCenter() {
           description: notification.message,
           duration: 4000,
         });
+
+        // Trigger instant real-time invalidation across React Query caches
+        try {
+          broadcastMutation(type, "sse_event", payload);
+        } catch (e) {
+          // ignore
+        }
 
         addNotification(notification).catch(() => {
           // ignore storage errors

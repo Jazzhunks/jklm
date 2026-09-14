@@ -2,12 +2,13 @@ import { useState, useMemo, useEffect } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useOutletContext, useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
-import { erp, isSuper, fmtDate, extractItems, extractTotal } from "@/lib/erpApi";
+import { erp, isSuper, isManagerPlus, fmtDate, extractItems, extractTotal } from "@/lib/erpApi";
 import { formatError, api } from "@/lib/api";
 import { 
   Plus, X, Search, Smartphone, Edit3, MessageSquare, Calendar, 
   Milestone, LayoutGrid, List, ChevronLeft, ChevronRight, 
-  ArrowRight, CheckCircle2, UserCheck, AlertCircle, Clock
+  ArrowRight, CheckCircle2, UserCheck, AlertCircle, Clock,
+  Trash2, AlertTriangle
 } from "lucide-react";
 
 const STAGES = [
@@ -34,6 +35,8 @@ export default function ErpLeads() {
   const [page, setPage] = useState(1);
   const [showCreate, setShowCreate] = useState(searchParams.get("action") === "new");
   const [selectedLead, setSelectedLead] = useState(null);
+  const [deleteModal, setDeleteModal] = useState(null);
+  const [deleting, setDeleting] = useState(false);
   const limit = viewMode === "kanban" ? 100 : 25;
 
   // Sync branch
@@ -227,13 +230,24 @@ export default function ErpLeads() {
                     >
                       <div className="flex items-start justify-between gap-2">
                         <h4 className="font-bold text-xs text-foreground truncate">{lead.name}</h4>
-                        <button
-                          onClick={() => openWhatsApp(lead)}
-                          title="Open WhatsApp Chat"
-                          className="text-muted-foreground hover:text-emerald-500 transition shrink-0"
-                        >
-                          <MessageSquare size={13} />
-                        </button>
+                        <div className="flex items-center gap-1 shrink-0">
+                          <button
+                            onClick={() => openWhatsApp(lead)}
+                            title="Open WhatsApp Chat"
+                            className="text-muted-foreground hover:text-emerald-500 transition"
+                          >
+                            <MessageSquare size={13} />
+                          </button>
+                          {isManagerPlus(erpUser) && (
+                            <button
+                              onClick={() => setDeleteModal(lead)}
+                              title="Delete Lead"
+                              className="text-muted-foreground hover:text-rose-500 transition"
+                            >
+                              <Trash2 size={13} />
+                            </button>
+                          )}
+                        </div>
                       </div>
 
                       <div className="flex items-center gap-1 text-[11px] font-mono text-muted-foreground mt-1">
@@ -349,6 +363,15 @@ export default function ErpLeads() {
                             Enroll
                           </button>
                         )}
+                        {isManagerPlus(erpUser) && (
+                          <button
+                            onClick={() => setDeleteModal(l)}
+                            title="Delete Lead"
+                            className="p-1.5 text-muted-foreground hover:text-rose-500 rounded-lg transition"
+                          >
+                            <Trash2 size={14} />
+                          </button>
+                        )}
                       </div>
                     </td>
                   </tr>
@@ -400,6 +423,51 @@ export default function ErpLeads() {
           defaultBranchId={branchId || erpUser.branch_id}
           branches={branches}
         />
+      )}
+
+      {deleteModal && (
+        <div className="fixed inset-0 bg-black/50 z-50 grid place-items-center p-4 backdrop-blur-sm animate-fadeIn" onClick={() => !deleting && setDeleteModal(null)}>
+          <div onClick={e => e.stopPropagation()} className="bg-background border border-border rounded-2xl max-w-sm w-full p-6 space-y-4 shadow-2xl">
+            <div className="flex items-center gap-3 text-rose-500">
+              <div className="p-2.5 bg-rose-500/10 rounded-xl"><AlertTriangle size={24}/></div>
+              <div>
+                <h3 className="font-display font-medium text-lg text-foreground">Purge Lead</h3>
+                <p className="text-[10px] text-rose-500 uppercase tracking-widest font-bold">Irreversible Action</p>
+              </div>
+            </div>
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              Are you sure you want to delete lead <strong className="text-foreground">{deleteModal.name}</strong> ({deleteModal.phone})?
+            </p>
+            <div className="flex gap-2.5 pt-2">
+              <button
+                disabled={deleting}
+                onClick={async () => {
+                  setDeleting(true);
+                  try {
+                    await erp.deleteLead(deleteModal.id);
+                    toast.success("Lead purged successfully.");
+                    queryClient.invalidateQueries();
+                    setDeleteModal(null);
+                  } catch (err) {
+                    toast.error(formatError(err.response?.data?.detail) || "Failed to delete lead");
+                  } finally {
+                    setDeleting(false);
+                  }
+                }}
+                className="flex-1 py-2.5 bg-rose-600 text-white rounded-xl text-xs uppercase tracking-wider font-bold hover:bg-rose-700 disabled:opacity-50 transition shadow-md flex items-center justify-center gap-1.5"
+              >
+                <Trash2 size={13}/> {deleting ? "Purging..." : "Confirm Purge"}
+              </button>
+              <button
+                disabled={deleting}
+                onClick={() => setDeleteModal(null)}
+                className="px-4 py-2.5 border border-border rounded-xl text-xs uppercase tracking-wider font-bold text-muted-foreground hover:text-foreground hover:bg-muted/50 transition"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
