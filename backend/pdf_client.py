@@ -679,6 +679,31 @@ def id_card_pdf(student: dict, branch: dict, course: dict, photo_bytes: bytes | 
     c.save()
     return buf.getvalue()
 
+def get_class_display(current_class, course):
+    if not current_class:
+        return (course or "").upper()
+    c_class = str(current_class).strip().lower()
+    c_course = str(course).strip().upper()
+    
+    is_neet = "NEET" in c_course
+    is_iit = "IIT" in c_course or "JEE" in c_course
+    suffix = " NEET" if is_neet else (" IIT" if is_iit else "")
+    
+    if "8" in c_class:
+        return "BEGINNER (8TH)"
+    elif "9" in c_class:
+        return "ADAPT (9TH)"
+    elif "10" in c_class:
+        return "ELEVATE (10TH)"
+    elif "11" in c_class:
+        return f"GROWTH{suffix}"
+    elif "12" in c_class:
+        return f"EXCEL{suffix}"
+    elif "drop" in c_class or "13" in c_class:
+        return f"CONQUER{suffix}"
+    
+    return f"{c_course} ({c_class})".upper()
+
 def bulk_id_card_pdf(students_data: list) -> bytes:
     from reportlab.pdfgen import canvas
     from reportlab.lib.pagesizes import A4, landscape
@@ -725,9 +750,25 @@ def bulk_id_card_pdf(students_data: list) -> bytes:
         c.setFillColorRGB(1, 1, 1)
         c.roundRect(x_center - pill_w/2, 175*mm, pill_w, pill_h, 3*mm, stroke=0, fill=1)
         
-        c.setFillColorRGB(*blue_color)
-        c.setFont("Helvetica-Bold", 7)
-        c.drawCentredString(x_center, 176.5*mm, "unacademy")
+        try:
+            from svglib.svglib import svg2rlg
+            from reportlab.graphics import renderPDF
+            import os
+            logo_path = os.path.join(os.path.dirname(__file__), "logo.svg")
+            logo_drawing = svg2rlg(logo_path)
+            if logo_drawing:
+                target_w = 20 * mm
+                scale = target_w / logo_drawing.width
+                logo_drawing.scale(scale, scale)
+                logo_drawing.width = target_w
+                logo_drawing.height = logo_drawing.height * scale
+                renderPDF.draw(logo_drawing, c, x_center - target_w/2, 176*mm)
+            else:
+                raise Exception("Empty logo")
+        except Exception as e:
+            c.setFillColorRGB(*blue_color)
+            c.setFont("Helvetica-Bold", 7)
+            c.drawCentredString(x_center, 176.5*mm, "unacademy")
         
         c.setFillColorRGB(1, 1, 1)
         c.setFont("Helvetica-Bold", 6.5)
@@ -758,14 +799,9 @@ def bulk_id_card_pdf(students_data: list) -> bytes:
             c.circle(x_center, photo_y, photo_r, stroke=1, fill=1)
             
         # 3. Text Block
-        course_str = (data.get("course") or "").upper()
-        class_str = (data.get("current_class") or "").upper()
-        if class_str and course_str:
-            display_course = f"{course_str} ({class_str})"
-        elif class_str:
-            display_course = class_str
-        else:
-            display_course = course_str
+        course_str = data.get("course")
+        class_str = data.get("current_class")
+        display_course = get_class_display(class_str, course_str)
 
         c.setFillColorRGB(0, 0, 0)
         c.setFont("Helvetica-Bold", 11)
@@ -792,7 +828,7 @@ def bulk_id_card_pdf(students_data: list) -> bytes:
         c.setFont("Helvetica-Bold", 9)
         c.drawCentredString(0, 15*mm, "UNACADEMY CENTRE")
         c.setFont("Helvetica-Bold", 8)
-        c.drawCentredString(0, 22*mm, "PARRAYPORA")
+        c.drawCentredString(0, 22*mm, (data.get("branch") or "PARRAYPORA").upper())
         
         c.circle(0, 31*mm, 3*mm, stroke=0, fill=1)
         c.roundRect(-5*mm, 34*mm, 10*mm, 5*mm, 2*mm, stroke=0, fill=1)
@@ -812,7 +848,13 @@ def bulk_id_card_pdf(students_data: list) -> bytes:
             qr_buf.seek(0)
             
             qr_img = ImageReader(qr_buf)
-            c.drawImage(qr_img, -15*mm, 50*mm, width=30*mm, height=30*mm)
+            c.drawImage(qr_img, -15*mm, 47*mm, width=30*mm, height=30*mm)
+            
+        luid = data.get("luid")
+        if luid:
+            c.setFillColorRGB(1, 1, 1)
+            c.setFont("Helvetica-Bold", 7)
+            c.drawCentredString(0, 80*mm, f"LUID: {luid}")
             
         c.restoreState()
         

@@ -1952,6 +1952,7 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
                 "enrollment_number": s.get("enrollment_number"),
                 "course": c.get("title") or s.get("batch") or "COURSE",
                 "current_class": s.get("current_class") or "",
+                "luid": s.get("luid") or "",
                 "branch": b.get("name"),
                 "photo_bytes": photo_bytes
             })
