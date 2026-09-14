@@ -267,10 +267,11 @@ async def try_reserve_slot(db, carnival_id: str, date: str, time: str) -> bool:
         logging.error(f"Error: {e}")
 
     async def _increment_existing() -> bool:
+        from pymongo import ReturnDocument
         res = await db.wath_slot_counts.find_one_and_update(
             {"carnival_id": carnival_id, "date": date, "time": time, "booked_count": {"$lt": capacity}},
             {"$inc": {"booked_count": 1}, "$set": {"capacity": capacity}},
-            return_document=True,
+            return_document=ReturnDocument.AFTER,
         )
         return res is not None
 

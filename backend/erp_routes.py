@@ -277,11 +277,12 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
         prefix = "NES"
         if b and b.get("name"):
             prefix = "NES-" + b["name"][:3].upper()
+        from pymongo import ReturnDocument
         result = await db.erp_counters.find_one_and_update(
             {"_id": f"receipt_{branch_id}"},
             {"$inc": {"seq": 1}},
             upsert=True,
-            return_document=True,
+            return_document=ReturnDocument.AFTER,
         )
         seq = (result or {}).get("seq", 1)
         ymd = datetime.now(timezone.utc).strftime("%y%m")
@@ -327,11 +328,12 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
 
         # Counter sequence per branch
         counter_branch = b.get("id") or branch_id
+        from pymongo import ReturnDocument
         result = await db.erp_counters.find_one_and_update(
             {"_id": f"student_seq_{counter_branch}"},
             {"$inc": {"seq": 1}},
             upsert=True,
-            return_document=True,
+            return_document=ReturnDocument.AFTER,
         )
         seq = (result or {}).get("seq", 1)
         return f"{code}{seq:05d}"
@@ -607,7 +609,10 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
         if not await db.courses.find_one({"id": payload.course_id}):
             raise HTTPException(400, "Course not found")
         student_no = await gen_student_no(payload.branch_id)
-        doc = payload.model_dump()
+        try:
+            doc = payload.model_dump()
+        except Exception as e:
+            raise HTTPException(500, f"Payload serialization error: {e}")
         doc.update({
             "id": new_id(),
             "student_no": student_no,
@@ -616,7 +621,10 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
             "created_at": now_iso(),
             "created_by": user["id"],
         })
-        await db.erp_students.insert_one(doc)
+        try:
+            await db.erp_students.insert_one(doc)
+        except Exception as e:
+            raise HTTPException(500, f"Database insert error: {e}")
         await audit(user, "create", "student", doc["id"], payload.branch_id, {"student_no": student_no})
         try:
             b_info = await db.centers.find_one({"id": payload.branch_id}, {"_id": 0, "name": 1})
