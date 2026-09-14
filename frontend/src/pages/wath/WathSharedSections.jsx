@@ -346,7 +346,7 @@ function AdmitCardDownloadSection({ campaign }) {
                   {appData.campaign_kind && <InfoBlock label="Programme" value={appData.campaign_kind === "carnival" ? "WATH Carnival" : appData.campaign_kind === "wath" ? "WATH" : "Scholarship"}/>}
                 </div>
                 <div className="mt-6 flex flex-wrap gap-3">
-                  <a href={`/admit-card/${appData.application_no}?phone=${encodeURIComponent(appData.phone || phone)}`} target="_blank" rel="noreferrer" data-testid="download-fetched-admit">
+                  <a href={`/admt%2F${appData.application_no}?phone=${encodeURIComponent(appData.phone || phone)}`} target="_blank" rel="noreferrer" data-testid="download-fetched-admit">
                     <CTAPrimary className="rounded-full py-3 px-6"><Download weight="bold" size={14}/> Download Admit Card PDF</CTAPrimary>
                   </a>
                 </div>
@@ -445,10 +445,10 @@ function ResultCheckSection() {
                   )}
 
                   <div className="flex flex-wrap gap-3 pt-2">
-                    <a href={`/result-card/${result.application_no}?phone=${encodeURIComponent(result.phone)}`} target="_blank" rel="noreferrer" data-testid="download-result-pdf">
+                    <a href={`/res%2F${result.application_no}?phone=${encodeURIComponent(result.phone)}`} target="_blank" rel="noreferrer" data-testid="download-result-pdf">
                       <CTAPrimary className="rounded-full py-3 px-6"><FileText weight="bold" size={14}/> Download Result Card PDF</CTAPrimary>
                     </a>
-                    <a href={`/admit-card/${result.application_no}?phone=${encodeURIComponent(result.phone)}`} target="_blank" rel="noreferrer" data-testid="download-admit-from-result">
+                    <a href={`/admt%2F${result.application_no}?phone=${encodeURIComponent(result.phone)}`} target="_blank" rel="noreferrer" data-testid="download-admit-from-result">
                       <CTAGhost className="rounded-full py-3 px-6"><Download weight="bold" size={14}/> Download Admit Card</CTAGhost>
                     </a>
                   </div>

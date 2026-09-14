@@ -2,8 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { API_BASE } from '@/lib/api';
 
-export default function PublicReceipt() {
-  const { receiptNo } = useParams();
+export default function PublicReceipt({ manualId }) {
+  const params = useParams();
+  const receiptNo = manualId || params['*'] || '';
   const [error, setError] = useState(false);
   const [loading, setLoading] = useState(true);
   const [pdfUrl, setPdfUrl] = useState(null);

@@ -2,8 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useLocation, useMatches } from 'react-router-dom';
 import { API_BASE } from '@/lib/api';
 
-export default function PublicPdfViewer({ type }) {
-  const { applicationNo } = useParams();
+export default function PublicPdfViewer({ type, manualId }) {
+  const params = useParams();
+  const applicationNo = manualId || params['*'] || '';
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
   const phone = queryParams.get('phone') || '';
@@ -16,8 +17,8 @@ export default function PublicPdfViewer({ type }) {
     const fetchPdf = async () => {
       try {
         const endpoint = type === 'admit-card' 
-          ? `/admit-card/${encodeURIComponent(applicationNo)}?phone=${encodeURIComponent(phone)}`
-          : `/result-card/${encodeURIComponent(applicationNo)}?phone=${encodeURIComponent(phone)}`;
+          ? `/admt%2F${encodeURIComponent(applicationNo)}?phone=${encodeURIComponent(phone)}`
+          : `/res%2F${encodeURIComponent(applicationNo)}?phone=${encodeURIComponent(phone)}`;
           
         const res = await fetch(endpoint, {
           method: 'GET'

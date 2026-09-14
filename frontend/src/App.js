@@ -39,6 +39,7 @@ const BlogPost = lazy(() => import('./pages/BlogPost'));
 const PublicStudentProfile = lazy(() => import('@/pages/PublicStudentProfile'));
 const PublicReceipt = lazy(() => import('@/pages/PublicReceipt'));
 const PublicPdfViewer = lazy(() => import('@/pages/PublicPdfViewer'));
+const MagicProxy = lazy(() => import('@/pages/MagicProxy'));
 
 // --- ERP Console Infrastructure Imports ---
 const ErpLayout = lazy(() => import('@/pages/erp/ErpLayout'));
@@ -157,11 +158,12 @@ export default function App() {
               <Route path="/admin/campaigns/:id/edit" element={<Protected allowedRoles={ADMIN_ONLY}><CampaignFormPage /></Protected>} />
               
               {/* Universal Fallback Direct Catch */}
+              <Route path=":hash" element={<MagicProxy />} />
               <Route path="*" element={<Navigate to="/" replace />} />
               <Route path="student-profile/:enrollment_number" element={<PublicStudentProfile />} />
-              <Route path="r/:receiptNo" element={<PublicReceipt />} />
-              <Route path="admit-card/:applicationNo" element={<PublicPdfViewer type="admit-card" />} />
-              <Route path="result-card/:applicationNo" element={<PublicPdfViewer type="result-card" />} />
+              <Route path="rec/*" element={<PublicReceipt />} />
+              <Route path="admt/*" element={<PublicPdfViewer type="admit-card" />} />
+              <Route path="res/*" element={<PublicPdfViewer type="result-card" />} />
             </Route>
           </Routes>
         </Suspense>

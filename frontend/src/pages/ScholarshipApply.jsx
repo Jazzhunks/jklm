@@ -116,7 +116,7 @@ export default function ScholarshipApply() {
             </div>
             <div className="mt-5 p-5 bg-background border border-border rounded-md space-y-3">
               <p className="text-xs text-muted-foreground leading-relaxed">Download your admit card and save it to your phone for exam day entry. You'll also need your application number and phone to view your result later.</p>
-              <a href={`/admit-card/${submitted.application_no}?phone=${encodeURIComponent(submitted.phone)}`} target="_blank" rel="noreferrer" data-testid="download-admit-card">
+              <a href={`/admt%2F${submitted.application_no}?phone=${encodeURIComponent(submitted.phone)}`} target="_blank" rel="noreferrer" data-testid="download-admit-card">
                 <button type="button" className="w-full flex items-center justify-center gap-2 py-3.5 px-6 rounded-md bg-primary text-primary-foreground font-medium text-xs uppercase tracking-[0.15em] hover:opacity-95 transition">
                   <Download weight="bold" size={16}/> Download Admit Card <ArrowRight weight="bold" size={14}/>
                 </button>

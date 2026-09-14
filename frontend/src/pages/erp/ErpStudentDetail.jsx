@@ -454,7 +454,7 @@ export default function ErpStudentDetail() {
                         <Printer size={15}/>
                       </button>
                       <a 
-                        href={`/r/${encodeURIComponent(p.receipt_no)}`} 
+                        href={`/rec%2F${encodeURIComponent(p.receipt_no)}`} 
                         target="_blank" rel="noreferrer"
                         className="w-8 h-8 flex items-center justify-center text-muted-foreground bg-muted/10 border border-transparent hover:border-border hover:bg-muted/30 hover:text-foreground rounded-lg transition"
                         title="Download PDF"

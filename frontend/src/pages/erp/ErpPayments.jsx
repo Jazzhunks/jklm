@@ -370,7 +370,7 @@ export default function ErpPayments() {
 
   // WhatsApp receipt trigger
   const sendWhatsAppReceipt = (p) => {
-    const txt = `Dear Student/Parent,\n\nOfficial fee payment of ${fmtINR(p.amount)} has been successfully recorded at Northend Educational World.\n\nReceipt No: ${p.receipt_no}\nDate: ${fmtDate(p.paid_at)}\nStudent ID: ${p.student_no}\nPayment Mode: ${p.mode?.toUpperCase()}\n\nYou can download your verified digital tax receipt here:\n${window.location.origin}/r/${encodeURIComponent(p.receipt_no)}\n\nWarm regards,\nNorthend Accounts Team`;
+    const txt = `Dear Student/Parent,\n\nOfficial fee payment of ${fmtINR(p.amount)} has been successfully recorded at Northend Educational World.\n\nReceipt No: ${p.receipt_no}\nDate: ${fmtDate(p.paid_at)}\nStudent ID: ${p.student_no}\nPayment Mode: ${p.mode?.toUpperCase()}\n\nYou can download your verified digital tax receipt here:\n${window.location.origin}/rec%2F${encodeURIComponent(p.receipt_no)}\n\nWarm regards,\nNorthend Accounts Team`;
     window.open(`https://wa.me/?text=${encodeURIComponent(txt)}`, "_blank");
   };
 
