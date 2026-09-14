@@ -536,6 +536,15 @@ export default function ErpLeads() {
         </div>
       )}
 
+      
+
+      {/* Enterprise CRM Modals */}
+      {selectedLead && <LeadActivityDrawer lead={selectedLead} onClose={() => setSelectedLead(null)} />}
+      {proposeModalLead && <LeadProposeModal lead={proposeModalLead} onClose={() => setProposeModalLead(null)} />}
+      {reviewModalLead && <LeadReviewModal lead={reviewModalLead} onClose={() => setReviewModalLead(null)} />}
+      {enrollModalLead && <LeadEnrollModal lead={enrollModalLead} onClose={() => setEnrollModalLead(null)} />}
+      {transferModalLead && <LeadTransferModal lead={transferModalLead} branches={branches} onClose={() => setTransferModalLead(null)} />}
+
       {/* Create Lead Modal */}
       {showCreate && (
         <CreateLeadModal 
