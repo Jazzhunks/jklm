@@ -788,7 +788,7 @@ def bulk_id_card_pdf(students_data: list) -> bytes:
         c.drawCentredString(x_center, front_top - 22*mm, "Session : 2026 - 27")
         
         # 3. Photo
-        photo_r = 18 * mm
+        photo_r = (1.0941 * inch) / 2.0
         photo_y = front_top - 44 * mm # centered directly on the border of the blue header (which ends at -40mm)
         c.setLineWidth(1.5)
         c.setStrokeColorRGB(1, 1, 1)

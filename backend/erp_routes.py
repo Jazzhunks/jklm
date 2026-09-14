@@ -353,7 +353,7 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
         """Parses active raw structural card scanner token text validations asynchronously."""
         current_time = datetime.now(timezone.utc)
         
-        student = await db.erp_students.find_one({"student_no": payload.student_no, "status": "active"})
+        student = await db.erp_students.find_one({"$or": [{"student_no": payload.student_no}, {"enrollment_number": payload.student_no}], "status": "active"})
         if not student:
             raise HTTPException(404, "Invalid registration card signature code or suspended profile record match line")
             
