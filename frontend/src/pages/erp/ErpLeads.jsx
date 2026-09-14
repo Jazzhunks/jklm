@@ -483,8 +483,16 @@ function CreateLeadModal({ onClose, onCreated, defaultBranchId, branches }) {
     address: "",
     remarks: "",
     branch_id: defaultBranchId || (branches[0]?.id || ""),
+    counsellor_id: "",
   });
+  const [counsellors, setCounsellors] = useState([]);
   const [submitting, setSubmitting] = useState(false);
+
+  useEffect(() => {
+    if (form.branch_id) {
+      erp.listStaff(form.branch_id).then(s => setCounsellors(s.filter(x => x.role === "counsellor"))).catch(() => {});
+    }
+  }, [form.branch_id]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -503,6 +511,7 @@ function CreateLeadModal({ onClose, onCreated, defaultBranchId, branches }) {
         address: form.address.trim() || undefined,
         remarks: form.remarks.trim() || undefined,
         branch_id: form.branch_id,
+        counsellor_id: form.counsellor_id || undefined,
       });
       toast.success("Prospect lead added to pipeline");
       onCreated();
@@ -594,6 +603,22 @@ function CreateLeadModal({ onClose, onCreated, defaultBranchId, branches }) {
             >
               {branches.map(b => (
                 <option key={b.id} value={b.id}>{b.name}</option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <label className="block text-xs font-bold uppercase tracking-wider text-muted-foreground mb-1">
+              Assigned Counsellor
+            </label>
+            <select
+              value={form.counsellor_id}
+              onChange={e => setForm(f => ({ ...f, counsellor_id: e.target.value }))}
+              className="w-full px-3 py-2 border border-border bg-background rounded-xl text-xs font-semibold text-foreground focus:outline-none"
+            >
+              <option value="">— Select Counsellor —</option>
+              {counsellors.map(c => (
+                <option key={c.id} value={c.id}>{c.name}</option>
               ))}
             </select>
           </div>

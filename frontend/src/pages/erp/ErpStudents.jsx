@@ -404,6 +404,7 @@ function CreateStudentModal({ erpUser, branches, defaultBranchId, onClose, onCre
     address: "", course_id: "", batch: "",
     branch_id: defaultBranchId || (branches[0]?.id || ""),
     counsellor_id: "", admission_date: new Date().toISOString().slice(0, 10),
+    luid: "", enrollment_number: "",
     total_fee: "", scholarship_percent: 0, discount: 0,
     documents: "", notes: "", public_user_id: ""
   });
@@ -814,6 +815,29 @@ function CreateStudentModal({ erpUser, branches, defaultBranchId, onClose, onCre
                 className="w-full px-3 py-2 border border-border bg-background rounded-xl text-xs font-mono text-foreground focus:outline-none resize-none"
               />
               <p className="text-[10px] text-muted-foreground mt-1">Leave empty if no documents.</p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label className="block text-xs font-bold uppercase tracking-wider text-muted-foreground mb-1">Student LUID</label>
+              <input
+                type="text"
+                value={form.luid}
+                onChange={e => setForm(f => ({ ...f, luid: e.target.value }))}
+                placeholder="Unique learner ID"
+                className="w-full px-3 py-2 border border-border bg-background rounded-xl text-xs font-mono text-foreground focus:outline-none"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-bold uppercase tracking-wider text-muted-foreground mb-1">Enrollment Number</label>
+              <input
+                type="text"
+                value={form.enrollment_number}
+                onChange={e => setForm(f => ({ ...f, enrollment_number: e.target.value }))}
+                placeholder="Official enrollment number"
+                className="w-full px-3 py-2 border border-border bg-background rounded-xl text-xs font-mono text-foreground focus:outline-none"
+              />
             </div>
           </div>
 

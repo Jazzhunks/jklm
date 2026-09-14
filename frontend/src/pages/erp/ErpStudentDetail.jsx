@@ -763,7 +763,7 @@ function EditStudentProfileModal({ student, onClose, onUpdated, onPhotoSelect, e
 }
 
 function RecordPaymentModal({ studentId, pending, onClose, onCreated }) {
-  const [form, setForm] = useState({ amount: "", mode: "cash", next_due_date: "", notes: "", apply_gst: true });
+  const [form, setForm] = useState({ amount: "", mode: "cash", next_due_date: "", notes: "", apply_gst: true, transaction_ref: "" });
   const [busy, setBusy] = useState(false);
 
   const submitPaymentTransaction = async (e) => {
@@ -788,6 +788,7 @@ function RecordPaymentModal({ studentId, pending, onClose, onCreated }) {
         apply_gst: form.apply_gst,
         next_due_date: form.next_due_date || null,
         notes: form.notes || null,
+        transaction_ref: form.transaction_ref || undefined,
       });
       onCreated();
     } catch (err) {
@@ -826,6 +827,11 @@ function RecordPaymentModal({ studentId, pending, onClose, onCreated }) {
               <label className="text-xs uppercase tracking-wider font-bold text-muted-foreground mb-1 block">Next Term Due (Optional)</label>
               <input type="date" value={form.next_due_date} onChange={e => setForm({...form, next_due_date: e.target.value})} className="w-full px-3 py-2 border border-border bg-background/50 rounded-xl text-sm font-mono text-foreground focus:outline-none" data-testid="rp-due"/>
             </div>
+          </div>
+
+          <div>
+            <label className="text-xs uppercase tracking-wider font-bold text-muted-foreground mb-1 block">Ref / Cheque / UTR No</label>
+            <input type="text" value={form.transaction_ref} onChange={e => setForm({...form, transaction_ref: e.target.value})} placeholder="Optional UTR or Cheque #" className="w-full px-3 py-2 border border-border bg-background/50 rounded-xl text-sm text-foreground focus:outline-none focus:border-accent" data-testid="rp-ref"/>
           </div>
           
           <div>
