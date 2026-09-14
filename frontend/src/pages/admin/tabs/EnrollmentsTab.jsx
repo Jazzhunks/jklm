@@ -93,6 +93,7 @@ export default function EnrollmentsTab({ innerSearch }) {
                 <tr>
                   <th className="p-3 sm:p-4 text-left bg-muted">Receipt</th>
                   <th className="p-3 sm:p-4 text-left bg-muted">Name</th>
+                  <th className="p-3 sm:p-4 text-left bg-muted">Course</th>
                   <th className="p-3 sm:p-4 text-left bg-muted">Phone Line</th>
                   <th className="p-3 sm:p-4 text-left bg-muted">Station Center</th>
                   <th className="p-3 sm:p-4 text-left bg-muted">Status</th>
@@ -103,6 +104,7 @@ export default function EnrollmentsTab({ innerSearch }) {
                   <tr key={e.id} className="hover:bg-muted/50 transition-colors">
                     <td className="p-3 sm:p-4 font-mono text-xs font-semibold">{e.receipt_no}</td>
                     <td className="p-3 sm:p-4 font-bold">{e.name}</td>
+                    <td className="p-3 sm:p-4 text-xs font-medium text-accent truncate max-w-[200px]" title={e.course_title || e.course_name || e.course_id}>{e.course_title || e.course_name || "—"}</td>
                     <td className="p-3 sm:p-4 font-mono text-xs text-muted-foreground">{e.phone}</td>
                     <td className="p-3 sm:p-4 text-muted-foreground truncate">{e.center}</td>
                     <td className="p-3 sm:p-4">

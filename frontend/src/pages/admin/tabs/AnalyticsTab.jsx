@@ -103,9 +103,9 @@ export default function AnalyticsTab() {
           </div>
           <div className="h-[250px] w-full min-w-0" style={{ minWidth: 0, minHeight: 250 }}>
             <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
-              <BarChart data={top_courses} layout="vertical" margin={{ top: 0, right: 30, left: 40, bottom: 0 }}>
+              <BarChart data={top_courses} layout="vertical" margin={{ top: 0, right: 30, left: 10, bottom: 0 }}>
                 <XAxis type="number" stroke="#888888" fontSize={12} tickLine={false} axisLine={false} />
-                <YAxis dataKey="course_id" type="category" stroke="#888888" fontSize={12} tickLine={false} axisLine={false} width={100} />
+                <YAxis dataKey="course_name" type="category" stroke="#888888" fontSize={11} tickLine={false} axisLine={false} width={130} />
                 <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="var(--border)" />
                 <Tooltip cursor={{fill: 'var(--muted)', opacity: 0.4}} contentStyle={{ borderRadius: '12px', border: '1px solid var(--border)' }} />
                 <Bar dataKey="count" name="Enrollments" fill="#2563eb" radius={[0, 4, 4, 0]}>

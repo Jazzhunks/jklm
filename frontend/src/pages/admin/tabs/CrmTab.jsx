@@ -112,16 +112,16 @@ export default function CrmTab() {
                           
                           {/* Details based on type */}
                           {record.type === "Enrollment" && (
-                            <div className="text-sm">Course: <span className="font-medium text-foreground">{record.details.course_id}</span> @ {record.details.center}</div>
+                            <div className="text-sm">Course: <span className="font-medium text-foreground">{record.details.course_title || record.details.course_name || record.details.course_id}</span> @ {record.details.center}</div>
                           )}
                           {record.type === "Scholarship App" && (
                             <div className="text-sm">
-                              Campaign: <span className="font-medium text-foreground">{record.details.scholarship_id}</span>
+                              Campaign: <span className="font-medium text-foreground">{record.details.scholarship_title || record.details.campaign_title || record.details.scholarship_id}</span>
                               <div className="text-xs mt-0.5 text-muted-foreground">Class: {record.details.standard} · Status: <span className="capitalize">{record.details.status}</span></div>
                             </div>
                           )}
                           {record.type === "Job App" && (
-                            <div className="text-sm">Applied for: <span className="font-medium text-foreground">{record.details.job_id}</span></div>
+                            <div className="text-sm">Applied for: <span className="font-medium text-foreground">{record.details.job_title || record.details.job_id}</span></div>
                           )}
                           {record.type === "Inquiry" && (
                             <div className="text-sm">

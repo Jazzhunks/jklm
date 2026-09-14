@@ -2362,6 +2362,7 @@ async def create_enrollment(payload: EnrollmentIn, request: Request, background:
         raise HTTPException(404, "Course not found")
     doc = payload.model_dump()
     doc["id"] = new_id()
+    doc["course_title"] = course.get("title") or course.get("name") or ""
     doc["status"] = "pending"
     doc["receipt_no"] = "UAC-ENR-" + str(uuid.uuid4().int)[:8]
     doc["created_at"] = now_iso()
@@ -2406,6 +2407,19 @@ async def list_enrollments(
     query["is_deleted"] = {"$ne": True}
     total = await db.enrollments.count_documents(query)
     items = await db.enrollments.find(query, {"_id": 0}).sort("created_at", -1).skip(skip).limit(limit).to_list(None)
+    course_ids = list({e.get("course_id") for e in items if e.get("course_id")})
+    if course_ids:
+        c_map = {}
+        async for c in db.courses.find({"$or": [{"id": {"$in": course_ids}}, {"slug": {"$in": course_ids}}]}, {"id": 1, "slug": 1, "title": 1}):
+            title = c.get("title") or c.get("name") or c["id"]
+            c_map[c["id"]] = title
+            if c.get("slug"):
+                c_map[c["slug"]] = title
+        for e in items:
+            cid = e.get("course_id")
+            if cid:
+                e["course_title"] = e.get("course_title") or c_map.get(cid, cid)
+                e["course_name"] = e["course_title"]
     return {"items": items, "total": total, "page": (skip // limit) + 1, "pages": (total + limit - 1) // limit}
 
 @api.get("/enrollments/mine")
@@ -2827,6 +2841,45 @@ async def crm_search(q: str = Query(...), _admin = Depends(require_admin)):
     inquiries = await db.inquiries.find(query, {"_id": 0}).to_list(100)
     jobs = await db.job_applications.find(query, {"_id": 0}).to_list(100)
 
+    # Hydrate course names for enrollments
+    course_ids = list({e.get("course_id") for e in enrollments if e.get("course_id")})
+    if course_ids:
+        c_map = {}
+        async for c in db.courses.find({"$or": [{"id": {"$in": course_ids}}, {"slug": {"$in": course_ids}}]}, {"id": 1, "slug": 1, "title": 1}):
+            title = c.get("title") or c.get("name") or c["id"]
+            c_map[c["id"]] = title
+            if c.get("slug"):
+                c_map[c["slug"]] = title
+        for e in enrollments:
+            cid = e.get("course_id")
+            if cid:
+                e["course_title"] = c_map.get(cid, cid)
+                e["course_name"] = e["course_title"]
+
+    # Hydrate scholarship/campaign names
+    sch_ids = list({s.get("scholarship_id") for s in scholarships if s.get("scholarship_id")})
+    if sch_ids:
+        s_map = {}
+        async for sc in db.scholarships.find({"$or": [{"id": {"$in": sch_ids}}, {"slug": {"$in": sch_ids}}]}, {"id": 1, "slug": 1, "title": 1}):
+            title = sc.get("title") or sc.get("name") or sc["id"]
+            s_map[sc["id"]] = title
+            if sc.get("slug"):
+                s_map[sc["slug"]] = title
+        for s in scholarships:
+            sid = s.get("scholarship_id")
+            if sid:
+                s["scholarship_title"] = s_map.get(sid, sid)
+                s["campaign_title"] = s["scholarship_title"]
+
+    # Hydrate job titles
+    job_ids = list({j.get("job_id") for j in jobs if j.get("job_id")})
+    if job_ids:
+        j_map = {jb["id"]: jb.get("title", jb["id"]) async for jb in db.jobs.find({"id": {"$in": job_ids}}, {"id": 1, "title": 1})}
+        for j in jobs:
+            jid = j.get("job_id")
+            if jid:
+                j["job_title"] = j_map.get(jid, jid)
+
     # Compile a unified list of unique people based on email or phone
     people_map = {}
 
@@ -2942,6 +2995,24 @@ async def get_admin_analytics(_admin = Depends(require_admin)):
     ]
     top_courses_data = await db.enrollments.aggregate(courses_pipeline).to_list(None)
 
+    course_ids = [d["_id"] for d in top_courses_data if d.get("_id")]
+    courses_map = {}
+    if course_ids:
+        async for c in db.courses.find({"$or": [{"id": {"$in": course_ids}}, {"slug": {"$in": course_ids}}]}, {"id": 1, "slug": 1, "title": 1}):
+            title = c.get("title") or c.get("name") or c["id"]
+            courses_map[c["id"]] = title
+            if c.get("slug"):
+                courses_map[c["slug"]] = title
+
+    top_courses_formatted = [
+        {
+            "course_id": d["_id"],
+            "course_name": courses_map.get(d["_id"], d["_id"]),
+            "count": d["count"]
+        }
+        for d in top_courses_data if d.get("_id")
+    ]
+
     # 4. Scholarship Status Distribution
     status_pipeline = [
         {"$match": {"is_deleted": {"$ne": True}}},
@@ -2952,7 +3023,7 @@ async def get_admin_analytics(_admin = Depends(require_admin)):
     return {
         "enrollments_by_month": [{"month": d["_id"], "count": d["count"]} for d in enrollment_data if d["_id"]],
         "scholarships_by_month": [{"month": d["_id"], "count": d["count"]} for d in scholarship_data if d["_id"]],
-        "top_courses": [{"course_id": d["_id"], "count": d["count"]} for d in top_courses_data if d["_id"]],
+        "top_courses": top_courses_formatted,
         "scholarship_statuses": [{"status": d["_id"] or "pending", "count": d["count"]} for d in status_data]
     }
 
