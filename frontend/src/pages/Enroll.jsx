@@ -18,9 +18,10 @@ export default function Enroll() {
   });
 
   useEffect(() => {
+    const toList = (d) => (Array.isArray(d) ? d : d?.items || []);
     Promise.all([
-      api.get("/courses").then(r => setCourses(r.data)),
-      api.get("/centers").then(r => setCenters(r.data)),
+      api.get("/courses").then(r => setCourses(toList(r.data))).catch(() => setCourses([])),
+      api.get("/centers").then(r => setCenters(toList(r.data))).catch(() => setCenters([])),
     ]);
   }, []);
 

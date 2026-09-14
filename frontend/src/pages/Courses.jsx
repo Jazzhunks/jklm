@@ -23,12 +23,16 @@ export default function Courses() {
   useEffect(() => { 
     setLoading(true);
     api.get("/courses")
-      .then(r => setItems(r.data || []))
+      .then(r => {
+        const list = Array.isArray(r.data) ? r.data : (r.data?.items || []);
+        setItems(list);
+      })
       .catch(() => setItems([]))
       .finally(() => setLoading(false));
   }, []);
 
-  const filtered = active === "All" ? items : items.filter(c => c.category === active);
+  const safeItems = Array.isArray(items) ? items : [];
+  const filtered = active === "All" ? safeItems : safeItems.filter(c => c.category === active);
 
   const schemaSourceData = filtered.length > 0 ? filtered : STATIC_FALLBACK_SCHEMA_COURSES;
 

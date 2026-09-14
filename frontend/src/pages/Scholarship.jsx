@@ -15,7 +15,8 @@ export default function Scholarship() {
     setLoading(true);
     api.get("/scholarships")
       .then(r => {
-        const active = r.data.filter(c => c.active);
+        const list = Array.isArray(r.data) ? r.data : (r.data?.items || []);
+        const active = list.filter(c => c.active);
         setCampaigns(active);
       })
       .catch(e => toast.error(formatError(e.response?.data?.detail) || "Failed to load campaigns"))

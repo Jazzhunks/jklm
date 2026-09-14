@@ -9,7 +9,11 @@ const ICONS = { "Admissions": PushPin, "Scholarship": Megaphone, "Workshop": Bel
 
 export default function Notices() {
   const [items, setItems] = useState([]);
-  useEffect(() => { api.get("/notices").then(r => setItems(r.data)); }, []);
+  useEffect(() => { 
+    api.get("/notices")
+      .then(r => setItems(Array.isArray(r.data) ? r.data : (r.data?.items || [])))
+      .catch(() => setItems([])); 
+  }, []);
 
   return (
     <div data-testid="notices-page">
@@ -21,7 +25,7 @@ export default function Notices() {
       />
       <section className="relative pb-24 -mt-8">
         <div className="max-w-7xl mx-auto px-4 lg:px-8 space-y-4">
-          {items.map((n, i) => {
+          {(Array.isArray(items) ? items : []).map((n, i) => {
             const Icon = ICONS[n.category] || Bell;
             return (
               <Reveal key={n.id} delay={i * 0.04}>

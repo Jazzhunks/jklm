@@ -7,7 +7,11 @@ import { MapPin, Phone, Clock, ArrowUpRight } from "@phosphor-icons/react";
 
 export default function Centers() {
   const [items, setItems] = useState([]);
-  useEffect(() => { api.get("/centers").then(r => setItems(r.data)); }, []);
+  useEffect(() => { 
+    api.get("/centers")
+      .then(r => setItems(Array.isArray(r.data) ? r.data : (r.data?.items || [])))
+      .catch(() => setItems([])); 
+  }, []);
 
   return (
     <div data-testid="centers-page">
@@ -19,7 +23,7 @@ export default function Centers() {
       />
       <section className="relative pb-24">
         <div className="max-w-7xl mx-auto px-4 lg:px-8 grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
-          {items.map((c, i) => (
+          {(Array.isArray(items) ? items : []).map((c, i) => (
             <Reveal key={c.id} delay={i * 0.04}>
               <GlassPanel className="p-7 h-full group transition-all hover:-translate-y-1 hover:border-accent/30" data-testid={`center-${c.id}`}>
                 <div className="flex items-start justify-between mb-4">

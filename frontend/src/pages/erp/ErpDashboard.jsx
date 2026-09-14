@@ -790,7 +790,7 @@ function CreateStudentModal({ erpUser, onClose, onCreated }) {
 
   useEffect(() => { 
     erp.listBranches().then(setBranches);
-    api.get("/courses").then(r => setCourses(r.data)); 
+    api.get("/courses").then(r => setCourses(Array.isArray(r.data) ? r.data : (r.data?.items || []))).catch(() => setCourses([])); 
   }, []);
   
   useEffect(() => {

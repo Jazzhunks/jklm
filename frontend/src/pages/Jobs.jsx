@@ -16,7 +16,11 @@ export default function Jobs() {
   const [form, setForm] = useState({ name:"", email:"", phone:"", qualification:"", experience:"", subject_expertise:"", preferred_location:"", cover_letter:"", resume_url:"" });
   const [done, setDone] = useState(false);
 
-  useEffect(() => { api.get("/jobs").then(r => setJobs(r.data)); }, []);
+  useEffect(() => { 
+    api.get("/jobs")
+      .then(r => setJobs(Array.isArray(r.data) ? r.data : (r.data?.items || [])))
+      .catch(() => setJobs([])); 
+  }, []);
 
   const handleApplyClick = (jobId) => {
     if (activeId === jobId) {
@@ -50,7 +54,7 @@ export default function Jobs() {
 
       <section className="relative pb-24 -mt-8">
         <div className="max-w-4xl mx-auto px-4 lg:px-8 space-y-4">
-          {jobs.map((j, i) => {
+          {(Array.isArray(jobs) ? jobs : []).map((j, i) => {
             const isOpen = activeId === j.id;
             return (
               <Reveal key={j.id} delay={i * 0.04}>

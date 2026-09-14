@@ -9,10 +9,15 @@ export default function Results() {
   const [items, setItems] = useState([]);
   const [year, setYear] = useState("All");
 
-  useEffect(() => { api.get("/results").then(r => setItems(r.data)); }, []);
+  useEffect(() => { 
+    api.get("/results")
+      .then(r => setItems(Array.isArray(r.data) ? r.data : (r.data?.items || [])))
+      .catch(() => setItems([])); 
+  }, []);
 
-  const years = ["All", ...new Set(items.map(i => i.year).sort((a, b) => b - a))];
-  const filtered = year === "All" ? items : items.filter(i => i.year === year);
+  const safeItems = Array.isArray(items) ? items : [];
+  const years = ["All", ...new Set(safeItems.map(i => i.year).filter(Boolean).sort((a, b) => b - a))];
+  const filtered = year === "All" ? safeItems : safeItems.filter(i => i.year === year);
 
   return (
     <div data-testid="results-page">

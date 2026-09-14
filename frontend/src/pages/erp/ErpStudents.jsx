@@ -189,7 +189,7 @@ function CreateStudentModal({ erpUser, branches, onClose, onCreated }) {
   const [tempMatch, setTempMatch] = useState(null);
   const [checkingTemp, setCheckingTemp] = useState(false);
 
-  useEffect(() => { api.get("/courses").then(r => setCourses(r.data)); }, []);
+  useEffect(() => { api.get("/courses").then(r => setCourses(Array.isArray(r.data) ? r.data : (r.data?.items || []))).catch(() => setCourses([])); }, []);
   
   useEffect(() => {
     if (form.branch_id) {

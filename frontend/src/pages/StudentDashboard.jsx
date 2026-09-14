@@ -17,10 +17,11 @@ export default function StudentDashboard() {
   const [schApps, setSchApps] = useState([]);
 
   useEffect(() => {
+    const toList = (d) => (Array.isArray(d) ? d : d?.items || []);
     Promise.all([
-      api.get("/enrollments/mine").then(r => setEnrollments(r.data)).catch(()=>{}),
-      api.get("/notices").then(r => setNotices(r.data.slice(0, 4))),
-      api.get("/scholarship-applications/mine").then(r => setSchApps(r.data)).catch(()=>{}),
+      api.get("/enrollments/mine").then(r => setEnrollments(toList(r.data))).catch(()=>{}),
+      api.get("/notices").then(r => setNotices(toList(r.data).slice(0, 4))).catch(()=>{}),
+      api.get("/scholarship-applications/mine").then(r => setSchApps(toList(r.data))).catch(()=>{}),
     ]);
   }, []);
 

@@ -31,19 +31,21 @@ export default function Home() {
   const [wathLoading, setWathLoading] = useState(true);
 
   useEffect(() => {
+    const toList = (d) => (Array.isArray(d) ? d : d?.items || []);
     Promise.all([
-      api.get("/courses?featured=true").then(r => setCourses(r.data)).catch(()=>{}),
+      api.get("/courses?featured=true").then(r => setCourses(toList(r.data))).catch(()=>{}),
       api.get("/stats").then(r => {
         // Destructure 'centers' out so the backend stats can NEVER overwrite it
-        const { centers: _, ...statsWithoutCenters } = r.data;
+        const { centers: _, ...statsWithoutCenters } = r.data || {};
         setStats(prev => ({ ...prev, ...statsWithoutCenters }));
       }).catch(()=>{}),
-      api.get("/results").then(r => setResults(r.data.slice(0, 6))).catch(()=>{}),
-      api.get("/testimonials").then(r => setTestimonials(r.data)).catch(()=>{}),
+      api.get("/results").then(r => setResults(toList(r.data).slice(0, 6))).catch(()=>{}),
+      api.get("/testimonials").then(r => setTestimonials(toList(r.data))).catch(()=>{}),
       api.get("/centers").then(r => {
-        setCenters(r.data);
+        const list = toList(r.data);
+        setCenters(list);
         // Explicitly set the accurate count from the array length
-        setStats(prev => ({ ...prev, centers: r.data.length }));
+        setStats(prev => ({ ...prev, centers: list.length }));
       }).catch(()=>{}),
       api.get("/wath/page")
          .then(r => setWathPage(r.data))
@@ -303,7 +305,7 @@ export default function Home() {
             </div>
 
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
-              {courses.slice(0, 6).map(c => (
+              {(Array.isArray(courses) ? courses : []).slice(0, 6).map(c => (
                 <Link to={`/courses/${c.id}`} key={c.id} className="h-full">
                   <CourseCard3D course={c} />
                 </Link>
@@ -403,7 +405,7 @@ export default function Home() {
               </div>
 
               <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
-                {results.slice(0, 6).map((r, i) => (
+                {(Array.isArray(results) ? results : []).slice(0, 6).map((r, i) => (
                   <Reveal key={r.id} delay={i * 0.05}>
                     <GlassPanel className="p-6 h-full group transition-all hover:-translate-y-1 flex flex-col justify-between" data-testid={`result-${r.id}`}>
                       <div>
@@ -424,7 +426,7 @@ export default function Home() {
         )}
 
         {/* ============================== TESTIMONIALS ============================== */}
-        {testimonials.length > 0 && (
+        {(Array.isArray(testimonials) ? testimonials : []).length > 0 && (
           <section className="relative py-12 lg:py-16">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
               <div className="text-center mb-10">
@@ -436,7 +438,7 @@ export default function Home() {
                 </Reveal>
               </div>
               <div className="grid md:grid-cols-3 gap-5">
-                {testimonials.slice(0, 3).map((t, i) => (
+                {(Array.isArray(testimonials) ? testimonials : []).slice(0, 3).map((t, i) => (
                   <Reveal key={t.id} delay={i * 0.08}>
                     <GlassPanel elevated className="p-6 sm:p-7 h-full flex flex-col justify-between" data-testid={`testimonial-${t.id}`}>
                       <div>
@@ -524,7 +526,7 @@ export default function Home() {
                   </div>
                 </div>
                 <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {centers.slice(0, 6).map((c, i) => (
+                  {(Array.isArray(centers) ? centers : []).slice(0, 6).map((c, i) => (
                     <Reveal key={c.id} delay={i * 0.05}>
                       <GlassPanel className="p-6 h-full group transition-all hover:-translate-y-1 hover:border-accent/30 flex flex-col justify-between" data-testid={`center-${c.id}`}>
                         <div>
