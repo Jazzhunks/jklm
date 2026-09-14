@@ -2,6 +2,7 @@ import { useState, useMemo, useEffect } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useOutletContext, useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
+import LeadActivityDrawer from "@/pages/erp/modals/LeadActivityDrawer";
 import { erp, isSuper, isManagerPlus, fmtDate, extractItems, extractTotal } from "@/lib/erpApi";
 import { formatError, api } from "@/lib/api";
 import { 
@@ -230,13 +231,14 @@ export default function ErpLeads() {
                   {stageLeads.map(lead => (
                     <div 
                       key={lead.id}
-                      className="glass-elevated p-3.5 rounded-xl border border-border hover:border-primary/40 transition group relative"
+                      onClick={() => setSelectedLead(lead)}
+                      className="glass-elevated p-3.5 rounded-xl border border-border hover:border-primary/40 cursor-pointer transition group relative"
                     >
                       <div className="flex items-start justify-between gap-2">
                         <h4 className="font-bold text-xs text-foreground truncate">{lead.name}</h4>
                         <div className="flex items-center gap-1 shrink-0">
                           <button
-                            onClick={() => openWhatsApp(lead)}
+                            onClick={(e) => { e.stopPropagation(); openWhatsApp(lead); }}
                             title="Open WhatsApp Chat"
                             className="text-muted-foreground hover:text-emerald-500 transition"
                           >
@@ -244,7 +246,7 @@ export default function ErpLeads() {
                           </button>
                           {isManagerPlus(erpUser) && (
                             <button
-                              onClick={() => setDeleteModal(lead)}
+                              onClick={(e) => { e.stopPropagation(); setDeleteModal(lead); }}
                               title="Delete Lead"
                               className="text-muted-foreground hover:text-rose-500 transition"
                             >
@@ -259,13 +261,23 @@ export default function ErpLeads() {
                         <span>{lead.phone}</span>
                       </div>
 
-                      {lead.moving_to_class && (
-                        <div className="mt-2 flex items-center gap-1.5">
-                          <span className="px-1.5 py-0.5 bg-muted rounded text-[10px] font-medium text-foreground">
-                            Class: {lead.moving_to_class}
+                      <div className="mt-2 flex flex-wrap items-center gap-1.5">
+                        {lead.temperature === "hot" && <span className="px-1.5 py-0.5 bg-rose-500/10 text-rose-500 border border-rose-500/20 rounded text-[10px] font-bold">🔥 Hot</span>}
+                        {lead.temperature === "warm" && <span className="px-1.5 py-0.5 bg-amber-500/10 text-amber-500 border border-amber-500/20 rounded text-[10px] font-bold">☀️ Warm</span>}
+                        {lead.temperature === "cold" && <span className="px-1.5 py-0.5 bg-sky-500/10 text-sky-500 border border-sky-500/20 rounded text-[10px] font-bold">❄️ Cold</span>}
+                        
+                        {lead.source && (
+                          <span className="px-1.5 py-0.5 bg-muted border border-border rounded text-[10px] font-medium text-muted-foreground uppercase tracking-wider">
+                            {lead.source}
                           </span>
-                        </div>
-                      )}
+                        )}
+
+                        {lead.moving_to_class && (
+                          <span className="px-1.5 py-0.5 bg-accent/10 border border-accent/20 rounded text-[10px] font-medium text-accent">
+                            {lead.moving_to_class}
+                          </span>
+                        )}
+                      </div>
 
                       {lead.remarks && (
                         <p className="mt-2 text-[11px] text-muted-foreground italic line-clamp-2">
@@ -279,7 +291,7 @@ export default function ErpLeads() {
                         
                         {stage.id === "new" && (
                           <button
-                            onClick={() => updateStage(lead.id, "contacted")}
+                            onClick={(e) => { e.stopPropagation(); updateStage(lead.id, "contacted"); }}
                             className="text-primary hover:underline font-bold flex items-center gap-0.5"
                           >
                             Contacted →
@@ -287,7 +299,7 @@ export default function ErpLeads() {
                         )}
                         {stage.id === "contacted" && (
                           <button
-                            onClick={() => updateStage(lead.id, "follow_up")}
+                            onClick={(e) => { e.stopPropagation(); updateStage(lead.id, "follow_up"); }}
                             className="text-amber-500 hover:underline font-bold flex items-center gap-0.5"
                           >
                             Follow-Up →

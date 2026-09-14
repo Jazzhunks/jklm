@@ -198,6 +198,9 @@ class LeadCreate(BaseModel):
     remarks: Optional[str] = None
     branch_id: str
     counsellor_id: Optional[str] = None
+    source: Optional[str] = "Manual"
+    campaign: Optional[str] = None
+    temperature: Optional[Literal["hot", "warm", "cold"]] = "warm"
 
 class LeadUpdate(BaseModel):
     status: Optional[Literal["new", "contacted", "follow_up", "converted", "lost"]] = None
@@ -207,6 +210,13 @@ class LeadUpdate(BaseModel):
     remarks: Optional[str] = None
     counsellor_id: Optional[str] = None
     next_followup_at: Optional[str] = None
+    temperature: Optional[Literal["hot", "warm", "cold"]] = None
+    source: Optional[str] = None
+
+class LeadInteraction(BaseModel):
+    type: Literal["call", "whatsapp", "email", "note", "status_change"]
+    notes: str
+    contacted_at: Optional[str] = None
 
 class AttendanceScanRequest(BaseModel):
     student_no: str
@@ -1063,6 +1073,17 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
             "id": new_id(),
             "status": "new",
             "counsellor_id": cid,
+            "temperature": payload.temperature or "warm",
+            "source": payload.source or "Manual",
+            "interactions": [{
+                "id": new_id(),
+                "type": "status_change",
+                "notes": "Lead created natively in ERP",
+                "created_at": now_iso(),
+                "contacted_at": now_iso(),
+                "created_by": user["id"],
+                "created_by_name": user.get("name", "System")
+            }],
             "created_at": now_iso(),
             "created_by": user["id"],
         })
