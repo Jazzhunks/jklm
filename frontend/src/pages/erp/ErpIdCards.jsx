@@ -81,16 +81,20 @@ export default function ErpIdCards() {
     }
     setGenerating(true);
     try {
-      const selected = queue.filter(s => selectedIds.has(s.id));
-      for (const student of selected) {
-        await downloadIdCard(student);
-      }
-      await api.post("/erp/id-cards/clear-queue", {
-        student_ids: Array.from(selectedIds)
-      });
+      const selectedIdsArr = Array.from(selectedIds);
+      const res = await api.post('/erp/id-cards/bulk-download', { student_ids: selectedIdsArr }, { responseType: 'blob' });
+      const blob = res.data;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = `bulk-id-cards.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      
+      await api.post("/erp/id-cards/clear-queue", { student_ids: selectedIdsArr });
       setSelectedIds(new Set());
       loadQueue();
-      toast.success("ID cards generated and queue cleared");
+      toast.success("Bulk ID cards downloaded and queue cleared");
     } catch (e) {
       toast.error(formatError(e) || "Failed to generate ID cards");
     } finally {

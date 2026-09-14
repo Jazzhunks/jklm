@@ -3,6 +3,7 @@ import { useOutletContext } from "react-router-dom";
 import { toast } from "sonner";
 import { erp, isSuper, isManagerPlus, fmtDate, extractItems } from "@/lib/erpApi";
 import { formatError, API_BASE } from "@/lib/api";
+import { Html5Qrcode, Html5QrcodeSupportedFormats } from "html5-qrcode";
 import { 
   QrCode, Users, Clock, ShieldAlert, Wifi, WifiOff, FileDown,
   Terminal, Search, UserCheck, CheckCircle2, AlertCircle, Volume2, VolumeX, User
@@ -23,6 +24,45 @@ export default function ErpAttendance() {
   // Terminal interface states
   const [scanInput, setScanInput] = useState("");
   const [processingScan, setProcessingScan] = useState(false);
+  const [scanning, setScanning] = useState(false);
+  const scannerRef = useRef(null);
+
+  const startScanner = async () => {
+    if (scanning) return;
+    if (!branchId) { toast.error("Select a branch first"); return; }
+    setScanning(true);
+    try {
+      const html5Qr = new Html5Qrcode("qr-reader-attendance");
+      scannerRef.current = html5Qr;
+      await html5Qr.start(
+        { facingMode: "environment" },
+        { fps: 10, qrbox: { width: 240, height: 240 }, formatsToSupport: [Html5QrcodeSupportedFormats.QR_CODE] },
+        (decodedText) => {
+          handleManualOverrideTrigger(null, null, null, decodedText);
+          
+          html5Qr.pause(true);
+          setTimeout(() => {
+            try { html5Qr.resume(); } catch (e) { console.warn("QR resume failed", e); }
+          }, 1200);
+        },
+        () => {} // ignore decode errors
+      );
+    } catch (err) {
+      toast.error("Could not start camera: " + err.message);
+      setScanning(false);
+    }
+  };
+
+  const stopScanner = async () => {
+    try {
+      await scannerRef.current?.stop();
+      await scannerRef.current?.clear();
+    } catch (e) {
+      console.warn("Scanner stop failed", e);
+    }
+    scannerRef.current = null;
+    setScanning(false);
+  };
   
   const sseConnectionRef = useRef(null);
 
@@ -131,7 +171,19 @@ export default function ErpAttendance() {
   // ============================================================================
   // MANUAL DESK OVERRIDE LIFE HANDLER
   // ============================================================================
-  const handleManualOverrideTrigger = async (studentId, studentName, forcedStatus) => {
+  const handleManualOverrideTrigger = async (studentId, studentName, forcedStatus, scanCode) => {
+    if (scanCode) {
+      try {
+        await erp.submitAttendanceScan({
+          student_no: scanCode
+        });
+        toast.success(`Scanned: ${scanCode}`);
+      } catch (e) {
+        toast.error(formatError(e) || "Scan error");
+      }
+      return;
+    }
+
     if (busyOverrides.has(studentId)) return;
 
     setBusyOverrides(prev => { const next = new Set(prev); next.add(studentId); return next; });
@@ -208,6 +260,21 @@ export default function ErpAttendance() {
           <label className="text-xs uppercase font-bold tracking-wider text-muted-foreground mb-1.5 flex items-center gap-1">
             <Terminal size={13} className="text-accent" /> Manual Entry Keypad Emulator
           </label>
+          <div className="flex gap-2 mb-3">
+            <button
+              onClick={scanning ? stopScanner : startScanner}
+              className={`px-3 py-1.5 border rounded-xl text-xs font-bold transition flex-1 ${
+                scanning ? "bg-rose-500/10 text-rose-600 border-rose-500/20" : "bg-emerald-500/10 text-emerald-600 border-emerald-500/20"
+              }`}
+            >
+              {scanning ? "Stop Camera Scanner" : "Start Camera Scanner"}
+            </button>
+          </div>
+          {scanning && (
+            <div className="mb-4 rounded-xl overflow-hidden border border-border">
+              <div id="qr-reader-attendance" className="w-full"></div>
+            </div>
+          )}
           <form onSubmit={handleTerminalScanSubmit} className="flex gap-2">
             <input 
               type="text"

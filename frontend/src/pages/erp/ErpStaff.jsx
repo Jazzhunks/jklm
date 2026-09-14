@@ -5,7 +5,7 @@ import { erp, isSuper, fmtDate, extractItems } from "@/lib/erpApi";
 import { formatError } from "@/lib/api";
 import { Plus, X, UserX, Search, ShieldAlert, KeyRound, Smartphone, Mail, Edit3, Save } from "lucide-react";
 
-const ROLES = ["center_manager", "accountant", "counsellor"];
+const ROLES = ["center_manager", "accountant", "counsellor", "attendance"];
 
 const ROLE_STYLES = {
   super_admin: "bg-rose-500/10 text-rose-600 border-rose-500/20",
@@ -13,6 +13,7 @@ const ROLE_STYLES = {
   center_manager: "bg-purple-500/10 text-purple-400 border-purple-500/20",
   accountant: "bg-amber-500/10 text-amber-400 border-amber-500/20",
   counsellor: "bg-sky-500/10 text-sky-400 border-sky-500/20",
+  attendance: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20",
 };
 
 export default function ErpStaff() {

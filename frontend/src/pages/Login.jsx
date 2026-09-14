@@ -10,7 +10,7 @@ import { useIsMobile } from "@/hooks/useIsMobile";
 import HeroScene, { HeroSceneFallback } from "@/components/three/HeroScene";
 import { Lock, EnvelopeSimple, Eye, EyeSlash, WarningCircle, Sparkle } from "@phosphor-icons/react";
 
-const ERP_ROLES = ["super_admin", "center_manager", "accountant", "counsellor"];
+const ERP_ROLES = ["super_admin", "center_manager", "accountant", "counsellor", "attendance"];
 
 const ALLOWED_REDIRECTS = new Set([
   "/dashboard",
@@ -103,6 +103,10 @@ export default function Login() {
         return;
       }
 
+      if (u.role === "attendance") {
+        nav("/erp/erpattendance");
+        return;
+      }
       if (ERP_ROLES.includes(u.role)) {
         nav("/erp");
         return;

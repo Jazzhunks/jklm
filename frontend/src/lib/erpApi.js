@@ -120,7 +120,7 @@ export const canSeeStaff = isManagerPlus;
 // Grants accountants explicit permission privileges to write and manage student records
 export const canManageStudents = (user) => isSuper(user) || user?.role === "center_manager" || user?.role === "accountant";
 
-const ERP_ROLES = new Set(["super_admin", "admin", "center_manager", "accountant", "counsellor"]);
+const ERP_ROLES = new Set(["super_admin", "admin", "center_manager", "accountant", "counsellor", "attendance"]);
 export const isERPUser = (user) => ERP_ROLES.has(user?.role);
 
 // ============================================================================
