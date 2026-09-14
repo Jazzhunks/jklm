@@ -12,7 +12,8 @@ import ReactCrop, { centerCrop, makeAspectCrop, convertToPixelCrop } from "react
 import "react-image-crop/dist/ReactCrop.css";
 
 export default function ErpStudentDetail() {
-  const { id } = useParams();
+  const { id, student_no } = useParams();
+  const studentIdentifier = student_no || id;
   const nav = useNavigate();
   const { erpUser } = useOutletContext();
   
@@ -28,12 +29,12 @@ export default function ErpStudentDetail() {
   const [cropBlob, setCropBlob] = useState(null);
 
   const reload = () => {
-    erp.studentStatement(id)
+    erp.studentStatement(studentIdentifier)
       .then(setStmt)
       .catch(e => toast.error(formatError(e.response?.data?.detail) || "Failed to sync statement data"));
   };
 
-  useEffect(() => { reload(); }, [id]);
+  useEffect(() => { reload(); }, [studentIdentifier]);
 
   useEffect(() => {
     const timer = setInterval(() => { reload(); }, 30000);

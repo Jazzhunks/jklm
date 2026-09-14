@@ -6,7 +6,8 @@ import { api, formatError } from "@/lib/api";
 import { ArrowLeft, TrendingUp, TrendingDown, Users, Trophy, RefreshCw, Calendar, Share2 } from "lucide-react";
 
 export default function ScholarshipDashboard() {
-  const { id } = useParams();
+  const { id, slug } = useParams();
+  const campaignIdentifier = slug || id;
   const navigate = useNavigate();
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -18,7 +19,7 @@ export default function ScholarshipDashboard() {
     else setLoading(true);
 
     try {
-      const { data } = await api.get(`/scholarships/${id}/stats`, { 
+      const { data } = await api.get(`/scholarships/${campaignIdentifier}/stats`, { 
         signal,
         headers: { "X-Skip-Auth": "true" }
       });
@@ -31,7 +32,7 @@ export default function ScholarshipDashboard() {
       setLoading(false);
       setRefreshing(false);
     }
-  }, [id]);
+  }, [campaignIdentifier]);
 
   useEffect(() => {
     const controller = new AbortController();

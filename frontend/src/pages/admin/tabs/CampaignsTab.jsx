@@ -200,7 +200,7 @@ export default function CampaignsTab({ innerSearch }) {
                 <div className="grid grid-cols-2 sm:flex sm:flex-row gap-1.5 shrink-0 w-full sm:w-auto">
                   <Button size="sm" variant="default" onClick={() => navigate(`/admin/scholarships/${c.slug || c.id}/dashboard`)} className="rounded-lg text-xs font-bold bg-accent text-accent-foreground hover:bg-accent/90 cursor-pointer" data-testid={`campaign-dashboard-${c.id}`}>Dashboard</Button>
                   
-                  <Button size="sm" variant="outline" onClick={() => navigate(`/admin/campaigns/${c.id}/edit`)} className="rounded-lg text-xs font-bold cursor-pointer">
+                  <Button size="sm" variant="outline" onClick={() => navigate(`/admin/campaigns/${c.slug || c.id}/edit`)} className="rounded-lg text-xs font-bold cursor-pointer">
                     <Pencil size={13} className="mr-1.5"/> Edit
                   </Button>
 

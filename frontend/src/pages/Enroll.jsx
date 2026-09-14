@@ -26,9 +26,21 @@ export default function Enroll() {
   }, []);
 
   useEffect(() => {
-    if (!form.course_id && courses.length) setForm(f => ({ ...f, course_id: courses[0].id }));
+    if (courses.length) {
+      const courseParam = params.get("course");
+      if (courseParam) {
+        const found = courses.find(c => c.slug === courseParam || c.id === courseParam);
+        if (found) {
+          setForm(f => ({ ...f, course_id: found.id }));
+        } else if (!form.course_id) {
+          setForm(f => ({ ...f, course_id: courses[0].id }));
+        }
+      } else if (!form.course_id) {
+        setForm(f => ({ ...f, course_id: courses[0].id }));
+      }
+    }
     if (!form.center && centers.length) setForm(f => ({ ...f, center: centers[0].name }));
-  }, [courses, centers, form.course_id, form.center]);
+  }, [courses, centers, form.course_id, form.center, params]);
 
   const submit = async (e) => {
     e.preventDefault();

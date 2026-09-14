@@ -136,9 +136,9 @@ export default function ErpStudents() {
                     <td className="px-5 py-4 text-xs text-muted-foreground/60 whitespace-nowrap">{fmtDate(s.admission_date)}</td>
                     <td className="px-5 py-4 text-right whitespace-nowrap pr-6">
                       <Link 
-                        to={`/erp/students/${s.id}`} 
+                        to={`/erp/students/${encodeURIComponent(s.student_no || s.id)}`} 
                         className="inline-flex px-3 py-1.5 text-xs font-bold uppercase tracking-wider text-accent bg-accent/5 border border-accent/10 hover:bg-accent/20 rounded-lg transition duration-200" 
-                        data-testid={`view-student-${s.id}`}
+                        data-testid={`view-student-${s.student_no || s.id}`}
                       >
                         Open →
                       </Link>

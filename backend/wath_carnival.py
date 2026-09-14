@@ -12,6 +12,7 @@ The WATH page has three modes controlled by system_meta.wath_page_config:
 from __future__ import annotations
 import uuid
 import hashlib
+import re
 from datetime import datetime, timezone
 from typing import List, Optional, Dict, Any
 from fastapi import APIRouter, Depends, HTTPException
@@ -169,7 +170,7 @@ def build_wath_router(db, require_admin_dep) -> APIRouter:
 
     @router.get("/admin/wath/carnivals/{cid}")
     async def get_carnival_admin(cid: str, _admin=Depends(require_admin_dep)):
-        car = await db.wath_carnivals.find_one({"id": cid}, {"_id": 0})
+        car = await db.wath_carnivals.find_one({"$or": [{"id": cid}, {"slug": cid}]}, {"_id": 0})
         if not car:
             raise HTTPException(404, "Carnival not found")
         return await _hydrate_carnival(car)
@@ -178,6 +179,9 @@ def build_wath_router(db, require_admin_dep) -> APIRouter:
     async def create_carnival(payload: WathCarnivalIn, _admin=Depends(require_admin_dep)):
         doc = payload.model_dump()
         doc["id"] = _new_id()
+        title = doc.get("title") or doc.get("name") or "carnival"
+        clean_slug = re.sub(r"[^\w\s-]", "", title.lower().strip())
+        doc["slug"] = re.sub(r"[\s_-]+", "-", clean_slug).strip("-")
         doc["kind"] = "carnival"
         doc["created_at"] = _iso()
         await db.wath_carnivals.insert_one(doc)
@@ -186,29 +190,37 @@ def build_wath_router(db, require_admin_dep) -> APIRouter:
 
     @router.put("/admin/wath/carnivals/{cid}")
     async def update_carnival(cid: str, payload: WathCarnivalIn, _admin=Depends(require_admin_dep)):
+        existing = await db.wath_carnivals.find_one({"$or": [{"id": cid}, {"slug": cid}]}, {"_id": 0})
+        real_id = existing["id"] if existing else cid
         data = payload.model_dump()
+        title = data.get("title") or data.get("name") or "carnival"
+        clean_slug = re.sub(r"[^\w\s-]", "", title.lower().strip())
+        data["slug"] = re.sub(r"[\s_-]+", "-", clean_slug).strip("-")
         data["updated_at"] = _iso()
-        res = await db.wath_carnivals.update_one({"id": cid}, {"$set": data})
+        res = await db.wath_carnivals.update_one({"id": real_id}, {"$set": data})
         if not res.matched_count:
             raise HTTPException(404, "Carnival not found")
-        car = await db.wath_carnivals.find_one({"id": cid}, {"_id": 0})
+        car = await db.wath_carnivals.find_one({"id": real_id}, {"_id": 0})
         return await _hydrate_carnival(car)
 
     @router.delete("/admin/wath/carnivals/{cid}")
     async def delete_carnival(cid: str, _admin=Depends(require_admin_dep)):
-        # Un-set active_carnival_id if we're deleting the active one
+        existing = await db.wath_carnivals.find_one({"$or": [{"id": cid}, {"slug": cid}]}, {"_id": 0})
+        real_id = existing["id"] if existing else cid
         cfg = await _get_page_config()
-        if cfg.get("active_carnival_id") == cid:
+        if cfg.get("active_carnival_id") in (cid, real_id):
             await db.system_meta.update_one({"key": PAGE_CONFIG_KEY}, {"$set": {"active_carnival_id": None, "mode": "exam"}})
-        await db.wath_carnivals.delete_one({"id": cid})
-        await db.wath_slot_counts.delete_many({"carnival_id": cid})
+        await db.wath_carnivals.delete_one({"id": real_id})
+        await db.wath_slot_counts.delete_many({"carnival_id": real_id})
         return {"ok": True}
 
     # ---------- Admin: per-carnival registrations ----------
     @router.get("/admin/wath/carnivals/{cid}/registrations")
     async def list_registrations(cid: str, _admin=Depends(require_admin_dep)):
+        existing = await db.wath_carnivals.find_one({"$or": [{"id": cid}, {"slug": cid}]}, {"_id": 0})
+        real_id = existing["id"] if existing else cid
         return await db.scholarship_applications.find(
-            {"carnival_id": cid}, {"_id": 0}
+            {"$or": [{"carnival_id": cid}, {"carnival_id": real_id}]}, {"_id": 0}
         ).sort("created_at", -1).to_list(2000)
 
     return router

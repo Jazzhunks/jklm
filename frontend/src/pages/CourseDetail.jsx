@@ -57,7 +57,8 @@ const fadeUp = {
 /* -------------------------------------------------------------------------- */
 
 export default function CourseDetail() {
-  const { id } = useParams();
+  const { id, slug } = useParams();
+  const courseIdentifier = slug || id;
 
   const [course, setCourse] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -74,7 +75,7 @@ export default function CourseDetail() {
     async function loadCourse() {
       try {
         setLoading(true);
-        const response = await api.get(`/courses/${id}`);
+        const response = await api.get(`/courses/${courseIdentifier}`);
 
         if (mounted) {
           setCourse(response.data);
@@ -95,7 +96,7 @@ export default function CourseDetail() {
     return () => {
       mounted = false;
     };
-  }, [id]);
+  }, [courseIdentifier]);
 
   /* ---------------------------------------------------------------------- */
   /* MEMOS */
@@ -486,7 +487,7 @@ export default function CourseDetail() {
                   {/* CTA */}
                   <div className="relative z-10 mt-7 space-y-3">
                     <Link
-                      to={`/enroll?course=${course.id}`}
+                      to={`/enroll?course=${encodeURIComponent(course.slug || course.id)}`}
                       className="block"
                     >
                       <CTAPrimary

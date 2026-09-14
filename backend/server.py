@@ -941,14 +941,16 @@ async def create_course(payload: CourseIn, _admin = Depends(require_admin)):
 @api.put("/courses/{cid}")
 async def update_course(cid: str, payload: CourseIn, _admin = Depends(require_admin)):
     data = payload.model_dump()
-    data["slug"] = await unique_slug("courses", data["title"], exclude_id=cid)
-    res = await db.courses.update_one({"id": cid}, {"$set": data})
+    existing = await db.courses.find_one({"$or": [{"id": cid}, {"slug": cid}]}, {"_id": 0})
+    real_id = existing["id"] if existing else cid
+    data["slug"] = await unique_slug("courses", data["title"], exclude_id=real_id)
+    res = await db.courses.update_one({"id": real_id}, {"$set": data})
     if not res.matched_count: raise HTTPException(404, "Course not found")
-    return await db.courses.find_one({"id": cid}, {"_id": 0})
+    return await db.courses.find_one({"id": real_id}, {"_id": 0})
 
 @api.delete("/courses/{cid}")
 async def delete_course(cid: str, _admin = Depends(require_admin)):
-    await db.courses.update_one({"id": cid}, {"$set": {"is_deleted": True}})
+    await db.courses.update_one({"$or": [{"id": cid}, {"slug": cid}]}, {"$set": {"is_deleted": True}})
     return {"ok": True}
 
 # ---------- Scholarships ----------
@@ -1019,27 +1021,31 @@ async def create_scholarship(payload: ScholarshipIn, _admin = Depends(require_ad
 
 @api.put("/scholarships/{sid}")
 async def update_scholarship(sid: str, payload: ScholarshipIn, _admin = Depends(require_admin)):
+    existing = await db.scholarships.find_one({"$or": [{"id": sid}, {"slug": sid}]}, {"_id": 0})
+    real_id = existing["id"] if existing else sid
     data = payload.model_dump()
-    data["slug"] = await unique_slug("scholarships", data["title"], exclude_id=sid)
+    data["slug"] = await unique_slug("scholarships", data["title"], exclude_id=real_id)
     if data.get("available_venues"):
         data["available_venues"] = [_sanitize_venue(v) for v in data["available_venues"]]
-    await db.scholarships.update_one({"id": sid}, {"$set": data})
+    await db.scholarships.update_one({"id": real_id}, {"$set": data})
     _validate_school_campaign(data)
     if data.get("is_featured"):
-        await _clear_featured_except("scholarships", sid)
-    return await db.scholarships.find_one({"id": sid}, {"_id": 0})
+        await _clear_featured_except("scholarships", real_id)
+    return await db.scholarships.find_one({"id": real_id}, {"_id": 0})
 
 @api.post("/admin/scholarships/{sid}/regenerate-token")
 async def regenerate_examiner_token(sid: str, _admin = Depends(require_admin)):
+    existing = await db.scholarships.find_one({"$or": [{"id": sid}, {"slug": sid}]}, {"_id": 0})
+    real_id = existing["id"] if existing else sid
     new_token = uuid.uuid4().hex
-    res = await db.scholarships.update_one({"id": sid}, {"$set": {"examiner_token": new_token}})
+    res = await db.scholarships.update_one({"id": real_id}, {"$set": {"examiner_token": new_token}})
     if not res.matched_count:
         raise HTTPException(404, "Campaign not found")
     return {"examiner_token": new_token}
 
 @api.delete("/scholarships/{sid}")
 async def delete_scholarship(sid: str, _admin = Depends(require_admin)):
-    await db.scholarships.update_one({"id": sid}, {"$set": {"is_deleted": True}})
+    await db.scholarships.update_one({"$or": [{"id": sid}, {"slug": sid}]}, {"$set": {"is_deleted": True}})
     return {"ok": True}
 
 @api.post("/scholarship-applications")
@@ -2587,6 +2593,7 @@ async def list_centers(
 async def create_center(payload: CenterIn, _admin = Depends(require_admin)):
     doc = payload.model_dump()
     doc["id"] = new_id()
+    doc["slug"] = await unique_slug("centers", doc.get("name") or "center")
     doc["created_at"] = now_iso()
     await db.centers.insert_one(doc)
     doc.pop("_id", None)
@@ -2594,12 +2601,16 @@ async def create_center(payload: CenterIn, _admin = Depends(require_admin)):
 
 @api.put("/centers/{cid}")
 async def update_center(cid: str, payload: CenterIn, _admin = Depends(require_admin)):
-    await db.centers.update_one({"id": cid}, {"$set": payload.model_dump()})
-    return await db.centers.find_one({"id": cid}, {"_id": 0})
+    existing = await db.centers.find_one({"$or": [{"id": cid}, {"slug": cid}]}, {"_id": 0})
+    real_id = existing["id"] if existing else cid
+    data = payload.model_dump()
+    data["slug"] = await unique_slug("centers", data.get("name") or "center", exclude_id=real_id)
+    await db.centers.update_one({"id": real_id}, {"$set": data})
+    return await db.centers.find_one({"id": real_id}, {"_id": 0})
 
 @api.delete("/centers/{cid}")
 async def delete_center(cid: str, _admin = Depends(require_admin)):
-    await db.centers.update_one({"id": cid}, {"$set": {"is_deleted": True}})
+    await db.centers.update_one({"$or": [{"id": cid}, {"slug": cid}]}, {"$set": {"is_deleted": True}})
     return {"ok": True}
 
 # ---------- Results ----------
@@ -3774,6 +3785,17 @@ async def _backfill_slugs():
         async for doc in cursor:
             slug = await unique_slug(coll, doc.get("title") or "item", exclude_id=doc.get("id"))
             await db[coll].update_one({"id": doc["id"]}, {"$set": {"slug": slug}})
+    # Backfill centers
+    cursor = db.centers.find({"$or": [{"slug": {"$exists": False}}, {"slug": None}, {"slug": ""}]}, {"id": 1, "name": 1})
+    async for doc in cursor:
+        slug = await unique_slug("centers", doc.get("name") or "center", exclude_id=doc.get("id"))
+        await db.centers.update_one({"id": doc["id"]}, {"$set": {"slug": slug}})
+    # Backfill carnivals
+    cursor = db.wath_carnivals.find({"$or": [{"slug": {"$exists": False}}, {"slug": None}, {"slug": ""}]}, {"id": 1, "title": 1, "name": 1})
+    async for doc in cursor:
+        title = doc.get("title") or doc.get("name") or "carnival"
+        slug = await unique_slug("wath_carnivals", title, exclude_id=doc.get("id"))
+        await db.wath_carnivals.update_one({"id": doc["id"]}, {"$set": {"slug": slug}})
 
 
 async def _schedule_daily_summary():

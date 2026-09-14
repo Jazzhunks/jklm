@@ -523,7 +523,7 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
 
     @erp.get("/students/{student_id}")
     async def get_student(student_id: str, user: dict = Depends(require_erp)):
-        s = await db.erp_students.find_one({"id": student_id}, {"_id": 0})
+        s = await db.erp_students.find_one({"$or": [{"id": student_id}, {"student_no": student_id}]}, {"_id": 0})
         if not s:
             raise HTTPException(404, "Student not found")
         if not can_view_branch(user, s["branch_id"]):
@@ -534,18 +534,19 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
 
     @erp.patch("/students/{student_id}")
     async def update_student(student_id: str, payload: StudentUpdate, user: dict = Depends(require_erp)):
-        s = await db.erp_students.find_one({"id": student_id}, {"_id": 0})
+        s = await db.erp_students.find_one({"$or": [{"id": student_id}, {"student_no": student_id}]}, {"_id": 0})
         if not s:
             raise HTTPException(404, "Student not found")
+        real_id = s["id"]
         if user["role"] == "counsellor":
             raise HTTPException(403, "Counsellors cannot edit student records")
         if not can_view_branch(user, s["branch_id"]):
             raise HTTPException(403, "Cross-branch denied")
         patch = {k: v for k, v in payload.dict(exclude_unset=True).items() if v is not None}
         if patch:
-            await db.erp_students.update_one({"id": student_id}, {"$set": patch})
-        await audit(user, "update", "student", student_id, s["branch_id"], {"fields": list(patch.keys())})
-        return await db.erp_students.find_one({"id": student_id}, {"_id": 0})
+            await db.erp_students.update_one({"id": real_id}, {"$set": patch})
+        await audit(user, "update", "student", real_id, s["branch_id"], {"fields": list(patch.keys())})
+        return await db.erp_students.find_one({"id": real_id}, {"_id": 0})
 
     # ===== PAYMENTS / RECEIPTS =====
     @erp.post("/payments")
@@ -617,14 +618,15 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
 
     @erp.get("/students/{student_id}/statement")
     async def student_statement(student_id: str, user: dict = Depends(require_erp)):
-        s = await db.erp_students.find_one({"id": student_id}, {"_id": 0})
+        s = await db.erp_students.find_one({"$or": [{"id": student_id}, {"student_no": student_id}]}, {"_id": 0})
         if not s:
             raise HTTPException(404, "Student not found")
+        real_id = s["id"]
         if not can_view_branch(user, s["branch_id"]):
             raise HTTPException(403, "Cross-branch denied")
         if user["role"] == "counsellor" and s.get("counsellor_id") != user["id"]:
             raise HTTPException(403, "Not your student")
-        payments = await db.erp_payments.find({"student_id": student_id}, {"_id": 0}).sort("paid_at", 1).to_list(1000)
+        payments = await db.erp_payments.find({"$or": [{"student_id": student_id}, {"student_id": real_id}]}, {"_id": 0}).sort("paid_at", 1).to_list(1000)
         total_paid = sum(p["amount"] for p in payments)
         scholarship_amt = float(s["total_fee"]) * float(s.get("scholarship_percent", 0)) / 100.0
         discount = float(s.get("discount", 0))
@@ -1095,9 +1097,10 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
     # ===== STUDENT PHOTO UPLOAD =====
     @erp.post("/students/{student_id}/photo")
     async def upload_student_photo(student_id: str, file: UploadFile = File(...), user: dict = Depends(require_erp)):
-        s = await db.erp_students.find_one({"id": student_id}, {"_id": 0})
+        s = await db.erp_students.find_one({"$or": [{"id": student_id}, {"student_no": student_id}]}, {"_id": 0})
         if not s:
             raise HTTPException(404, "Student not found")
+        real_id = s["id"]
         if not can_view_branch(user, s["branch_id"]):
             raise HTTPException(403, "Cross-branch denied")
         if user["role"] == "counsellor":
@@ -1134,7 +1137,7 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
         await db.files.insert_one(record)
         record.pop("_id", None)
         photo_url = f"/api/files/{file_id}"
-        await db.erp_students.update_one({"id": student_id}, {"$set": {"photo_url": photo_url}})
+        await db.erp_students.update_one({"id": real_id}, {"$set": {"photo_url": photo_url}})
         return {"photo_url": photo_url}
 
     # ===== TEMP STUDENTS =====

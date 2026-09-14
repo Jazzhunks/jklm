@@ -100,6 +100,7 @@ export default function App() {
             >
               <Route index element={<ErpDashboard />} />
               <Route path="students" element={<ErpStudents />} />
+              <Route path="students/:student_no" element={<ErpStudentDetail />} />
               <Route path="students/:id" element={<ErpStudentDetail />} />
               <Route path="payments" element={<ErpPayments />} />
               <Route path="expenses" element={<ErpExpenses />} />
@@ -119,6 +120,7 @@ export default function App() {
               <Route path="/" element={<Home />} />
               <Route path="/about" element={<About />} />
               <Route path="/courses" element={<Courses />} />
+              <Route path="/courses/:slug" element={<CourseDetail />} />
               <Route path="/courses/:id" element={<CourseDetail />} />
               <Route path="/scholarship" element={<Scholarship />} />
               <Route path="/scholarship/:slug/apply" element={<ScholarshipApply />} />
@@ -138,7 +140,9 @@ export default function App() {
               <Route path="/gallery" element={<Gallery />} />
               
               {/* Unprotected Public Scholarship Dashboards */}
+              <Route path="/scholarships/:slug/dashboard" element={<ScholarshipDashboard />} />
               <Route path="/scholarships/:id/dashboard" element={<ScholarshipDashboard />} />
+              <Route path="/admin/scholarships/:slug/dashboard" element={<ScholarshipDashboard />} />
               <Route path="/admin/scholarships/:id/dashboard" element={<ScholarshipDashboard />} />
 
               {/* Authenticated Student/Admin Profile Nodes */}
@@ -146,8 +150,10 @@ export default function App() {
               <Route path="/school-dashboard" element={<Protected allowedRoles={SCHOOL_ONLY}><SchoolDashboard /></Protected>} />
               <Route path="/admin" element={<Protected allowedRoles={ADMIN_ONLY}><AdminDashboard /></Protected>} />
               <Route path="/admin/school-visits" element={<Protected allowedRoles={ADMIN_ONLY}><AdminSchoolVisits /></Protected>} />
+              <Route path="/admin/carnivals/:slug/dashboard" element={<Protected allowedRoles={ADMIN_ONLY}><CarnivalDashboard /></Protected>} />
               <Route path="/admin/carnivals/:id/dashboard" element={<Protected allowedRoles={ADMIN_ONLY}><CarnivalDashboard /></Protected>} />
               <Route path="/admin/campaigns/new" element={<Protected allowedRoles={ADMIN_ONLY}><CampaignFormPage /></Protected>} />
+              <Route path="/admin/campaigns/:slug/edit" element={<Protected allowedRoles={ADMIN_ONLY}><CampaignFormPage /></Protected>} />
               <Route path="/admin/campaigns/:id/edit" element={<Protected allowedRoles={ADMIN_ONLY}><CampaignFormPage /></Protected>} />
               
               {/* Universal Fallback Direct Catch */}

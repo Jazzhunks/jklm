@@ -158,7 +158,7 @@ export default function WATHManagement() {
                   </div>
                 </div>
                 <div className="flex items-center gap-1.5 flex-wrap">
-                  <button onClick={() => navigate(`/admin/carnivals/${c.id}/dashboard`)} className="text-[11px] font-medium px-2.5 py-1.5 rounded-lg border border-white/10 hover:bg-white/5 inline-flex items-center gap-1" data-testid={`carnival-regs-${c.id}`}>
+                  <button onClick={() => navigate(`/admin/carnivals/${c.slug || c.id}/dashboard`)} className="text-[11px] font-medium px-2.5 py-1.5 rounded-lg border border-white/10 hover:bg-white/5 inline-flex items-center gap-1" data-testid={`carnival-regs-${c.id}`}>
                     <Users size={12}/> Dashboard
                   </button>
                   <button onClick={() => setEditing({ ...c })} className="text-[11px] font-medium px-2.5 py-1.5 rounded-lg border border-white/10 hover:bg-white/5 inline-flex items-center gap-1" data-testid={`carnival-edit-${c.id}`}>

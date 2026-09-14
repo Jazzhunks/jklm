@@ -12,9 +12,10 @@ const TYPE_OPTIONS = [
 ];
 
 export default function CampaignFormPage() {
-  const { id } = useParams();
+  const { id, slug } = useParams();
+  const campaignIdentifier = slug || id;
   const navigate = useNavigate();
-  const isEdit = Boolean(id);
+  const isEdit = Boolean(campaignIdentifier);
   const [loading, setLoading] = useState(isEdit);
   const [saving, setSaving] = useState(false);
   const [customVenue, setCustomVenue] = useState("");
@@ -42,7 +43,7 @@ export default function CampaignFormPage() {
   useEffect(() => {
     if (!isEdit) return;
     setLoading(true);
-    api.get(`/scholarships/${id}`)
+    api.get(`/scholarships/${campaignIdentifier}`)
       .then(r => {
         const d = r.data || {};
         setForm({
@@ -67,7 +68,7 @@ export default function CampaignFormPage() {
       })
       .catch(e => toast.error(formatError(e.response?.data?.detail) || "Failed to load campaign"))
       .finally(() => setLoading(false));
-  }, [id, isEdit]);
+  }, [campaignIdentifier, isEdit]);
 
   const update = (patch) => setForm(prev => ({ ...prev, ...patch }));
 
@@ -100,7 +101,7 @@ export default function CampaignFormPage() {
         available_venues: form.available_venues.map(v => v.trim()),
       };
       if (isEdit) {
-        await api.put(`/scholarships/${id}`, payload);
+        await api.put(`/scholarships/${campaignIdentifier}`, payload);
         toast.success("Campaign updated");
       } else {
         await api.post("/scholarships", payload);

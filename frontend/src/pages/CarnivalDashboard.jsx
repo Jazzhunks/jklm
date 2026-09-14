@@ -10,7 +10,8 @@ import {
 const CLASSES = ["Class 7", "Class 8", "Class 9", "Class 10", "Class 11", "Class 12", "Dropper (JEE)", "Dropper (NEET)"];
 
 export default function CarnivalDashboard() {
-  const { id } = useParams();
+  const { id, slug } = useParams();
+  const carnivalId = slug || id;
   const navigate = useNavigate();
   const [carnival, setCarnival] = useState(null);
   const [regs, setRegs] = useState([]);
@@ -20,8 +21,8 @@ export default function CarnivalDashboard() {
     let mounted = true;
     setLoading(true);
     Promise.all([
-      api.get(`/admin/wath/carnivals/${id}`),
-      api.get(`/admin/wath/carnivals/${id}/registrations`),
+      api.get(`/admin/wath/carnivals/${carnivalId}`),
+      api.get(`/admin/wath/carnivals/${carnivalId}/registrations`),
     ])
       .then(([cRes, rRes]) => {
         if (!mounted) return;
@@ -41,7 +42,7 @@ export default function CarnivalDashboard() {
         if (mounted) setLoading(false);
       });
     return () => { mounted = false; };
-  }, [id]);
+  }, [carnivalId]);
 
   const fmtDate = (iso) => {
     if (!iso) return "—";

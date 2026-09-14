@@ -306,7 +306,7 @@ export default function Home() {
 
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
               {(Array.isArray(courses) ? courses : []).slice(0, 6).map(c => (
-                <Link to={`/courses/${c.id}`} key={c.id} className="h-full">
+                <Link to={`/courses/${c.slug || c.id}`} key={c.id} className="h-full">
                   <CourseCard3D course={c} />
                 </Link>
               ))}
