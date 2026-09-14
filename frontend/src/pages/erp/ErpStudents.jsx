@@ -408,15 +408,20 @@ function CreateStudentModal({ erpUser, branches, defaultBranchId, onClose, onCre
     address: "",
     contact_phone: "",
     contact_email: "",
+    emergency_phone: "",
     parent_name: "",
     parent_phone: "",
     parent_email: "",
     current_class: "",
+    school_institute: "",
+    board: "CBSE",
+    category: "General",
     course_id: "",
     batch: "",
-    batch_timing: "",
-    course_duration: "",
+    batch_timing: "Morning",
+    course_duration: "1 Year",
     branch_id: defaultBranchId || (branches[0]?.id || ""),
+    admission_date: new Date().toISOString().split("T")[0],
     total_fee: "",
     scholarship_percent: 0,
     discount: 0,
@@ -555,6 +560,38 @@ function CreateStudentModal({ erpUser, branches, defaultBranchId, onClose, onCre
               </select>
             </div>
             <div>
+              <label className={labelCls}>Board</label>
+              <select value={form.board} onChange={e => setForm(f => ({ ...f, board: e.target.value }))} className={inputCls}>
+                <option value="CBSE">CBSE</option>
+                <option value="State Board">State Board</option>
+                <option value="ICSE">ICSE</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+            <div>
+              <label className={labelCls}>Category</label>
+              <select value={form.category} onChange={e => setForm(f => ({ ...f, category: e.target.value }))} className={inputCls}>
+                <option value="General">General</option>
+                <option value="OBC">OBC</option>
+                <option value="SC">SC</option>
+                <option value="ST">ST</option>
+              </select>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div className="sm:col-span-2">
+              <label className={labelCls}>Previous School / Institute</label>
+              <input type="text" value={form.school_institute} onChange={e => setForm(f => ({ ...f, school_institute: e.target.value }))} placeholder="Name of previous school or institute" className={inputCls} />
+            </div>
+            <div>
+              <label className={labelCls}>Admission Date *</label>
+              <input type="date" required value={form.admission_date} onChange={e => setForm(f => ({ ...f, admission_date: e.target.value }))} className={inputCls} />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div>
               <label className={labelCls}>Course *</label>
               <select required value={form.course_id} onChange={e => setForm(f => ({ ...f, course_id: e.target.value }))} className={inputCls}>
                 <option value="">Select Course</option>
@@ -568,13 +605,13 @@ function CreateStudentModal({ erpUser, branches, defaultBranchId, onClose, onCre
                 {branches.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}
               </select>
             </div>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div>
               <label className={labelCls}>Batch Name</label>
               <input type="text" value={form.batch} onChange={e => setForm(f => ({ ...f, batch: e.target.value }))} placeholder="e.g. NEET-2026-B1" className={inputCls} />
             </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <label className={labelCls}>Morning / Afternoon / Evening</label>
               <select value={form.batch_timing} onChange={e => setForm(f => ({ ...f, batch_timing: e.target.value }))} className={inputCls}>
@@ -590,7 +627,7 @@ function CreateStudentModal({ erpUser, branches, defaultBranchId, onClose, onCre
             </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div>
               <label className={labelCls}>Parent / Guardian Name *</label>
               <input type="text" required value={form.parent_name} onChange={e => setForm(f => ({ ...f, parent_name: e.target.value }))} placeholder="Father or guardian full name" className={inputCls} />
@@ -598,6 +635,10 @@ function CreateStudentModal({ erpUser, branches, defaultBranchId, onClose, onCre
             <div>
               <label className={labelCls}>Parent Mobile Number *</label>
               <input type="tel" required value={form.parent_phone} onChange={e => setForm(f => ({ ...f, parent_phone: e.target.value }))} placeholder="Primary parent mobile" className={inputCls} />
+            </div>
+            <div>
+              <label className={labelCls}>Emergency / Alt Number</label>
+              <input type="tel" value={form.emergency_phone} onChange={e => setForm(f => ({ ...f, emergency_phone: e.target.value }))} placeholder="Alternative contact" className={inputCls} />
             </div>
           </div>
 

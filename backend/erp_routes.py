@@ -76,10 +76,14 @@ class StudentCreate(BaseModel):
     address: Optional[str] = None
     contact_phone: str
     contact_email: Optional[EmailStr] = None
+    emergency_phone: Optional[str] = None
     parent_name: Optional[str] = None
     parent_phone: Optional[str] = None
     parent_email: Optional[EmailStr] = None
     current_class: Optional[str] = None
+    school_institute: Optional[str] = None
+    board: Optional[str] = None
+    category: Optional[str] = None
     course_id: str
     batch: Optional[str] = None
     batch_timing: Optional[str] = None
