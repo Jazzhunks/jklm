@@ -623,6 +623,7 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
         })
         try:
             await db.erp_students.insert_one(doc)
+            doc.pop("_id", None)
         except Exception as e:
             raise HTTPException(500, f"Database insert error: {e}")
         await audit(user, "create", "student", doc["id"], payload.branch_id, {"student_no": student_no})
