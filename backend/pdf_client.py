@@ -757,22 +757,16 @@ def bulk_id_card_pdf(students_data: list) -> bytes:
         c.setFillColorRGB(*blue_color)
         c.rect(x_left, front_top - 40*mm, card_w, 40*mm, stroke=0, fill=1)
         
-        # 2. Logo Unacademy (White color, directly on blue header)
+        # 2. Logo Unacademy (White color PNG, directly on blue header)
         try:
-            from svglib.svglib import svg2rlg
-            from reportlab.graphics import renderPDF
             import os
-            logo_path = os.path.join(os.path.dirname(__file__), "white_logo.svg")
-            logo_drawing = svg2rlg(logo_path)
-            if logo_drawing:
-                target_w = 24 * mm
-                scale = target_w / logo_drawing.width
-                logo_drawing.scale(scale, scale)
-                logo_drawing.width = target_w
-                logo_drawing.height = logo_drawing.height * scale
-                renderPDF.draw(logo_drawing, c, x_center - target_w/2, front_top - 15*mm)
-            else:
-                raise Exception("Empty logo")
+            from reportlab.lib.utils import ImageReader
+            logo_path = os.path.join(os.path.dirname(__file__), "white_logo_cropped.png")
+            logo_img = ImageReader(logo_path)
+            target_w = 24 * mm
+            target_h = 4 * mm
+            # We want the logo's visual center to be at front_top - 14*mm
+            c.drawImage(logo_img, x_center - target_w/2, front_top - 14*mm - target_h/2, target_w, target_h, preserveAspectRatio=True, mask="auto")
         except Exception as e:
             c.setFillColorRGB(1, 1, 1)
             c.setFont("Helvetica-Bold", 7)
@@ -858,11 +852,12 @@ def bulk_id_card_pdf(students_data: list) -> bytes:
         luid = data.get("luid")
         c.drawCentredString(0, qr_y_center - 20*mm, f"LUID: {luid}" if luid else "")
         
-        # 3. Logo (Unacademy Logo, white color directly on blue background)
+        # 3. Logo (Unacademy Logo, white color PNG directly on blue background)
         logo_y = qr_y_center - 32*mm
         try:
-            if logo_drawing: # reused from front
-                renderPDF.draw(logo_drawing, c, -target_w/2, logo_y - (logo_drawing.height / 2.0))
+            if logo_img: # reused from front
+                # Draw the cropped image centered
+                c.drawImage(logo_img, -target_w/2, logo_y - target_h/2, target_w, target_h, preserveAspectRatio=True, mask="auto")
         except Exception:
             c.setFillColorRGB(1, 1, 1)
             c.setFont("Helvetica-Bold", 7)
