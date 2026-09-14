@@ -76,6 +76,7 @@ export const erp = {
   // --- Payments ---
   listPayments: (params = {}) => api.get("/erp/payments", { params }).then(resData),
   createPayment: (body) => api.post("/erp/payments", body).then(resData).then((d) => { broadcastMutation("payment", "create", d); return d; }),
+  updatePayment: (id, body) => api.patch(`/erp/payments/${encodeURIComponent(id)}`, body).then(resData).then((d) => { broadcastMutation("payment", "update", d); return d; }),
   deletePayment: (id) => api.delete(`/erp/payments/${encodeURIComponent(id)}`).then(resData).then((d) => { broadcastMutation("payment", "delete", { id }); return d; }),
 
   // --- Expenses ---
