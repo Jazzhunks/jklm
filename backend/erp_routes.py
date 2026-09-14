@@ -162,6 +162,7 @@ class ExpenseDecision(BaseModel):
 
 class GstMarkPaidIn(BaseModel):
     month: str
+    branch_id: Optional[str] = None
     status: Literal["PAID", "UNPAID"] = "PAID"
     challan_no: Optional[str] = None
     paid_date: Optional[str] = None
