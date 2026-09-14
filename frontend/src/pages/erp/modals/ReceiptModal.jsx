@@ -53,14 +53,14 @@ export default function ReceiptModal({ payment, student, onClose }) {
   };
 
   const handleShareWhatsApp = () => {
-    const text = `*NORTHEND EDUCATIONAL WORLD*\nOfficial Payment Receipt\n\nReceipt No: ${receiptNo}\nStudent ID: ${studentNo}\nStudent Name: ${studentName}\nCourse: ${finalCourseTitle}\nAmount Paid: ₹${amount.toLocaleString("en-IN")}\nDate: ${paidAt}\nPayment Mode: ${mode}\nNext Term Due: ${nextDueDate}\n\nDownload Digital Tax Receipt:\n${window.location.origin}/api/erp/receipts/${encodeURIComponent(receiptNo)}.pdf?format=${format.startsWith("thermal") ? "thermal" : "a4"}`;
+    const text = `*NORTHEND EDUCATIONAL WORLD*\nOfficial Payment Receipt\n\nReceipt No: ${receiptNo}\nStudent ID: ${studentNo}\nStudent Name: ${studentName}\nCourse: ${finalCourseTitle}\nAmount Paid: ₹${amount.toLocaleString("en-IN")}\nDate: ${paidAt}\nPayment Mode: ${mode}\nNext Term Due: ${nextDueDate}\n\nDownload Digital Tax Receipt:\n${window.location.origin}/r/${encodeURIComponent(receiptNo)}`;
     const cleanPhone = phone.replace(/[^0-9]/g, "");
     const target = cleanPhone.length === 10 ? `91${cleanPhone}` : cleanPhone;
     window.open(`https://wa.me/${target}?text=${encodeURIComponent(text)}`, "_blank");
   };
 
   const handleCopyLink = () => {
-    navigator.clipboard.writeText(`${window.location.origin}/api/erp/receipts/${encodeURIComponent(receiptNo)}.pdf`);
+    navigator.clipboard.writeText(`${window.location.origin}/r/${encodeURIComponent(receiptNo)}`);
     toast.success("Receipt link copied to clipboard");
   };
 

@@ -157,6 +157,7 @@ export default function App() {
               {/* Universal Fallback Direct Catch */}
               <Route path="*" element={<Navigate to="/" replace />} />
               <Route path="student-profile/:enrollment_number" element={<PublicStudentProfile />} />
+              <Route path="r/:receiptNo" element={<PublicReceipt />} />
             </Route>
           </Routes>
         </Suspense>
