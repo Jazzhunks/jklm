@@ -107,7 +107,13 @@ export const erp = {
 
   // --- Audit ---
   audit: (params = {}) => api.get("/erp/audit", { params }).then(resData),
+
+  // --- Treasury & Banking ---
+  getTreasurySummary: (params = {}) => api.get('/erp/treasury/summary', { params }).then(resData),
+  listTreasuryTransfers: (params = {}) => api.get('/erp/treasury/transfers', { params }).then(resData),
+  createTreasuryTransfer: (body) => api.post('/erp/treasury/transfers', body).then(resData),
 };
+
 
 // ============================================================================
 // ROLE-BASED ACCESS CONTROL (RBAC) SYSTEM HELPERS
