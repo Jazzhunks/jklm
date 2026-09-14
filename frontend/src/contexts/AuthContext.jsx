@@ -18,7 +18,9 @@ export function AuthProvider({ children }) {
       const { data } = await api.get("/auth/me");
       setUser(data);
     } catch (err) {
-      console.error("Session verification fallback triggered:", err);
+      if (err?.response?.status !== 401) {
+        console.error("Session verification fallback triggered:", err);
+      }
       setUser(null);
     } finally {
       setLoading(false);

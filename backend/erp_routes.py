@@ -607,7 +607,7 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
         if not await db.courses.find_one({"id": payload.course_id}):
             raise HTTPException(400, "Course not found")
         student_no = await gen_student_no(payload.branch_id)
-        doc = payload.dict()
+        doc = payload.model_dump()
         doc.update({
             "id": new_id(),
             "student_no": student_no,
@@ -858,7 +858,7 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
         if not await db.centers.find_one({"id": payload.branch_id}):
             raise HTTPException(400, "Branch not found")
         auto_approved = user["role"] in {"super_admin", "center_manager"}
-        doc = payload.dict()
+        doc = payload.model_dump()
         doc.update({
             "id": new_id(),
             "status": "approved" if auto_approved else "pending",
@@ -964,7 +964,7 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
         if user["role"] != "super_admin" and payload.branch_id != user.get("branch_id"):
             raise HTTPException(403, "Cross-branch denied")
         cid = payload.counsellor_id or (user["id"] if user["role"] == "counsellor" else None)
-        doc = payload.dict()
+        doc = payload.model_dump()
         doc.update({
             "id": new_id(),
             "status": "new",
