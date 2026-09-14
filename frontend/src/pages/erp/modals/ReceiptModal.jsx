@@ -13,7 +13,28 @@ export default function ReceiptModal({ payment, student, onClose }) {
   const receiptNo = payment.receipt_no || "—";
   const studentNo = payment.student_no || student?.student_no || "—";
   const studentName = payment.student_name || student?.full_name || "Student";
-  const courseTitle = payment.course_title || student?.course?.title || "Academic Program";
+  // Map class to scheme
+  const getSchemeName = (cClass, cCourse) => {
+    const cl = String(cClass || "").toLowerCase();
+    const co = String(cCourse || "").toUpperCase();
+    const suffix = co.includes("NEET") ? " NEET" : (co.includes("IIT") || co.includes("JEE") ? " IIT" : "");
+    if (cl.includes("8")) return "Beginner";
+    if (cl.includes("9")) return "Adapt";
+    if (cl.includes("10")) return "Elevate";
+    if (cl.includes("11")) return "Growth" + suffix;
+    if (cl.includes("12")) return "Excel" + suffix;
+    if (cl.includes("drop") || cl.includes("13")) return "Conquer" + suffix;
+    return cCourse || cl || "Academic Program";
+  };
+  
+  const schemeName = getSchemeName(student?.current_class, student?.course?.title);
+  
+  const roman = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X"];
+  const instNo = payment.installment_no || 1;
+  const instStr = instNo <= 10 ? roman[instNo - 1] : String(instNo);
+  
+  const finalCourseTitle = `Unacademy offline Service fee for - ${schemeName} - Installment ${instStr}`;
+
   const phone = payment.contact_phone || student?.contact_phone || "—";
   const amount = Number(payment.amount || 0);
   const baseAmount = Number(payment.base_amount || (amount / 1.18));
@@ -32,7 +53,7 @@ export default function ReceiptModal({ payment, student, onClose }) {
   };
 
   const handleShareWhatsApp = () => {
-    const text = `*NORTHEND EDUCATIONAL WORLD*\nOfficial Payment Receipt\n\nReceipt No: ${receiptNo}\nStudent ID: ${studentNo}\nStudent Name: ${studentName}\nCourse: ${courseTitle}\nAmount Paid: ₹${amount.toLocaleString("en-IN")}\nDate: ${paidAt}\nPayment Mode: ${mode}\nNext Term Due: ${nextDueDate}\n\nDownload Digital Tax Receipt:\n${window.location.origin}/api/erp/payments/${payment.id}/receipt?format=${format.startsWith("thermal") ? "thermal" : "a4"}`;
+    const text = `*NORTHEND EDUCATIONAL WORLD*\nOfficial Payment Receipt\n\nReceipt No: ${receiptNo}\nStudent ID: ${studentNo}\nStudent Name: ${studentName}\nCourse: ${finalCourseTitle}\nAmount Paid: ₹${amount.toLocaleString("en-IN")}\nDate: ${paidAt}\nPayment Mode: ${mode}\nNext Term Due: ${nextDueDate}\n\nDownload Digital Tax Receipt:\n${window.location.origin}/api/erp/payments/${payment.id}/receipt?format=${format.startsWith("thermal") ? "thermal" : "a4"}`;
     const cleanPhone = phone.replace(/[^0-9]/g, "");
     const target = cleanPhone.length === 10 ? `91${cleanPhone}` : cleanPhone;
     window.open(`https://wa.me/${target}?text=${encodeURIComponent(text)}`, "_blank");
@@ -213,7 +234,7 @@ export default function ReceiptModal({ payment, student, onClose }) {
                   </div>
                   <div>
                     <div className="font-bold uppercase tracking-wider text-slate-500 mb-1 text-[10px]">Academic Enrolment</div>
-                    <div className="font-bold text-sm text-slate-900">{courseTitle}</div>
+                    <div className="font-bold text-sm text-slate-900">{finalCourseTitle}</div>
                     <div className="text-slate-600 mt-0.5">Intake Mode: <strong className="text-slate-800 uppercase">{mode}</strong></div>
                     {payment.notes && <div className="text-slate-500 italic mt-0.5">Ref: {payment.notes}</div>}
                   </div>
@@ -232,7 +253,7 @@ export default function ReceiptModal({ payment, student, onClose }) {
                   </thead>
                   <tbody className="divide-y divide-slate-200">
                     <tr>
-                      <td className="py-3 font-medium text-slate-900">{courseTitle} (Tuition Intake)</td>
+                      <td className="py-3 font-medium text-slate-900">{finalCourseTitle} (Tuition Intake)</td>
                       <td className="py-3 text-center font-mono text-slate-600">999293</td>
                       <td className="py-3 text-right font-mono">₹{baseAmount.toFixed(2)}</td>
                       <td className="py-3 text-right font-mono">₹{cgst.toFixed(2)}</td>
@@ -285,8 +306,9 @@ export default function ReceiptModal({ payment, student, onClose }) {
               <div className="space-y-2.5 text-slate-900 leading-tight">
                 <div className="text-center pb-2 border-b border-dashed border-slate-400">
                   <div className="font-bold text-sm tracking-tight">NORTHEND EDUCATIONAL WORLD</div>
-                  <div className="text-[10px] text-slate-600">Coaching & Competitive Excellence</div>
-                  <div className="text-[10px] text-slate-600">Parraypora, Srinagar - 190005</div>
+                  <div className="text-[10px] text-slate-600">Unacademy Kashmir</div>
+                  <div className="text-[10px] text-slate-600">Head Office: I.G Road Parraypora, Srinagar - 190005</div>
+                  <div className="text-[10px] text-slate-600">info@northendedu.com | www.northendedu.com</div>
                   <div className="text-[10px] font-bold text-slate-800">GSTIN: 01AAZFN0892N1ZL</div>
                   <div className="text-[10px] font-bold tracking-widest mt-1 uppercase text-slate-700">** FEE RECEIPT **</div>
                 </div>
@@ -314,7 +336,7 @@ export default function ReceiptModal({ payment, student, onClose }) {
                   </div>
                   <div className="flex justify-between">
                     <span>COURSE:</span>
-                    <span>{courseTitle}</span>
+                    <span>{finalCourseTitle}</span>
                   </div>
                 </div>
 

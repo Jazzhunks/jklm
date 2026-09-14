@@ -532,7 +532,7 @@ export default function ErpStudentDetail() {
         />
       )}
       {selectedReceipt && (
-        <ReceiptModal payment={selectedReceipt} student={s} onClose={() => setSelectedReceipt(null)} />
+        <ReceiptModal payment={{...selectedReceipt, installment_no: (stmt?.payments?.slice().reverse().findIndex(p => p.id === selectedReceipt.id) ?? 0) + 1}} student={s} onClose={() => setSelectedReceipt(null)} />
       )}
       {editPayment && <PaymentEditModal payment={editPayment} onClose={() => setEditPayment(null)} onUpdated={reload} />}
       {deleteModal && (

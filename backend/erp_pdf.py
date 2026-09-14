@@ -361,9 +361,9 @@ def fee_receipt_thermal_pdf(
     c.drawCentredString(W / 2.0, y, "Unacademy Kashmir")
     y -= 3.4 * mm
 
-    b_name = branch.get("name") or "Head Office"
-    b_addr = (branch.get("address") or "Parraypora, Srinagar - 190005")[:42]
-    c.drawCentredString(W / 2.0, y, f"{b_name} - {b_addr}")
+    c.drawCentredString(W / 2.0, y, "Head Office: I.G Road Parraypora, Srinagar - 190005")
+    y -= 3.2 * mm
+    c.drawCentredString(W / 2.0, y, "info@northendedu.com | www.northendedu.com")
     y -= 3.2 * mm
 
     gstin = branch.get("gstin") or "01AAZFN0892N1ZL"
