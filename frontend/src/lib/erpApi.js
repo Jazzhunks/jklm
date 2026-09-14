@@ -33,10 +33,11 @@ export const erp = {
    * Instantiates an active Server-Sent Events (SSE) stream client connection string.
    * Appends active authorization token inside URL query params to bypass native client limitations.
    * Guarantees an absolute protocol string path fallback to satisfy native browser handshakes.
-   */
   getAttendanceStreamUrl: (branchId) => {
     const baseEndpoint = api.defaults.baseURL;
-    return `${baseEndpoint}/erp/erpattendance/stream/${encodeURIComponent(branchId)}`;
+    const token = typeof window !== "undefined" ? localStorage.getItem("nw_token") : null;
+    const tokenQuery = token ? `?token=${encodeURIComponent(token)}` : "";
+    return `${baseEndpoint}/erp/erpattendance/stream/${encodeURIComponent(branchId)}${tokenQuery}`;
   },
 
   // --- Branches ---

@@ -8,11 +8,18 @@ export function useSessionKeepAlive() {
 
   useEffect(() => {
     const ping = async () => {
+      const hasToken = typeof window !== "undefined" && (localStorage.getItem("nw_token") || localStorage.getItem("nw_refresh_token"));
+      if (!hasToken) return;
+
       try {
         await api.get("/auth/me");
       } catch (err) {
         if (err?.response?.status === 401) {
-          window.location.href = "/login?session_expired=true";
+          if (typeof window !== "undefined" && !window.location.pathname.includes("/login")) {
+            localStorage.removeItem("nw_token");
+            localStorage.removeItem("nw_refresh_token");
+            window.location.href = "/login?session_expired=true";
+          }
         }
       }
     };

@@ -430,8 +430,12 @@ def create_refresh_token(uid: str, role: str = "student") -> str:
     )
 
 def set_auth_cookies(response: Response, access: str, refresh: str, refresh_max_age: int = 604800):
-    response.set_cookie("access_token", access, httponly=True, secure=True, samesite="lax", max_age=3600, path="/")
-    response.set_cookie("refresh_token", refresh, httponly=True, secure=True, samesite="lax", max_age=refresh_max_age, path="/")
+    cookie_samesite = os.environ.get("COOKIE_SAMESITE", "none").lower()
+    cookie_secure = os.environ.get("COOKIE_SECURE", "true").lower() in ("true", "1", "yes")
+    if cookie_samesite == "none":
+        cookie_secure = True
+    response.set_cookie("access_token", access, httponly=True, secure=cookie_secure, samesite=cookie_samesite, max_age=3600, path="/")
+    response.set_cookie("refresh_token", refresh, httponly=True, secure=cookie_secure, samesite=cookie_samesite, max_age=refresh_max_age, path="/")
 
 async def get_current_user(request: Request) -> dict:
     token = request.cookies.get("access_token")
@@ -795,12 +799,16 @@ async def login(payload: LoginIn, request: Request, response: Response):
     set_auth_cookies(response, access, refresh, refresh_max_age=refresh_ttl)
     user.pop("password_hash")
     user.pop("_id", None)
-    return {"user": user, "access_token": access}
+    return {"user": user, "access_token": access, "refresh_token": refresh}
 
 @api.post("/auth/logout")
 async def logout(response: Response):
-    response.set_cookie("access_token", "", httponly=True, secure=True, samesite="none", max_age=0, path="/")
-    response.set_cookie("refresh_token", "", httponly=True, secure=True, samesite="none", max_age=0, path="/")
+    cookie_samesite = os.environ.get("COOKIE_SAMESITE", "none").lower()
+    cookie_secure = os.environ.get("COOKIE_SECURE", "true").lower() in ("true", "1", "yes")
+    if cookie_samesite == "none":
+        cookie_secure = True
+    response.set_cookie("access_token", "", httponly=True, secure=cookie_secure, samesite=cookie_samesite, max_age=0, path="/")
+    response.set_cookie("refresh_token", "", httponly=True, secure=cookie_secure, samesite=cookie_samesite, max_age=0, path="/")
     return {"ok": True}
 
 @api.get("/auth/me")
@@ -810,6 +818,17 @@ async def me(user: dict = Depends(get_current_user)):
 @api.post("/auth/refresh")
 async def refresh(request: Request, response: Response):
     refresh_token = request.cookies.get("refresh_token")
+    if not refresh_token:
+        try:
+            body = await request.json()
+            if isinstance(body, dict):
+                refresh_token = body.get("refresh_token")
+        except Exception:
+            pass
+    if not refresh_token:
+        ah = request.headers.get("Authorization", "")
+        if ah.startswith("Bearer "):
+            refresh_token = ah[7:]
     if not refresh_token:
         raise HTTPException(401, "Missing refresh token")
     try:
@@ -823,7 +842,7 @@ async def refresh(request: Request, response: Response):
         refresh = create_refresh_token(user["id"], user["role"])
         refresh_ttl = 2592000 if user["role"] == "admin" else 604800
         set_auth_cookies(response, access, refresh, refresh_max_age=refresh_ttl)
-        return {"access_token": access, "user": user}
+        return {"access_token": access, "refresh_token": refresh, "user": user}
     except jwt.ExpiredSignatureError:
         raise HTTPException(401, "Refresh token expired")
     except jwt.InvalidTokenError:
@@ -3691,22 +3710,29 @@ app.include_router(api)
 
 _default_allowed = [
     "http://localhost:3000",
+    "http://127.0.0.1:3000",
+    "http://localhost:5173",
     "https://nexed-neet.preview.emergentagent.com",
     "https://northendedu.com",
     "https://www.northendedu.com",
     "https://nexed-neet.emergent.host",
 ]
+_cors_env = os.environ.get("CORS_ORIGINS", "")
+if _cors_env:
+    _default_allowed.extend([o.strip() for o in _cors_env.split(",") if o.strip()])
 _extra = os.environ.get("ADDITIONAL_ORIGINS", "")
 if _extra:
     _default_allowed.extend([o.strip() for o in _extra.split(",") if o.strip()])
 _frontend_url = os.environ.get("FRONTEND_URL", "")
-if _frontend_url and _frontend_url not in _default_allowed:
-    _default_allowed.append(_frontend_url)
+if _frontend_url:
+    _default_allowed.append(_frontend_url.strip())
+
+_allowed_origins = list(set([origin.rstrip("/") for origin in _default_allowed if origin]))
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=list(set(_default_allowed)),
-    allow_origin_regex=r"https://([a-z0-9-]+\.)?(preview\.emergentagent\.com|emergent\.host|northendedu\.com)$",
+    allow_origins=_allowed_origins,
+    allow_origin_regex=r"^https?://([a-zA-Z0-9-]+\.)*(preview\.emergentagent\.com|emergent\.host|emergentagent\.com|northendedu\.com)(:\d+)?$",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

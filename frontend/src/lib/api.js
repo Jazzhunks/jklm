@@ -47,6 +47,10 @@ api.interceptors.request.use(
       delete config.headers.Authorization;
       return config;
     }
+    const token = typeof window !== "undefined" ? localStorage.getItem("nw_token") : null;
+    if (token && !config.headers.Authorization) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
     return config;
   },
   (error) => Promise.reject(error)
@@ -75,18 +79,39 @@ api.interceptors.response.use(
     if (status === 401) {
       const originalRequest = error.config;
 
-      if (originalRequest?.skipAuth) {
+      // Never attempt refresh loop on auth endpoints
+      if (originalRequest?.skipAuth || url.includes("/auth/login") || url.includes("/auth/refresh")) {
         return Promise.reject(error);
       }
+
+      const hadToken = typeof window !== "undefined" && (localStorage.getItem("nw_token") || localStorage.getItem("nw_refresh_token"));
 
       if (!isRefreshing) {
         isRefreshing = true;
         try {
-          await api.post("/auth/refresh");
-          onTokenRefreshed();
+          const refreshToken = typeof window !== "undefined" ? localStorage.getItem("nw_refresh_token") : null;
+          const { data } = await api.post("/auth/refresh", refreshToken ? { refresh_token: refreshToken } : {});
+          if (data?.access_token) {
+            localStorage.setItem("nw_token", data.access_token);
+            api.defaults.headers.common["Authorization"] = `Bearer ${data.access_token}`;
+          }
+          if (data?.refresh_token) {
+            localStorage.setItem("nw_refresh_token", data.refresh_token);
+          }
+          onTokenRefreshed(data?.access_token);
+          if (data?.access_token && originalRequest?.headers) {
+            originalRequest.headers.Authorization = `Bearer ${data.access_token}`;
+          }
+          return api(originalRequest);
         } catch (refreshError) {
           onTokenRefreshFailed(refreshError);
+          if (typeof window !== "undefined") {
+            localStorage.removeItem("nw_token");
+            localStorage.removeItem("nw_refresh_token");
+            delete api.defaults.headers.common["Authorization"];
+          }
           if (
+            hadToken &&
             typeof window !== "undefined" &&
             !window.location.pathname.includes("/login") &&
             !isRedirecting
@@ -99,17 +124,18 @@ api.interceptors.response.use(
         } finally {
           isRefreshing = false;
         }
-
-        return api(originalRequest);
       }
 
       return new Promise((resolve, reject) => {
-        subscribeTokenRefresh((_, err) => {
+        subscribeTokenRefresh((newToken, err) => {
           if (err) {
             reject(err);
             return;
           }
           if (originalRequest) {
+            if (newToken && originalRequest?.headers) {
+              originalRequest.headers.Authorization = `Bearer ${newToken}`;
+            }
             resolve(api(originalRequest));
           } else {
             reject(error);

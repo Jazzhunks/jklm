@@ -39,9 +39,19 @@ export function AuthProvider({ children }) {
         signal: options.signal // Wire upstream controller cancellation signals
       });
       
+      if (data?.access_token) {
+        localStorage.setItem("nw_token", data.access_token);
+        api.defaults.headers.common["Authorization"] = `Bearer ${data.access_token}`;
+      }
+      if (data?.refresh_token) {
+        localStorage.setItem("nw_refresh_token", data.refresh_token);
+      }
       setUser(data.user);
       return data.user;
     } catch (err) {
+      localStorage.removeItem("nw_token");
+      localStorage.removeItem("nw_refresh_token");
+      delete api.defaults.headers.common["Authorization"];
       setUser(null);
       throw err;
     } finally {
@@ -54,9 +64,19 @@ export function AuthProvider({ children }) {
     try {
       const { data } = await api.post("/auth/register", payload);
       
+      if (data?.access_token) {
+        localStorage.setItem("nw_token", data.access_token);
+        api.defaults.headers.common["Authorization"] = `Bearer ${data.access_token}`;
+      }
+      if (data?.refresh_token) {
+        localStorage.setItem("nw_refresh_token", data.refresh_token);
+      }
       setUser(data.user);
       return data.user;
     } catch (err) {
+      localStorage.removeItem("nw_token");
+      localStorage.removeItem("nw_refresh_token");
+      delete api.defaults.headers.common["Authorization"];
       setUser(null);
       throw err;
     } finally {
@@ -70,6 +90,9 @@ export function AuthProvider({ children }) {
     } catch (e) { 
       console.warn("Server-side token revocation fallback sequence logs:", e); 
     } finally {
+      localStorage.removeItem("nw_token");
+      localStorage.removeItem("nw_refresh_token");
+      delete api.defaults.headers.common["Authorization"];
       setUser(null);
     }
   };

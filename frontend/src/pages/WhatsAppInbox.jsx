@@ -29,7 +29,10 @@ export default function WhatsAppInbox() {
     loadThreads();
 
     const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || '';
-    const url = `${BACKEND_URL}/api/admin/notifications/stream`;
+    const token = typeof window !== "undefined" ? localStorage.getItem("nw_token") : null;
+    const url = token
+      ? `${BACKEND_URL}/api/admin/notifications/stream?token=${encodeURIComponent(token)}`
+      : `${BACKEND_URL}/api/admin/notifications/stream`;
     const es = new EventSource(url, { withCredentials: true });
 
     es.onmessage = (event) => {
