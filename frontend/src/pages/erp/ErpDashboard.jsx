@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useOutletContext, Link } from "react-router-dom";
-import { erp, isSuper, isFinance, isManagerPlus, fmtINR, fmtDate } from "@/lib/erpApi";
+import { erp, isSuper, isFinance, isManagerPlus, fmtINR, fmtDate, extractItems } from "@/lib/erpApi";
 import { formatError, api, API_BASE } from "@/lib/api";
 import { toast } from "sonner";
 import { 
@@ -54,18 +54,23 @@ const CustomTooltip = ({ active, payload, label }) => {
 // MAIN DASHBOARD PLATFORM CONSOLE CONTAINER
 // ============================================================================
 export default function ErpDashboard() {
-  const { erpUser } = useOutletContext();
+  const { erpUser, selectedBranchId } = useOutletContext();
   const [data, setData] = useState(null);
   const [err, setErr] = useState(null);
   const [activeModal, setActiveModal] = useState(null); // 'admission' | 'expense' | 'cashbook' | 'students' | 'outflow' | 'duelist'
 
   const refreshDashboard = () => {
     setData(null); setErr(null);
-    const p = isSuper(erpUser) ? erp.superDashboard() : erp.branchDashboard(erpUser.branch_id);
+    let p;
+    if (isSuper(erpUser)) {
+      p = selectedBranchId ? erp.branchDashboard(selectedBranchId) : erp.superDashboard();
+    } else {
+      p = erp.branchDashboard(erpUser.branch_id);
+    }
     p.then(setData).catch(e => setErr(formatError(e.response?.data?.detail) || "Failed to load"));
   };
 
-  useEffect(() => { refreshDashboard(); }, [erpUser]);
+  useEffect(() => { refreshDashboard(); }, [erpUser, selectedBranchId]);
 
   if (err) return (
     <div className="flex flex-col items-center justify-center py-20 text-center" data-testid="erp-dashboard-error">
@@ -175,8 +180,9 @@ function TodayDueListModal({ erpUser, onClose }) {
     erp.listStudents(params)
       .then(async (res) => {
         try {
+          const studentList = extractItems(res);
           const resolvedStatements = await Promise.all(
-            res.map(async (student) => {
+            studentList.map(async (student) => {
               try {
                 const statement = await erp.studentStatement(student.id);
                 return {
@@ -504,7 +510,7 @@ function CashbookViewModal({ erpUser, onClose }) {
     if (branchId) params.branch_id = branchId;
     if (from) params.from_date = from;
     if (to) params.to_date = to;
-    erp.listPayments(params).then(setItems);
+    erp.listPayments(params).then(res => setItems(extractItems(res)));
   }, [branchId, from, to]);
 
   const total = items.reduce((s, p) => s + Number(p.amount || 0), 0);
@@ -587,7 +593,7 @@ function StudentsViewModal({ erpUser, onClose }) {
     const params = {};
     if (q) params.q = q;
     if (branchId) params.branch_id = branchId;
-    erp.listStudents(params).then(setItems);
+    erp.listStudents(params).then(res => setItems(extractItems(res)));
   }, [q, branchId]);
 
   return (
@@ -664,7 +670,7 @@ function ExpensesViewModal({ erpUser, onClose, refreshRoot }) {
     const params = {};
     if (branchId) params.branch_id = branchId;
     if (statusFilter) params.status = statusFilter;
-    erp.listExpenses(params).then(setItems);
+    erp.listExpenses(params).then(res => setItems(extractItems(res)));
   };
 
   useEffect(() => { erp.listBranches().then(setBranches); }, []);

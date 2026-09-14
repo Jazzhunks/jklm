@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useOutletContext } from "react-router-dom";
 import { toast } from "sonner";
-import { erp, isSuper, fmtDate } from "@/lib/erpApi";
+import { erp, isSuper, fmtDate, extractItems } from "@/lib/erpApi";
 import { formatError } from "@/lib/api";
 import { Plus, X, UserX, Search, ShieldAlert, KeyRound, Smartphone, Mail, Edit3, Save } from "lucide-react";
 
@@ -16,18 +16,25 @@ const ROLE_STYLES = {
 };
 
 export default function ErpStaff() {
-  const { erpUser } = useOutletContext();
+  const { erpUser, selectedBranchId } = useOutletContext();
   const [items, setItems] = useState([]);
   const [branches, setBranches] = useState([]);
-  const [branchId, setBranchId] = useState("");
+  const [branchId, setBranchId] = useState(selectedBranchId || "");
   const [searchQuery, setSearchQuery] = useState("");
   const [showCreate, setShowCreate] = useState(false);
   const [editingStaff, setEditingStaff] = useState(null); // Tracks the personnel profile currently loading changes
   const [busyRows, setBusyRows] = useState(new Set());
 
+  // Sync branch
+  useEffect(() => {
+    if (selectedBranchId !== undefined) {
+      setBranchId(selectedBranchId);
+    }
+  }, [selectedBranchId]);
+
   const reload = () => {
     erp.listStaff(branchId || undefined)
-      .then(setItems)
+      .then(res => setItems(extractItems(res)))
       .catch(e => toast.error(formatError(e) || "Failed to load team roster profiles"));
   };
 

@@ -1,18 +1,24 @@
 import { useEffect, useState, useCallback } from "react";
 import { useOutletContext } from "react-router-dom";
 import { toast } from "sonner";
-import { erp, isSuper } from "@/lib/erpApi";
+import { erp, isSuper, extractItems } from "@/lib/erpApi";
 import { formatError, api } from "@/lib/api";
 import { Printer, Search, CheckSquare, Square, Contact2, X } from "lucide-react";
 
 export default function ErpIdCards() {
-  const { erpUser } = useOutletContext();
+  const { erpUser, selectedBranchId } = useOutletContext();
   const [queue, setQueue] = useState([]);
   const [branches, setBranches] = useState([]);
-  const [branchId, setBranchId] = useState("");
+  const [branchId, setBranchId] = useState(selectedBranchId || "");
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedIds, setSelectedIds] = useState(new Set());
   const [generating, setGenerating] = useState(false);
+
+  useEffect(() => {
+    if (selectedBranchId !== undefined) {
+      setBranchId(selectedBranchId);
+    }
+  }, [selectedBranchId]);
 
   const loadBranches = useCallback(() => {
     erp.listBranches().then(setBranches).catch(() => {});
@@ -22,7 +28,7 @@ export default function ErpIdCards() {
     const params = {};
     if (branchId) params.branch_id = branchId;
     erp.idCardQueue(params)
-      .then(setQueue)
+      .then(res => setQueue(extractItems(res)))
       .catch(e => toast.error(formatError(e) || "Failed to load ID card queue"));
   }, [branchId]);
 

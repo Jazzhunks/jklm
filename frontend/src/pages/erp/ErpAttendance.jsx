@@ -1,22 +1,24 @@
 import { useEffect, useState, useCallback, useRef } from "react";
 import { useOutletContext } from "react-router-dom";
 import { toast } from "sonner";
-import { erp, isSuper, isManagerPlus, fmtDate } from "@/lib/erpApi";
+import { erp, isSuper, isManagerPlus, fmtDate, extractItems } from "@/lib/erpApi";
 import { formatError, API_BASE } from "@/lib/api";
 import { 
   QrCode, Users, Clock, ShieldAlert, Wifi, WifiOff, FileDown,
-  Terminal, Search, UserCheck, CheckCircle2, AlertCircle 
+  Terminal, Search, UserCheck, CheckCircle2, AlertCircle, Volume2, VolumeX, User
 } from "lucide-react";
 
 export default function ErpAttendance() {
-  const { erpUser } = useOutletContext();
+  const { erpUser, selectedBranchId } = useOutletContext();
   const [logs, setLogs] = useState([]);
   const [students, setStudents] = useState([]);
   const [branches, setBranches] = useState([]);
-  const [branchId, setBranchId] = useState(erpUser?.branch_id || "");
+  const [branchId, setBranchId] = useState(selectedBranchId || erpUser?.branch_id || "");
   const [searchQuery, setSearchQuery] = useState("");
   const [streamConnected, setStreamConnected] = useState(false);
   const [busyOverrides, setBusyOverrides] = useState(new Set());
+  const [lastScanned, setLastScanned] = useState(null);
+  const [soundEnabled, setSoundEnabled] = useState(true);
   
   // Terminal interface states
   const [scanInput, setScanInput] = useState("");
@@ -24,10 +26,17 @@ export default function ErpAttendance() {
   
   const sseConnectionRef = useRef(null);
 
+  // Sync with global branch
+  useEffect(() => {
+    if (selectedBranchId !== undefined && selectedBranchId !== "") {
+      setBranchId(selectedBranchId);
+    }
+  }, [selectedBranchId]);
+
   // Fetch baseline static collection matrices
   useEffect(() => {
     erp.listBranches().then(setBranches).catch(() => {});
-    erp.listStudents().then(setStudents).catch(() => {});
+    erp.listStudents().then(res => setStudents(extractItems(res))).catch(() => {});
   }, []);
 
   // Sync log archives on mount or center shift
@@ -68,9 +77,10 @@ export default function ErpAttendance() {
       try {
         const freshLogDocument = JSON.parse(e.data);
         setLogs(prev => [freshLogDocument, ...prev]);
+        setLastScanned(freshLogDocument);
         toast.success(`Check-In Verified: ${freshLogDocument.full_name}`, {
-          description: `Logged status [${freshLogDocument.status.toUpperCase()}] at entry gate.`,
-          icon: <CheckCircle2 className="text-emerald-600" />
+          description: `Status: ${freshLogDocument.status?.toUpperCase()} • Batch: ${freshLogDocument.batch || 'General'}`,
+          icon: <CheckCircle2 className="text-emerald-500" />
         });
       } catch (err) {
         console.error("Payload parse error on live context wire:", err);
@@ -105,6 +115,7 @@ export default function ErpAttendance() {
       };
       
       const loggedEntry = await erp.submitAttendanceScan(payload);
+      setLastScanned(loggedEntry);
       if (!streamConnected) {
         setLogs(prev => [loggedEntry, ...prev]);
         toast.success(`Check-In logged for ${loggedEntry.full_name}`);
@@ -236,6 +247,36 @@ export default function ErpAttendance() {
           )}
         </div>
       </div>
+
+      {/* RECENT SCAN REAL-TIME VERIFICATION BANNER */}
+      {lastScanned && (
+        <div className="glass-elevated p-4 rounded-2xl border border-emerald-500/30 bg-emerald-500/5 flex items-center justify-between gap-4 animate-fadeIn shrink-0">
+          <div className="flex items-center gap-3.5 min-w-0">
+            <div className="w-11 h-11 rounded-full bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-500 font-bold shrink-0">
+              <UserCheck size={22} />
+            </div>
+            <div className="truncate">
+              <div className="flex items-center gap-2">
+                <span className="font-bold text-sm text-foreground truncate">{lastScanned.full_name}</span>
+                <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${
+                  lastScanned.status === "present" ? "bg-emerald-500/20 text-emerald-600" : "bg-amber-500/20 text-amber-500"
+                }`}>
+                  {lastScanned.status}
+                </span>
+              </div>
+              <div className="text-xs text-muted-foreground font-mono mt-0.5">
+                {lastScanned.student_no} • Cohort: {lastScanned.batch || "General"} • Scanned at {fmtDate(lastScanned.scanned_at, true)}
+              </div>
+            </div>
+          </div>
+          <button 
+            onClick={() => setLastScanned(null)} 
+            className="text-muted-foreground hover:text-foreground p-1.5 rounded-lg hover:bg-muted/50 transition"
+          >
+            <X size={16} />
+          </button>
+        </div>
+      )}
 
       {/* CORE TRANSACTIONAL SECTION MATRIX LAYOUTS */}
       <div className="grid lg:grid-cols-3 gap-6 flex-1 min-h-0">

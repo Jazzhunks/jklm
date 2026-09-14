@@ -473,27 +473,49 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
     async def list_students(
         branch_id: Optional[str] = None,
         q: Optional[str] = None,
+        search: Optional[str] = None,
+        batch: Optional[str] = None,
+        status: Optional[str] = None,
         course_id: Optional[str] = None,
         counsellor_id: Optional[str] = None,
         include_temporary: bool = False,
+        skip: Optional[int] = Query(None, ge=0),
+        limit: Optional[int] = Query(None, ge=1, le=500),
         user: dict = Depends(require_erp),
     ):
         f = scope_branch_filter(user, branch_id)
         if course_id:
             f["course_id"] = course_id
+        if batch:
+            f["batch"] = batch
+        if status:
+            f["status"] = status
+        elif not include_temporary:
+            f["status"] = {"$ne": "temporary"}
         if counsellor_id:
             f["counsellor_id"] = counsellor_id
         if user["role"] == "counsellor":
             f["counsellor_id"] = user["id"]
-        if not include_temporary:
-            f["status"] = {"$ne": "temporary"}
-        if q:
+        
+        search_query = search or q
+        if search_query:
             f["$or"] = [
-                {"full_name": {"$regex": q, "$options": "i"}},
-                {"contact_phone": {"$regex": q, "$options": "i"}},
-                {"student_no": {"$regex": q, "$options": "i"}},
+                {"full_name": {"$regex": search_query, "$options": "i"}},
+                {"contact_phone": {"$regex": search_query, "$options": "i"}},
+                {"student_no": {"$regex": search_query, "$options": "i"}},
+                {"luid": {"$regex": search_query, "$options": "i"}},
+                {"enrollment_number": {"$regex": search_query, "$options": "i"}},
             ]
-        items = await db.erp_students.find(f, {"_id": 0}).sort("created_at", -1).to_list(500)
+        
+        if skip is not None or limit is not None:
+            sk = skip or 0
+            lim = limit or 25
+            total = await db.erp_students.count_documents(f)
+            items = await db.erp_students.find(f, {"_id": 0}).sort("created_at", -1).skip(sk).limit(lim).to_list(lim)
+            pages = max((total + lim - 1) // lim, 1)
+            return {"items": items, "total": total, "page": (sk // lim) + 1, "pages": pages}
+        
+        items = await db.erp_students.find(f, {"_id": 0}).sort("created_at", -1).to_list(1000)
         return items
 
     @erp.post("/students")
@@ -599,13 +621,19 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
     async def list_payments(
         student_id: Optional[str] = None,
         branch_id: Optional[str] = None,
+        mode: Optional[str] = None,
+        search: Optional[str] = None,
         from_date: Optional[str] = None,
         to_date: Optional[str] = None,
+        skip: Optional[int] = Query(None, ge=0),
+        limit: Optional[int] = Query(None, ge=1, le=500),
         user: dict = Depends(require_erp),
     ):
         f = scope_branch_filter(user, branch_id)
         if student_id:
             f["student_id"] = student_id
+        if mode:
+            f["mode"] = mode.lower()
         if from_date or to_date:
             range_f = {}
             if from_date:
@@ -613,6 +641,22 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
             if to_date:
                 range_f["$lte"] = to_date + "T23:59:59"
             f["paid_at"] = range_f
+        if search:
+            f["$or"] = [
+                {"receipt_no": {"$regex": search, "$options": "i"}},
+                {"student_no": {"$regex": search, "$options": "i"}},
+                {"collected_by_name": {"$regex": search, "$options": "i"}},
+                {"transaction_ref": {"$regex": search, "$options": "i"}},
+            ]
+
+        if skip is not None or limit is not None:
+            sk = skip or 0
+            lim = limit or 25
+            total = await db.erp_payments.count_documents(f)
+            items = await db.erp_payments.find(f, {"_id": 0}).sort("paid_at", -1).skip(sk).limit(lim).to_list(lim)
+            pages = max((total + lim - 1) // lim, 1)
+            return {"items": items, "total": total, "page": (sk // lim) + 1, "pages": pages}
+
         items = await db.erp_payments.find(f, {"_id": 0}).sort("paid_at", -1).to_list(1000)
         return items
 
@@ -697,8 +741,11 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
         branch_id: Optional[str] = None,
         category: Optional[str] = None,
         status: Optional[str] = None,
+        search: Optional[str] = None,
         from_date: Optional[str] = None,
         to_date: Optional[str] = None,
+        skip: Optional[int] = Query(None, ge=0),
+        limit: Optional[int] = Query(None, ge=1, le=500),
         user: dict = Depends(require_erp),
     ):
         if user["role"] == "counsellor":
@@ -715,6 +762,22 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
             if to_date:
                 range_f["$lte"] = to_date
             f["expense_date"] = range_f
+        if search:
+            f["$or"] = [
+                {"description": {"$regex": search, "$options": "i"}},
+                {"vendor": {"$regex": search, "$options": "i"}},
+                {"category": {"$regex": search, "$options": "i"}},
+                {"recorded_by_name": {"$regex": search, "$options": "i"}},
+            ]
+
+        if skip is not None or limit is not None:
+            sk = skip or 0
+            lim = limit or 25
+            total = await db.erp_expenses.count_documents(f)
+            items = await db.erp_expenses.find(f, {"_id": 0}).sort("expense_date", -1).skip(sk).limit(lim).to_list(lim)
+            pages = max((total + lim - 1) // lim, 1)
+            return {"items": items, "total": total, "page": (sk // lim) + 1, "pages": pages}
+
         items = await db.erp_expenses.find(f, {"_id": 0}).sort("expense_date", -1).to_list(1000)
         return items
 
@@ -757,18 +820,36 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
 
     @erp.get("/leads")
     async def list_leads(
-    branch_id: Optional[str] = None, 
-    status: Optional[str] = None, 
-    skip: int = Query(0, ge=0),
-    limit: int = Query(25, ge=1, le=100),
-    search: str = Query(None),
-    user: dict = Depends(require_erp)
-):
+        branch_id: Optional[str] = None, 
+        status: Optional[str] = None, 
+        search: Optional[str] = Query(None),
+        skip: Optional[int] = Query(None, ge=0),
+        limit: Optional[int] = Query(None, ge=1, le=500),
+        user: dict = Depends(require_erp)
+    ):
         f = scope_branch_filter(user, branch_id)
         if user["role"] == "counsellor":
             f["counsellor_id"] = user["id"]
         if status:
             f["status"] = status
+        if search:
+            f["$or"] = [
+                {"name": {"$regex": search, "$options": "i"}},
+                {"phone": {"$regex": search, "$options": "i"}},
+                {"present_class": {"$regex": search, "$options": "i"}},
+                {"moving_to_class": {"$regex": search, "$options": "i"}},
+                {"remarks": {"$regex": search, "$options": "i"}},
+                {"address": {"$regex": search, "$options": "i"}},
+            ]
+        
+        if skip is not None or limit is not None:
+            sk = skip or 0
+            lim = limit or 25
+            total = await db.erp_leads.count_documents(f)
+            items = await db.erp_leads.find(f, {"_id": 0}).sort("created_at", -1).skip(sk).limit(lim).to_list(lim)
+            pages = max((total + lim - 1) // lim, 1)
+            return {"items": items, "total": total, "page": (sk // lim) + 1, "pages": pages}
+
         items = await db.erp_leads.find(f, {"_id": 0}).sort("created_at", -1).to_list(1000)
         return items
 

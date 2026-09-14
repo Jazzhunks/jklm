@@ -1,441 +1,579 @@
-import { useState, useCallback } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useOutletContext } from "react-router-dom";
+import { useOutletContext, useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
-import { erp, isSuper, fmtDate } from "@/lib/erpApi";
-import { formatError } from "@/lib/api";
-import { usePaged, Paginator } from "@/components/Paginator";
-import { Plus, X, Search, FileText, Smartphone, Compass, Edit3, MessageSquare, Calendar, Milestone } from "lucide-react";
+import { erp, isSuper, fmtDate, extractItems, extractTotal } from "@/lib/erpApi";
+import { formatError, api } from "@/lib/api";
+import { 
+  Plus, X, Search, Smartphone, Edit3, MessageSquare, Calendar, 
+  Milestone, LayoutGrid, List, ChevronLeft, ChevronRight, 
+  ArrowRight, CheckCircle2, UserCheck, AlertCircle, Clock
+} from "lucide-react";
 
-const STATUSES = ["new", "contacted", "follow_up", "converted", "lost"];
-
-const STATUS_STYLES = {
-  new: "bg-sky-500/10 text-sky-400 border-sky-500/20",
-  contacted: "bg-indigo-500/10 text-indigo-400 border-indigo-500/20",
-  follow_up: "bg-amber-500/10 text-amber-400 border-amber-500/20",
-  converted: "bg-emerald-500/10 text-emerald-600 border-emerald-500/20",
-  lost: "bg-rose-500/10 text-rose-600 border-rose-500/20",
-};
+const STAGES = [
+  { id: "new", label: "New Leads", color: "sky", style: "border-sky-500/30 bg-sky-500/10 text-sky-400" },
+  { id: "contacted", label: "Contacted", color: "indigo", style: "border-indigo-500/30 bg-indigo-500/10 text-indigo-400" },
+  { id: "follow_up", label: "Follow-Up Scheduled", color: "amber", style: "border-amber-500/30 bg-amber-500/10 text-amber-400" },
+  { id: "converted", label: "Enrolled Student", color: "emerald", style: "border-emerald-500/30 bg-emerald-500/10 text-emerald-600" },
+  { id: "lost", label: "Closed / Lost", color: "rose", style: "border-rose-500/30 bg-rose-500/10 text-rose-500" },
+];
 
 export default function ErpLeads() {
-  const { erpUser } = useOutletContext();
+  const { erpUser, selectedBranchId } = useOutletContext();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const queryClient = useQueryClient();
+
+  // View mode
+  const [viewMode, setViewMode] = useState("kanban"); // 'kanban' | 'table'
+
+  // Filters
   const [q, setQ] = useState("");
   const [search, setSearch] = useState("");
-  const [branchId, setBranchId] = useState("");
-  const [statusFilter, setStatusFilter] = useState("");
-  const [showCreate, setShowCreate] = useState(false);
+  const [branchId, setBranchId] = useState(selectedBranchId || "");
+  const [statusFilter, setStatusFilter] = useState("all");
   const [page, setPage] = useState(1);
-  const limit = 25;
-  const queryClient = useQueryClient();
+  const [showCreate, setShowCreate] = useState(searchParams.get("action") === "new");
+  const [selectedLead, setSelectedLead] = useState(null);
+  const limit = viewMode === "kanban" ? 100 : 25;
+
+  // Sync branch
+  useEffect(() => {
+    if (selectedBranchId !== undefined) {
+      setBranchId(selectedBranchId);
+      setPage(1);
+    }
+  }, [selectedBranchId]);
 
   const { data: branches = [] } = useQuery({
     queryKey: ['erp-branches'],
-    queryFn: () => erp.listBranches()
+    queryFn: () => erp.listBranches(),
   });
 
-  const { data: leadsData = { items: [], total: 0, pages: 1 }, isLoading } = useQuery({
-    queryKey: ['erp-leads', branchId, search, statusFilter, page],
+  const { data: leadsData, isLoading } = useQuery({
+    queryKey: ['erp-leads', branchId, search, statusFilter, viewMode, page],
     queryFn: async () => {
       const params = { skip: (page - 1) * limit, limit };
       if (search) params.search = search;
       if (branchId) params.branch_id = branchId;
-      if (statusFilter) params.status = statusFilter;
+      if (statusFilter !== "all") params.status = statusFilter;
       return erp.listLeads(params);
     },
-    keepPreviousData: true
+    keepPreviousData: true,
   });
-  
-  const items = leadsData.items;
 
-  const handleSearch = (e) => {
-    setQ(e.target.value);
+  const items = extractItems(leadsData);
+  const totalCount = extractTotal(leadsData);
+  const totalPages = leadsData?.pages || Math.max(Math.ceil(totalCount / limit), 1);
+
+  // Debounced search
+  const handleSearchChange = (e) => {
+    const val = e.target.value;
+    setQ(val);
     if (window.searchTimeout) clearTimeout(window.searchTimeout);
     window.searchTimeout = setTimeout(() => {
-      setSearch(e.target.value);
+      setSearch(val);
       setPage(1);
-    }, 500);
+    }, 400);
   };
 
   const reload = () => queryClient.invalidateQueries(['erp-leads']);
 
-  const filteredItems = items.filter(l => 
-    l.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    l.phone?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    l.target_exam?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    l.notes?.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  // Quick Lead Stage Update
+  const updateStage = async (leadId, newStatus) => {
+    try {
+      await erp.updateLead(leadId, { status: newStatus });
+      toast.success(`Pipeline updated: Moved to ${newStatus.replace("_", " ").toUpperCase()}`);
+      reload();
+    } catch (err) {
+      toast.error(formatError(err) || "Failed to update pipeline stage");
+    }
+  };
 
-  const leadsPage = usePaged(filteredItems, 25);
+  // WhatsApp trigger to prospect
+  const openWhatsApp = (lead) => {
+    const phone = (lead.phone || "").replace(/[^0-9]/g, "");
+    if (!phone) {
+      toast.error("No phone number recorded for this prospect");
+      return;
+    }
+    const txt = `Hello ${lead.name},\n\nThank you for your inquiry with Northend Educational World regarding our coaching programs. How can we assist you today?\n\nAcademic Admissions Desk`;
+    window.open(`https://wa.me/${phone}?text=${encodeURIComponent(txt)}`, "_blank");
+  };
+
+  // Group items by stage for Kanban
+  const stageBuckets = useMemo(() => {
+    const buckets = {};
+    STAGES.forEach(s => { buckets[s.id] = []; });
+    items.forEach(lead => {
+      const st = lead.status || "new";
+      if (buckets[st]) buckets[st].push(lead);
+      else buckets["new"]?.push(lead);
+    });
+    return buckets;
+  }, [items]);
 
   return (
-    <div className="space-y-6 h-[calc(100vh-120px)] flex flex-col min-h-0 animate-fadeIn" data-testid="erp-leads-page">
-      {/* Title Board Dashboard Deck */}
-      <div className="flex justify-between items-end flex-wrap gap-4 shrink-0">
+    <div className="space-y-6 flex flex-col min-h-0 animate-fadeIn" data-testid="erp-leads-page">
+      {/* Header Deck */}
+      <div className="flex justify-between items-start flex-wrap gap-4 shrink-0">
         <div>
-          <div className="text-xs uppercase tracking-[0.2em] font-bold text-accent">Onboarding Pipeline</div>
-          <h1 className="font-display text-4xl font-light tracking-tight mt-1">Prospect Leads</h1>
+          <div className="text-xs uppercase tracking-[0.2em] font-bold text-accent">Admissions CRM &amp; Pipeline</div>
+          <h1 className="font-display text-3xl sm:text-4xl font-light tracking-tight mt-1">Prospect Leads</h1>
           <p className="text-muted-foreground mt-1 text-sm">
-            {filteredItems.length} active prospect segments parsed under authorization parameters.
+            Lead stage progression, counsellor follow-ups, and automated student conversions.
           </p>
         </div>
-        <button 
-          onClick={() => setShowCreate(true)} 
-          className="px-4 py-2.5 bg-primary text-primary-foreground rounded-xl text-xs uppercase tracking-wider font-bold flex items-center gap-2 hover:bg-primary/90 shadow-lg transition" 
-          data-testid="create-lead-btn"
-        >
-          <Plus size={14}/> Add Prospect
-        </button>
+
+        <div className="flex items-center gap-3">
+          {/* View Toggle */}
+          <div className="flex items-center p-1 bg-muted/40 border border-border rounded-xl">
+            <button
+              onClick={() => setViewMode("kanban")}
+              className={`p-1.5 rounded-lg transition ${
+                viewMode === "kanban" ? "bg-card text-foreground shadow-xs" : "text-muted-foreground hover:text-foreground"
+              }`}
+              title="Kanban Board View"
+            >
+              <LayoutGrid size={15} />
+            </button>
+            <button
+              onClick={() => setViewMode("table")}
+              className={`p-1.5 rounded-lg transition ${
+                viewMode === "table" ? "bg-card text-foreground shadow-xs" : "text-muted-foreground hover:text-foreground"
+              }`}
+              title="Data Table View"
+            >
+              <List size={15} />
+            </button>
+          </div>
+
+          <button 
+            onClick={() => setShowCreate(true)} 
+            className="px-4 py-2 bg-primary text-primary-foreground rounded-xl text-xs uppercase tracking-wider font-bold flex items-center gap-2 hover:bg-primary/90 shadow-md transition" 
+            data-testid="create-lead-btn"
+          >
+            <Plus size={14}/> Add Prospect
+          </button>
+        </div>
       </div>
 
-      {/* Control Tracks & Filters */}
-      <div className="flex gap-3 flex-wrap shrink-0">
-        <div className="relative flex-1 min-w-[250px]">
+      {/* Filter and Search Bar */}
+      <div className="flex gap-2 flex-wrap items-center justify-between shrink-0">
+        <div className="relative flex-1 min-w-[240px] max-w-md">
           <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"/>
           <input 
             type="text"
-            value={searchQuery} 
-            onChange={e => setSearchQuery(e.target.value)} 
-            placeholder="Filter pipeline by prospect name, target syllabus, or operational notes..." 
-            className="w-full pl-9 pr-4 py-2 border border-border bg-background/50 rounded-xl text-sm focus:outline-none focus:border-accent/40 transition text-foreground"
+            value={q} 
+            onChange={handleSearchChange} 
+            placeholder="Search prospect by name, phone, class, or remarks..." 
+            className="w-full pl-9 pr-3 py-1.5 border border-border bg-card rounded-xl text-xs focus:outline-none focus:border-primary transition text-foreground"
+            data-testid="search-leads-input"
           />
         </div>
-        {isSuper(erpUser) && (
-          <select 
-            value={branchId} 
-            onChange={e => setBranchId(e.target.value)} 
-            className="border border-border rounded-xl px-4 py-2 bg-background/50 text-sm min-w-[200px] focus:outline-none text-foreground" 
-            data-testid="filter-branch"
-          >
-            <option value="">All network branches</option>
-            {branches.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}
-          </select>
-        )}
-        <select 
-          value={status} 
-          onChange={e => setStatus(e.target.value)} 
-          className="border border-border rounded-xl px-4 py-2 bg-background/50 text-sm min-w-[200px] focus:outline-none text-foreground" 
-          data-testid="filter-status"
-        >
-          <option value="">All pipeline segments</option>
-          {STATUSES.map(s => <option key={s} value={s}>{s.replace("_", " ").toUpperCase()}</option>)}
-        </select>
-      </div>
 
-      {/* Main Container Core Table Grid */}
-      <div className="glass-elevated rounded-2xl border border-border w-full overflow-hidden flex flex-col flex-1 min-h-0">
-        <div className="overflow-y-auto overflow-x-auto w-full h-full custom-scrollbar">
-          <table className="w-full text-sm table-fixed border-collapse min-w-[900px]">
-            <thead className="bg-muted text-muted-foreground sticky top-0 z-20 shadow-[0_1px_0_rgba(255,255,255,0.05)]">
-              <tr className="text-left backdrop-blur-md">
-                <th className="w-[12%] px-5 py-3.5 text-xs font-bold uppercase tracking-wider bg-muted">Date Logged</th>
-                <th className="w-[18%] px-5 py-3.5 text-xs font-bold uppercase tracking-wider bg-muted">Prospect Name</th>
-                <th className="w-[14%] px-5 py-3.5 text-xs font-bold uppercase tracking-wider bg-muted">Contact Line</th>
-                <th className="w-[12%] px-5 py-3.5 text-xs font-bold uppercase tracking-wider bg-muted">Target Program</th>
-                <th className="w-[26%] px-5 py-3.5 text-xs font-bold uppercase tracking-wider bg-muted">Pipeline Notes</th>
-                <th className="w-[18%] px-5 py-3.5 text-xs font-bold uppercase tracking-wider bg-muted">Pipeline State / Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-border bg-background/20">
-              {items.map(l => (
-                <tr key={l.id} className="hover:bg-muted/50 transition-colors group" data-testid={`lead-row-${l.id}`}>
-                  <td className="px-5 py-4 text-xs whitespace-nowrap text-muted-foreground font-mono">{fmtDate(l.created_at)}</td>
-                  <td className="px-5 py-4 text-xs font-semibold text-foreground truncate">{l.name}</td>
-                  <td className="px-5 py-4 text-xs font-mono text-muted-foreground whitespace-nowrap">{l.phone}</td>
-                  <td className="px-5 py-4 text-xs whitespace-nowrap">
-                    <span className="px-2 py-0.5 bg-muted/50 rounded-md border border-border text-foreground font-medium text-[11px]">{l.target_exam || "—"}</span>
-                  </td>
-                  <td className="px-5 py-4 text-xs text-muted-foreground truncate font-sans" title={l.notes || "No context references logged"}>
-                    {l.notes ? l.notes.split("\n").filter(Boolean).pop() : "—"} 
-                  </td>
-                  <td className="px-5 py-4 whitespace-nowrap text-right pr-6">
-                    <div className="flex items-center justify-between gap-2">
-                      <span className={`inline-block px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider font-mono border ${STATUS_STYLES[l.status] || "bg-muted/50 border-border"}`}>
-                        {l.status?.replace("_", " ")}
-                      </span>
-                      <button
-                        onClick={() => setActiveLeadLog(l)}
-                        title="Update Log Context"
-                        className="inline-flex items-center gap-1 px-2.5 py-1.5 text-[11px] font-bold uppercase tracking-wider text-accent bg-accent/5 border border-accent/10 hover:bg-accent/20 rounded-lg transition duration-150"
-                      >
-                        <Edit3 size={12} /> Log
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-              {filteredItems.length === 0 && (
-                <tr>
-                  <td colSpan="6" className="px-5 py-16 text-center text-muted-foreground italic text-sm">
-                    No active prospect lead records match variable matrix queries.
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
+        <div className="flex gap-2 flex-wrap items-center">
+          {isSuper(erpUser) && (
+            <select 
+              value={branchId} 
+              onChange={e => { setBranchId(e.target.value); setPage(1); }} 
+              className="border border-border rounded-xl px-3 py-1.5 bg-card text-xs focus:outline-none text-foreground" 
+              data-testid="filter-branch"
+            >
+              <option value="">All Branches</option>
+              {branches.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}
+            </select>
+          )}
+
+          {viewMode === "table" && (
+            <select
+              value={statusFilter}
+              onChange={e => { setStatusFilter(e.target.value); setPage(1); }}
+              className="border border-border rounded-xl px-3 py-1.5 bg-card text-xs focus:outline-none text-foreground"
+            >
+              <option value="all">All Stages</option>
+              {STAGES.map(s => <option key={s.id} value={s.id}>{s.label}</option>)}
+            </select>
+          )}
         </div>
-        <div className="px-5 py-3 border-t border-border shrink-0"><Paginator {...leadsPage} testid="leads-paginator"/></div>
       </div>
 
-      {/* Creation Sheet Dialog */}
-      {showCreate && (
-        <CreateLeadModal
-          erpUser={erpUser}
-          branches={branches}
-          onClose={() => setShowCreate(false)}
-          onCreated={() => { setShowCreate(false); reload(); toast.success("New onboarding prospect added"); }}
-        />
+      {/* Main View Area */}
+      {viewMode === "kanban" ? (
+        /* Kanban Pipeline Columns */
+        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4 overflow-x-auto flex-1 min-h-0 pb-4 custom-scrollbar">
+          {STAGES.map(stage => {
+            const stageLeads = stageBuckets[stage.id] || [];
+            return (
+              <div 
+                key={stage.id} 
+                className="bg-muted/20 border border-border rounded-2xl p-3 flex flex-col min-h-[500px] max-h-full"
+              >
+                {/* Column Header */}
+                <div className="flex items-center justify-between pb-3 border-b border-border mb-3 shrink-0">
+                  <span className={`text-xs font-bold uppercase tracking-wider px-2 py-0.5 rounded-md border ${stage.style}`}>
+                    {stage.label}
+                  </span>
+                  <span className="font-mono text-xs text-muted-foreground font-semibold">
+                    {stageLeads.length}
+                  </span>
+                </div>
+
+                {/* Cards Deck */}
+                <div className="space-y-2.5 overflow-y-auto flex-1 custom-scrollbar pr-1">
+                  {stageLeads.map(lead => (
+                    <div 
+                      key={lead.id}
+                      className="glass-elevated p-3.5 rounded-xl border border-border hover:border-primary/40 transition group relative"
+                    >
+                      <div className="flex items-start justify-between gap-2">
+                        <h4 className="font-bold text-xs text-foreground truncate">{lead.name}</h4>
+                        <button
+                          onClick={() => openWhatsApp(lead)}
+                          title="Open WhatsApp Chat"
+                          className="text-muted-foreground hover:text-emerald-500 transition shrink-0"
+                        >
+                          <MessageSquare size={13} />
+                        </button>
+                      </div>
+
+                      <div className="flex items-center gap-1 text-[11px] font-mono text-muted-foreground mt-1">
+                        <Smartphone size={11} className="shrink-0" />
+                        <span>{lead.phone}</span>
+                      </div>
+
+                      {lead.moving_to_class && (
+                        <div className="mt-2 flex items-center gap-1.5">
+                          <span className="px-1.5 py-0.5 bg-muted rounded text-[10px] font-medium text-foreground">
+                            Class: {lead.moving_to_class}
+                          </span>
+                        </div>
+                      )}
+
+                      {lead.remarks && (
+                        <p className="mt-2 text-[11px] text-muted-foreground italic line-clamp-2">
+                          "{lead.remarks}"
+                        </p>
+                      )}
+
+                      {/* Stage Progression Quick Action */}
+                      <div className="mt-3 pt-2 border-t border-border/50 flex items-center justify-between text-[10px]">
+                        <span className="text-muted-foreground">{fmtDate(lead.created_at)}</span>
+                        
+                        {stage.id === "new" && (
+                          <button
+                            onClick={() => updateStage(lead.id, "contacted")}
+                            className="text-primary hover:underline font-bold flex items-center gap-0.5"
+                          >
+                            Contacted →
+                          </button>
+                        )}
+                        {stage.id === "contacted" && (
+                          <button
+                            onClick={() => updateStage(lead.id, "follow_up")}
+                            className="text-amber-500 hover:underline font-bold flex items-center gap-0.5"
+                          >
+                            Follow-Up →
+                          </button>
+                        )}
+                        {stage.id === "follow_up" && (
+                          <button
+                            onClick={() => updateStage(lead.id, "converted")}
+                            className="text-emerald-600 hover:underline font-bold flex items-center gap-0.5"
+                          >
+                            Enroll →
+                          </button>
+                        )}
+                        {stage.id === "converted" && (
+                          <span className="text-emerald-600 font-bold flex items-center gap-1">
+                            <CheckCircle2 size={11} /> Enrolled
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+
+                  {stageLeads.length === 0 && (
+                    <div className="py-12 text-center text-xs text-muted-foreground/60 italic">
+                      No prospects in this stage
+                    </div>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      ) : (
+        /* Data Table View */
+        <div className="glass-elevated rounded-2xl border border-border w-full overflow-hidden flex flex-col flex-1 min-h-0">
+          <div className="overflow-y-auto overflow-x-auto w-full h-full custom-scrollbar">
+            <table className="w-full text-sm table-fixed border-collapse min-w-[880px]">
+              <thead className="bg-muted text-muted-foreground sticky top-0 z-20 shadow-[0_1px_0_rgba(255,255,255,0.05)]">
+                <tr className="text-left backdrop-blur-md">
+                  <th className="w-[18%] px-5 py-3.5 text-xs font-bold uppercase tracking-wider bg-muted">Lead Name</th>
+                  <th className="w-[15%] px-5 py-3.5 text-xs font-bold uppercase tracking-wider bg-muted">Phone</th>
+                  <th className="w-[14%] px-5 py-3.5 text-xs font-bold uppercase tracking-wider bg-muted">Class Target</th>
+                  <th className="w-[14%] px-5 py-3.5 text-xs font-bold uppercase tracking-wider bg-muted">Stage</th>
+                  <th className="w-[25%] px-5 py-3.5 text-xs font-bold uppercase tracking-wider bg-muted">Remarks</th>
+                  <th className="w-[14%] px-5 py-3.5 bg-muted text-right pr-6">Action</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-border bg-background/20">
+                {items.map(l => (
+                  <tr key={l.id} className="hover:bg-muted/40 transition-colors group">
+                    <td className="px-5 py-3.5 text-xs font-bold text-foreground truncate">{l.name}</td>
+                    <td className="px-5 py-3.5 font-mono text-xs text-muted-foreground whitespace-nowrap">{l.phone}</td>
+                    <td className="px-5 py-3.5 text-xs text-foreground truncate">{l.moving_to_class || l.present_class || "—"}</td>
+                    <td className="px-5 py-3.5 whitespace-nowrap">
+                      <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider border ${
+                        STAGES.find(s => s.id === l.status)?.style || "border-border bg-muted/50 text-muted-foreground"
+                      }`}>
+                        {l.status}
+                      </span>
+                    </td>
+                    <td className="px-5 py-3.5 text-xs text-muted-foreground truncate" title={l.remarks}>{l.remarks || "—"}</td>
+                    <td className="px-5 py-3.5 text-right whitespace-nowrap pr-6">
+                      <div className="flex items-center justify-end gap-1.5">
+                        <button
+                          onClick={() => openWhatsApp(l)}
+                          title="WhatsApp Chat"
+                          className="p-1.5 text-muted-foreground hover:text-emerald-500 rounded-lg transition"
+                        >
+                          <MessageSquare size={14} />
+                        </button>
+                        {l.status !== "converted" && (
+                          <button
+                            onClick={() => updateStage(l.id, "converted")}
+                            title="Convert to Student"
+                            className="inline-flex px-2 py-1 text-xs font-bold uppercase tracking-wider text-emerald-600 bg-emerald-500/10 border border-emerald-500/20 hover:bg-emerald-500/20 rounded-lg transition"
+                          >
+                            Enroll
+                          </button>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+                {items.length === 0 && (
+                  <tr>
+                    <td colSpan="6" className="px-5 py-16 text-center text-muted-foreground italic text-sm">
+                      {isLoading ? "Retrieving prospect pipeline..." : "No leads located matching criteria."}
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Pagination Footer */}
+          <div className="px-5 py-3 border-t border-border bg-muted/30 flex items-center justify-between text-xs text-muted-foreground shrink-0">
+            <div>
+              Showing <span className="font-semibold text-foreground">{items.length}</span> of <span className="font-semibold text-foreground">{totalCount}</span> total leads
+            </div>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setPage(p => Math.max(p - 1, 1))}
+                disabled={page <= 1 || isLoading}
+                className="p-1.5 rounded-lg border border-border hover:bg-muted disabled:opacity-40 transition"
+              >
+                <ChevronLeft size={14} />
+              </button>
+              <span className="font-mono text-xs">
+                Page {page} of {totalPages}
+              </span>
+              <button
+                onClick={() => setPage(p => Math.min(p + 1, totalPages))}
+                disabled={page >= totalPages || isLoading}
+                className="p-1.5 rounded-lg border border-border hover:bg-muted disabled:opacity-40 transition"
+              >
+                <ChevronRight size={14} />
+              </button>
+            </div>
+          </div>
+        </div>
       )}
 
-      {/* Interaction Updating Modal Context Overlay */}
-      {activeLeadLog && (
-        <UpdateLeadModal
-          lead={activeLeadLog}
-          erpUser={erpUser}
-          onClose={() => setActiveLeadLog(null)}
-          onUpdated={() => { setActiveLeadLog(null); reload(); }}
+      {/* Create Lead Modal */}
+      {showCreate && (
+        <CreateLeadModal 
+          onClose={() => { setShowCreate(false); setSearchParams({}); }} 
+          onCreated={() => { setShowCreate(false); setSearchParams({}); reload(); }} 
+          defaultBranchId={branchId || erpUser.branch_id}
+          branches={branches}
         />
       )}
     </div>
   );
 }
 
-// ============================================================================
-// DYNAMIC INTERACTION LOGGER MODAL COMPONENT (WITH SAFE LOG PRESERVATION)
-// ============================================================================
-function UpdateLeadModal({ lead, erpUser, onClose, onUpdated }) {
-  const [currentStatus, setCurrentStatus] = useState(lead.status || "new");
-  const [newLogText, setNewLogText] = useState("");
-  const [busy, setBusy] = useState(false);
+// Create Lead Modal Dialog
+function CreateLeadModal({ onClose, onCreated, defaultBranchId, branches }) {
+  const [form, setForm] = useState({
+    name: "",
+    phone: "",
+    present_class: "",
+    moving_to_class: "",
+    address: "",
+    remarks: "",
+    branch_id: defaultBranchId || (branches[0]?.id || ""),
+  });
+  const [submitting, setSubmitting] = useState(false);
 
-  const handleUpdateLogSubmit = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setBusy(true);
+    if (!form.name.trim() || !form.phone.trim() || !form.branch_id) {
+      toast.error("Please fill in Name, Phone, and Branch");
+      return;
+    }
 
+    setSubmitting(true);
     try {
-      let combinedNotes = lead.notes || "";
-      
-      // If fresh note commentary text is written, build a clean timestamped block appendation
-      if (newLogText.trim()) {
-        const timestamp = new Date().toLocaleDateString("en-IN", {
-          day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit"
-        });
-        const actorSignature = erpUser?.name || erpUser?.role || "Counsellor";
-        const formattedLogWrapper = `\n\n[${timestamp} · ${actorSignature}]: ${newLogText.trim()}`;
-        combinedNotes = combinedNotes + formattedLogWrapper;
-      }
-
-      const res = await erp.updateLead(lead.id, {
-        status: currentStatus,
-        notes: combinedNotes
+      await erp.createLead({
+        name: form.name.trim(),
+        phone: form.phone.trim(),
+        present_class: form.present_class.trim() || undefined,
+        moving_to_class: form.moving_to_class.trim() || undefined,
+        address: form.address.trim() || undefined,
+        remarks: form.remarks.trim() || undefined,
+        branch_id: form.branch_id,
       });
-
-      if (currentStatus === "converted" && res?.converted_student) {
-        toast.success(`Lead Converted! Auto-enrolled student ${res.converted_student.student_no} (${res.converted_student.full_name}).`);
-      } else {
-        toast.success("Lead conversion profile status and engagement records appended");
-      }
-      onUpdated();
+      toast.success("Prospect lead added to pipeline");
+      onCreated();
     } catch (err) {
-      toast.error(formatError(err.response?.data?.detail) || "Failed to commit conversion parameters modification loops");
+      toast.error(formatError(err) || "Failed to create lead");
     } finally {
-      setBusy(false);
+      setSubmitting(false);
     }
   };
 
   return (
-    <div className="fixed inset-0 bg-black/20 z-50 grid place-items-center p-4 backdrop-blur-sm animate-fadeIn" onClick={onClose}>
-      <form 
-        onClick={e => e.stopPropagation()} 
-        onSubmit={handleUpdateLogSubmit} 
-        className="bg-background border border-border rounded-2xl max-w-lg w-full p-6 space-y-5 shadow-2xl relative flex flex-col max-h-[90vh]"
-      >
-        <div className="flex justify-between items-start shrink-0">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fadeIn">
+      <div className="bg-card border border-border w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+        <div className="p-5 border-b border-border flex items-center justify-between bg-muted/20">
           <div>
-            <div className="text-xs uppercase tracking-[0.2em] font-bold text-accent flex items-center gap-1">
-              <MessageSquare size={12}/> Engagement Management Loop
-            </div>
-            <h3 className="font-display text-2xl font-medium mt-1 truncate max-w-[350px]">{lead.name}</h3>
-            <p className="text-xs text-muted-foreground/70 font-mono mt-0.5">{lead.phone} · Target Exam: {lead.target_exam || "General"}</p>
+            <h3 className="font-display text-lg font-bold text-foreground">Add Prospect Lead</h3>
+            <p className="text-xs text-muted-foreground mt-0.5">Register new student inquiry into admissions funnel</p>
           </div>
-          <button type="button" onClick={onClose} className="p-1 hover:bg-muted/50 rounded-lg border border-transparent hover:border-border transition">
-            <X size={18}/>
+          <button onClick={onClose} className="text-muted-foreground hover:text-foreground">
+            <X size={18} />
           </button>
         </div>
 
-        {/* Dynamic Content Columns Section */}
-        <div className="space-y-4 flex-1 overflow-y-auto custom-scrollbar px-1 min-h-0">
-          
-          {/* Historical Notes Narrative Logs Stream */}
-          <div>
-            <label className="text-xs uppercase tracking-wider font-bold text-muted-foreground mb-1 block flex items-center gap-1">
-              <Calendar size={12} className="text-accent"/> Historical Interaction History Timeline
-            </label>
-            <div className="w-full h-40 overflow-y-auto px-3 py-2.5 border border-border bg-background/10 rounded-xl text-xs font-sans text-muted-foreground/80 leading-relaxed whitespace-pre-wrap font-medium custom-scrollbar border border-border">
-              {lead.notes ? lead.notes.trim() : "— No engagement historical entry segments recorded yet for this lead blueprint line —"}
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 gap-4 pt-1">
+        <form onSubmit={handleSubmit} className="p-5 space-y-4 overflow-y-auto custom-scrollbar flex-1">
+          <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="text-xs uppercase tracking-wider font-bold text-muted-foreground mb-1 block flex items-center gap-1">
-                <Milestone size={12} className="text-accent"/> Modify Pipeline Status Track *
+              <label className="block text-xs font-bold uppercase tracking-wider text-muted-foreground mb-1">
+                Student Name *
               </label>
-              <select 
-                value={currentStatus} 
-                onChange={e => setCurrentStatus(e.target.value)} 
-                className="w-full px-3 py-2 border border-border bg-background rounded-xl text-sm font-semibold tracking-wide text-foreground focus:outline-none focus:border-accent"
-              >
-                {STATUSES.map(s => <option key={s} value={s} className="bg-background text-foreground">{s.replace("_", " ").toUpperCase()}</option>)}
-              </select>
+              <input
+                type="text"
+                required
+                value={form.name}
+                onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
+                placeholder="e.g. Saima Mir"
+                className="w-full px-3 py-2 border border-border bg-background rounded-xl text-xs text-foreground focus:outline-none focus:border-primary"
+              />
             </div>
-
             <div>
-              <label className="text-xs uppercase tracking-wider font-bold text-muted-foreground mb-1 block">
-                Append Fresh Interaction Entry Logs
+              <label className="block text-xs font-bold uppercase tracking-wider text-muted-foreground mb-1">
+                Mobile Number *
               </label>
-              <textarea 
-                required={lead.status === currentStatus} // Requires text only if status didn't change
-                placeholder="Type here details of the phone conversation, follow-up parameters, or counseling notes..." 
-                value={newLogText} 
-                onChange={e => setNewLogText(e.target.value)} 
-                rows={3} 
-                className="w-full px-3 py-2 border border-border bg-background/50 rounded-xl text-sm text-foreground focus:outline-none focus:border-accent/40 transition resize-none" 
+              <input
+                type="tel"
+                required
+                value={form.phone}
+                onChange={e => setForm(f => ({ ...f, phone: e.target.value }))}
+                placeholder="10-digit phone #"
+                className="w-full px-3 py-2 border border-border bg-background rounded-xl text-xs font-mono text-foreground focus:outline-none focus:border-primary"
               />
             </div>
           </div>
-        </div>
 
-        {/* Action Button Row */}
-        <div className="flex gap-3 pt-2 shrink-0 border-t border-border">
-          <button 
-            disabled={busy} 
-            type="submit" 
-            className="flex-1 py-3 bg-primary text-primary-foreground rounded-xl font-bold text-xs uppercase tracking-wider disabled:opacity-50 transition shadow-lg flex items-center justify-center" 
-          >
-            {busy ? "Appending Interaction Timeline…" : "Save Logs & Update Status"}
-          </button>
-          <button 
-            type="button" 
-            onClick={onClose} 
-            className="px-4 py-3 border border-border rounded-xl text-xs uppercase tracking-wider font-bold text-muted-foreground hover:text-foreground hover:bg-muted/50 transition"
-          >
-            Cancel
-          </button>
-        </div>
-      </form>
-    </div>
-  );
-}
-
-// ============================================================================
-// BASE PROSPECT INBOUND GENERATION MODAL COMPONENT
-// ============================================================================
-function CreateLeadModal({ erpUser, branches, onClose, onCreated }) {
-  const [form, setForm] = useState({
-    name: "", phone: "", present_class: "", moving_to_class: "", address: "", remarks: "",
-    branch_id: isSuper(erpUser) ? "" : erpUser.branch_id,
-  });
-  const [busy, setBusy] = useState(false);
-
-  const submit = async (e) => {
-    e.preventDefault();
-    setBusy(true);
-    try {
-      const payload = { ...form };
-      await erp.createLead(payload);
-      onCreated();
-    } catch (e) { 
-      toast.error(formatError(e.response?.data?.detail) || "Failed to commit prospect metrics"); 
-    } finally { 
-      setBusy(false); 
-    }
-  };
-
-  return (
-    <div className="fixed inset-0 bg-black/20 z-50 grid place-items-center p-4 backdrop-blur-sm animate-fadeIn" onClick={onClose} data-testid="create-lead-modal">
-      <form 
-        onClick={e => e.stopPropagation()} 
-        onSubmit={submit} 
-        className="bg-background border border-border rounded-2xl max-w-md w-full p-6 space-y-5 shadow-2xl relative"
-      >
-        <div className="flex justify-between items-start">
-          <div>
-            <div className="text-xs uppercase tracking-[0.2em] font-bold text-accent flex items-center gap-1">
-              <Compass size={12}/> Pipeline Onboarding Gateway
-            </div>
-            <h3 className="font-display text-2xl font-medium mt-1">Add Prospect Entry</h3>
-          </div>
-          <button type="button" onClick={onClose} className="p-1 hover:bg-muted/50 rounded-lg border border-transparent hover:border-border transition">
-            <X size={18}/>
-          </button>
-        </div>
-
-        <div className="space-y-4">
-          {isSuper(erpUser) && (
+          <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="text-xs uppercase tracking-wider font-bold text-muted-foreground mb-1 block">Allocation Center Hub Target *</label>
-              <select required value={form.branch_id} onChange={e => setForm({...form, branch_id: e.target.value})} className="w-full px-3 py-2 border border-border bg-background rounded-xl text-sm text-foreground focus:outline-none focus:border-accent/40 transition">
-                <option value="">— Select Target Hub Center —</option>
-                {branches.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}
-              </select>
+              <label className="block text-xs font-bold uppercase tracking-wider text-muted-foreground mb-1">
+                Current Class
+              </label>
+              <input
+                type="text"
+                value={form.present_class}
+                onChange={e => setForm(f => ({ ...f, present_class: e.target.value }))}
+                placeholder="e.g. 10th / 11th"
+                className="w-full px-3 py-2 border border-border bg-background rounded-xl text-xs text-foreground focus:outline-none"
+              />
             </div>
-          )}
-          
-          <div>
-            <label className="text-xs uppercase tracking-wider font-bold text-muted-foreground mb-1 block">Name *</label>
-            <div className="relative">
-              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground/50"><FileText size={14}/></span>
-              <input type="text" required placeholder="Full Name" value={form.name} onChange={e => setForm({...form, name: e.target.value})} className="w-full pl-9 pr-3 py-2 border border-border bg-background/50 rounded-xl text-sm text-foreground focus:outline-none focus:border-accent/40 transition" data-testid="cl-name"/>
+            <div>
+              <label className="block text-xs font-bold uppercase tracking-wider text-muted-foreground mb-1">
+                Target Track / Target Class
+              </label>
+              <input
+                type="text"
+                value={form.moving_to_class}
+                onChange={e => setForm(f => ({ ...f, moving_to_class: e.target.value }))}
+                placeholder="e.g. NEET Repeater / JEE"
+                className="w-full px-3 py-2 border border-border bg-background rounded-xl text-xs text-foreground focus:outline-none"
+              />
             </div>
           </div>
-          
-          <div>
-            <label className="text-xs uppercase tracking-wider font-bold text-muted-foreground mb-1 block">Mobile No *</label>
-            <div className="relative">
-              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground/50"><Smartphone size={14}/></span>
-              <input type="text" required placeholder="Mobile Number" value={form.phone} onChange={e => setForm({...form, phone: e.target.value})} className="w-full pl-9 pr-3 py-2 border border-border bg-background/50 rounded-xl text-sm font-mono text-foreground focus:outline-none focus:border-accent/40 transition" data-testid="cl-phone"/>
-            </div>
-          </div>
-          
-          <div>
-            <label className="text-xs uppercase tracking-wider font-bold text-muted-foreground mb-1 block">Present Class (Optional)</label>
-            <input type="text" placeholder="e.g. 10th, 12th" value={form.present_class} onChange={e => setForm({...form, present_class: e.target.value})} className="w-full px-3 py-2 border border-border bg-background/50 rounded-xl text-sm text-foreground focus:outline-none focus:border-accent/40 transition" data-testid="cl-present-class"/>
-          </div>
-          
-          <div>
-            <label className="text-xs uppercase tracking-wider font-bold text-muted-foreground mb-1 block">Moving To Class *</label>
-            <input type="text" required placeholder="e.g. NEET-26-A" value={form.moving_to_class} onChange={e => setForm({...form, moving_to_class: e.target.value})} className="w-full px-3 py-2 border border-border bg-background/50 rounded-xl text-sm text-foreground focus:outline-none focus:border-accent/40 transition" data-testid="cl-moving-class"/>
-          </div>
-          
-          <div>
-            <label className="text-xs uppercase tracking-wider font-bold text-muted-foreground mb-1 block">Address (Optional)</label>
-            <textarea placeholder="Residential address" value={form.address} onChange={e => setForm({...form, address: e.target.value})} rows={2} className="w-full px-3 py-2 border border-border bg-background/50 rounded-xl text-sm text-foreground focus:outline-none focus:border-accent/40 transition resize-none" data-testid="cl-address"/>
-          </div>
-          
-          <div>
-            <label className="text-xs uppercase tracking-wider font-bold text-muted-foreground mb-1 block">Remarks (Optional)</label>
-            <textarea placeholder="Any additional notes" value={form.remarks} onChange={e => setForm({...form, remarks: e.target.value})} rows={2} className="w-full px-3 py-2 border border-border bg-background/50 rounded-xl text-sm text-foreground focus:outline-none focus:border-accent/40 transition resize-none" data-testid="cl-remarks"/>
-          </div>
-        </div>
 
-        <div className="flex gap-3 pt-2">
-          <button 
-            disabled={busy} 
-            type="submit" 
-            className="flex-1 py-3 bg-primary text-primary-foreground rounded-xl font-bold text-xs uppercase tracking-wider disabled:opacity-50 transition shadow-lg flex items-center justify-center" 
-            data-testid="cl-submit"
-          >
-            {busy ? "Writing Ledger Pipeline…" : "Commit Prospect Log"}
-          </button>
-          <button 
-            type="button" 
-            onClick={onClose} 
-            className="px-4 py-3 border border-border rounded-xl text-xs uppercase tracking-wider font-bold text-muted-foreground hover:text-foreground hover:bg-muted/50 transition"
-          >
-            Cancel
-          </button>
-        </div>
-      </form>
+          <div>
+            <label className="block text-xs font-bold uppercase tracking-wider text-muted-foreground mb-1">
+              Branch *
+            </label>
+            <select
+              value={form.branch_id}
+              onChange={e => setForm(f => ({ ...f, branch_id: e.target.value }))}
+              className="w-full px-3 py-2 border border-border bg-background rounded-xl text-xs font-semibold text-foreground focus:outline-none"
+            >
+              {branches.map(b => (
+                <option key={b.id} value={b.id}>{b.name}</option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <label className="block text-xs font-bold uppercase tracking-wider text-muted-foreground mb-1">
+              Address / Town
+            </label>
+            <input
+              type="text"
+              value={form.address}
+              onChange={e => setForm(f => ({ ...f, address: e.target.value }))}
+              placeholder="e.g. Rajbagh, Srinagar"
+              className="w-full px-3 py-2 border border-border bg-background rounded-xl text-xs text-foreground focus:outline-none"
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs font-bold uppercase tracking-wider text-muted-foreground mb-1">
+              Counselling Notes / Remarks
+            </label>
+            <textarea
+              rows={2}
+              value={form.remarks}
+              onChange={e => setForm(f => ({ ...f, remarks: e.target.value }))}
+              placeholder="e.g. Interested in morning batch; requested scholarship concession"
+              className="w-full px-3 py-2 border border-border bg-background rounded-xl text-xs text-foreground focus:outline-none resize-none"
+            />
+          </div>
+
+          <div className="pt-3 border-t border-border flex items-center justify-end gap-3">
+            <button
+              type="button"
+              onClick={onClose}
+              className="px-4 py-2 text-xs font-bold text-muted-foreground hover:text-foreground transition"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={submitting}
+              className="px-5 py-2 bg-primary text-primary-foreground rounded-xl text-xs font-bold uppercase tracking-wider hover:bg-primary/90 shadow-md transition disabled:opacity-50"
+            >
+              {submitting ? "Adding..." : "Add to Pipeline"}
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
   );
 }
