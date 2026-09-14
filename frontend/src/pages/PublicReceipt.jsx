@@ -7,7 +7,6 @@ export default function PublicReceipt({ manualId }) {
   const receiptNo = manualId || params['*'] || '';
   const [error, setError] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [pdfUrl, setPdfUrl] = useState(null);
 
   useEffect(() => {
     // We can fetch the PDF as a blob to hide the API URL, 
@@ -21,7 +20,9 @@ export default function PublicReceipt({ manualId }) {
         if (!res.ok) throw new Error("Receipt not found");
         const blob = await res.blob();
         const url = URL.createObjectURL(blob);
-        setPdfUrl(url);
+        
+        // Open PDF directly in the browser viewer (or trigger download on mobile)
+        window.location.replace(url);
       } catch (err) {
         setError(true);
       } finally {
@@ -55,26 +56,9 @@ export default function PublicReceipt({ manualId }) {
   }
 
   return (
-    <div className="min-h-screen bg-slate-800 flex flex-col">
-      <div className="bg-slate-900 text-white px-6 py-4 flex items-center justify-between shadow-md">
-        <div className="font-bold tracking-widest uppercase text-sm">Northend Educational World</div>
-        <div className="flex gap-3">
-          <a 
-            href={pdfUrl} 
-            download={`Receipt-${receiptNo}.pdf`}
-            className="px-4 py-1.5 bg-accent hover:bg-accent/90 text-white text-xs font-bold rounded shadow transition"
-          >
-            Download PDF
-          </a>
-        </div>
-      </div>
-      <div className="flex-1 w-full max-w-5xl mx-auto p-4 sm:p-8">
-        <iframe 
-          src={pdfUrl} 
-          className="w-full h-full min-h-[80vh] rounded-xl shadow-2xl bg-white"
-          title={`Receipt ${receiptNo}`}
-        />
-      </div>
+    <div className="min-h-screen flex flex-col items-center justify-center bg-slate-50">
+      <div className="w-8 h-8 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin mb-4"></div>
+      <p className="text-sm text-slate-600 font-medium tracking-wide">Opening Document...</p>
     </div>
   );
 }
