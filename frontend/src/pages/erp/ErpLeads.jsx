@@ -3,6 +3,10 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useOutletContext, useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
 import LeadActivityDrawer from "@/pages/erp/modals/LeadActivityDrawer";
+import LeadProposeModal from "@/pages/erp/modals/LeadProposeModal";
+import LeadReviewModal from "@/pages/erp/modals/LeadReviewModal";
+import LeadEnrollModal from "@/pages/erp/modals/LeadEnrollModal";
+import { isFinance } from "@/lib/erpApi";
 import { erp, isSuper, isManagerPlus, fmtDate, extractItems, extractTotal } from "@/lib/erpApi";
 import { formatError, api } from "@/lib/api";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip as RechartsTooltip, Legend } from "recharts";
@@ -17,8 +21,10 @@ import {
 const STAGES = [
   { id: "new", label: "New Leads", color: "sky", style: "border-sky-500/30 bg-sky-500/10 text-sky-400" },
   { id: "contacted", label: "Contacted", color: "indigo", style: "border-indigo-500/30 bg-indigo-500/10 text-indigo-400" },
-  { id: "follow_up", label: "Follow-Up Scheduled", color: "amber", style: "border-amber-500/30 bg-amber-500/10 text-amber-400" },
-  { id: "converted", label: "Enrolled Student", color: "emerald", style: "border-emerald-500/30 bg-emerald-500/10 text-emerald-600" },
+  { id: "follow_up", label: "Follow-Up", color: "amber", style: "border-amber-500/30 bg-amber-500/10 text-amber-400" },
+  { id: "pending_approval", label: "Pending Approval", color: "fuchsia", style: "border-fuchsia-500/30 bg-fuchsia-500/10 text-fuchsia-400" },
+  { id: "approved_for_accounts", label: "Accounts Handoff", color: "orange", style: "border-orange-500/30 bg-orange-500/10 text-orange-400" },
+  { id: "converted", label: "Converted", color: "emerald", style: "border-emerald-500/30 bg-emerald-500/10 text-emerald-600" },
   { id: "lost", label: "Closed / Lost", color: "rose", style: "border-rose-500/30 bg-rose-500/10 text-rose-500" },
 ];
 
@@ -38,6 +44,9 @@ export default function ErpLeads() {
   const [page, setPage] = useState(1);
   const [showCreate, setShowCreate] = useState(searchParams.get("action") === "new");
   const [selectedLead, setSelectedLead] = useState(null);
+  const [proposeModalLead, setProposeModalLead] = useState(null);
+  const [reviewModalLead, setReviewModalLead] = useState(null);
+  const [enrollModalLead, setEnrollModalLead] = useState(null);
   const [deleteModal, setDeleteModal] = useState(null);
   const [deleting, setDeleting] = useState(false);
   const limit = viewMode === "kanban" ? 100 : 25;
