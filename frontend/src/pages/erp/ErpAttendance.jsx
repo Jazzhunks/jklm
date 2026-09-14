@@ -6,7 +6,7 @@ import { formatError, API_BASE } from "@/lib/api";
 import { Html5Qrcode, Html5QrcodeSupportedFormats } from "html5-qrcode";
 import { 
   QrCode, Users, Clock, ShieldAlert, Wifi, WifiOff, FileDown,
-  Terminal, Search, UserCheck, CheckCircle2, AlertCircle, Volume2, VolumeX, User
+  Terminal, Search, UserCheck, CheckCircle2, AlertCircle, Volume2, VolumeX, User, X
 } from "lucide-react";
 
 export default function ErpAttendance() {
