@@ -66,7 +66,7 @@ export default function GstSettlementModal({ onClose, defaultBranchId = "", bran
 
   const filing = gstData?.filing || { status: "UNPAID" };
   const isPaid = filing.status === "PAID";
-  const receipts = useMemo(() => gstData?.receipts || [], [gstData?.receipts]);
+  const receipts = useMemo(() => gstData?.items || [], [gstData?.items]);
 
   // Filtered receipts in modal table
   const filteredReceipts = useMemo(() => {
@@ -396,7 +396,7 @@ export default function GstSettlementModal({ onClose, defaultBranchId = "", bran
                 Gross Invoiced
               </div>
               <div className="font-display text-2xl font-bold text-foreground mt-1.5">
-                {fmtINR(gstData?.gross_revenue || 0)}
+                {fmtINR(gstData?.total_gross || 0)}
               </div>
               <div className="text-[10px] text-muted-foreground mt-1 font-mono">
                 {receipts.length} total receipts
@@ -408,7 +408,7 @@ export default function GstSettlementModal({ onClose, defaultBranchId = "", bran
                 Taxable Value
               </div>
               <div className="font-display text-2xl font-bold text-foreground mt-1.5">
-                {fmtINR(gstData?.taxable_value || 0)}
+                {fmtINR(gstData?.total_gstable || 0)}
               </div>
               <div className="text-[10px] text-muted-foreground mt-1">
                 Base Tuition (SAC 9992)
@@ -420,7 +420,7 @@ export default function GstSettlementModal({ onClose, defaultBranchId = "", bran
                 Central GST (9%)
               </div>
               <div className="font-display text-2xl font-bold text-sky-500 mt-1.5">
-                {fmtINR(gstData?.cgst_total || 0)}
+                {fmtINR(gstData?.total_cgst || 0)}
               </div>
               <div className="text-[10px] text-muted-foreground mt-1">
                 CGST liability
@@ -432,7 +432,7 @@ export default function GstSettlementModal({ onClose, defaultBranchId = "", bran
                 State GST (9%)
               </div>
               <div className="font-display text-2xl font-bold text-indigo-500 mt-1.5">
-                {fmtINR(gstData?.sgst_total || 0)}
+                {fmtINR(gstData?.total_sgst || 0)}
               </div>
               <div className="text-[10px] text-muted-foreground mt-1">
                 SGST liability
@@ -444,7 +444,7 @@ export default function GstSettlementModal({ onClose, defaultBranchId = "", bran
                 Total GST (18%)
               </div>
               <div className="font-display text-2xl font-bold text-indigo-600 dark:text-indigo-400 mt-1.5">
-                {fmtINR(gstData?.total_tax || 0)}
+                {fmtINR(gstData?.total_gst || 0)}
               </div>
               <div className="text-[10px] font-bold mt-1 text-indigo-500">
                 {isPaid ? "✓ Cleared & Reconciled" : "⚠ Pending Payment"}
