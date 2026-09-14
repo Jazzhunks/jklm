@@ -358,7 +358,7 @@ def fee_receipt_thermal_pdf(
 
     c.setFont("Helvetica", 6.5)
     c.setFillColor(MUTED)
-    c.drawCentredString(W / 2.0, y, "Coaching & Competitive Excellence")
+    c.drawCentredString(W / 2.0, y, "Unacademy Kashmir")
     y -= 3.4 * mm
 
     b_name = branch.get("name") or "Head Office"
