@@ -216,9 +216,9 @@ export default function ErpLeads() {
           <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition"><TrendingUp size={64}/></div>
           <h3 className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-1">Pipeline Potential</h3>
           <div className="text-3xl font-black text-indigo-500 font-display">
-            ₹{(((items?.length || 0) * 45000) / 100000).toFixed(1)}L
+            ₹{((stageBuckets["pending_approval"]?.reduce((sum, l) => sum + (Number(l.proposed_fee) || 0), 0) || 0) / 100000).toFixed(1)}L
           </div>
-          <div className="text-[10px] font-semibold text-indigo-500 flex items-center gap-1 mt-2 bg-indigo-500/10 w-fit px-2 py-0.5 rounded-full">Estimated Value (Avg ₹45k)</div>
+          <div className="text-[10px] font-semibold text-indigo-500 flex items-center gap-1 mt-2 bg-indigo-500/10 w-fit px-2 py-0.5 rounded-full">Based on Pending Approval</div>
         </div>
       </div>
       
