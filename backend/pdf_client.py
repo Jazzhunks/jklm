@@ -763,8 +763,8 @@ def bulk_id_card_pdf(students_data: list) -> bytes:
             from reportlab.lib.utils import ImageReader
             logo_path = os.path.join(os.path.dirname(__file__), "white_logo_transparent.png")
             logo_img = ImageReader(logo_path)
-            target_w = 24 * mm
-            target_h = 4 * mm
+            target_w = 36 * mm
+            target_h = 6 * mm
             # We want the logo's visual center to be at front_top - 14*mm
             c.drawImage(logo_img, x_center - target_w/2, front_top - 14*mm - target_h/2, target_w, target_h, preserveAspectRatio=True, mask="auto")
         except Exception as e:
@@ -836,7 +836,8 @@ def bulk_id_card_pdf(students_data: list) -> bytes:
         qr_y_center = face_h/2 - 20*mm
         qr_data = data.get("enrollment_number") or data.get("student_no") or ""
         if qr_data:
-            qr = qrcode.QRCode(version=1, box_size=10, border=1)
+            # Increased border to 4 (standard quiet zone) so scanners can isolate it from the blue background
+            qr = qrcode.QRCode(version=1, box_size=10, border=4)
             qr.add_data(qr_data)
             qr.make(fit=True)
             img = qr.make_image(fill_color="black", back_color="white")
@@ -844,7 +845,8 @@ def bulk_id_card_pdf(students_data: list) -> bytes:
             img.save(qr_buf, format='PNG')
             qr_buf.seek(0)
             qr_img = ImageReader(qr_buf)
-            c.drawImage(qr_img, -15*mm, qr_y_center - 15*mm, width=30*mm, height=30*mm)
+            # Increased size to 35x35mm for easier scanning
+            c.drawImage(qr_img, -17.5*mm, qr_y_center - 17.5*mm, width=35*mm, height=35*mm)
             
         # 2. LUID
         c.setFillColorRGB(1, 1, 1)
