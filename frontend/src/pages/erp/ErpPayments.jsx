@@ -8,9 +8,10 @@ import {
   Download, Search, Calendar, FileText, CreditCard, Banknote, 
   Plus, MessageSquare, CheckCircle, ChevronLeft, ChevronRight, 
   ArrowUpRight, DollarSign, X, Receipt as ReceiptIcon, ShieldCheck, Printer,
-  Trash2, AlertTriangle
+  Trash2, AlertTriangle, Landmark
 } from "lucide-react";
 import ReceiptModal from "./modals/ReceiptModal";
+import GstSettlementModal from "./modals/GstSettlementModal";
 
 
 const MODES = ["all", "cash", "upi", "online", "cheque", "card"];
@@ -29,6 +30,7 @@ export default function ErpPayments() {
   const [toDate, setToDate] = useState("");
   const [page, setPage] = useState(1);
   const [showCreate, setShowCreate] = useState(searchParams.get("action") === "new");
+  const [showGstModal, setShowGstModal] = useState(false);
   const [selectedReceipt, setSelectedReceipt] = useState(null);
   const [deleteModal, setDeleteModal] = useState(null);
   const [deleting, setDeleting] = useState(false);
@@ -110,6 +112,13 @@ export default function ErpPayments() {
         </div>
 
         <div className="flex items-center gap-3">
+          <button 
+            onClick={() => setShowGstModal(true)} 
+            className="px-3.5 py-2 bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400 border border-indigo-500/30 rounded-xl text-xs uppercase tracking-wider font-bold flex items-center gap-2 transition shadow-sm" 
+            data-testid="monthly-gst-modal-btn"
+          >
+            <Landmark size={14}/> Monthly GST Portal
+          </button>
           <a 
             href={`${API_BASE}/erp/exports/payments.xlsx${branchId ? `?branch_id=${encodeURIComponent(branchId)}` : ''}`} 
             target="_blank" 
@@ -378,6 +387,15 @@ export default function ErpPayments() {
         <ReceiptModal
           payment={selectedReceipt}
           onClose={() => setSelectedReceipt(null)}
+        />
+      )}
+
+      {/* Monthly GST Compliance & Settlement Modal */}
+      {showGstModal && (
+        <GstSettlementModal
+          onClose={() => setShowGstModal(false)}
+          defaultBranchId={branchId || erpUser?.branch_id || ""}
+          branches={branches}
         />
       )}
 

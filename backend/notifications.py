@@ -17,6 +17,12 @@ _notifications: List[Dict[str, Any]] = []
 _lock = asyncio.Lock()
 _broadcast_queues: List[asyncio.Queue] = []
 _broadcast_lock = asyncio.Lock()
+_db = None
+
+
+def set_notifications_db(database):
+    global _db
+    _db = database
 
 
 def _now_iso() -> str:
@@ -28,6 +34,13 @@ async def _emit_and_broadcast(event: Dict[str, Any]) -> None:
         _notifications.append(event)
         if len(_notifications) > MAX_NOTIFICATIONS:
             _notifications.pop(0)
+
+    if _db is not None:
+        try:
+            await _db.admin_notifications.insert_one(dict(event))
+        except Exception as e:
+            logger.warning(f"Failed to persist notification in DB: {e}")
+
     async with _broadcast_lock:
         for q in list(_broadcast_queues):
             try:
@@ -96,31 +109,103 @@ async def emit_broadcast_complete(payload: Dict[str, Any]) -> None:
     })
 
 
+# --- ERP Real-Time Notification Emitters ---
+
+async def emit_student_registered(payload: Dict[str, Any]) -> None:
+    await _emit_and_broadcast({
+        "id": str(uuid.uuid4()),
+        "type": "student_registered",
+        "payload": payload,
+        "timestamp": _now_iso(),
+        "read": False,
+    })
+
+
+async def emit_fee_payment(payload: Dict[str, Any]) -> None:
+    await _emit_and_broadcast({
+        "id": str(uuid.uuid4()),
+        "type": "fee_payment",
+        "payload": payload,
+        "timestamp": _now_iso(),
+        "read": False,
+    })
+
+
+async def emit_expense_decision(payload: Dict[str, Any]) -> None:
+    await _emit_and_broadcast({
+        "id": str(uuid.uuid4()),
+        "type": "expense_decision",
+        "payload": payload,
+        "timestamp": _now_iso(),
+        "read": False,
+    })
+
+
+async def emit_lead_created(payload: Dict[str, Any]) -> None:
+    await _emit_and_broadcast({
+        "id": str(uuid.uuid4()),
+        "type": "lead_created",
+        "payload": payload,
+        "timestamp": _now_iso(),
+        "read": False,
+    })
+
+
+async def emit_gst_filed(payload: Dict[str, Any]) -> None:
+    await _emit_and_broadcast({
+        "id": str(uuid.uuid4()),
+        "type": "gst_filed",
+        "payload": payload,
+        "timestamp": _now_iso(),
+        "read": False,
+    })
+
+
 async def mark_read(notification_id: str) -> bool:
     async with _lock:
         for n in _notifications:
             if n["id"] == notification_id:
                 n["read"] = True
-                return True
-    return False
+                break
+    if _db is not None:
+        try:
+            await _db.admin_notifications.update_one({"id": notification_id}, {"$set": {"read": True}})
+        except Exception:
+            pass
+    return True
 
 
 async def mark_all_read() -> int:
+    count = 0
     async with _lock:
-        count = 0
         for n in _notifications:
             if not n["read"]:
                 n["read"] = True
                 count += 1
-        return count
+    if _db is not None:
+        try:
+            res = await _db.admin_notifications.update_many({"read": False}, {"$set": {"read": True}})
+            count = max(count, res.modified_count)
+        except Exception:
+            pass
+    return count
 
 
 async def list_recent(limit: int = 100) -> List[Dict[str, Any]]:
+    if _db is not None:
+        try:
+            docs = await _db.admin_notifications.find({}, {"_id": 0}).sort("timestamp", -1).limit(limit).to_list(limit)
+            if docs:
+                return docs
+        except Exception as e:
+            logger.warning(f"Failed to fetch notifications from DB: {e}")
     async with _lock:
         return list(reversed(_notifications[-limit:]))
 
 
-def build_notifications_router(require_admin_dep) -> APIRouter:
+def build_notifications_router(require_admin_dep, db=None) -> APIRouter:
+    if db is not None:
+        set_notifications_db(db)
     router = APIRouter()
 
     @router.get("/admin/notifications")
@@ -146,13 +231,16 @@ def build_notifications_router(require_admin_dep) -> APIRouter:
             async with _broadcast_lock:
                 _broadcast_queues.append(client_queue)
             try:
-                yield "retry: 10000\ndata: {\"system_status\": \"CONNECTED_STREAM_SYNC_OK\"}\n\n"
+                yield 'retry: 5000\ndata: {"type": "system_handshake", "system_status": "CONNECTED_STREAM_SYNC_OK"}\n\n'
                 while True:
                     if await request.is_disconnected():
                         break
                     try:
                         event = await asyncio.wait_for(client_queue.get(), timeout=1.0)
-                        yield f"event: notification_received\ndata: {json.dumps(event)}\n\n"
+                        payload_str = json.dumps(event)
+                        # Emit both named event and default message for 100% universal compatibility
+                        yield f"event: notification_received\ndata: {payload_str}\n\n"
+                        yield f"data: {payload_str}\n\n"
                     except asyncio.TimeoutError:
                         yield ": keep-alive\n\n"
             except asyncio.CancelledError:

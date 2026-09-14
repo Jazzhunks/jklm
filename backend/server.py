@@ -463,7 +463,7 @@ async def get_current_user(request: Request) -> dict:
         raise HTTPException(401, "Invalid token")
 
 async def require_admin(user: dict = Depends(get_current_user)) -> dict:
-    if user.get("role") != "admin":
+    if user.get("role") not in ("admin", "super_admin", "center_manager", "accountant", "counsellor"):
         raise HTTPException(403, "Admin access required")
     return user
 
@@ -3421,7 +3421,7 @@ async def _on_whatsapp_inbound(payload: Dict[str, Any]) -> None:
 
 api.include_router(build_whatsapp_router(db, require_super_admin, on_inbound=_on_whatsapp_inbound))
 # WATH Carnival + page config
-notifications_router = build_notifications_router(require_admin)
+notifications_router = build_notifications_router(require_admin, db=db)
 api.include_router(notifications_router)
 from wath_carnival import build_wath_router, try_reserve_slot, release_slot  # noqa: E402
 api.include_router(build_wath_router(db, require_admin))

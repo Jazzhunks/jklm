@@ -13,6 +13,13 @@ from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, EmailStr, Field
 
 from erp_pdf import fee_receipt_pdf, fee_receipt_thermal_pdf
+from notifications import (
+    emit_student_registered,
+    emit_fee_payment,
+    emit_expense_decision,
+    emit_lead_created,
+    emit_gst_filed,
+)
 
 # -- Constants
 ROLES_ALL = {"super_admin", "center_manager", "accountant", "counsellor"}
@@ -142,6 +149,15 @@ class ExpenseCreate(BaseModel):
 class ExpenseDecision(BaseModel):
     decision: Literal["approve", "reject"]
     note: Optional[str] = None
+
+class GstMarkPaidIn(BaseModel):
+    month: str
+    status: Literal["PAID", "UNPAID"] = "PAID"
+    challan_no: Optional[str] = None
+    paid_date: Optional[str] = None
+    payment_mode: Optional[str] = "Net Banking"
+    notes: Optional[str] = None
+    branch_id: Optional[str] = None
 
 class LeadCreate(BaseModel):
     name: str
@@ -585,8 +601,16 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
             "created_by": user["id"],
         })
         await db.erp_students.insert_one(doc)
-        doc.pop("_id", None)
         await audit(user, "create", "student", doc["id"], payload.branch_id, {"student_no": student_no})
+        try:
+            b_info = await db.centers.find_one({"id": payload.branch_id}, {"_id": 0, "name": 1})
+            await emit_student_registered({
+                "student_no": student_no,
+                "name": doc.get("full_name", ""),
+                "branch": b_info.get("name", payload.branch_id) if b_info else payload.branch_id,
+            })
+        except Exception:
+            pass
         return doc
 
     @erp.get("/students/{student_id}")
@@ -675,6 +699,18 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
         }
         await db.erp_payments.insert_one(doc); doc.pop("_id", None)
         await audit(user, "create", "payment", doc["id"], s["branch_id"], {"amount": amount, "receipt_no": receipt_no})
+        try:
+            b_info = await db.centers.find_one({"id": s.get("branch_id")}, {"_id": 0, "name": 1})
+            await emit_fee_payment({
+                "receipt_no": receipt_no,
+                "student_name": s.get("full_name", ""),
+                "student_no": s.get("student_no", ""),
+                "amount": amount,
+                "mode": payload.mode,
+                "branch": b_info.get("name", s.get("branch_id")) if b_info else s.get("branch_id"),
+            })
+        except Exception:
+            pass
         return doc
 
     @erp.get("/payments")
@@ -881,6 +917,17 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
             "decision_note": payload.note,
         }})
         await audit(user, payload.decision, "expense", expense_id, e["branch_id"])
+        try:
+            b_info = await db.centers.find_one({"id": e.get("branch_id")}, {"_id": 0, "name": 1})
+            await emit_expense_decision({
+                "expense_id": expense_id,
+                "category": e.get("category", ""),
+                "amount": e.get("amount", 0),
+                "decision": payload.decision,
+                "branch": b_info.get("name", e.get("branch_id")) if b_info else e.get("branch_id"),
+            })
+        except Exception:
+            pass
         return await db.erp_expenses.find_one({"id": expense_id}, {"_id": 0})
 
     @erp.delete("/expenses/{expense_id}")
@@ -911,6 +958,16 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
         })
         await db.erp_leads.insert_one(doc); doc.pop("_id", None)
         await audit(user, "create", "lead", doc["id"], payload.branch_id)
+        try:
+            b_info = await db.centers.find_one({"id": payload.branch_id}, {"_id": 0, "name": 1})
+            await emit_lead_created({
+                "name": doc.get("name", ""),
+                "phone": doc.get("phone", ""),
+                "moving_to_class": doc.get("moving_to_class", ""),
+                "branch": b_info.get("name", payload.branch_id) if b_info else payload.branch_id,
+            })
+        except Exception:
+            pass
         return doc
 
     @erp.get("/leads")
@@ -1121,6 +1178,314 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
             "counsellor_performance": counsellor_rows,
             "recent_payments": sorted(payments, key=lambda x: x.get("paid_at", ""), reverse=True)[:10],
         }
+
+    # ===== GST TAXATION & MONTHLY SETTLEMENTS =====
+    @erp.get("/gst/monthly")
+    async def get_monthly_gst(month: Optional[str] = None, branch_id: Optional[str] = None, user: dict = Depends(require_finance)):
+        target_month = month or datetime.now(timezone.utc).strftime("%Y-%m")
+        f = scope_branch_filter(user, branch_id)
+        f["paid_at"] = {"$regex": f"^{target_month}"}
+
+        payments = await db.erp_payments.find(f, {"_id": 0}).sort("paid_at", 1).to_list(10000)
+
+        total_gross = 0.0
+        total_taxable = 0.0
+        total_cgst = 0.0
+        total_sgst = 0.0
+        gst_exempt_gross = 0.0
+
+        mode_breakdown = {}
+        for m in PAYMENT_MODES:
+            mode_breakdown[m] = {"gross": 0.0, "taxable": 0.0, "cgst": 0.0, "sgst": 0.0, "count": 0}
+
+        enriched_payments = []
+        for p in payments:
+            amt = float(p.get("amount") or 0.0)
+            base = float(p.get("base_amount") or 0.0)
+            cgst = float(p.get("cgst") or 0.0)
+            sgst = float(p.get("sgst") or 0.0)
+            mode = (p.get("mode") or "cash").lower()
+
+            total_gross += amt
+            total_taxable += base
+            total_cgst += cgst
+            total_sgst += sgst
+
+            if cgst == 0.0 and sgst == 0.0:
+                gst_exempt_gross += amt
+
+            if mode not in mode_breakdown:
+                mode_breakdown[mode] = {"gross": 0.0, "taxable": 0.0, "cgst": 0.0, "sgst": 0.0, "count": 0}
+            mode_breakdown[mode]["gross"] += amt
+            mode_breakdown[mode]["taxable"] += base
+            mode_breakdown[mode]["cgst"] += cgst
+            mode_breakdown[mode]["sgst"] += sgst
+            mode_breakdown[mode]["count"] += 1
+
+            enriched_payments.append({
+                "id": p.get("id"),
+                "receipt_no": p.get("receipt_no"),
+                "paid_at": p.get("paid_at"),
+                "student_no": p.get("student_no"),
+                "student_name": p.get("student_name", ""),
+                "branch_id": p.get("branch_id"),
+                "amount": amt,
+                "base_amount": base,
+                "cgst": cgst,
+                "sgst": sgst,
+                "cgst_rate": p.get("cgst_rate", CGST_RATE),
+                "sgst_rate": p.get("sgst_rate", SGST_RATE),
+                "mode": mode,
+                "collected_by_name": p.get("collected_by_name", ""),
+            })
+
+        total_gross = round(total_gross, 2)
+        total_taxable = round(total_taxable, 2)
+        total_cgst = round(total_cgst, 2)
+        total_sgst = round(total_sgst, 2)
+        total_gst = round(total_cgst + total_sgst, 2)
+
+        # Check filing status for this month
+        filing_filter = {"month": target_month}
+        if branch_id:
+            filing_filter["branch_id"] = branch_id
+        else:
+            filing_filter["branch_id"] = {"$in": ["all", None, ""]}
+        
+        filing = await db.erp_gst_filings.find_one(filing_filter, {"_id": 0})
+        if not filing and branch_id:
+            filing = await db.erp_gst_filings.find_one({"month": target_month, "branch_id": "all"}, {"_id": 0})
+
+        status_info = {
+            "status": filing.get("status", "UNPAID") if filing else "UNPAID",
+            "challan_no": filing.get("challan_no") if filing else None,
+            "paid_date": filing.get("paid_date") if filing else None,
+            "payment_mode": filing.get("payment_mode") if filing else None,
+            "notes": filing.get("notes") if filing else None,
+            "marked_by_name": filing.get("marked_by_name") if filing else None,
+            "marked_at": filing.get("updated_at") or filing.get("created_at") if filing else None,
+        }
+
+        return {
+            "month": target_month,
+            "branch_id": branch_id or "all",
+            "total_transactions": len(payments),
+            "total_gross": total_gross,
+            "total_taxable": total_taxable,
+            "total_cgst": total_cgst,
+            "total_sgst": total_sgst,
+            "total_gst": total_gst,
+            "gst_exempt_gross": round(gst_exempt_gross, 2),
+            "cgst_rate": CGST_RATE,
+            "sgst_rate": SGST_RATE,
+            "mode_breakdown": mode_breakdown,
+            "filing": status_info,
+            "items": enriched_payments,
+        }
+
+    @erp.post("/gst/mark-paid")
+    async def mark_gst_paid(payload: GstMarkPaidIn, user: dict = Depends(require_finance)):
+        branch_key = payload.branch_id or "all"
+        record = {
+            "id": new_id(),
+            "month": payload.month,
+            "branch_id": branch_key,
+            "status": payload.status.upper(),
+            "challan_no": payload.challan_no or "",
+            "paid_date": payload.paid_date or now_iso()[:10],
+            "payment_mode": payload.payment_mode or "Net Banking",
+            "notes": payload.notes or "",
+            "marked_by_id": user["id"],
+            "marked_by_name": user.get("name", user.get("email", "")),
+            "updated_at": now_iso(),
+        }
+        await db.erp_gst_filings.update_one(
+            {"month": payload.month, "branch_id": branch_key},
+            {"$set": record},
+            upsert=True,
+        )
+        await audit(user, f"gst_{payload.status.lower()}", "gst_filing", payload.month, branch_key, {
+            "challan_no": payload.challan_no,
+            "status": payload.status,
+        })
+        try:
+            await emit_gst_filed({
+                "month": payload.month,
+                "status": payload.status.upper(),
+                "challan_no": payload.challan_no,
+                "marked_by": user.get("name"),
+            })
+        except Exception:
+            pass
+        return {"ok": True, "filing": record}
+
+    @erp.get("/exports/gst.xlsx")
+    async def export_gst_xlsx(month: Optional[str] = None, branch_id: Optional[str] = None, user: dict = Depends(require_finance)):
+        target_month = month or datetime.now(timezone.utc).strftime("%Y-%m")
+        f = scope_branch_filter(user, branch_id)
+        f["paid_at"] = {"$regex": f"^{target_month}"}
+
+        payments = await db.erp_payments.find(f, {"_id": 0}).sort("paid_at", 1).to_list(10000)
+
+        # Retrieve filing record
+        filing_key = {"month": target_month, "branch_id": branch_id or "all"}
+        filing = await db.erp_gst_filings.find_one(filing_key, {"_id": 0})
+        status_tag = filing.get("status", "UNPAID") if filing else "UNPAID"
+        challan_tag = filing.get("challan_no", "—") if filing else "—"
+
+        wb = openpyxl.Workbook()
+        
+        from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
+        from openpyxl.utils import get_column_letter
+
+        navy_fill = PatternFill(start_color="1E293B", end_color="1E293B", fill_type="solid")
+        header_fill = PatternFill(start_color="334155", end_color="334155", fill_type="solid")
+        total_fill = PatternFill(start_color="E2E8F0", end_color="E2E8F0", fill_type="solid")
+        white_bold = Font(name="Calibri", size=11, bold=True, color="FFFFFF")
+        title_font = Font(name="Calibri", size=15, bold=True, color="FFFFFF")
+        sub_font = Font(name="Calibri", size=10, italic=True, color="94A3B8")
+        bold_font = Font(name="Calibri", size=10, bold=True)
+        regular_font = Font(name="Calibri", size=10)
+        thin_border = Border(
+            left=Side(style='thin', color='CBD5E1'),
+            right=Side(style='thin', color='CBD5E1'),
+            top=Side(style='thin', color='CBD5E1'),
+            bottom=Side(style='thin', color='CBD5E1')
+        )
+        double_bottom = Border(
+            top=Side(style='thin', color='94A3B8'),
+            bottom=Side(style='double', color='0F172A'),
+            left=Side(style='thin', color='CBD5E1'),
+            right=Side(style='thin', color='CBD5E1')
+        )
+
+        ws = wb.active
+        ws.title = f"GST {target_month}"
+        ws.views.sheetView[0].showGridLines = True
+
+        # Header Title Block
+        ws.merge_cells("A1:M1")
+        top_cell = ws["A1"]
+        top_cell.value = "NORTHEND EDUCATIONAL WORLD · MONTHLY GST SETTLEMENT REPORT"
+        top_cell.font = title_font
+        top_cell.fill = navy_fill
+        top_cell.alignment = Alignment(horizontal="center", vertical="center")
+        ws.row_dimensions[1].height = 32
+
+        ws.merge_cells("A2:M2")
+        sub_cell = ws["A2"]
+        sub_cell.value = f"GSTIN: 01AABCN1234F1Z5 · Tax Period: {target_month} · SAC Code: 9992 (Educational Services) · Filing Status: {status_tag} · Challan/CIN: {challan_tag}"
+        sub_cell.font = sub_font
+        sub_cell.fill = navy_fill
+        sub_cell.alignment = Alignment(horizontal="center", vertical="center")
+        ws.row_dimensions[2].height = 20
+
+        # Empty row
+        ws.append([])
+
+        # Table Column Headers
+        headers = [
+            "Sl", "Receipt No", "Date", "Roll Number", "Student Name", "Branch", 
+            "SAC", "Mode", "Taxable Value (₹)", "CGST (9%)", "SGST (9%)", "Total Tax (₹)", "Gross Invoiced (₹)"
+        ]
+        ws.append(headers)
+        ws.row_dimensions[4].height = 24
+
+        for col_idx in range(1, len(headers) + 1):
+            c = ws.cell(row=4, column=col_idx)
+            c.fill = header_fill
+            c.font = white_bold
+            c.alignment = Alignment(horizontal="center" if col_idx in (1, 3, 7, 8) else "left" if col_idx in (2, 4, 5, 6) else "right", vertical="center")
+            c.border = thin_border
+
+        # Insert Data Rows
+        r_start = 5
+        cur_row = r_start
+
+        for i, p in enumerate(payments, start=1):
+            amt = float(p.get("amount") or 0.0)
+            base = float(p.get("base_amount") or 0.0)
+            cgst = float(p.get("cgst") or 0.0)
+            sgst = float(p.get("sgst") or 0.0)
+
+            row_data = [
+                i,
+                p.get("receipt_no", ""),
+                (p.get("paid_at") or "")[:10],
+                p.get("student_no", ""),
+                p.get("student_name", ""),
+                p.get("branch_id", ""),
+                "9992",
+                (p.get("mode") or "cash").upper(),
+                base,
+                cgst,
+                sgst,
+                round(cgst + sgst, 2),
+                amt,
+            ]
+            ws.append(row_data)
+            ws.row_dimensions[cur_row].height = 18
+
+            for col_idx in range(1, len(row_data) + 1):
+                cell = ws.cell(row=cur_row, column=col_idx)
+                cell.font = regular_font
+                cell.border = thin_border
+                if col_idx in (1, 3, 7, 8):
+                    cell.alignment = Alignment(horizontal="center", vertical="center")
+                elif col_idx in (9, 10, 11, 12, 13):
+                    cell.alignment = Alignment(horizontal="right", vertical="center")
+                    cell.number_format = '#,##0.00'
+                else:
+                    cell.alignment = Alignment(horizontal="left", vertical="center")
+
+            cur_row += 1
+
+        # Summary / Totals Row
+        tot_row_idx = cur_row
+        ws.cell(row=tot_row_idx, column=1).value = ""
+        ws.cell(row=tot_row_idx, column=2).value = "TOTALS"
+        if payments:
+            ws.cell(row=tot_row_idx, column=9).value = f"=SUM(I{r_start}:I{cur_row-1})"
+            ws.cell(row=tot_row_idx, column=10).value = f"=SUM(J{r_start}:J{cur_row-1})"
+            ws.cell(row=tot_row_idx, column=11).value = f"=SUM(K{r_start}:K{cur_row-1})"
+            ws.cell(row=tot_row_idx, column=12).value = f"=SUM(L{r_start}:L{cur_row-1})"
+            ws.cell(row=tot_row_idx, column=13).value = f"=SUM(M{r_start}:M{cur_row-1})"
+        else:
+            ws.cell(row=tot_row_idx, column=9).value = 0.0
+            ws.cell(row=tot_row_idx, column=10).value = 0.0
+            ws.cell(row=tot_row_idx, column=11).value = 0.0
+            ws.cell(row=tot_row_idx, column=12).value = 0.0
+            ws.cell(row=tot_row_idx, column=13).value = 0.0
+
+        for col_idx in range(1, len(headers) + 1):
+            c = ws.cell(row=tot_row_idx, column=col_idx)
+            c.font = bold_font
+            c.fill = total_fill
+            c.border = double_bottom
+            if col_idx in (9, 10, 11, 12, 13):
+                c.number_format = '#,##0.00'
+                c.alignment = Alignment(horizontal="right", vertical="center")
+
+        # Auto-fit column widths
+        for col in ws.columns:
+            max_len = 0
+            col_letter = get_column_letter(col[0].column)
+            for cell in col:
+                if cell.row in (1, 2):
+                    continue
+                v_str = str(cell.value or "")
+                if len(v_str) > max_len:
+                    max_len = len(v_str)
+            ws.column_dimensions[col_letter].width = max(max_len + 3, 11)
+
+        buf = io.BytesIO()
+        wb.save(buf)
+        buf.seek(0)
+        return StreamingResponse(
+            buf,
+            media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            headers={"Content-Disposition": f'attachment; filename="GST-Report-{target_month}.xlsx"'},
+        )
 
     # ===== EXPORTS =====
     @erp.get("/exports/payments.xlsx")

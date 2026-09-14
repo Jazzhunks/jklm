@@ -90,6 +90,16 @@ export const erp = {
   updateLead: (id, body) => api.patch(`/erp/leads/${encodeURIComponent(id)}`, body).then(resData).then((d) => { broadcastMutation("lead", "update", { id, ...d }); return d; }),
   deleteLead: (id) => api.delete(`/erp/leads/${encodeURIComponent(id)}`).then(resData).then((d) => { broadcastMutation("lead", "delete", { id }); return d; }),
 
+  // --- GST Taxation & Compliance ---
+  monthlyGst: (params = {}) => api.get("/erp/gst/monthly", { params }).then(resData),
+  markGstPaid: (body) => api.post("/erp/gst/mark-paid", body).then(resData).then((d) => { broadcastMutation("gst_filing", "update", d); return d; }),
+  getGstExportUrl: (month, branch_id) => {
+    const base = process.env.REACT_APP_BACKEND_URL || "";
+    let u = `${base}/api/erp/exports/gst.xlsx?month=${encodeURIComponent(month)}`;
+    if (branch_id) u += `&branch_id=${encodeURIComponent(branch_id)}`;
+    return u;
+  },
+
   // --- Dashboards ---
   superDashboard: () => api.get("/erp/dashboard/super").then(resData),
   branchDashboard: (branch_id) => api.get(`/erp/dashboard/branch/${encodeURIComponent(branch_id)}`).then(resData),
