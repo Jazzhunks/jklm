@@ -85,10 +85,27 @@ function StatCard({ label, value, icon: Icon, testId }) {
 // ─── Main component ──────────────────────────────────────────────────────────
 export default function AdminDashboard() {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const [activeTab, setActiveTab]   = useState("analytics");
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [innerSearch, setInnerSearch] = useState("");
-  const [schKind, setSchKind]         = useState("all");
+
+  const { 
+    data: summary = { total_students: 0, total_enrollments: 0, total_scholarship_apps: 0, total_job_apps: 0 }, 
+    isFetching: loadingData,
+    refetch: refetchSummary 
+  } = useQuery({
+    queryKey: ['admin-summary'],
+    queryFn: async () => {
+      const res = await api.get('/admin/summary');
+      return res.data;
+    }
+  });
+
+  const load = () => {
+    refetchSummary();
+    queryClient.invalidateQueries();
+  };
 
   const switchTab = (id) => {
     setActiveTab(id);
