@@ -278,3 +278,220 @@ def fee_receipt_pdf(payment: dict, student: dict, branch: dict, course_title: st
     c.save()
     buf.seek(0)
     return buf.getvalue()
+
+def fee_receipt_thermal_pdf(
+    payment: dict,
+    student: dict,
+    branch: dict,
+    course_title: str,
+    prev_paid: float,
+    total_fee: float,
+    width_mm: int = 80
+) -> bytes:
+    """Generates a POS thermal receipt PDF (80mm or 58mm roll)."""
+    payment = payment or {}
+    student = student or {}
+    branch = branch or {}
+    course_title = course_title or "—"
+
+    try:
+        prev_paid_val = float(prev_paid) if prev_paid else 0.0
+    except (ValueError, TypeError):
+        prev_paid_val = 0.0
+
+    try:
+        total_fee_val = float(total_fee) if total_fee else 0.0
+    except (ValueError, TypeError):
+        total_fee_val = 0.0
+
+    try:
+        item_amount = float(payment.get("amount") or 0.0)
+    except (ValueError, TypeError):
+        item_amount = 0.0
+
+    try:
+        base_amt = float(payment.get("base_amount") or 0.0)
+    except (ValueError, TypeError):
+        base_amt = 0.0
+
+    try:
+        cgst_val = float(payment.get("cgst") or 0.0)
+    except (ValueError, TypeError):
+        cgst_val = 0.0
+
+    try:
+        sgst_val = float(payment.get("sgst") or 0.0)
+    except (ValueError, TypeError):
+        sgst_val = 0.0
+
+    w_val = 58 if width_mm <= 65 else 80
+    h_val = 220 if w_val == 58 else 200
+
+    buf = io.BytesIO()
+    c = canvas.Canvas(buf, pagesize=(w_val * mm, h_val * mm))
+    W = w_val * mm
+    H = h_val * mm
+    margin = 4 * mm if w_val == 80 else 3 * mm
+
+    def draw_dashed_hr(y_pos):
+        c.setStrokeColor(HexColor("#475569"))
+        c.setLineWidth(0.5)
+        c.setDash(2, 2)
+        c.line(margin, y_pos, W - margin, y_pos)
+        c.setDash()
+
+    def draw_row(y_pos, left_txt, right_txt, font_name="Helvetica", font_size=7.0, bold_val=False):
+        c.setFont(font_name, font_size)
+        c.setFillColor(TEXT)
+        c.drawString(margin, y_pos, left_txt)
+        if bold_val:
+            c.setFont(font_name + "-Bold" if "Bold" not in font_name else font_name, font_size)
+        c.drawRightString(W - margin, y_pos, str(right_txt))
+
+    y = H - 6 * mm
+
+    # Header
+    c.setFont("Helvetica-Bold", 9.0 if w_val == 80 else 8.0)
+    c.setFillColor(TEXT)
+    c.drawCentredString(W / 2.0, y, "NORTHEND EDUCATIONAL WORLD")
+    y -= 3.8 * mm
+
+    c.setFont("Helvetica", 6.5)
+    c.setFillColor(MUTED)
+    c.drawCentredString(W / 2.0, y, "Coaching & Competitive Excellence")
+    y -= 3.4 * mm
+
+    b_name = branch.get("name") or "Head Office"
+    b_addr = (branch.get("address") or "Parraypora, Srinagar - 190005")[:42]
+    c.drawCentredString(W / 2.0, y, f"{b_name} - {b_addr}")
+    y -= 3.2 * mm
+
+    gstin = branch.get("gstin") or "01AAZFN0892N1ZL"
+    c.setFont("Helvetica-Bold", 6.5)
+    c.setFillColor(TEXT)
+    c.drawCentredString(W / 2.0, y, f"GSTIN: {gstin}")
+    y -= 4.0 * mm
+
+    draw_dashed_hr(y)
+    y -= 3.5 * mm
+
+    # Title
+    c.setFont("Helvetica-Bold", 8)
+    c.drawCentredString(W / 2.0, y, "** TAX INVOICE / RECEIPT **")
+    y -= 4.2 * mm
+
+    # Metadata rows
+    receipt_no = str(payment.get("receipt_no") or "—")
+    paid_at = str(payment.get("paid_at") or "")[:10]
+    draw_row(y, "Receipt No:", receipt_no, font_size=7)
+    y -= 3.4 * mm
+    draw_row(y, "Date:", paid_at, font_size=7)
+    y -= 3.4 * mm
+
+    student_no = str(payment.get("student_no") or student.get("student_no") or "—")
+    student_name = str(student.get("full_name") or "—")
+    draw_row(y, "Roll / Student ID:", student_no, font_size=7, bold_val=True)
+    y -= 3.4 * mm
+    draw_row(y, "Student Name:", student_name[:24], font_size=7, bold_val=True)
+    y -= 3.4 * mm
+    phone = str(student.get("contact_phone") or "—")
+    draw_row(y, "Contact Phone:", phone, font_size=7)
+    y -= 3.4 * mm
+    draw_row(y, "Course Program:", course_title[:24], font_size=7)
+    y -= 4.0 * mm
+
+    draw_dashed_hr(y)
+    y -= 3.5 * mm
+
+    # Items
+    c.setFont("Helvetica-Bold", 7)
+    c.drawString(margin, y, "Particulars")
+    c.drawRightString(W - margin, y, "Amount (INR)")
+    y -= 3.5 * mm
+
+    c.setFont("Helvetica", 7)
+    c.drawString(margin, y, "Tuition & Academic Term")
+    c.drawRightString(W - margin, y, f"{item_amount:,.2f}")
+    y -= 3.4 * mm
+
+    hsn = str(payment.get("hsn_sac") or "999293")
+    c.setFont("Helvetica", 6)
+    c.setFillColor(MUTED)
+    c.drawString(margin, y, f"SAC Code: {hsn}")
+    y -= 3.5 * mm
+
+    draw_dashed_hr(y)
+    y -= 3.5 * mm
+
+    # GST Breakdown
+    c.setFillColor(TEXT)
+    draw_row(y, "Taxable Value:", f"{base_amt:,.2f}", font_size=7)
+    y -= 3.2 * mm
+    cgst_rate = payment.get("cgst_rate") or 9.0
+    sgst_rate = payment.get("sgst_rate") or 9.0
+    draw_row(y, f"CGST ({cgst_rate}%):", f"{cgst_val:,.2f}", font_size=7)
+    y -= 3.2 * mm
+    draw_row(y, f"SGST ({sgst_rate}%):", f"{sgst_val:,.2f}", font_size=7)
+    y -= 3.5 * mm
+
+    draw_dashed_hr(y)
+    y -= 4.2 * mm
+
+    # TOTAL PAID
+    c.setFont("Helvetica-Bold", 8.5)
+    c.setFillColor(TEXT)
+    c.drawString(margin, y, "TOTAL RECEIVED:")
+    c.drawRightString(W - margin, y, f"INR {item_amount:,.2f}")
+    y -= 4.2 * mm
+
+    # Words
+    words = get_amount_in_words(item_amount)
+    c.setFont("Helvetica-Oblique", 6)
+    c.setFillColor(MUTED)
+    c.drawString(margin, y, words[:45])
+    if len(words) > 45:
+        y -= 2.6 * mm
+        c.drawString(margin, y, words[45:90])
+    y -= 3.5 * mm
+
+    draw_dashed_hr(y)
+    y -= 3.5 * mm
+
+    # Settlement & ledger
+    mode = str(payment.get("mode") or "CASH").upper()
+    draw_row(y, "Payment Intake:", mode, font_size=7, bold_val=True)
+    y -= 3.2 * mm
+    if payment.get("notes"):
+        draw_row(y, "Txn Reference:", str(payment.get("notes"))[:22], font_size=6.5)
+        y -= 3.2 * mm
+    draw_row(y, "Previously Paid:", f"INR {prev_paid_val:,.2f}", font_size=7)
+    y -= 3.2 * mm
+
+    pending = max(total_fee_val - prev_paid_val - item_amount, 0)
+    draw_row(y, "Balance Due:", f"INR {pending:,.2f}" if pending > 0 else "NIL", font_size=7, bold_val=True)
+    y -= 3.2 * mm
+
+    next_due = str(payment.get("next_due_date") or "NIL")
+    draw_row(y, "Next Term Due:", next_due, font_size=7)
+    y -= 4.0 * mm
+
+    draw_dashed_hr(y)
+    y -= 4.0 * mm
+
+    # Thermal Footer
+    c.setFont("Helvetica-Bold", 6.5)
+    c.setFillColor(TEXT)
+    c.drawCentredString(W / 2.0, y, "Thank you for choosing Northend!")
+    y -= 3.0 * mm
+    c.setFont("Helvetica", 5.5)
+    c.setFillColor(MUTED)
+    c.drawCentredString(W / 2.0, y, "Fees once paid are non-refundable.")
+    y -= 2.6 * mm
+    c.drawCentredString(W / 2.0, y, "Computer generated thermal tax receipt.")
+    y -= 2.6 * mm
+    c.drawCentredString(W / 2.0, y, "No physical signature required.")
+
+    c.showPage()
+    c.save()
+    buf.seek(0)
+    return buf.getvalue()

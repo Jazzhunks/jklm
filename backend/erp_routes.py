@@ -12,7 +12,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query, Response, Backgrou
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, EmailStr, Field
 
-from erp_pdf import fee_receipt_pdf
+from erp_pdf import fee_receipt_pdf, fee_receipt_thermal_pdf
 
 # -- Constants
 ROLES_ALL = {"super_admin", "center_manager", "accountant", "counsellor"}
@@ -51,6 +51,11 @@ class StaffUpdate(BaseModel):
     new_password: Optional[str] = None
 
 class BranchUpdate(BaseModel):
+    name: Optional[str] = None
+    code: Optional[str] = None
+    city: Optional[str] = None
+    address: Optional[str] = None
+    phone: Optional[str] = None
     gstin: Optional[str] = None
     signatory_name: Optional[str] = None
     state_code: Optional[str] = None
@@ -245,19 +250,49 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
         ymd = datetime.now(timezone.utc).strftime("%y%m")
         return f"{prefix}/{ymd}/{seq:05d}"
 
+    KNOWN_BRANCH_CODES = {
+        "parraypora": "PP",
+        "parray pora": "PP",
+        "parray-pora": "PP",
+        "pp": "PP",
+        "90 ft": "NFT",
+        "90ft": "NFT",
+        "90 feet": "NFT",
+        "anantnag": "ANG",
+        "sopore": "SOP",
+        "zakura": "ZAK",
+        "soura": "SOU",
+        "srinagar": "SRI",
+        "baramulla": "BAR",
+    }
+
     async def gen_student_no(branch_id: str) -> str:
-        b = await db.centers.find_one({"id": branch_id}, {"_id": 0})
-        prefix = "NES"
-        if b and b.get("name"):
-            prefix = "NES-" + b["name"][:3].upper()
+        b = await db.centers.find_one({"id": branch_id}, {"_id": 0}) or {}
+        code = (b.get("code") or "").strip().upper()
+        if not code:
+            name = (b.get("name") or "").strip()
+            name_lower = name.lower()
+            for k, v in KNOWN_BRANCH_CODES.items():
+                if k in name_lower:
+                    code = v
+                    break
+            if not code:
+                words = [w for w in name.split() if w]
+                if len(words) >= 2:
+                    code = "".join(w[0] for w in words)[:3].upper()
+                elif len(name) >= 2:
+                    code = name[:2].upper()
+                else:
+                    code = "PP"
+
         result = await db.erp_counters.find_one_and_update(
-            {"_id": f"student_{branch_id}"},
+            {"_id": f"student_seq_{branch_id}"},
             {"$inc": {"seq": 1}},
             upsert=True,
             return_document=True,
         )
         seq = (result or {}).get("seq", 1)
-        return f"{prefix}-{seq:04d}"
+        return f"{code}{seq:05d}"
 
     # ===== ME =====
     @erp.get("/me")
@@ -688,7 +723,12 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
         }
 
     @erp.get("/payments/{payment_id}/receipt")
-    async def download_receipt(payment_id: str, user: dict = Depends(require_erp)):
+    async def download_receipt(
+        payment_id: str,
+        format: Optional[str] = Query("a4"),
+        width_mm: Optional[int] = Query(80),
+        user: dict = Depends(require_erp),
+    ):
         p = await db.erp_payments.find_one({"id": payment_id}, {"_id": 0})
         if not p:
             raise HTTPException(404, "Payment not found")
@@ -703,13 +743,23 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
         prev_paid = sum(x["amount"] for x in prev)
         scholarship_amt = float(s.get("total_fee", 0)) * float(s.get("scholarship_percent", 0)) / 100.0
         net_fee = max(float(s.get("total_fee", 0)) - scholarship_amt - float(s.get("discount", 0)), 0)
-        pdf_bytes = fee_receipt_pdf(p, s, b, c.get("title", "—"), prev_paid, net_fee)
-        await audit(user, "download", "receipt", p["id"], p["branch_id"])
+
+        is_thermal = (format or "").lower() == "thermal"
+        if is_thermal:
+            pdf_bytes = fee_receipt_thermal_pdf(p, s, b, c.get("title", "—"), prev_paid, net_fee, width_mm=width_mm or 80)
+            fmt_tag = f"thermal-{width_mm or 80}mm"
+        else:
+            pdf_bytes = fee_receipt_pdf(p, s, b, c.get("title", "—"), prev_paid, net_fee)
+            fmt_tag = "a4"
+
+        await audit(user, "download", "receipt", p["id"], p["branch_id"], {"format": fmt_tag})
+        safe_no = (p.get("receipt_no") or "receipt").replace("/", "-")
         return StreamingResponse(
             io.BytesIO(pdf_bytes),
             media_type="application/pdf",
-            headers={"Content-Disposition": f'attachment; filename="receipt-{p["receipt_no"].replace("/", "-")}.pdf"'},
+            headers={"Content-Disposition": f'attachment; filename="receipt-{safe_no}-{fmt_tag}.pdf"'},
         )
+
 
     # ===== EXPENSES =====
     @erp.post("/expenses")

@@ -7,8 +7,10 @@ import { API_BASE, formatError } from "@/lib/api";
 import { 
   Download, Search, Calendar, FileText, CreditCard, Banknote, 
   Plus, MessageSquare, CheckCircle, ChevronLeft, ChevronRight, 
-  ArrowUpRight, DollarSign, X, Receipt as ReceiptIcon, ShieldCheck
+  ArrowUpRight, DollarSign, X, Receipt as ReceiptIcon, ShieldCheck, Printer
 } from "lucide-react";
+import ReceiptModal from "./modals/ReceiptModal";
+
 
 const MODES = ["all", "cash", "upi", "online", "cheque", "card"];
 
@@ -26,6 +28,7 @@ export default function ErpPayments() {
   const [toDate, setToDate] = useState("");
   const [page, setPage] = useState(1);
   const [showCreate, setShowCreate] = useState(searchParams.get("action") === "new");
+  const [selectedReceipt, setSelectedReceipt] = useState(null);
   const limit = 25;
 
   // Keep branch in sync with global header switcher if super admin
@@ -284,17 +287,27 @@ export default function ErpPayments() {
                       >
                         <MessageSquare size={14} />
                       </button>
+                      <button 
+                        onClick={() => setSelectedReceipt(p)} 
+                        className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-bold uppercase tracking-wider text-accent bg-accent/10 border border-accent/20 hover:bg-accent/20 rounded-lg transition" 
+                        data-testid={`receipt-${p.id}`}
+                        title="View Receipt (A4 or Thermal POS)"
+                      >
+                        <Printer size={12} /> Receipt
+                      </button>
                       <a 
                         href={`${API_BASE}/erp/payments/${p.id}/receipt`} 
                         target="_blank" 
                         rel="noreferrer" 
-                        className="inline-flex px-2.5 py-1 text-xs font-bold uppercase tracking-wider text-accent bg-accent/10 border border-accent/20 hover:bg-accent/20 rounded-lg transition" 
+                        className="p-1.5 text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded-lg transition" 
+                        title="Direct A4 PDF Download"
                         data-testid={`dl-${p.id}`}
                       >
-                        PDF
+                        <Download size={14} />
                       </a>
                     </div>
                   </td>
+
                 </tr>
               ))}
               {rawItems.length === 0 && (
@@ -346,7 +359,16 @@ export default function ErpPayments() {
           branches={branches}
         />
       )}
+
+      {/* Multi-Format Receipt & POS Printing Modal */}
+      {selectedReceipt && (
+        <ReceiptModal
+          payment={selectedReceipt}
+          onClose={() => setSelectedReceipt(null)}
+        />
+      )}
     </div>
+
   );
 }
 

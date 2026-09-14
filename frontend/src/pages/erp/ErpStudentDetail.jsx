@@ -6,10 +6,12 @@ import { formatError } from "@/lib/api";
 import { api, API_BASE } from "@/lib/api";
 import { 
   ArrowLeft, Plus, FileDown, Receipt as ReceiptIcon, Edit3, 
-  X, Save, CheckCircle, Smartphone, Mail, MapPin, Milestone, User, Users, ClipboardList, Badge, Printer
+  X, Save, CheckCircle, Smartphone, Mail, MapPin, Milestone, User, Users, ClipboardList, Badge, Printer, Camera
 } from "lucide-react";
 import ReactCrop, { centerCrop, makeAspectCrop, convertToPixelCrop } from "react-image-crop";
 import "react-image-crop/dist/ReactCrop.css";
+import ReceiptModal from "./modals/ReceiptModal";
+
 
 export default function ErpStudentDetail() {
   const { id, student_no } = useParams();
@@ -27,6 +29,7 @@ export default function ErpStudentDetail() {
   const [cropping, setCropping] = useState(false);
   const [cropSrc, setCropSrc] = useState(null);
   const [cropBlob, setCropBlob] = useState(null);
+  const [selectedReceipt, setSelectedReceipt] = useState(null);
 
   const reload = () => {
     erp.studentStatement(studentIdentifier)
@@ -101,16 +104,20 @@ export default function ErpStudentDetail() {
     reader.readAsDataURL(file);
   };
 
-  const confirmCropAndUpload = async () => {
-    if (!cropBlob || !s) return;
+  const confirmCropAndUpload = async (blobToUpload) => {
+    const targetBlob = blobToUpload || cropBlob;
+    if (!targetBlob || !s) {
+      toast.error("No image file ready to upload");
+      return;
+    }
     setUploadingPhoto(true);
     try {
       const fd = new FormData();
-      fd.append("file", cropBlob, `photo-${s.id}.png`);
+      fd.append("file", targetBlob, `photo-${s.id}.png`);
       const { data } = await api.post(`/erp/students/${encodeURIComponent(s.id)}/photo`, fd, {
         headers: { "Content-Type": "multipart/form-data" },
       });
-      toast.success("Photo uploaded successfully");
+      toast.success("Student photo uploaded and saved successfully");
       setShowEditProfile(false);
       reload();
     } catch (e) {
@@ -122,6 +129,7 @@ export default function ErpStudentDetail() {
       setCropBlob(null);
     }
   };
+
 
   return (
     <div className="space-y-6 animate-fadeIn" data-testid="erp-student-detail">
@@ -150,7 +158,7 @@ export default function ErpStudentDetail() {
         
         <div className="flex justify-between items-start flex-wrap gap-3 relative z-10">
           <div className="flex items-start gap-4">
-            <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-border bg-muted shrink-0">
+            <label className="w-16 h-16 rounded-full overflow-hidden border-2 border-border bg-muted shrink-0 relative group/avatar cursor-pointer block shadow-sm" title="Click to upload or update student photo">
               {s.photo_url ? (
                 <img src={s.photo_url} alt="" className="w-full h-full object-cover" />
               ) : (
@@ -158,7 +166,13 @@ export default function ErpStudentDetail() {
                   <User size={28} />
                 </div>
               )}
-            </div>
+              <div className="absolute inset-0 bg-black/60 text-white flex flex-col items-center justify-center opacity-0 group-hover/avatar:opacity-100 transition-opacity">
+                <Camera size={16} />
+                <span className="text-[8px] font-bold uppercase tracking-wider mt-0.5">Photo</span>
+              </div>
+              <input type="file" accept="image/jpeg,image/png,image/webp" onChange={handlePhotoSelect} className="hidden" />
+            </label>
+
             <div className="space-y-1">
               <div className="text-xs uppercase tracking-[0.2em] font-bold text-accent font-mono">{s.student_no}</div>
               <h1 className="font-display text-3xl font-medium tracking-tight text-foreground">{s.full_name}</h1>
@@ -278,16 +292,28 @@ export default function ErpStudentDetail() {
                   <td className="px-6 py-4 font-mono text-right text-xs text-muted-foreground/60 whitespace-nowrap">{fmtINR(p.sgst)}</td>
                   <td className="px-6 py-4 font-mono text-right font-bold text-emerald-600 text-sm whitespace-nowrap">{fmtINR(p.amount)}</td>
                   <td className="px-6 py-4 text-right whitespace-nowrap">
-                    <a 
-                      href={`${API_BASE}/erp/payments/${p.id}/receipt`} 
-                      target="_blank" 
-                      rel="noreferrer" 
-                      className="inline-flex p-1.5 hover:bg-muted/50 border border-transparent hover:border-border rounded-lg text-accent transition" 
-                      data-testid={`download-receipt-${p.id}`}
-                    >
-                      <FileDown size={14}/>
-                    </a>
+                    <div className="flex items-center justify-end gap-1.5">
+                      <button 
+                        onClick={() => setSelectedReceipt(p)}
+                        className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-bold uppercase tracking-wider text-accent bg-accent/10 border border-accent/20 hover:bg-accent/20 rounded-lg transition" 
+                        data-testid={`receipt-modal-${p.id}`}
+                        title="Print or View Receipt (A4 or Thermal POS)"
+                      >
+                        <Printer size={12}/> Receipt
+                      </button>
+                      <a 
+                        href={`${API_BASE}/erp/payments/${p.id}/receipt`} 
+                        target="_blank" 
+                        rel="noreferrer" 
+                        className="p-1.5 hover:bg-muted/50 border border-transparent hover:border-border rounded-lg text-muted-foreground hover:text-foreground transition" 
+                        title="Direct A4 PDF Download"
+                        data-testid={`download-receipt-${p.id}`}
+                      >
+                        <FileDown size={14}/>
+                      </a>
+                    </div>
                   </td>
+
                 </tr>
               ))}
               {stmt.payments.length === 0 && (
@@ -334,9 +360,20 @@ export default function ErpStudentDetail() {
         <CropModal
           src={cropSrc}
           onClose={() => { setCropping(false); setCropSrc(null); setCropBlob(null); }}
-          onConfirm={(blob) => { setCropBlob(blob); confirmCropAndUpload(); }}
+          onConfirm={(blob) => {
+            setCropBlob(blob);
+            confirmCropAndUpload(blob);
+          }}
         />
       )}
+      {selectedReceipt && (
+        <ReceiptModal
+          payment={selectedReceipt}
+          student={s}
+          onClose={() => setSelectedReceipt(null)}
+        />
+      )}
+
     </div>
   );
 }
@@ -572,10 +609,22 @@ function centerAspectCrop(mediaWidth, mediaHeight, aspect) {
 
 function getCroppedImg(image, pixelCrop) {
   const canvas = document.createElement("canvas");
-  canvas.width = pixelCrop.width;
-  canvas.height = pixelCrop.height;
+  const scaleX = image.naturalWidth / image.width;
+  const scaleY = image.naturalHeight / image.height;
+  canvas.width = Math.max(pixelCrop.width * scaleX, 1);
+  canvas.height = Math.max(pixelCrop.height * scaleY, 1);
   const ctx = canvas.getContext("2d");
-  ctx.drawImage(image, pixelCrop.x, pixelCrop.y, pixelCrop.width, pixelCrop.height, 0, 0, pixelCrop.width, pixelCrop.height);
+  ctx.drawImage(
+    image,
+    pixelCrop.x * scaleX,
+    pixelCrop.y * scaleY,
+    pixelCrop.width * scaleX,
+    pixelCrop.height * scaleY,
+    0,
+    0,
+    canvas.width,
+    canvas.height
+  );
   return new Promise((resolve) => {
     canvas.toBlob((blob) => resolve(blob), "image/png");
   });
@@ -583,20 +632,64 @@ function getCroppedImg(image, pixelCrop) {
 
 function CropModal({ src, onClose, onConfirm }) {
   const imgRef = useRef(null);
-  const [crop, setCrop] = useState({ unit: "%", x: 25, y: 25, width: 50, height: 50 });
+  const [crop, setCrop] = useState({ unit: "%", x: 15, y: 15, width: 70, height: 70 });
   const [completedCrop, setCompletedCrop] = useState(null);
 
+  const onImageLoad = (e) => {
+    const { width, height } = e.currentTarget;
+    const minDim = Math.min(width, height);
+    const initialCrop = {
+      unit: "px",
+      width: minDim * 0.8,
+      height: minDim * 0.8,
+      x: (width - minDim * 0.8) / 2,
+      y: (height - minDim * 0.8) / 2,
+    };
+    setCrop(initialCrop);
+    setCompletedCrop(initialCrop);
+  };
+
   const handleConfirm = async () => {
-    if (!imgRef.current || !completedCrop) return;
-    const blob = await getCroppedImg(imgRef.current, completedCrop);
-    onConfirm(blob);
+    if (!imgRef.current) return;
+    try {
+      const targetCrop = completedCrop || {
+        unit: "px",
+        x: 0,
+        y: 0,
+        width: imgRef.current.width,
+        height: imgRef.current.height,
+      };
+      const blob = await getCroppedImg(imgRef.current, targetCrop);
+      if (blob) onConfirm(blob);
+    } catch (err) {
+      console.error("Crop error:", err);
+    }
+  };
+
+  const handleUseOriginal = async () => {
+    if (!imgRef.current) return;
+    try {
+      const canvas = document.createElement("canvas");
+      canvas.width = imgRef.current.naturalWidth;
+      canvas.height = imgRef.current.naturalHeight;
+      const ctx = canvas.getContext("2d");
+      ctx.drawImage(imgRef.current, 0, 0);
+      canvas.toBlob((blob) => {
+        if (blob) onConfirm(blob);
+      }, "image/png");
+    } catch (err) {
+      console.error("Use original photo error:", err);
+    }
   };
 
   return (
     <div className="fixed inset-0 bg-black/60 z-50 grid place-items-center p-4 backdrop-blur-sm" onClick={onClose}>
       <div onClick={e => e.stopPropagation()} className="bg-background border border-border rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-4">
-        <h3 className="font-display text-xl font-medium">Crop Photo for ID Card</h3>
-        <div className="flex justify-center bg-muted/20 rounded-xl overflow-hidden">
+        <div className="flex items-center justify-between">
+          <h3 className="font-display text-xl font-medium">Crop Photo for Student ID Card</h3>
+          <span className="text-[11px] text-muted-foreground font-mono">1:1 Circular ID Frame</span>
+        </div>
+        <div className="flex justify-center bg-muted/30 rounded-xl overflow-hidden p-2 border border-border">
           <ReactCrop
             crop={crop}
             onChange={(c) => setCrop(c)}
@@ -604,14 +697,22 @@ function CropModal({ src, onClose, onConfirm }) {
             aspect={1}
             circularCrop
           >
-            <img ref={imgRef} src={src} alt="Crop" style={{ maxHeight: "60vh" }} />
+            <img ref={imgRef} src={src} onLoad={onImageLoad} alt="Crop" style={{ maxHeight: "55vh" }} />
           </ReactCrop>
         </div>
-        <div className="flex gap-3">
-          <button onClick={handleConfirm} className="flex-1 py-2 bg-primary text-primary-foreground rounded-xl font-bold text-xs uppercase tracking-wider">Confirm Crop</button>
-          <button onClick={onClose} className="px-4 py-2 border border-border rounded-xl text-xs uppercase tracking-wider font-bold text-muted-foreground hover:text-foreground hover:bg-muted/50 transition">Cancel</button>
+        <div className="flex flex-wrap gap-2 pt-1">
+          <button onClick={handleConfirm} className="flex-1 py-2.5 bg-primary text-primary-foreground rounded-xl font-bold text-xs uppercase tracking-wider hover:opacity-90 transition" data-testid="confirm-crop-btn">
+            Confirm Crop & Save
+          </button>
+          <button onClick={handleUseOriginal} className="px-3 py-2.5 border border-border rounded-xl text-xs uppercase tracking-wider font-semibold text-muted-foreground hover:text-foreground hover:bg-muted/50 transition">
+            Use Full Image
+          </button>
+          <button onClick={onClose} className="px-3 py-2.5 border border-border rounded-xl text-xs uppercase tracking-wider font-bold text-muted-foreground hover:text-foreground hover:bg-muted/50 transition">
+            Cancel
+          </button>
         </div>
       </div>
     </div>
   );
 }
+

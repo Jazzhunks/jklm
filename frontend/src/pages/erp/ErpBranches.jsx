@@ -15,6 +15,7 @@ export default function ErpBranches() {
   const openEditModal = (b) => {
     setEditing(b.id);
     setForm({
+      code: b.code || (b.name?.toLowerCase().includes("parray") ? "PP" : ""),
       gstin: b.gstin || "",
       signatory_name: b.signatory_name || "",
       state_code: b.state_code || "",
@@ -36,13 +37,25 @@ export default function ErpBranches() {
     }
   };
 
+  const getBranchCode = (b) => {
+    if (b.code) return b.code.toUpperCase();
+    const nameLower = (b.name || "").toLowerCase();
+    if (nameLower.includes("parray")) return "PP";
+    if (nameLower.includes("90")) return "NFT";
+    if (nameLower.includes("anantnag")) return "ANG";
+    if (nameLower.includes("sopore")) return "SOP";
+    if (nameLower.includes("zakura")) return "ZAK";
+    if (nameLower.includes("soura")) return "SOU";
+    return (b.name || "BR").slice(0, 2).toUpperCase();
+  };
+
   return (
     <div className="space-y-8 animate-fadeIn" data-testid="erp-branches-page">
       {/* Pinned Title Board */}
       <div>
         <div className="text-xs uppercase tracking-[0.2em] font-bold text-accent">Enterprise Infrastructure</div>
         <h1 className="font-display text-4xl font-light tracking-tight mt-1">Network Hub Centres</h1>
-        <p className="text-muted-foreground mt-1 text-sm">Configure localized taxation metrics, GSTIN parameters, and legal authorized signatories for each valley hub.</p>
+        <p className="text-muted-foreground mt-1 text-sm">Configure branch roll codes, localized taxation metrics, GSTIN parameters, and legal authorized signatories for each valley hub.</p>
       </div>
 
       {/* Grid Network Mapping */}
@@ -57,6 +70,9 @@ export default function ErpBranches() {
               <div className="space-y-1.5 max-w-[80%]">
                 <h3 className="font-display font-medium text-xl text-foreground tracking-tight flex items-center gap-2">
                   {b.name}
+                  <span className="px-2 py-0.5 rounded-md text-[11px] font-mono font-bold bg-accent/10 text-accent border border-accent/20" title="Branch Code for Student IDs">
+                    {getBranchCode(b)}
+                  </span>
                 </h3>
                 <p className="text-xs text-muted-foreground flex items-center gap-1.5 leading-relaxed">
                   <MapPin size={13} className="text-accent shrink-0" /> {b.address}
@@ -74,20 +90,24 @@ export default function ErpBranches() {
               </button>
             </div>
 
-            {/* Financial Metadata Grid Segment */}
-            <div className="mt-6 grid grid-cols-1 sm:grid-cols-3 gap-4 border-t border-border pt-4 relative z-10">
+            {/* Financial & ID Metadata Grid Segment */}
+            <div className="mt-6 grid grid-cols-2 sm:grid-cols-4 gap-3 border-t border-border pt-4 relative z-10">
+              <div className="space-y-0.5">
+                <div className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest">Student ID Code</div>
+                <div className="font-mono text-xs text-accent font-bold mt-0.5 tracking-wide">{getBranchCode(b)}00001</div>
+              </div>
               <div className="space-y-0.5">
                 <div className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest">Taxation GSTIN</div>
-                <div className="font-mono text-xs text-foreground font-semibold mt-0.5 tracking-wide">{b.gstin || "—"}</div>
+                <div className="font-mono text-xs text-foreground font-semibold mt-0.5 tracking-wide truncate">{b.gstin || "—"}</div>
               </div>
               <div className="space-y-0.5">
                 <div className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest">Legal Signatory</div>
-                <div className="text-xs text-foreground font-medium mt-0.5">{b.signatory_name || "—"}</div>
+                <div className="text-xs text-foreground font-medium mt-0.5 truncate">{b.signatory_name || "—"}</div>
               </div>
               <div className="space-y-0.5">
                 <div className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest">State Location</div>
                 <div className="font-mono text-xs text-foreground mt-0.5">
-                  {b.state_code ? `${b.state_code} (J&K)` : "—"}
+                  {b.state_code ? `${b.state_code} (J&K)` : "01 (J&K)"}
                 </div>
               </div>
             </div>
@@ -121,11 +141,30 @@ export default function ErpBranches() {
 
             <div className="space-y-4">
               <div>
+                <label className="text-xs uppercase tracking-wider font-bold text-muted-foreground mb-1 block">
+                  Branch Code (Student ID Prefix) *
+                </label>
+                <input 
+                  type="text"
+                  required
+                  value={form.code || ""} 
+                  onChange={e => setForm({...form, code: e.target.value.toUpperCase().trim()})}
+                  placeholder="e.g. PP, NFT, ANG" 
+                  maxLength={6}
+                  className="w-full px-3 py-2 border border-border bg-background/50 rounded-xl text-sm font-mono font-bold text-accent placeholder:text-muted-foreground/30 focus:outline-none focus:border-accent" 
+                  data-testid="eb-code"
+                />
+                <p className="text-[11px] text-muted-foreground mt-1 font-sans">
+                  Students enrolled here will receive sequence IDs starting with this prefix (e.g. <span className="font-mono text-foreground font-semibold">{form.code || "PP"}00001</span>).
+                </p>
+              </div>
+
+              <div>
                 <label className="text-xs uppercase tracking-wider font-bold text-muted-foreground mb-1 block">Taxation GSTIN Reference</label>
                 <input 
                   type="text"
                   value={form.gstin} 
-                  onChange={e => setForm({...form, gstin: e.target.value.toUpperCase()})} // Forced structural standard casing rules
+                  onChange={e => setForm({...form, gstin: e.target.value.toUpperCase()})}
                   placeholder="01ABCDE1234F1Z5" 
                   className="w-full px-3 py-2 border border-border bg-background/50 rounded-xl text-sm font-mono text-foreground placeholder:text-muted-foreground/30 focus:outline-none focus:border-accent/50" 
                   data-testid="eb-gstin"
@@ -156,6 +195,7 @@ export default function ErpBranches() {
                 />
               </div>
             </div>
+
 
             <div className="flex gap-3 pt-2">
               <button 
