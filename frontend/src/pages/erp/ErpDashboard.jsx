@@ -19,17 +19,25 @@ const CHART_COLORS = ['#38bdf8', '#34d399', '#fbbf24', '#fb7185', '#a78bfa', '#f
 
 // --- SHARED UI COMPONENT BLOCKS ---
 const Stat = ({ label, value, icon: Icon, accent, testid }) => (
-  <div className="glass-elevated rounded-2xl p-6 relative overflow-hidden group border border-border" data-testid={testid}>
-    <div className="absolute -right-6 -top-6 opacity-[0.03] group-hover:scale-110 transition-transform duration-500">
-      {Icon && <Icon size={120} />}
+  <div className="bg-card rounded-2xl p-6 relative overflow-hidden group border border-border shadow-sm hover:shadow-md transition-shadow" data-testid={testid}>
+    <div className="flex items-center justify-between mb-4 relative z-10">
+      <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-muted/40 group-hover:bg-accent/10 transition-colors">
+        {Icon && <Icon size={22} className={accent || "text-muted-foreground"}/>}
+      </div>
+      <div className="flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-emerald-500 bg-emerald-500/10 px-2 py-1 rounded-md">
+        <TrendingUp size={12} /> +12%
+      </div>
     </div>
-    <div className="flex items-start justify-between relative z-10">
-      <div className="text-xs uppercase tracking-[0.18em] font-bold text-muted-foreground">{label}</div>
-      {Icon && <Icon size={20} className={accent || "text-muted-foreground"}/>}
+    <div className="relative z-10">
+      <div className={`font-display text-3xl font-black tracking-tight ${accent || "text-foreground"}`}>
+        {value}
+      </div>
+      <div className="text-xs font-semibold text-muted-foreground mt-1 uppercase tracking-wider">{label}</div>
     </div>
-    <div className={`font-display text-4xl font-medium mt-4 tracking-tight ${accent || "text-foreground"}`}>
-      {value}
-    </div>
+    {/* Decorative Wave */}
+    <svg className="absolute bottom-0 left-0 w-full h-12 opacity-[0.02] text-foreground" viewBox="0 0 1440 320">
+      <path fill="currentColor" fillOpacity="1" d="M0,192L48,197.3C96,203,192,213,288,229.3C384,245,480,267,576,250.7C672,235,768,181,864,181.3C960,181,1056,235,1152,234.7C1248,235,1344,181,1392,154.7L1440,128L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path>
+    </svg>
   </div>
 );
 
@@ -331,7 +339,10 @@ function SuperView({ d }) {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
         <div className="lg:col-span-2 glass-elevated rounded-2xl p-6 border border-border">
-          <h3 className="font-display font-medium text-lg mb-6">Revenue vs Expense by Branch</h3>
+          <div className="flex justify-between items-center mb-6">
+            <h3 className="font-display font-medium text-lg">Financial Overview (All Branches)</h3>
+            <button className="text-xs font-bold bg-muted hover:bg-muted/80 text-foreground px-3 py-1.5 rounded-lg transition border border-border">Download Report</button>
+          </div>
           <div className="h-[300px] w-full min-w-0" style={{ minWidth: 0, minHeight: 300 }}>
             <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
               <BarChart data={d.branches || []} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
@@ -356,6 +367,10 @@ function SuperView({ d }) {
       <div className="glass-elevated rounded-2xl overflow-hidden border border-border" data-testid="branches-table">
         <div className="px-6 py-5 border-b border-border flex items-center justify-between">
           <h3 className="font-display font-medium text-lg">Branch Metrics Summary</h3>
+          <div className="flex gap-2">
+            <button className="text-[10px] uppercase tracking-wider font-bold bg-primary/10 text-primary px-3 py-1.5 rounded-md transition border border-primary/20">All Time</button>
+            <button className="text-[10px] uppercase tracking-wider font-bold bg-muted text-muted-foreground hover:bg-muted/80 px-3 py-1.5 rounded-md transition">This Month</button>
+          </div>
           <FileText size={18} className="text-muted-foreground" />
         </div>
         <div className="overflow-x-auto">
