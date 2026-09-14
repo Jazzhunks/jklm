@@ -496,6 +496,7 @@ function CreateExpenseModal({ onClose, onSuccess, branchId, branches, isSuper })
   const [description, setDescription] = useState("");
   const [vendor, setVendor] = useState("");
   const [expenseDate, setExpenseDate] = useState(new Date().toISOString().slice(0, 10));
+  const [paymentMode, setPaymentMode] = useState("online");
   const [billUrl, setBillUrl] = useState("");
   const [submitting, setSubmitting] = useState(false);
 

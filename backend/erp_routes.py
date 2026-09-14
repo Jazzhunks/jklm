@@ -155,6 +155,7 @@ class ExpenseCreate(BaseModel):
     vendor: Optional[str] = None
     bill_url: Optional[str] = None
     expense_date: Optional[str] = None
+    payment_mode: Optional[Literal["cash", "online", "cheque", "card"]] = "online"
 
 class ExpenseDecision(BaseModel):
     decision: Literal["approve", "reject"]
@@ -246,10 +247,10 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
 
     def scope_branch_filter(user: dict, branch_id_param: Optional[str] = None) -> dict:
         if user["role"] == "super_admin":
-            return {"branch_id": branch_id_param} if branch_id_param else {}
+            return {"branch_id": branch_id_param} if branch_id_param and branch_id_param != "all" else {}
         if not user.get("branch_id"):
             raise HTTPException(403, "Context Error: User profile has no active branch assignment node.")
-        if branch_id_param and branch_id_param != user["branch_id"]:
+        if branch_id_param and branch_id_param not in (user["branch_id"], "all"):
             raise HTTPException(403, "Access Denied: Cross-branch query parameter operations rejected.")
         return {"branch_id": user["branch_id"]}
 
@@ -930,6 +931,7 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
             "id": new_id(),
             "status": "approved" if auto_approved else "pending",
             "expense_date": payload.expense_date or now_iso()[:10],
+            "payment_mode": payload.payment_mode,
             "recorded_by": user["id"],
             "recorded_by_name": user.get("name"),
             "approved_by": user["id"] if auto_approved else None,
