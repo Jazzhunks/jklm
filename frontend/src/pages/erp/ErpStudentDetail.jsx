@@ -195,7 +195,12 @@ export default function ErpStudentDetail() {
           <div className="flex items-start gap-4">
             <label className="w-16 h-16 rounded-full overflow-hidden border-2 border-border bg-muted shrink-0 relative group/avatar cursor-pointer block shadow-sm" title="Click to upload or update student photo">
               {s.photo_url ? (
-                <img src={s.photo_url} alt="" className="w-full h-full object-cover" />
+                <img
+                  src={s.photo_url.startsWith("data:") ? s.photo_url : `${API_BASE}/erp/students/${encodeURIComponent(s.id)}/photo?t=${Date.now()}`}
+                  alt=""
+                  className="w-full h-full object-cover"
+                  onError={e => { e.target.style.display = 'none'; }}
+                />
               ) : (
                 <div className="w-full h-full flex items-center justify-center text-muted-foreground">
                   <User size={28} />

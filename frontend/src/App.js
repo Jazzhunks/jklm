@@ -99,7 +99,6 @@ export default function App() {
             >
               <Route index element={<ErpDashboard />} />
               <Route path="students" element={<ErpStudents />} />
-              <Route path="students/:student_no" element={<ErpStudentDetail />} />
               <Route path="students/:id" element={<ErpStudentDetail />} />
               <Route path="payments" element={<ErpPayments />} />
               <Route path="expenses" element={<ErpExpenses />} />

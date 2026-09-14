@@ -13,6 +13,7 @@ from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, EmailStr, Field
 
 from erp_pdf import fee_receipt_pdf, fee_receipt_thermal_pdf
+from storage_client import put_object, get_object, APP_NAME
 from notifications import (
     emit_student_registered,
     emit_fee_payment,
@@ -1688,32 +1689,89 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
         file_id = new_id()
         path = f"{APP_NAME}/uploads/student-photos/{file_id}.{ext}"
 
+        import base64
         photo_url = None
-        try:
-            result = await put_object(path, data, ctype)
-            record = {
-                "id": file_id,
-                "storage_path": result.get("path", path),
-                "original_filename": file.filename or f"student-photo-{student_id}.{ext}",
-                "content_type": ctype,
-                "size": result.get("size", len(data)),
-                "is_deleted": False,
-                "created_at": now_iso(),
-            }
-            await db.files.insert_one(record)
-            photo_url = f"/api/files/{file_id}"
-        except Exception as e:
-            # Bulletproof zero-failure fallback: direct Base64 image
-            import base64
+
+        # Only attempt remote/file storage if cloud key is configured
+        emergent_key = os.environ.get("EMERGENT_LLM_KEY", "")
+        if emergent_key:
+            try:
+                result = await put_object(path, data, ctype)
+                record = {
+                    "id": file_id,
+                    "storage_path": result.get("path", path),
+                    "original_filename": file.filename or f"student-photo-{student_id}.{ext}",
+                    "content_type": ctype,
+                    "size": result.get("size", len(data)),
+                    "is_deleted": False,
+                    "created_at": now_iso(),
+                }
+                await db.files.insert_one(record)
+                photo_url = f"/api/files/{file_id}"
+            except Exception:
+                photo_url = None  # Fall through to base64
+
+        # Base64 fallback — always used when no cloud key, or on any storage failure
+        if not photo_url:
             b64_str = base64.b64encode(data).decode("ascii")
             photo_url = f"data:{ctype};base64,{b64_str}"
 
         await db.erp_students.update_one({"id": real_id}, {"$set": {"photo_url": photo_url}})
-        await audit(user, "update", "student_photo", real_id, s.get("branch_id"), {"url_type": "file" if photo_url.startswith("/api/") else "data_url"})
+        try:
+            await audit(user, "update", "student_photo", real_id, s.get("branch_id"), {"url_type": "file" if photo_url.startswith("/api/") else "data_url"})
+        except Exception:
+            pass  # Audit failure should never block the upload response
         return {"photo_url": photo_url}
+
+    @erp.get("/students/{student_id}/photo")
+    async def get_student_photo(student_id: str, user: dict = Depends(require_erp)):
+        """Serve student photo — handles both base64 data URIs and /api/files/ references."""
+        s = await db.erp_students.find_one(
+            {"$or": [{"id": student_id}, {"student_no": student_id}]},
+            {"_id": 0, "photo_url": 1, "id": 1, "branch_id": 1}
+        )
+        if not s:
+            raise HTTPException(404, "Student not found")
+        if not can_view_branch(user, s.get("branch_id", "")):
+            raise HTTPException(403, "Cross-branch denied")
+
+        photo_url = s.get("photo_url")
+        if not photo_url:
+            raise HTTPException(404, "No photo on file")
+
+        # Case 1: base64 data URI stored directly — decode and serve
+        if photo_url.startswith("data:"):
+            try:
+                header, b64data = photo_url.split(",", 1)
+                ctype = header.split(":")[1].split(";")[0]
+                import base64 as _b64
+                image_bytes = _b64.b64decode(b64data)
+                return Response(content=image_bytes, media_type=ctype,
+                                headers={"Cache-Control": "max-age=86400, private"})
+            except Exception as e:
+                raise HTTPException(500, f"Photo decode error: {e}")
+
+        # Case 2: /api/files/{file_id} — resolve from DB and serve via storage
+        if photo_url.startswith("/api/files/"):
+            file_id = photo_url.split("/")[-1]
+            record = await db.files.find_one({"id": file_id, "is_deleted": False}, {"_id": 0})
+            if not record:
+                raise HTTPException(404, "Photo file record not found")
+            try:
+                data, ctype = await get_object(record["storage_path"])
+                return Response(content=data, media_type=ctype,
+                                headers={"Cache-Control": "max-age=86400, private",
+                                         "Content-Disposition": f'inline; filename="photo-{student_id}"'})
+            except Exception as e:
+                raise HTTPException(404, f"Photo retrieval failed: {e}")
+
+        # Case 3: external URL — redirect
+        from fastapi.responses import RedirectResponse
+        return RedirectResponse(url=photo_url, status_code=302)
 
 
     # ===== TEMP STUDENTS =====
+
     @erp.get("/temp-students/check")
     async def check_temp_student(phone: str, branch_id: Optional[str] = None, user: dict = Depends(require_erp)):
         f = {"status": "temporary", "contact_phone": phone}
@@ -1821,7 +1879,6 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
                 file_record = await db.files.find_one({"id": file_id, "is_deleted": False}, {"_id": 0})
                 if file_record:
                     try:
-                        from storage_client import get_object
                         photo_bytes, _ = await get_object(file_record["storage_path"])
                     except Exception:
                         photo_bytes = None

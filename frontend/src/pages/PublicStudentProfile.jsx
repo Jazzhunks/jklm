@@ -42,7 +42,12 @@ export default function PublicStudentProfile() {
         <div className="flex items-start gap-4">
           <div className="w-20 h-20 rounded-full overflow-hidden border-2 border-border bg-muted shrink-0">
             {student.photo_url ? (
-              <img src={student.photo_url} alt="" className="w-full h-full object-cover" />
+              <img
+                src={student.photo_url.startsWith("data:") ? student.photo_url : `${API_BASE}/erp/students/${encodeURIComponent(student.id)}/photo`}
+                alt=""
+                className="w-full h-full object-cover"
+                onError={e => { e.target.style.display = 'none'; }}
+              />
             ) : (
               <div className="w-full h-full flex items-center justify-center text-muted-foreground text-xs">No Photo</div>
             )}
