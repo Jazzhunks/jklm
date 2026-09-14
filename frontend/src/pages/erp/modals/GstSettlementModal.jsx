@@ -408,7 +408,7 @@ export default function GstSettlementModal({ onClose, defaultBranchId = "", bran
                 Taxable Value
               </div>
               <div className="font-display text-2xl font-bold text-foreground mt-1.5">
-                {fmtINR(gstData?.total_gstable || 0)}
+                {fmtINR(gstData?.total_taxable || 0)}
               </div>
               <div className="text-[10px] text-muted-foreground mt-1">
                 Base Tuition (SAC 9992)
@@ -465,10 +465,10 @@ export default function GstSettlementModal({ onClose, defaultBranchId = "", bran
                       {modeName}
                     </div>
                     <div className="text-sm font-bold text-foreground mt-1">
-                      {fmtINR(info.amount)}
+                      {fmtINR(info.gross)}
                     </div>
                     <div className="text-[10px] text-muted-foreground mt-0.5">
-                      GST: {fmtINR(info.tax)} ({info.count} receipts)
+                      GST: {fmtINR((info.cgst || 0) + (info.sgst || 0))} ({info.count} txns)
                     </div>
                   </div>
                 ))}
@@ -544,7 +544,7 @@ export default function GstSettlementModal({ onClose, defaultBranchId = "", bran
                             {fmtINR(r.amount)}
                           </td>
                           <td className="p-3 text-right font-mono text-muted-foreground">
-                            {fmtINR(r.taxable_value)}
+                            {fmtINR(r.base_amount)}
                           </td>
                           <td className="p-3 text-right font-mono text-sky-500">
                             {fmtINR(r.cgst)}
