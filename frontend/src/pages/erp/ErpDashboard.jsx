@@ -568,7 +568,7 @@ function CashbookViewModal({ erpUser, onClose }) {
                       <td className="px-4 py-3 text-xs text-muted-foreground">{p.collected_by_name || "—"}</td>
                       <td className="px-4 py-3 font-mono text-right font-bold text-emerald-600">{fmtINR(p.amount)}</td>
                       <td className="px-4 py-3 text-right">
-                        <a href={`${API_BASE}/erp/payments/${p.id}/receipt`} target="_blank" rel="noreferrer" className="text-accent text-xs font-bold hover:underline">PDF</a>
+                        <a href={`${API_BASE}/erp/receipts/${encodeURIComponent(p.receipt_no)}.pdf`} target="_blank" rel="noreferrer" className="text-accent text-xs font-bold hover:underline">PDF</a>
                       </td>
                     </tr>
                   ))}

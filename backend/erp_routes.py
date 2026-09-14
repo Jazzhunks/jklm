@@ -828,16 +828,21 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
             "payments": payments,
         }
 
-    @erp.get("/payments/{payment_id}/receipt")
+    @erp.get("/receipts/{receipt_no}.pdf")
     async def download_receipt(
-        payment_id: str,
+        receipt_no: str,
         format: Optional[str] = Query("a4"),
         width_mm: Optional[int] = Query(80),
         user: dict = Depends(require_erp),
     ):
-        p = await db.erp_payments.find_one({"id": payment_id}, {"_id": 0})
+        # If it looks like a UUID (length 36), try matching ID for backwards compatibility
+        if len(receipt_no) == 36 and "-" in receipt_no:
+            p = await db.erp_payments.find_one({"id": receipt_no}, {"_id": 0})
+        else:
+            p = await db.erp_payments.find_one({"receipt_no": receipt_no}, {"_id": 0})
+            
         if not p:
-            raise HTTPException(404, "Payment not found")
+            raise HTTPException(404, "Payment/Receipt not found")
         if not can_view_branch(user, p["branch_id"]):
             raise HTTPException(403, "Cross-branch denied")
         s = await db.erp_students.find_one({"id": p["student_id"]}, {"_id": 0}) or {}
