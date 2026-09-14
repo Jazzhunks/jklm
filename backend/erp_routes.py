@@ -73,30 +73,33 @@ class StudentCreate(BaseModel):
     full_name: str
     gender: Optional[str] = None
     dob: Optional[str] = None
-    school_institute: Optional[str] = None
-    board: Optional[str] = None
-    category: Optional[str] = None
+    address: Optional[str] = None
+    contact_phone: str
+    contact_email: Optional[EmailStr] = None
     parent_name: Optional[str] = None
     parent_phone: Optional[str] = None
     parent_email: Optional[EmailStr] = None
-    emergency_phone: Optional[str] = None
-    contact_phone: str
-    contact_email: Optional[EmailStr] = None
-    address: Optional[str] = None
-    photo_url: Optional[str] = None
-    luid: Optional[str] = None
-    enrollment_number: Optional[str] = None
+    current_class: Optional[str] = None
     course_id: str
     batch: Optional[str] = None
+    batch_timing: Optional[str] = None
+    course_duration: Optional[str] = None
     branch_id: str
     counsellor_id: Optional[str] = None
     admission_date: Optional[str] = None
+    total_fee: float
     scholarship_percent: float = 0.0
     discount: float = 0.0
-    total_fee: float
-    documents: List[dict] = Field(default_factory=list)
+    luid: Optional[str] = None
+    enrollment_number: Optional[str] = None
     notes: Optional[str] = None
+    documents: List[dict] = Field(default_factory=list)
+    photo_url: Optional[str] = None
     public_user_id: Optional[str] = None
+    school_institute: Optional[str] = None
+    board: Optional[str] = None
+    category: Optional[str] = None
+    emergency_phone: Optional[str] = None
 
 class StudentUpdate(BaseModel):
     full_name: Optional[str] = None
