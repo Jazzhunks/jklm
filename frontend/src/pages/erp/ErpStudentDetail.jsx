@@ -22,6 +22,7 @@ export default function ErpStudentDetail() {
   
   const [stmt, setStmt] = useState(null);
   const [course, setCourse] = useState(null);
+  const [counsellors, setCounsellors] = useState([]);
   const [showPay, setShowPay] = useState(false);
   const [showEditProfile, setShowEditProfile] = useState(false);
   const [photoFile, setPhotoFile] = useState(null);
@@ -33,6 +34,12 @@ export default function ErpStudentDetail() {
   const [selectedReceipt, setSelectedReceipt] = useState(null);
   const [deleteModal, setDeleteModal] = useState(null); // { type: 'student'|'payment', id, label }
   const [deleting, setDeleting] = useState(false);
+
+  useEffect(() => {
+    if (stmt?.student?.branch_id) {
+      erp.listStaff(stmt.student.branch_id).then(s => setCounsellors(s.filter(x => x.role === "counsellor"))).catch(() => {});
+    }
+  }, [stmt?.student?.branch_id]);
 
   const confirmDelete = async () => {
     if (!deleteModal) return;
@@ -411,6 +418,7 @@ export default function ErpStudentDetail() {
         <EditStudentProfileModal 
           student={s}
           erpUser={erpUser}
+          counsellors={counsellors}
           onClose={() => setShowEditProfile(false)}
           onUpdated={() => { setShowEditProfile(false); reload(); }}
           onPhotoSelect={handlePhotoSelect}
@@ -495,13 +503,15 @@ function StatCard({ label, value, sub, accent, actionElement, testid }) {
   );
 }
 
-function EditStudentProfileModal({ student, onClose, onUpdated, onPhotoSelect, erpUser }) {
+function EditStudentProfileModal({ student, onClose, onUpdated, onPhotoSelect, erpUser, counsellors = [] }) {
   const [form, setForm] = useState({
     full_name: student.full_name || "",
     contact_phone: student.contact_phone || "",
     contact_email: student.contact_email || "",
     parent_name: student.parent_name || "",
     parent_phone: student.parent_phone || "",
+    parent_email: student.parent_email || "",
+    emergency_phone: student.emergency_phone || "",
     batch: student.batch || "",
     address: student.address || "",
     luid: student.luid || "",
@@ -509,6 +519,14 @@ function EditStudentProfileModal({ student, onClose, onUpdated, onPhotoSelect, e
     status: student.status || "active",
     student_no: student.student_no || "",
     admission_date: student.admission_date ? student.admission_date.slice(0, 10) : "",
+    gender: student.gender || "Male",
+    dob: student.dob || "",
+    school_institute: student.school_institute || "",
+    board: student.board || "JKBOSE",
+    category: student.category || "General",
+    counsellor_id: student.counsellor_id || "",
+    documents: student.documents ? JSON.stringify(student.documents) : "",
+    notes: student.notes || "",
     total_fee: student.total_fee != null ? student.total_fee : "",
     scholarship_percent: student.scholarship_percent != null ? student.scholarship_percent : 0,
     discount: student.discount != null ? student.discount : 0,
@@ -531,6 +549,16 @@ function EditStudentProfileModal({ student, onClose, onUpdated, onPhotoSelect, e
         payload.scholarship_percent = Number(form.scholarship_percent);
         payload.discount = Number(form.discount);
       }
+      if (form.documents) {
+        try {
+          payload.documents = JSON.parse(form.documents);
+        } catch {
+          payload.documents = [];
+        }
+      } else {
+        payload.documents = [];
+      }
+      if (!form.notes) payload.notes = undefined;
       await erp.updateStudent(student.id, payload);
       toast.success("Student profile records updated successfully");
       onUpdated();
@@ -566,6 +594,44 @@ function EditStudentProfileModal({ student, onClose, onUpdated, onPhotoSelect, e
             <div>
               <label className="text-xs uppercase tracking-wider font-bold text-muted-foreground mb-1 block">Admission Date</label>
               <input type="date" value={form.admission_date} onChange={e => setForm({...form, admission_date: e.target.value})} className="w-full px-3 py-2 border border-border bg-background/50 rounded-xl text-sm focus:outline-none focus:border-accent" />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div>
+              <label className="text-xs uppercase tracking-wider font-bold text-muted-foreground mb-1 block">Gender</label>
+              <select value={form.gender} onChange={e => setForm({...form, gender: e.target.value})} className="w-full px-3 py-2 border border-border bg-background rounded-xl text-sm text-foreground focus:outline-none">
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+            <div>
+              <label className="text-xs uppercase tracking-wider font-bold text-muted-foreground mb-1 block">Date of Birth</label>
+              <input type="date" value={form.dob} onChange={e => setForm({...form, dob: e.target.value})} className="w-full px-3 py-2 border border-border bg-background/50 rounded-xl text-sm focus:outline-none focus:border-accent" />
+            </div>
+            <div>
+              <label className="text-xs uppercase tracking-wider font-bold text-muted-foreground mb-1 block">Board</label>
+              <select value={form.board} onChange={e => setForm({...form, board: e.target.value})} className="w-full px-3 py-2 border border-border bg-background rounded-xl text-sm text-foreground focus:outline-none">
+                <option value="JKBOSE">JKBOSE</option>
+                <option value="CBSE">CBSE</option>
+                <option value="ICSE">ICSE</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+            <div>
+              <label className="text-xs uppercase tracking-wider font-bold text-muted-foreground mb-1 block">Category</label>
+              <select value={form.category} onChange={e => setForm({...form, category: e.target.value})} className="w-full px-3 py-2 border border-border bg-background rounded-xl text-sm text-foreground focus:outline-none">
+                <option value="General">General</option>
+                <option value="SC">SC</option>
+                <option value="ST">ST</option>
+                <option value="OBC">OBC</option>
+                <option value="EWS">EWS</option>
+              </select>
+            </div>
+            <div>
+              <label className="text-xs uppercase tracking-wider font-bold text-muted-foreground mb-1 block">School / Institute</label>
+              <input type="text" value={form.school_institute} onChange={e => setForm({...form, school_institute: e.target.value})} className="w-full px-3 py-2 border border-border bg-background/50 rounded-xl text-sm focus:outline-none focus:border-accent" />
             </div>
           </div>
 
@@ -614,6 +680,14 @@ function EditStudentProfileModal({ student, onClose, onUpdated, onPhotoSelect, e
               <label className="text-xs uppercase tracking-wider font-bold text-muted-foreground mb-1 block">Parent Mobile Handle</label>
               <input type="text" value={form.parent_phone} onChange={e => setForm({...form, parent_phone: e.target.value})} className="w-full px-3 py-2 border border-border bg-background/50 rounded-xl text-sm font-mono focus:outline-none focus:border-accent" />
             </div>
+            <div>
+              <label className="text-xs uppercase tracking-wider font-bold text-muted-foreground mb-1 block">Parent Email</label>
+              <input type="email" value={form.parent_email} onChange={e => setForm({...form, parent_email: e.target.value})} className="w-full px-3 py-2 border border-border bg-background/50 rounded-xl text-sm focus:outline-none focus:border-accent" />
+            </div>
+            <div>
+              <label className="text-xs uppercase tracking-wider font-bold text-muted-foreground mb-1 block">Emergency Phone</label>
+              <input type="text" value={form.emergency_phone} onChange={e => setForm({...form, emergency_phone: e.target.value})} className="w-full px-3 py-2 border border-border bg-background/50 rounded-xl text-sm font-mono focus:outline-none focus:border-accent" />
+            </div>
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
@@ -642,6 +716,33 @@ function EditStudentProfileModal({ student, onClose, onUpdated, onPhotoSelect, e
               <label className="text-xs uppercase tracking-wider font-bold text-muted-foreground mb-1 block">Enrollment Number</label>
               <input type="text" value={form.enrollment_number} onChange={e => setForm({...form, enrollment_number: e.target.value})} placeholder="Official enrollment no" className="w-full px-3 py-2 border border-border bg-background/50 rounded-xl text-sm font-mono focus:outline-none focus:border-accent" />
             </div>
+            <div>
+              <label className="text-xs uppercase tracking-wider font-bold text-muted-foreground mb-1 block">Assigned Counsellor</label>
+              <select value={form.counsellor_id} onChange={e => setForm({...form, counsellor_id: e.target.value})} className="w-full px-3 py-2 border border-border bg-background rounded-xl text-sm text-foreground focus:outline-none">
+                <option value="">— Select Counsellor —</option>
+                {counsellors.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+              </select>
+            </div>
+            <div>
+              <label className="text-xs uppercase tracking-wider font-bold text-muted-foreground mb-1 block">Documents JSON</label>
+              <textarea
+                value={form.documents}
+                onChange={e => setForm({...form, documents: e.target.value})}
+                placeholder='[{"type":"aadhar","url":"..."}]'
+                rows={2}
+                className="w-full px-3 py-2 border border-border bg-background/50 rounded-xl text-sm font-mono text-foreground focus:outline-none focus:border-accent resize-none"
+              />
+            </div>
+          </div>
+          <div>
+            <label className="text-xs uppercase tracking-wider font-bold text-muted-foreground mb-1 block">Admin Notes</label>
+            <textarea
+              value={form.notes}
+              onChange={e => setForm({...form, notes: e.target.value})}
+              placeholder="Internal admin remarks"
+              rows={2}
+              className="w-full px-3 py-2 border border-border bg-background/50 rounded-xl text-sm text-foreground focus:outline-none focus:border-accent resize-none"
+            />
           </div>
           <div>
             <label className="text-xs uppercase tracking-wider font-bold text-muted-foreground mb-1 block">Profile Photo</label>

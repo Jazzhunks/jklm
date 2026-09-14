@@ -400,10 +400,12 @@ function CreateStudentModal({ erpUser, branches, defaultBranchId, onClose, onCre
   const [counsellors, setCounsellors] = useState([]);
   const [form, setForm] = useState({
     full_name: "", gender: "Male", dob: "", school_institute: "", board: "JKBOSE", category: "General",
-    contact_phone: "", contact_email: "", parent_name: "", parent_phone: "", emergency_phone: "",
+    contact_phone: "", contact_email: "", parent_name: "", parent_phone: "", parent_email: "", emergency_phone: "",
     address: "", course_id: "", batch: "",
     branch_id: defaultBranchId || (branches[0]?.id || ""),
-    counsellor_id: "", total_fee: "", scholarship_percent: 0, discount: 0
+    counsellor_id: "", admission_date: new Date().toISOString().slice(0, 10),
+    total_fee: "", scholarship_percent: 0, discount: 0,
+    documents: "", notes: "", public_user_id: ""
   });
   const [busy, setBusy] = useState(false);
   const [tempMatch, setTempMatch] = useState(null);
@@ -446,6 +448,9 @@ function CreateStudentModal({ erpUser, branches, defaultBranchId, onClose, onCre
         total_fee: parseFloat(form.total_fee),
         scholarship_percent: parseFloat(form.scholarship_percent || 0),
         discount: parseFloat(form.discount || 0),
+        documents: form.documents ? JSON.parse(form.documents) : [],
+        notes: form.notes || undefined,
+        public_user_id: form.public_user_id || undefined,
       };
       await erp.createStudent(payload);
       toast.success(`Student admitted successfully: ${form.full_name}`);
@@ -508,6 +513,26 @@ function CreateStudentModal({ erpUser, branches, defaultBranchId, onClose, onCre
                 onChange={e => setForm(f => ({ ...f, contact_phone: e.target.value }))}
                 onBlur={() => checkTempMatch(form.contact_phone.trim(), form.branch_id)}
                 placeholder="10-digit mobile number"
+                className="w-full px-3 py-2 border border-border bg-background rounded-xl text-xs font-mono text-foreground focus:outline-none focus:border-primary"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-bold uppercase tracking-wider text-muted-foreground mb-1">Contact Email</label>
+              <input
+                type="email"
+                value={form.contact_email}
+                onChange={e => setForm(f => ({ ...f, contact_email: e.target.value }))}
+                placeholder="name@example.com"
+                className="w-full px-3 py-2 border border-border bg-background rounded-xl text-xs text-foreground focus:outline-none focus:border-primary"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-bold uppercase tracking-wider text-muted-foreground mb-1">Emergency Phone</label>
+              <input
+                type="tel"
+                value={form.emergency_phone}
+                onChange={e => setForm(f => ({ ...f, emergency_phone: e.target.value }))}
+                placeholder="Alt emergency contact"
                 className="w-full px-3 py-2 border border-border bg-background rounded-xl text-xs font-mono text-foreground focus:outline-none focus:border-primary"
               />
             </div>
@@ -657,6 +682,150 @@ function CreateStudentModal({ erpUser, branches, defaultBranchId, onClose, onCre
                 className="w-full px-3 py-2 border border-border bg-background rounded-xl text-xs font-mono text-foreground focus:outline-none"
               />
             </div>
+            <div>
+              <label className="block text-xs font-bold uppercase tracking-wider text-muted-foreground mb-1">Parent Email</label>
+              <input
+                type="email"
+                value={form.parent_email}
+                onChange={e => setForm(f => ({ ...f, parent_email: e.target.value }))}
+                placeholder="parent@example.com"
+                className="w-full px-3 py-2 border border-border bg-background rounded-xl text-xs text-foreground focus:outline-none"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-bold uppercase tracking-wider text-muted-foreground mb-1">Assigned Counsellor</label>
+              <select
+                value={form.counsellor_id}
+                onChange={e => setForm(f => ({ ...f, counsellor_id: e.target.value }))}
+                className="w-full px-3 py-2 border border-border bg-background rounded-xl text-xs font-semibold text-foreground focus:outline-none"
+              >
+                <option value="">— Select Counsellor —</option>
+                {counsellors.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+              </select>
+            </div>
+          </div>
+
+          {/* Academic Track & Branch */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div>
+              <label className="block text-xs font-bold uppercase tracking-wider text-muted-foreground mb-1">Branch *</label>
+              <select
+                required
+                value={form.branch_id}
+                onChange={e => setForm(f => ({ ...f, branch_id: e.target.value }))}
+                className="w-full px-3 py-2 border border-border bg-background rounded-xl text-xs font-semibold text-foreground focus:outline-none"
+              >
+                <option value="">Select Branch</option>
+                {branches.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}
+              </select>
+            </div>
+            <div>
+              <label className="block text-xs font-bold uppercase tracking-wider text-muted-foreground mb-1">Course *</label>
+              <select
+                required
+                value={form.course_id}
+                onChange={e => {
+                  const c = courses.find(x => x.id === e.target.value);
+                  setForm(f => ({ ...f, course_id: e.target.value, total_fee: c?.fee || f.total_fee }));
+                }}
+                className="w-full px-3 py-2 border border-border bg-background rounded-xl text-xs font-semibold text-foreground focus:outline-none"
+              >
+                <option value="">Select Course</option>
+                {courses.map(c => <option key={c.id} value={c.id}>{c.title}</option>)}
+              </select>
+            </div>
+            <div>
+              <label className="block text-xs font-bold uppercase tracking-wider text-muted-foreground mb-1">Batch Cohort</label>
+              <input
+                type="text"
+                value={form.batch}
+                onChange={e => setForm(f => ({ ...f, batch: e.target.value }))}
+                placeholder="e.g. NEET-2026-B1"
+                className="w-full px-3 py-2 border border-border bg-background rounded-xl text-xs font-mono text-foreground focus:outline-none"
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div>
+              <label className="block text-xs font-bold uppercase tracking-wider text-muted-foreground mb-1">Admission Date</label>
+              <input
+                type="date"
+                value={form.admission_date}
+                onChange={e => setForm(f => ({ ...f, admission_date: e.target.value }))}
+                className="w-full px-3 py-2 border border-border bg-background rounded-xl text-xs text-foreground focus:outline-none"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-bold uppercase tracking-wider text-muted-foreground mb-1">Category</label>
+              <select
+                value={form.category}
+                onChange={e => setForm(f => ({ ...f, category: e.target.value }))}
+                className="w-full px-3 py-2 border border-border bg-background rounded-xl text-xs text-foreground focus:outline-none"
+              >
+                <option value="General">General</option>
+                <option value="SC">SC</option>
+                <option value="ST">ST</option>
+                <option value="OBC">OBC</option>
+                <option value="EWS">EWS</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-xs font-bold uppercase tracking-wider text-muted-foreground mb-1">School / Institute</label>
+              <input
+                type="text"
+                value={form.school_institute}
+                onChange={e => setForm(f => ({ ...f, school_institute: e.target.value }))}
+                placeholder="Previous school or institute"
+                className="w-full px-3 py-2 border border-border bg-background rounded-xl text-xs text-foreground focus:outline-none"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-xs font-bold uppercase tracking-wider text-muted-foreground mb-1">Residential Address</label>
+            <textarea
+              value={form.address}
+              onChange={e => setForm(f => ({ ...f, address: e.target.value }))}
+              placeholder="Full residential address"
+              rows={2}
+              className="w-full px-3 py-2 border border-border bg-background rounded-xl text-xs text-foreground focus:outline-none resize-none"
+            />
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label className="block text-xs font-bold uppercase tracking-wider text-muted-foreground mb-1">Admission Notes</label>
+              <textarea
+                value={form.notes}
+                onChange={e => setForm(f => ({ ...f, notes: e.target.value }))}
+                placeholder="Optional notes about admission"
+                rows={2}
+                className="w-full px-3 py-2 border border-border bg-background rounded-xl text-xs text-foreground focus:outline-none resize-none"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-bold uppercase tracking-wider text-muted-foreground mb-1">Documents JSON</label>
+              <textarea
+                value={form.documents}
+                onChange={e => setForm(f => ({ ...f, documents: e.target.value }))}
+                placeholder='[{"type":"aadhar","url":"..."}]'
+                rows={2}
+                className="w-full px-3 py-2 border border-border bg-background rounded-xl text-xs font-mono text-foreground focus:outline-none resize-none"
+              />
+              <p className="text-[10px] text-muted-foreground mt-1">Leave empty if no documents.</p>
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-xs font-bold uppercase tracking-wider text-muted-foreground mb-1">Public User ID</label>
+            <input
+              type="text"
+              value={form.public_user_id}
+              onChange={e => setForm(f => ({ ...f, public_user_id: e.target.value }))}
+              placeholder="Optional linked public user ID"
+              className="w-full px-3 py-2 border border-border bg-background rounded-xl text-xs font-mono text-foreground focus:outline-none"
+            />
           </div>
 
           {/* Actions */}
