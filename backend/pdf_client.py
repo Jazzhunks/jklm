@@ -707,15 +707,21 @@ def bulk_id_card_pdf(students_data: list) -> bytes:
         front_y = y_offset + card_h / 2
         front_h = card_h / 2
         
-        c.setFillColorRGB(0.24, 0.44, 0.70)
+        c.setFillColorRGB(0.30, 0.49, 0.74)
         c.rect(x_offset, front_y + front_h - 35*mm, card_w, 35*mm, stroke=0, fill=1)
         
         c.setFillColorRGB(1, 1, 1)
         c.roundRect(x_offset + 10*mm, front_y + front_h - 12*mm, card_w - 20*mm, 6*mm, 3*mm, stroke=0, fill=1)
         
-        c.setFillColorRGB(0.24, 0.44, 0.70)
+        c.setFillColorRGB(0.04, 0.76, 0.43) # unacademy green
         c.setFont("Helvetica-Bold", 8)
-        c.drawCentredString(x_offset + card_w/2, front_y + front_h - 10.5*mm, "unacademy")
+        c.drawCentredString(x_offset + card_w/2 + 2*mm, front_y + front_h - 10.5*mm, "unacademy")
+        # Draw small icon placeholder (cup shape approximation)
+        icon_x = x_offset + card_w/2 - 12*mm
+        icon_y = front_y + front_h - 9*mm
+        c.circle(icon_x, icon_y + 0.5*mm, 1.5*mm, stroke=0, fill=1)
+        c.rect(icon_x - 1*mm, icon_y - 1.5*mm, 2*mm, 1.5*mm, stroke=0, fill=1)
+        c.rect(icon_x - 1.5*mm, icon_y - 2*mm, 3*mm, 0.5*mm, stroke=0, fill=1)
         
         c.setFillColorRGB(1, 1, 1)
         c.setFont("Helvetica-Bold", 7)
@@ -737,13 +743,22 @@ def bulk_id_card_pdf(students_data: list) -> bytes:
             c.setFillColorRGB(0.9, 0.9, 0.9)
             c.circle(x_offset + card_w/2, front_y + front_h - 35*mm, 12*mm, stroke=0, fill=1)
             
+        course_str = (data.get("course") or "").upper()
+        class_str = (data.get("current_class") or "").upper()
+        if class_str and course_str:
+            display_course = f"{course_str} ({class_str})"
+        elif class_str:
+            display_course = class_str
+        else:
+            display_course = course_str
+
         c.setFillColorRGB(0, 0, 0)
         c.setFont("Helvetica-Bold", 9)
-        c.drawCentredString(x_offset + card_w/2, front_y + front_h - 55*mm, (data.get("full_name") or "").upper())
+        c.drawCentredString(x_offset + card_w/2, front_y + front_h - 52*mm, (data.get("full_name") or "").upper())
         c.setFont("Helvetica-Bold", 8)
-        c.drawCentredString(x_offset + card_w/2, front_y + front_h - 62*mm, (data.get("course") or "").upper())
+        c.drawCentredString(x_offset + card_w/2, front_y + front_h - 58*mm, display_course)
         c.setFont("Helvetica-Bold", 8)
-        c.drawCentredString(x_offset + card_w/2, front_y + front_h - 68*mm, data.get("enrollment_number") or data.get("student_no") or "")
+        c.drawCentredString(x_offset + card_w/2, front_y + front_h - 64*mm, data.get("enrollment_number") or data.get("student_no") or "")
         
         # Draw back (bottom half, inverted)
         back_y = y_offset
@@ -753,7 +768,7 @@ def bulk_id_card_pdf(students_data: list) -> bytes:
         c.translate(x_offset + card_w/2, back_y + back_h/2)
         c.rotate(180)
         
-        c.setFillColorRGB(0.24, 0.44, 0.70)
+        c.setFillColorRGB(0.30, 0.49, 0.74)
         c.rect(-card_w/2, back_h/2 - 25*mm, card_w, 25*mm, stroke=0, fill=1)
         
         c.setFillColorRGB(1, 1, 1)
@@ -761,7 +776,8 @@ def bulk_id_card_pdf(students_data: list) -> bytes:
         c.drawCentredString(0, back_h/2 - 10*mm, "UNACADEMY CENTRE")
         c.drawCentredString(0, back_h/2 - 15*mm, (data.get("branch") or "PARRAYPORA").upper())
         
-        c.circle(0, back_h/2 - 22*mm, 4*mm, stroke=0, fill=1)
+        c.circle(0, back_h/2 - 19.5*mm, 2.5*mm, stroke=0, fill=1)
+        c.roundRect(-4.5*mm, back_h/2 - 26*mm, 9*mm, 4*mm, 2*mm, stroke=0, fill=1)
         
         qr_data = data.get("enrollment_number") or data.get("student_no") or ""
         if qr_data:
