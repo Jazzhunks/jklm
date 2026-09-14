@@ -212,6 +212,12 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
             raise HTTPException(403, "Access Denied: Manager or executive clearance required.")
         return user
 
+    async def require_finance(user: dict = Depends(require_erp)) -> dict:
+        """Allow super_admin, center_manager, and accountant to access financial/GST routes."""
+        if user["role"] not in {"super_admin", "center_manager", "accountant"}:
+            raise HTTPException(403, "Access Denied: Finance clearance required.")
+        return user
+
     def can_view_branch(user: dict, branch_id: str) -> bool:
         if user["role"] == "super_admin":
             return True
