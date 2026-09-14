@@ -68,8 +68,8 @@ export default function AnalyticsTab() {
             <h4 className="font-display font-medium text-lg text-foreground">Acquisition Trends</h4>
             <p className="text-xs text-muted-foreground">Monthly inbound volume for regular enrollments vs scholarships</p>
           </div>
-          <div className="h-[300px] w-full">
-            <ResponsiveContainer width="100%" height="100%">
+          <div className="h-[300px] w-full min-w-0" style={{ minWidth: 0, minHeight: 300 }}>
+            <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
               <AreaChart data={combinedTrends} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
                 <defs>
                   <linearGradient id="colorE" x1="0" y1="0" x2="0" y2="1">
@@ -101,8 +101,8 @@ export default function AnalyticsTab() {
             <h4 className="font-display font-medium text-lg text-foreground">Top Courses</h4>
             <p className="text-xs text-muted-foreground">Most popular regular programs by total enrollments</p>
           </div>
-          <div className="h-[250px] w-full">
-            <ResponsiveContainer width="100%" height="100%">
+          <div className="h-[250px] w-full min-w-0" style={{ minWidth: 0, minHeight: 250 }}>
+            <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
               <BarChart data={top_courses} layout="vertical" margin={{ top: 0, right: 30, left: 40, bottom: 0 }}>
                 <XAxis type="number" stroke="#888888" fontSize={12} tickLine={false} axisLine={false} />
                 <YAxis dataKey="course_id" type="category" stroke="#888888" fontSize={12} tickLine={false} axisLine={false} width={100} />
@@ -124,9 +124,9 @@ export default function AnalyticsTab() {
             <h4 className="font-display font-medium text-lg text-foreground">Scholarship Pipeline</h4>
             <p className="text-xs text-muted-foreground">Distribution of applicant statuses</p>
           </div>
-          <div className="h-[250px] w-full flex items-center justify-center">
+          <div className="h-[250px] w-full min-w-0 flex items-center justify-center" style={{ minWidth: 0, minHeight: 250 }}>
             {scholarship_statuses.length > 0 ? (
-              <ResponsiveContainer width="100%" height="100%">
+              <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
                 <PieChart>
                   <Pie
                     data={scholarship_statuses}

@@ -904,7 +904,7 @@ async def set_featured(kind: str = Query(...), item_id: str = Query(...), _admin
 @api.get("/courses")
 async def list_courses(
     skip: int = Query(0, ge=0),
-    limit: int = Query(25, ge=1, le=100),
+    limit: int = Query(25, ge=1, le=100000),
     search: str = Query(None),
     category: Optional[str] = None,
     featured: Optional[bool] = None
@@ -974,7 +974,7 @@ async def list_scholarships(include_wath: bool = False, type: Optional[str] = Qu
 @api.get("/admin/scholarships")
 async def list_scholarships_admin(
     skip: int = Query(0, ge=0),
-    limit: int = Query(25, ge=1, le=100),
+    limit: int = Query(25, ge=1, le=100000),
     search: str = Query(None),
     _admin = Depends(require_admin)
 ):
@@ -1250,7 +1250,7 @@ async def update_scholarship_application(
 @api.get("/scholarship-applications")
 async def list_scholarship_apps(
     skip: int = Query(0, ge=0),
-    limit: int = Query(25, ge=1, le=100),
+    limit: int = Query(25, ge=1, le=100000),
     search: str = Query(None),
     campaign_kind: str = Query(None),
     _admin = Depends(require_admin)
@@ -2388,7 +2388,7 @@ async def create_enrollment(payload: EnrollmentIn, request: Request, background:
 @api.get("/enrollments")
 async def list_enrollments(
     skip: int = Query(0, ge=0),
-    limit: int = Query(25, ge=1, le=100),
+    limit: int = Query(25, ge=1, le=100000),
     search: str = Query(None),
     status: str = Query(None),
     _admin = Depends(require_admin)
@@ -2427,7 +2427,7 @@ async def list_jobs():
 @api.get("/jobs/all")
 async def list_all_jobs(
     skip: int = Query(0, ge=0),
-    limit: int = Query(25, ge=1, le=100),
+    limit: int = Query(25, ge=1, le=100000),
     search: str = Query(None),
     _admin = Depends(require_admin)
 ):
@@ -2495,7 +2495,7 @@ async def apply_job(payload: JobApplicationIn, background: BackgroundTasks):
 @api.get("/job-applications")
 async def list_job_apps(
     skip: int = Query(0, ge=0),
-    limit: int = Query(25, ge=1, le=100),
+    limit: int = Query(25, ge=1, le=100000),
     search: str = Query(None),
     _admin = Depends(require_admin)
 ):
@@ -2524,7 +2524,7 @@ async def update_job_app_status(aid: str, status: str = Query(...), _admin = Dep
 @api.get("/notices")
 async def list_notices(
     skip: int = Query(0, ge=0),
-    limit: int = Query(25, ge=1, le=100),
+    limit: int = Query(25, ge=1, le=100000),
     search: str = Query(None)
 ):
     query = {}
@@ -2573,7 +2573,7 @@ async def delete_notice(nid: str, _admin = Depends(require_admin)):
 @api.get("/centers")
 async def list_centers(
     skip: int = Query(0, ge=0),
-    limit: int = Query(25, ge=1, le=100),
+    limit: int = Query(25, ge=1, le=100000),
     search: str = Query(None)
 ):
     query = {}
@@ -2617,7 +2617,7 @@ async def delete_center(cid: str, _admin = Depends(require_admin)):
 @api.get("/results")
 async def list_results(
     skip: int = Query(0, ge=0),
-    limit: int = Query(25, ge=1, le=100),
+    limit: int = Query(25, ge=1, le=100000),
     search: str = Query(None)
 ):
     query = {}
@@ -2656,7 +2656,7 @@ async def delete_result(rid: str, _admin = Depends(require_admin)):
 @api.get("/testimonials")
 async def list_testimonials(
     skip: int = Query(0, ge=0),
-    limit: int = Query(25, ge=1, le=100),
+    limit: int = Query(25, ge=1, le=100000),
     search: str = Query(None)
 ):
     query = {}

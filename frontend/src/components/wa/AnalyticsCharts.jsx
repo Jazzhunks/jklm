@@ -24,8 +24,8 @@ export default function AnalyticsCharts({ analytics }) {
         {statusData.length === 0 ? (
           <div className="text-sm text-muted-foreground">No data yet</div>
         ) : (
-          <div className="h-64">
-            <ResponsiveContainer width="100%" height="100%">
+          <div className="h-64 w-full min-w-0" style={{ minWidth: 0, minHeight: 256 }}>
+            <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
               <BarChart data={statusData}>
                 <XAxis dataKey="name" tick={{ fontSize: 10 }} />
                 <YAxis tick={{ fontSize: 10 }} />
@@ -50,8 +50,8 @@ export default function AnalyticsCharts({ analytics }) {
         {costData.length === 0 ? (
           <div className="text-sm text-muted-foreground">No cost data yet</div>
         ) : (
-          <div className="h-64">
-            <ResponsiveContainer width="100%" height="100%">
+          <div className="h-64 w-full min-w-0" style={{ minWidth: 0, minHeight: 256 }}>
+            <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
               <PieChart>
                 <Pie
                   data={costData}

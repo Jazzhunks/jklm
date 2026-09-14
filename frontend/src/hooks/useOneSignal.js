@@ -3,9 +3,13 @@ import { useAuth } from "@/contexts/AuthContext";
 
 const ONESIGNAL_APP_ID = "41952295-559a-4ac1-9431-36443a3195ee";
 
+function isProductionDomain() {
+  return typeof window !== "undefined" && window.location.hostname.endsWith("northendedu.com");
+}
+
 function initOneSignal() {
   return new Promise((resolve) => {
-    if (typeof window === "undefined" || !window.OneSignalDeferred) {
+    if (!isProductionDomain() || typeof window === "undefined" || !window.OneSignalDeferred) {
       resolve(null);
       return;
     }
@@ -19,13 +23,12 @@ function initOneSignal() {
             scope: "/push/onesignal/",
           },
         });
-        resolve(instance);
+        resolve(instance || window.OneSignal || null);
       } catch (err) {
         if (err && /already initialized/i.test(err.message || "")) {
           resolve(window.OneSignal || null);
           return;
         }
-        console.error("OneSignal init failed:", err);
         resolve(null);
       }
     });
@@ -36,6 +39,7 @@ export function useOneSignal() {
   const { user } = useAuth();
 
   useEffect(() => {
+    if (!isProductionDomain()) return;
     let onesignal = null;
 
     initOneSignal().then((os) => {
@@ -52,9 +56,7 @@ export function useOneSignal() {
           });
 
           if (result && typeof result.catch === "function") {
-            result.catch((err) => {
-              console.error("OneSignal addTags failed:", err);
-            });
+            result.catch(() => {});
           }
         }
 
@@ -62,21 +64,11 @@ export function useOneSignal() {
           const loginResult = os.login(String(user.id));
 
           if (loginResult && typeof loginResult.catch === "function") {
-            loginResult.catch((err) => {
-              console.error("OneSignal login failed:", err);
-            });
+            loginResult.catch(() => {});
           }
         }
-      } catch (err) {
-        console.error("OneSignal tagging/login error:", err);
-      }
-    }).catch((err) => {
-      if (err && /Can only be used on/i.test(err.message || "")) {
-        console.warn("OneSignal skipped: domain not authorized in OneSignal dashboard.");
-      } else {
-        console.error("OneSignal initialization error:", err);
-      }
-    });
+      } catch (_) {}
+    }).catch(() => {});
 
     return () => {
       try {
@@ -87,16 +79,14 @@ export function useOneSignal() {
             logoutResult.catch(() => {});
           }
         }
-      } catch (err) {
-        console.error("OneSignal logout error:", err);
-      }
+      } catch (_) {}
     };
   }, [user]);
 }
 
 export function useOneSignalPermission() {
   useEffect(() => {
-    if (typeof window === "undefined" || !window.OneSignalDeferred) return;
+    if (!isProductionDomain() || typeof window === "undefined" || !window.OneSignalDeferred) return;
 
     window.OneSignalDeferred.push(async function (OneSignal) {
       try {
@@ -108,12 +98,7 @@ export function useOneSignalPermission() {
           },
         });
         await OneSignal.showNativePrompt();
-      } catch (err) {
-        if (err && /already initialized/i.test(err.message || "")) {
-          return;
-        }
-        console.error("OneSignal permission prompt failed:", err);
-      }
+      } catch (_) {}
     });
   }, []);
 }

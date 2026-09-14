@@ -326,8 +326,8 @@ function SuperView({ d }) {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
         <div className="lg:col-span-2 glass-elevated rounded-2xl p-6 border border-border">
           <h3 className="font-display font-medium text-lg mb-6">Revenue vs Expense by Branch</h3>
-          <div className="h-[300px] w-full">
-            <ResponsiveContainer width="100%" height="100%">
+          <div className="h-[300px] w-full min-w-0" style={{ minWidth: 0, minHeight: 300 }}>
+            <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
               <BarChart data={d.branches || []} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
                 <XAxis dataKey="branch_name" stroke="#888" fontSize={12} tickLine={false} axisLine={false} />
@@ -411,8 +411,8 @@ function BranchView({ d, canSeeFinance }) {
             {expenseData.length === 0 ? (
                <div className="flex-1 flex items-center justify-center text-muted-foreground text-sm italic py-10">No approved expenses to chart.</div>
             ) : (
-              <div className="h-[280px] w-full mt-4">
-                <ResponsiveContainer width="100%" height="100%">
+              <div className="h-[280px] w-full min-w-0 mt-4" style={{ minWidth: 0, minHeight: 280 }}>
+                <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
                   <PieChart>
                     <Pie data={expenseData} cx="50%" cy="50%" innerRadius={60} outerRadius={90} paddingAngle={5} dataKey="value">
                       {expenseData.map((entry, index) => (
@@ -433,8 +433,8 @@ function BranchView({ d, canSeeFinance }) {
           {(d.counsellor_performance || []).length === 0 ? (
             <div className="flex-1 flex items-center justify-center text-muted-foreground text-sm italic py-10">No counsellor data available.</div>
           ) : (
-            <div className="h-[280px] w-full mt-4">
-              <ResponsiveContainer width="100%" height="100%">
+            <div className="h-[280px] w-full min-w-0 mt-4" style={{ minWidth: 0, minHeight: 280 }}>
+              <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
                 <BarChart data={d.counsellor_performance} layout="vertical" margin={{ top: 0, right: 10, left: 20, bottom: 0 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" horizontal={false} />
                   <XAxis type="number" stroke="#888" fontSize={12} tickLine={false} axisLine={false} />
