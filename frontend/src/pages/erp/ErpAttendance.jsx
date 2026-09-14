@@ -270,11 +270,9 @@ export default function ErpAttendance() {
               {scanning ? "Stop Camera Scanner" : "Start Camera Scanner"}
             </button>
           </div>
-          {scanning && (
-            <div className="mb-4 rounded-xl overflow-hidden border border-border">
-              <div id="qr-reader-attendance" className="w-full"></div>
-            </div>
-          )}
+          <div className={scanning ? "mb-4 rounded-xl overflow-hidden border border-border bg-black" : "hidden"}>
+            <div id="qr-reader-attendance" className="w-full"></div>
+          </div>
           <form onSubmit={handleTerminalScanSubmit} className="flex gap-2">
             <input 
               type="text"
