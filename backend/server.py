@@ -2381,6 +2381,37 @@ async def create_enrollment(payload: EnrollmentIn, request: Request, background:
         doc["user_id"] = None
     await db.enrollments.insert_one(doc)
     doc.pop("_id", None)
+    
+    # NEW CRM LOGIC: Create lead and AUTO-ASSIGN to a random counselor
+    counselors = await db.users.find({"role": "counsellor"}, {"id": 1, "name": 1}).to_list(100)
+    assigned_counselor = random.choice(counselors) if counselors else None
+    
+    lead_doc = {
+        "id": str(uuid.uuid4()),
+        "name": doc.get("name", ""),
+        "phone": doc.get("phone", ""),
+        "present_class": None,
+        "moving_to_class": doc.get("course_title"),
+        "address": None,
+        "remarks": f"Enrolled online for {doc.get('course_title')}",
+        "branch_id": "all",
+        "counsellor_id": assigned_counselor["id"] if assigned_counselor else None,
+        "status": "new",
+        "temperature": "hot", 
+        "source": "Online Enrollment",
+        "interactions": [{
+            "id": str(uuid.uuid4()),
+            "type": "status_change",
+            "notes": f"Lead automatically created from Online Enrollment. Auto-assigned to {assigned_counselor['name'] if assigned_counselor else 'nobody'}.",
+            "created_at": doc["created_at"],
+            "contacted_at": doc["created_at"],
+            "created_by": "system",
+            "created_by_name": "Website"
+        }],
+        "created_at": doc["created_at"],
+        "created_by": "system"
+    }
+    await db.erp_leads.insert_one(lead_doc)
     asyncio.create_task(emit_enrollment({
         "receipt_no": doc["receipt_no"],
         "name": payload.name,

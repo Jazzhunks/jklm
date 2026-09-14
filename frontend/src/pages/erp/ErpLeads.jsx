@@ -6,6 +6,8 @@ import LeadActivityDrawer from "@/pages/erp/modals/LeadActivityDrawer";
 import LeadProposeModal from "@/pages/erp/modals/LeadProposeModal";
 import LeadReviewModal from "@/pages/erp/modals/LeadReviewModal";
 import LeadEnrollModal from "@/pages/erp/modals/LeadEnrollModal";
+import LeadTransferModal from "@/pages/erp/modals/LeadTransferModal";
+import { Replace } from "lucide-react";
 import { isFinance } from "@/lib/erpApi";
 import { erp, isSuper, isManagerPlus, fmtDate, extractItems, extractTotal } from "@/lib/erpApi";
 import { formatError, api } from "@/lib/api";
@@ -47,6 +49,7 @@ export default function ErpLeads() {
   const [proposeModalLead, setProposeModalLead] = useState(null);
   const [reviewModalLead, setReviewModalLead] = useState(null);
   const [enrollModalLead, setEnrollModalLead] = useState(null);
+  const [transferModalLead, setTransferModalLead] = useState(null);
   const [deleteModal, setDeleteModal] = useState(null);
   const [deleting, setDeleting] = useState(false);
   const limit = viewMode === "kanban" ? 100 : 25;
@@ -306,6 +309,13 @@ export default function ErpLeads() {
                       <div className="flex items-start justify-between gap-2">
                         <h4 className="font-bold text-xs text-foreground truncate">{lead.name}</h4>
                         <div className="flex items-center gap-1 shrink-0">
+                          <button
+                            onClick={(e) => { e.stopPropagation(); setTransferModalLead(lead); }}
+                            title="Transfer Branch"
+                            className="text-muted-foreground hover:text-indigo-500 transition"
+                          >
+                            <Replace size={13} />
+                          </button>
                           <button
                             onClick={(e) => { e.stopPropagation(); openWhatsApp(lead); }}
                             title="Open WhatsApp Chat"

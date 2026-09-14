@@ -213,6 +213,10 @@ class LeadUpdate(BaseModel):
     temperature: Optional[Literal["hot", "warm", "cold"]] = None
     source: Optional[str] = None
 
+class LeadTransferRequest(BaseModel):
+    branch_id: str
+    notes: Optional[str] = None
+
 class LeadInteraction(BaseModel):
     type: Literal["call", "whatsapp", "email", "note", "status_change"]
     notes: str
@@ -678,6 +682,22 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
         try:
             await db.erp_students.insert_one(doc)
             doc.pop("_id", None)
+            
+            # AUTO-CONVERT ANY MATCHING PIPELINE LEADS
+            matching_leads = await db.erp_leads.find({"phone": payload.contact_phone, "status": {"$in": ["new", "contacted", "follow_up", "pending_approval", "approved_for_accounts"]}}).to_list(100)
+            for l in matching_leads:
+                interaction = {
+                    "id": new_id(), "type": "status_change",
+                    "notes": f"Lead AUTO-CONVERTED because the student was manually enrolled. Student ID: {doc['id']}",
+                    "created_at": now_iso(), "contacted_at": now_iso(),
+                    "created_by": user["id"], "created_by_name": "System"
+                }
+                await db.erp_leads.update_one({"id": l["id"]}, {"$set": {
+                    "status": "converted",
+                    "converted_student_id": doc["id"],
+                    "updated_at": now_iso()
+                }, "$push": {"interactions": interaction}})
+                
         except Exception as e:
             raise HTTPException(500, f"Database insert error: {e}")
         await audit(user, "create", "student", doc["id"], payload.branch_id, {"student_no": student_no})
@@ -1379,6 +1399,29 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
         
         return {"ok": True, "student_id": student_id}
 
+
+    
+    @erp.post("/leads/{lead_id}/transfer")
+    async def transfer_lead(lead_id: str, payload: LeadTransferRequest, user: dict = Depends(require_erp)):
+        if user["role"] not in {"super_admin", "center_manager", "counsellor"}:
+            raise HTTPException(403, "Not allowed")
+        lead = await db.erp_leads.find_one({"id": lead_id})
+        if not lead: raise HTTPException(404, "Lead not found")
+        
+        branch = await db.centers.find_one({"id": payload.branch_id})
+        if not branch: raise HTTPException(404, "Branch not found")
+        
+        interaction = {
+            "id": new_id(), "type": "status_change",
+            "notes": f"Lead transferred to branch: {branch.get('name')}. Notes: {payload.notes or 'None'}",
+            "created_at": now_iso(), "contacted_at": now_iso(),
+            "created_by": user["id"], "created_by_name": user.get("name", "User")
+        }
+        await db.erp_leads.update_one({"id": lead_id}, {"$set": {
+            "branch_id": payload.branch_id,
+            "updated_at": now_iso()
+        }, "$push": {"interactions": interaction}})
+        return {"ok": True}
 
     # ===== DASHBOARDS =====
     @erp.get("/dashboard/super")
