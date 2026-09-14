@@ -323,7 +323,7 @@ export default function ErpLeads() {
                           >
                             <MessageSquare size={13} />
                           </button>
-                          {isManagerPlus(erpUser) && (
+                          {isSuper(erpUser) && (
                             <button
                               onClick={(e) => { e.stopPropagation(); setDeleteModal(lead); }}
                               title="Delete Lead"
@@ -368,28 +368,36 @@ export default function ErpLeads() {
                       <div className="mt-3 pt-2 border-t border-border/50 flex items-center justify-between text-[10px]">
                         <span className="text-muted-foreground">{fmtDate(lead.created_at)}</span>
                         
-                        {stage.id === "new" && (
+                        {["new", "contacted"].includes(stage.id) && (
                           <button
-                            onClick={(e) => { e.stopPropagation(); updateStage(lead.id, "contacted"); }}
+                            onClick={(e) => { e.stopPropagation(); updateStage(lead.id, stage.id === "new" ? "contacted" : "follow_up"); }}
                             className="text-primary hover:underline font-bold flex items-center gap-0.5"
                           >
-                            Contacted →
+                            {stage.id === "new" ? "Contacted" : "Follow Up"} →
                           </button>
                         )}
-                        {stage.id === "contacted" && (
+                        {["contacted", "follow_up"].includes(stage.id) && (
                           <button
-                            onClick={(e) => { e.stopPropagation(); updateStage(lead.id, "follow_up"); }}
-                            className="text-amber-500 hover:underline font-bold flex items-center gap-0.5"
+                            onClick={(e) => { e.stopPropagation(); setProposeModalLead(lead); }}
+                            className="text-fuchsia-500 hover:underline font-bold flex items-center gap-0.5 border border-fuchsia-500/20 bg-fuchsia-500/10 px-2 py-0.5 rounded"
                           >
-                            Follow-Up →
+                            Propose Fee →
                           </button>
                         )}
-                        {stage.id === "follow_up" && (
+                        {stage.id === "pending_approval" && (isSuper(erpUser) || erpUser?.role === "center_manager") && (
                           <button
-                            onClick={() => updateStage(lead.id, "converted")}
-                            className="text-emerald-600 hover:underline font-bold flex items-center gap-0.5"
+                            onClick={(e) => { e.stopPropagation(); setReviewModalLead(lead); }}
+                            className="text-orange-500 hover:underline font-bold flex items-center gap-0.5 border border-orange-500/20 bg-orange-500/10 px-2 py-0.5 rounded"
                           >
-                            Enroll →
+                            Review Fee →
+                          </button>
+                        )}
+                        {stage.id === "approved_for_accounts" && (isSuper(erpUser) || erpUser?.role === "center_manager" || erpUser?.role === "accountant") && (
+                          <button
+                            onClick={(e) => { e.stopPropagation(); setEnrollModalLead(lead); }}
+                            className="text-emerald-600 hover:underline font-bold flex items-center gap-0.5 border border-emerald-600/20 bg-emerald-600/10 px-2 py-0.5 rounded"
+                          >
+                            Process Admission →
                           </button>
                         )}
                         {stage.id === "converted" && (
@@ -449,16 +457,34 @@ export default function ErpLeads() {
                         >
                           <MessageSquare size={14} />
                         </button>
-                        {l.status !== "converted" && (
+                        {["new", "contacted", "follow_up"].includes(l.status) && (
                           <button
-                            onClick={() => updateStage(l.id, "converted")}
-                            title="Convert to Student"
-                            className="inline-flex px-2 py-1 text-xs font-bold uppercase tracking-wider text-emerald-600 bg-emerald-500/10 border border-emerald-500/20 hover:bg-emerald-500/20 rounded-lg transition"
+                            onClick={() => setProposeModalLead(l)}
+                            title="Propose Admission"
+                            className="p-1 text-muted-foreground hover:text-fuchsia-500 hover:bg-fuchsia-500/10 rounded transition"
                           >
-                            Enroll
+                            <Target size={14} />
                           </button>
                         )}
-                        {isManagerPlus(erpUser) && (
+                        {l.status === "pending_approval" && (isSuper(erpUser) || erpUser?.role === "center_manager") && (
+                          <button
+                            onClick={() => setReviewModalLead(l)}
+                            title="Review Proposed Fee"
+                            className="p-1 text-muted-foreground hover:text-orange-500 hover:bg-orange-500/10 rounded transition"
+                          >
+                            <AlertCircle size={14} />
+                          </button>
+                        )}
+                        {l.status === "approved_for_accounts" && (isSuper(erpUser) || erpUser?.role === "center_manager" || erpUser?.role === "accountant") && (
+                          <button
+                            onClick={() => setEnrollModalLead(l)}
+                            title="Process Admission"
+                            className="p-1 text-muted-foreground hover:text-emerald-600 hover:bg-emerald-600/10 rounded transition"
+                          >
+                            <CheckCircle2 size={14} />
+                          </button>
+                        )}
+                        {isSuper(erpUser) && (
                           <button
                             onClick={() => setDeleteModal(l)}
                             title="Delete Lead"

@@ -286,7 +286,7 @@ export default function ErpStudents() {
                         >
                           <ArrowUpRight size={15} />
                         </Link>
-                        {canManageStudents(erpUser) && (
+                        {isSuper(erpUser) && (
                           <button
                             onClick={() => setDeleteModal(s)}
                             className="w-8 h-8 flex items-center justify-center text-rose-500 bg-rose-500/10 border border-transparent hover:border-rose-500/20 hover:bg-rose-500/20 rounded-lg transition"
