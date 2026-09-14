@@ -38,6 +38,7 @@ const Blog = lazy(() => import('./pages/Blog'));
 const BlogPost = lazy(() => import('./pages/BlogPost'));
 const PublicStudentProfile = lazy(() => import('@/pages/PublicStudentProfile'));
 const PublicReceipt = lazy(() => import('@/pages/PublicReceipt'));
+const PublicPdfViewer = lazy(() => import('@/pages/PublicPdfViewer'));
 
 // --- ERP Console Infrastructure Imports ---
 const ErpLayout = lazy(() => import('@/pages/erp/ErpLayout'));
@@ -159,6 +160,8 @@ export default function App() {
               <Route path="*" element={<Navigate to="/" replace />} />
               <Route path="student-profile/:enrollment_number" element={<PublicStudentProfile />} />
               <Route path="r/:receiptNo" element={<PublicReceipt />} />
+              <Route path="admit-card/:applicationNo" element={<PublicPdfViewer type="admit-card" />} />
+              <Route path="result-card/:applicationNo" element={<PublicPdfViewer type="result-card" />} />
             </Route>
           </Routes>
         </Suspense>
