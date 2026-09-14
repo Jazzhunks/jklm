@@ -802,9 +802,25 @@ function CreateStudentModal({ erpUser, onClose, onCreated }) {
     course_duration: "",
     branch_id: isSuper(erpUser) ? "" : erpUser.branch_id,
     total_fee: "",
+    scholarship_percent: 0,
+    discount: 0,
+    additional_discount_by: "",
     notes: "",
   });
   const [busy, setBusy] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
+
+  const filteredCourses = courses.filter(c => ["Foundation", "NEET", "IIT-JEE"].includes(c.category));
+
+  const computeFinalFee = () => {
+    const total = parseFloat(form.total_fee) || 0;
+    const scholarship = parseFloat(form.scholarship_percent) || 0;
+    const discount = parseFloat(form.discount) || 0;
+    const scholarshipAmt = total * (scholarship / 100);
+    return Math.max(total - scholarshipAmt - discount, 0);
+  };
+
+  const finalFee = computeFinalFee();
 
   useEffect(() => {
     erp.listBranches().then(setBranches);
@@ -813,6 +829,16 @@ function CreateStudentModal({ erpUser, onClose, onCreated }) {
 
   const executeSubmit = async (e) => {
     e.preventDefault();
+    setSubmitted(true);
+    if (!form.full_name.trim() || !form.contact_phone.trim() || !form.branch_id || !form.course_id || !form.dob || !form.gender || !form.address || !form.current_class || !form.total_fee) {
+      toast.error("Please fill in all required fields");
+      return;
+    }
+    if ((parseFloat(form.discount) || 0) > 0 && !form.additional_discount_by.trim()) {
+      toast.error("Please mention who authorized the additional discount");
+      return;
+    }
+
     setBusy(true);
     try {
       const selectedCourse = courses.find(c => c.id === form.course_id);
@@ -833,6 +859,9 @@ function CreateStudentModal({ erpUser, onClose, onCreated }) {
         course_duration: form.course_duration.trim() || undefined,
         branch_id: form.branch_id,
         total_fee: parseFloat(form.total_fee) || (selectedCourse?.fee || 0),
+        scholarship_percent: parseFloat(form.scholarship_percent) || 0,
+        discount: parseFloat(form.discount) || 0,
+        additional_discount_by: form.additional_discount_by.trim() || undefined,
         notes: form.notes.trim() || undefined,
       };
       await erp.createStudent(payload);
@@ -895,13 +924,21 @@ function CreateStudentModal({ erpUser, onClose, onCreated }) {
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div>
             <label className={labelCls}>Current Class *</label>
-            <input type="text" required value={form.current_class} onChange={e => setForm({...form, current_class: e.target.value})} placeholder="e.g. 11th / NEET Repeater" className={inputCls} />
+            <select required value={form.current_class} onChange={e => setForm({...form, current_class: e.target.value})} className={inputCls}>
+              <option value="">Select Class</option>
+              <option value="Class 8">Class 8</option>
+              <option value="Class 9">Class 9</option>
+              <option value="Class 10">Class 10</option>
+              <option value="Class 11">Class 11</option>
+              <option value="Class 12">Class 12</option>
+              <option value="Droppers">Droppers</option>
+            </select>
           </div>
           <div>
             <label className={labelCls}>Course *</label>
             <select required value={form.course_id} onChange={e => setForm({...form, course_id: e.target.value})} className={inputCls}>
               <option value="">Select Course</option>
-              {courses.map(c => <option key={c.id} value={c.id}>{c.title}</option>)}
+              {filteredCourses.map(c => <option key={c.id} value={c.id}>{c.title}</option>)}
             </select>
           </div>
           <div>
@@ -949,9 +986,34 @@ function CreateStudentModal({ erpUser, onClose, onCreated }) {
             <label className={labelCls}>Parent Email Address</label>
             <input type="email" value={form.parent_email} onChange={e => setForm({...form, parent_email: e.target.value})} placeholder="parent@example.com" className={inputCls} />
           </div>
-          <div>
-            <label className={labelCls}>Total Fee (INR) *</label>
-            <input type="number" required value={form.total_fee} onChange={e => setForm({...form, total_fee: e.target.value})} placeholder="Auto-filled from course" className={inputCls} />
+        </div>
+
+        <div className="p-3 bg-muted/20 rounded-xl border border-border space-y-3">
+          <div className="text-[11px] uppercase tracking-wider font-bold text-muted-foreground">Fee Architecture</div>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div>
+              <label className={labelCls}>Total Course Fee (INR) *</label>
+              <input type="number" required value={form.total_fee} onChange={e => setForm({...form, total_fee: e.target.value})} placeholder="₹ 0" className={inputCls} />
+            </div>
+            <div>
+              <label className={labelCls}>Scholarship %</label>
+              <input type="number" min="0" max="100" value={form.scholarship_percent} onChange={e => setForm({...form, scholarship_percent: e.target.value})} placeholder="0 - 100" className={inputCls} />
+            </div>
+            <div>
+              <label className={labelCls}>Additional Discount (INR)</label>
+              <input type="number" min="0" value={form.discount} onChange={e => setForm({...form, discount: e.target.value})} placeholder="₹ 0" className={inputCls} />
+            </div>
+          </div>
+          {((parseFloat(form.discount) || 0) > 0) && (
+            <div>
+              <label className={labelCls}>Additional Discount By *</label>
+              <input type="text" value={form.additional_discount_by} onChange={e => setForm({...form, additional_discount_by: e.target.value})} placeholder="Name of authorizing person" className={inputCls} />
+              {submitted && !form.additional_discount_by.trim() && <p className="text-[10px] text-rose-500 mt-1">Required when additional discount is applied</p>}
+            </div>
+          )}
+          <div className="flex items-center justify-between pt-2 border-t border-border">
+            <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Computed Net Fee</span>
+            <span className="font-mono font-bold text-lg text-accent">₹ {finalFee.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
           </div>
         </div>
 

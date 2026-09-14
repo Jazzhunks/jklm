@@ -100,6 +100,7 @@ class StudentCreate(BaseModel):
     board: Optional[str] = None
     category: Optional[str] = None
     emergency_phone: Optional[str] = None
+    additional_discount_by: Optional[str] = None
 
 class StudentUpdate(BaseModel):
     full_name: Optional[str] = None
@@ -130,6 +131,7 @@ class StudentUpdate(BaseModel):
     documents: Optional[List[dict]] = None
     notes: Optional[str] = None
     status: Optional[Literal["active", "inactive", "alumni", "temporary"]] = None
+    additional_discount_by: Optional[str] = None
 
 
 class PaymentCreate(BaseModel):
