@@ -826,18 +826,22 @@ def bulk_id_card_pdf(students_data: list) -> bytes:
         # We are now in local coords where (0,0) is center of back panel.
         # Top of back panel is +face_h/2, Bottom is -face_h/2.
         
-        # Fill whole back panel with blue for a unified clean look
+        # Fill top half of inverted back panel (QR code area) with white
+        c.setFillColorRGB(1, 1, 1)
+        c.rect(-card_w/2, 0, card_w, face_h/2, stroke=0, fill=1)
+        
+        # Fill bottom half of inverted back panel (Branding area) with blue
         c.setFillColorRGB(*blue_color)
-        c.rect(-card_w/2, -face_h/2, card_w, face_h, stroke=0, fill=1)
+        c.rect(-card_w/2, -face_h/2, card_w, face_h/2, stroke=0, fill=1)
         
         # Layout sequence: Qr Code -> LUID -> Logo -> Unacademy Centre -> Centre Name
         
-        # 1. QR Code (near top of inverted back panel)
-        qr_y_center = face_h/2 - 20*mm
+        # 1. QR Code (near top of inverted back panel, on white background)
+        qr_y_center = face_h/2 - 18.5*mm
         qr_data = data.get("enrollment_number") or data.get("student_no") or ""
         if qr_data:
-            # Increased border to 4 (standard quiet zone) so scanners can isolate it from the blue background
-            qr = qrcode.QRCode(version=1, box_size=10, border=4)
+            # Reverted to border=1 since background is white now, no artificial padding needed
+            qr = qrcode.QRCode(version=1, box_size=10, border=1)
             qr.add_data(qr_data)
             qr.make(fit=True)
             img = qr.make_image(fill_color="black", back_color="white")
@@ -845,17 +849,17 @@ def bulk_id_card_pdf(students_data: list) -> bytes:
             img.save(qr_buf, format='PNG')
             qr_buf.seek(0)
             qr_img = ImageReader(qr_buf)
-            # Increased size to 35x35mm for easier scanning
             c.drawImage(qr_img, -17.5*mm, qr_y_center - 17.5*mm, width=35*mm, height=35*mm)
             
         # 2. LUID
-        c.setFillColorRGB(1, 1, 1)
+        # LUID text color must be black since it's on white background
+        c.setFillColorRGB(0, 0, 0)
         c.setFont("Helvetica-Bold", 7)
         luid = data.get("luid")
-        c.drawCentredString(0, qr_y_center - 20*mm, f"LUID: {luid}" if luid else "")
+        c.drawCentredString(0, qr_y_center - 20.5*mm, f"LUID: {luid}" if luid else "")
         
         # 3. Logo (Unacademy Logo, white color PNG directly on blue background)
-        logo_y = qr_y_center - 32*mm
+        logo_y = -8 * mm
         try:
             if logo_img: # reused from front
                 # Draw the cropped image centered
@@ -868,7 +872,7 @@ def bulk_id_card_pdf(students_data: list) -> bytes:
         # 4. Unacademy Centre
         c.setFillColorRGB(1, 1, 1)
         c.setFont("Helvetica-Bold", 9)
-        c.drawCentredString(0, logo_y - 15*mm, "UNACADEMY CENTRE")
+        c.drawCentredString(0, logo_y - 14*mm, "UNACADEMY CENTRE")
         
         # 5. Centre Name
         c.setFont("Helvetica-Bold", 8)
