@@ -2,7 +2,7 @@ import { useState, useMemo, useEffect } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useOutletContext, Link, useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
-import { erp, isSuper, fmtINR, fmtDate, extractItems, extractTotal } from "@/lib/erpApi";
+import { erp, isSuper, isManagerPlus, canManageStudents, fmtINR, fmtDate, extractItems, extractTotal } from "@/lib/erpApi";
 import { api, formatError, API_BASE } from "@/lib/api";
 import { 
   Search, Plus, Download, X, GraduationCap, Users, User, 
@@ -112,7 +112,7 @@ export default function ErpStudents() {
               <Download size={14}/> Export Excel
             </button>
           </a>
-          {erpUser.role !== "counsellor" && (
+          {isManagerPlus(erpUser) && (
             <button 
               onClick={() => setShowCreate(true)} 
               className="px-4 py-2 bg-primary text-primary-foreground rounded-xl text-xs uppercase tracking-wider font-bold flex items-center gap-2 hover:bg-primary/90 shadow-md transition" 
@@ -285,14 +285,14 @@ export default function ErpStudents() {
                         >
                           Dossier →
                         </Link>
-                        {isSuper(erpUser) && (
+                        {canManageStudents(erpUser) && (
                           <button
                             onClick={() => setDeleteModal(s)}
-                            className="p-1 hover:bg-rose-500/10 text-rose-500 border border-transparent hover:border-rose-500/20 rounded-lg transition"
+                            className="inline-flex px-3 py-1 text-xs font-bold uppercase tracking-wider text-rose-600 bg-rose-500/10 border border-rose-500/20 hover:bg-rose-500/20 rounded-lg transition items-center gap-1.5"
                             title="Purge Student Record"
                             data-testid={`delete-student-${s.id}`}
                           >
-                            <Trash2 size={14} />
+                            <Trash2 size={13} /> Delete
                           </button>
                         )}
                       </div>
