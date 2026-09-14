@@ -215,7 +215,7 @@ export default function ErpAttendance() {
 };
 
   return (
-    <div className="space-y-6 h-[calc(100vh-120px)] flex flex-col min-h-0 animate-fadeIn relative" data-testid="erp-attendance-page">
+    <div className="space-y-6 lg:h-[calc(100vh-120px)] min-h-[calc(100vh-120px)] flex flex-col min-h-0 animate-fadeIn relative" data-testid="erp-attendance-page">
       
       {/* UPPER MASTER RUNTIME STATS RIBBON */}
       <div className="flex justify-between items-end flex-wrap gap-4 shrink-0">
@@ -345,7 +345,7 @@ export default function ErpAttendance() {
 
       {/* CORE TRANSACTIONAL SECTION MATRIX LAYOUTS */}
       <div className="grid lg:grid-cols-3 gap-6 flex-1 min-h-0">
-        <div className="glass-elevated rounded-2xl border border-border overflow-hidden flex flex-col lg:col-span-2 min-h-0 bg-background/10">
+        <div className="glass-elevated rounded-2xl border border-border overflow-hidden flex flex-col lg:col-span-2 min-h-[500px] lg:min-h-0 bg-background/10">
           <div className="p-4 border-b border-border bg-background/40 flex justify-between items-center shrink-0">
             <div className="font-display font-medium text-lg text-foreground flex items-center gap-2">
               <Clock size={16} className="text-accent"/> Live Gate Check-In Stream
@@ -398,7 +398,7 @@ export default function ErpAttendance() {
           </div>
         </div>
 
-        <div className="glass-elevated rounded-2xl border border-border overflow-hidden flex flex-col min-h-0 bg-background/10">
+        <div className="glass-elevated rounded-2xl border border-border overflow-hidden flex flex-col min-h-[400px] lg:min-h-0 bg-background/10">
           <div className="p-4 border-b border-border bg-background/40 shrink-0">
             <div className="font-display font-medium text-base text-foreground flex items-center gap-1.5">
               <ShieldAlert size={15} className="text-accent" /> Desk Override Registry
