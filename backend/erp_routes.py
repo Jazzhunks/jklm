@@ -147,6 +147,14 @@ class PaymentCreate(BaseModel):
     transaction_ref: Optional[str] = None
     apply_gst: bool = True
 
+class PaymentUpdate(BaseModel):
+    amount: Optional[float] = None
+    mode: Optional[Literal["cash", "upi", "online", "cheque", "card"]] = None
+    paid_at: Optional[str] = None
+    transaction_ref: Optional[str] = None
+    notes: Optional[str] = None
+    apply_gst: Optional[bool] = None
+
 class ExpenseCreate(BaseModel):
     branch_id: str
     category: Literal["Salary", "Rent", "Electricity", "Internet", "Marketing", "Maintenance", "Miscellaneous"]
