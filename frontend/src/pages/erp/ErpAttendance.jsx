@@ -16,6 +16,7 @@ export default function ErpAttendance() {
   const [branches, setBranches] = useState([]);
   const [branchId, setBranchId] = useState(selectedBranchId || erpUser?.branch_id || "");
   const [searchQuery, setSearchQuery] = useState("");
+  const [overrideSearch, setOverrideSearch] = useState("");
   const [streamConnected, setStreamConnected] = useState(false);
   const [busyOverrides, setBusyOverrides] = useState(new Set());
   const [lastScanned, setLastScanned] = useState(null);
@@ -403,15 +404,25 @@ export default function ErpAttendance() {
             <div className="font-display font-medium text-base text-foreground flex items-center gap-1.5">
               <ShieldAlert size={15} className="text-accent" /> Desk Override Registry
             </div>
-            <p className="text-[11px] text-muted-foreground mt-0.5 leading-relaxed">
+            <p className="text-[11px] text-muted-foreground mt-0.5 leading-relaxed mb-3">
               Force-verify a student directly from the directory if they forgot their printed hardware access cards profile.
             </p>
+            <div className="relative">
+              <Search size={12} className="absolute left-2.5 top-2.5 text-muted-foreground" />
+              <input 
+                type="text" 
+                placeholder="Search by name or student ID..." 
+                value={overrideSearch}
+                onChange={e => setOverrideSearch(e.target.value)}
+                className="w-full pl-8 pr-3 py-2 bg-background border border-border rounded-lg text-xs focus:outline-none focus:border-accent"
+              />
+            </div>
           </div>
 
           <div className="overflow-y-auto p-4 space-y-2.5 flex-1 min-h-0 custom-scrollbar">
             {isManagerPlus(erpUser) ? (
               students
-                .filter(s => s.branch_id === branchId && s.status === "active")
+                .filter(s => s.branch_id === branchId && s.status === "active" && (!overrideSearch || (s.full_name || "").toLowerCase().includes(overrideSearch.toLowerCase()) || (s.student_no || "").toLowerCase().includes(overrideSearch.toLowerCase())))
                 .map(st => (
                   <div key={st.id} className="p-3 border border-border bg-background/40 rounded-xl flex items-center justify-between gap-3 group hover:border-border transition">
                     <div className="min-w-0">

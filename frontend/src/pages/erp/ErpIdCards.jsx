@@ -56,6 +56,14 @@ export default function ErpIdCards() {
     });
   };
 
+  const toggleSelectAll = () => {
+    if (selectedIds.size === filteredQueue.length && filteredQueue.length > 0) {
+      setSelectedIds(new Set());
+    } else {
+      setSelectedIds(new Set(filteredQueue.map(s => s.id)));
+    }
+  };
+
   const clearSelection = () => setSelectedIds(new Set());
 
   const downloadIdCard = async (student) => {
@@ -152,7 +160,15 @@ export default function ErpIdCards() {
           <table className="w-full text-sm table-fixed border-collapse min-w-[750px]">
             <thead className="bg-muted text-muted-foreground sticky top-0 z-20 shadow-[0_1px_0_rgba(255,255,255,0.05)]">
               <tr className="text-left backdrop-blur-md">
-                <th className="w-[6%] px-5 py-3.5 text-center bg-muted"></th>
+                <th className="w-[6%] px-5 py-3.5 text-center bg-muted cursor-pointer" onClick={toggleSelectAll} title="Select All">
+                  <div className="flex justify-center items-center hover:text-foreground transition-colors">
+                    {selectedIds.size === filteredQueue.length && filteredQueue.length > 0 ? (
+                      <CheckSquare size={16} className="text-primary"/>
+                    ) : (
+                      <Square size={16} className="text-muted-foreground/50 hover:text-primary transition-colors"/>
+                    )}
+                  </div>
+                </th>
                 <th className="w-[18%] px-5 py-3.5 text-xs font-bold uppercase tracking-wider bg-muted">Student No</th>
                 <th className="w-[25%] px-5 py-3.5 text-xs font-bold uppercase tracking-wider bg-muted">Learner Profile Name</th>
                 <th className="w-[18%] px-5 py-3.5 text-xs font-bold uppercase tracking-wider bg-muted">Class Batch Allocation</th>

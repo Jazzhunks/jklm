@@ -630,7 +630,7 @@ function EditStudentProfileModal({ student, onClose, onUpdated, onPhotoSelect, e
   });
   const [busy, setBusy] = useState(false);
 
-  const canEditFinances = isSuper(erpUser) || isFinance(erpUser);
+  const canEditFinances = isSuper(erpUser);
 
   const computedNet = Math.max(0, Math.round(
     ((Number(form.total_fee) || 0) * (1 - (Number(form.scholarship_percent) || 0) / 100)) - (Number(form.discount) || 0)
