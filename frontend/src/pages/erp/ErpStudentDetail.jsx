@@ -266,7 +266,7 @@ export default function ErpStudentDetail() {
   return (
     <div className="space-y-6 animate-fadeIn" data-testid="erp-student-detail">
       {/* Navigation Row */}
-      <div className="flex items-center justify-between shrink-0">
+      <div className="flex items-center justify-between shrink-0 flex-wrap gap-2">
         <button 
           onClick={() => nav("/erp/students")} 
           className="inline-flex items-center gap-2 text-sm font-semibold text-muted-foreground hover:text-foreground transition-colors" 
@@ -274,229 +274,222 @@ export default function ErpStudentDetail() {
         >
           <ArrowLeft size={14}/> Back to directory
         </button>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
           <button 
             onClick={() => setShowEditProfile(true)} 
             className="inline-flex items-center gap-1.5 px-3 py-1.5 border border-border rounded-xl text-xs uppercase tracking-wider font-bold text-muted-foreground hover:text-foreground hover:bg-muted/50 transition"
           >
-            <Edit3 size={13}/> Modify Profile
+            <Edit3 size={13}/> Edit Profile
           </button>
+          {s.luid && s.enrollment_number && (
+            <button 
+              onClick={queueIdCard} 
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 border border-border rounded-xl text-xs uppercase tracking-wider font-bold text-primary hover:bg-primary/10 transition"
+            >
+              <Printer size={13}/> ID Card
+            </button>
+          )}
           {isSuper(erpUser) && (
             <button 
               onClick={() => setDeleteModal({ type: "student", id: s.id, label: s.student_no || s.full_name })}
               className="inline-flex items-center gap-1.5 px-3 py-1.5 border border-rose-500/30 bg-rose-500/10 text-rose-500 rounded-xl text-xs uppercase tracking-wider font-bold hover:bg-rose-500/20 transition"
-              data-testid="delete-student-top-btn"
+              data-testid="delete-student-btn"
             >
-              <Trash2 size={13}/> Delete Student
+              <Trash2 size={13}/> Delete
             </button>
           )}
         </div>
       </div>
 
-      {/* Profile dossier card */}
-      <div className="glass-elevated rounded-2xl p-6 border border-border relative overflow-hidden group">
-        <div className="absolute -right-6 -top-6 opacity-[0.02] text-foreground pointer-events-none transition-transform duration-500 group-hover:scale-105">
-          <User size={160} />
-        </div>
-        
-        <div className="flex justify-between items-start flex-wrap gap-3 relative z-10">
-          <div className="flex items-start gap-4">
-            <label className="w-16 h-16 rounded-full overflow-hidden border-2 border-border bg-muted shrink-0 relative group/avatar cursor-pointer block shadow-sm" title="Click to upload or update student photo">
-              {s.photo_url ? (
-                <img
-                  src={s.photo_url.startsWith("data:") ? s.photo_url : `${API_BASE}/erp/students/${encodeURIComponent(s.id)}/photo?t=${Date.now()}`}
-                  alt=""
-                  className="w-full h-full object-cover"
-                  onError={e => { e.target.style.display = 'none'; }}
-                />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center text-muted-foreground">
-                  <User size={28} />
-                </div>
-              )}
-              <div className="absolute inset-0 bg-black/60 text-white flex flex-col items-center justify-center opacity-0 group-hover/avatar:opacity-100 transition-opacity">
-                <Camera size={16} />
-                <span className="text-[8px] font-bold uppercase tracking-wider mt-0.5">Photo</span>
+      {/* Profile Card */}
+      <div className="glass-elevated rounded-2xl border border-border overflow-hidden">
+        <div className="bg-accent/5 border-b border-border px-6 py-5 flex items-start gap-5">
+          <label className="w-20 h-20 rounded-full overflow-hidden border-2 border-border bg-muted shrink-0 relative group/avatar cursor-pointer shadow-md" title="Click to change photo">
+            {s.photo_url ? (
+              <img
+                src={s.photo_url.startsWith("data:") ? s.photo_url : `${API_BASE}/erp/students/${encodeURIComponent(s.id)}/photo?t=${Date.now()}`}
+                alt=""
+                className="w-full h-full object-cover"
+                onError={e => { e.target.style.display = "none"; }}
+              />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center text-muted-foreground">
+                <User size={32} />
               </div>
-              <input type="file" accept="image/jpeg,image/png,image/webp" onChange={handlePhotoSelect} className="hidden" />
-            </label>
+            )}
+            <div className="absolute inset-0 bg-black/60 text-white flex flex-col items-center justify-center opacity-0 group-hover/avatar:opacity-100 transition-opacity">
+              <Camera size={18} />
+              <span className="text-[8px] font-bold uppercase tracking-wider mt-1">Change</span>
+            </div>
+            <input type="file" accept="image/jpeg,image/png,image/webp" onChange={handlePhotoSelect} className="hidden" />
+          </label>
 
-            <div className="space-y-1">
-              <div className="text-xs uppercase tracking-[0.2em] font-bold text-accent font-mono">{s.student_no}</div>
-              <h1 className="font-display text-3xl font-medium tracking-tight text-foreground">{s.full_name}</h1>
-              <p className="text-muted-foreground text-sm flex items-center flex-wrap gap-x-2 divide-x divide-border/30">
-                <span>{course?.title || "Evaluating Syllabus Track..."}</span>
-                {s.batch && <span className="pl-2 font-mono">Batch: {s.batch}</span>}
-                <span className="pl-2">Admitted: {fmtDate(s.admission_date)}</span>
-              </p>
-              <div className="flex flex-wrap gap-3 text-xs font-mono text-muted-foreground">
-                {s.luid && <span className="px-2 py-0.5 bg-muted/50 rounded border border-border">LUID: {s.luid}</span>}
-                {s.enrollment_number && <span className="px-2 py-0.5 bg-muted/50 rounded border border-border">ENROLL: {s.enrollment_number}</span>}
-              </div>
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="text-[10px] font-mono font-bold text-accent uppercase tracking-widest">{s.student_no}</span>
+              <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider border ${
+                s.status === "active" ? "bg-emerald-500/10 text-emerald-600 border-emerald-500/20"
+                : s.status === "temporary" ? "bg-amber-500/10 text-amber-600 border-amber-500/20"
+                : "bg-muted/50 text-muted-foreground border-border"
+              }`} data-testid="student-status">
+                {s.status}
+              </span>
+            </div>
+            <h1 className="font-display text-2xl sm:text-3xl font-medium tracking-tight text-foreground mt-0.5">{s.full_name}</h1>
+            <p className="text-muted-foreground text-sm mt-0.5 flex flex-wrap gap-x-1">
+              <span>{course?.title || "—"}</span>
+              {s.batch && <span className="font-mono text-xs">· Batch: {s.batch}</span>}
+              {s.batch_timing && <span className="font-mono text-xs">· {s.batch_timing}</span>}
+              <span className="text-xs">· Admitted {fmtDate(s.admission_date)}</span>
+            </p>
+            <div className="flex flex-wrap gap-2 mt-2 text-xs font-mono text-muted-foreground">
+              {s.luid && <span className="px-2 py-0.5 bg-muted/50 rounded border border-border">LUID: {s.luid}</span>}
+              {s.enrollment_number && <span className="px-2 py-0.5 bg-muted/50 rounded border border-border">ENROLL: {s.enrollment_number}</span>}
+              {s.gender && <span className="px-2 py-0.5 bg-muted/50 rounded border border-border">{s.gender}</span>}
+              {s.dob && <span className="px-2 py-0.5 bg-muted/50 rounded border border-border">DOB: {s.dob}</span>}
             </div>
           </div>
-          <div className="flex flex-col gap-2">
-            <span 
-              className={`px-3 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider border ${
-                s.status === "active" 
-                  ? "bg-emerald-500/10 text-emerald-600 border-emerald-500/20" 
-                  : s.status === "temporary"
-                  ? "bg-amber-500/10 text-amber-600 border-amber-500/20"
-                  : "bg-muted/50 text-muted-foreground border-border"
-              }`} 
-              data-testid="student-status"
-            >
-              {s.status}
-            </span>
-            <button 
-              onClick={() => setShowEditProfile(true)} 
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 border border-border rounded-xl text-xs uppercase tracking-wider font-bold text-muted-foreground hover:text-foreground hover:bg-muted/50 transition"
-            >
-              <Edit3 size={13}/> Modify Profile
-            </button>
-            {isSuper(erpUser) && (
-              <button 
-                onClick={() => setDeleteModal({ type: "student", id: s.id, label: s.student_no || s.full_name })}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 border border-rose-500/30 bg-rose-500/10 text-rose-500 rounded-xl text-xs uppercase tracking-wider font-bold hover:bg-rose-500/20 transition"
-                data-testid="delete-student-btn"
-              >
-                <Trash2 size={13}/> Delete Student
-              </button>
-            )}
-            {s.luid && s.enrollment_number && (
-              <button 
-                onClick={queueIdCard} 
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 border border-border rounded-xl text-xs uppercase tracking-wider font-bold text-primary hover:bg-primary/10 transition"
-              >
-                <Printer size={13}/> Generate ID Card
-              </button>
-            )}
-          </div>
         </div>
 
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mt-6 pt-4 border-t border-border relative z-10">
+        <div className="p-6 grid grid-cols-2 sm:grid-cols-4 gap-x-6 gap-y-5">
           <FieldCard icon={Smartphone} label="Student Phone" v={s.contact_phone}/>
-          <FieldCard icon={Mail} label="Email Address" v={s.contact_email}/>
+          <FieldCard icon={Mail} label="Email" v={s.contact_email}/>
           <FieldCard icon={Users} label="Parent / Guardian" v={s.parent_name}/>
           <FieldCard icon={Smartphone} label="Parent Phone" v={s.parent_phone}/>
+          {s.school_institute && <FieldCard icon={Badge} label="School / Institute" v={s.school_institute}/>}
+          {s.board && <FieldCard icon={ClipboardList} label="Board" v={s.board}/>}
+          {s.current_class && <FieldCard icon={Milestone} label="Class" v={s.current_class}/>}
+          {s.category && <FieldCard icon={Users} label="Category" v={s.category}/>}
+          {s.course_duration && <FieldCard icon={Milestone} label="Duration" v={s.course_duration}/>}
+          {s.emergency_phone && <FieldCard icon={Smartphone} label="Emergency Phone" v={s.emergency_phone}/>}
         </div>
-        {s.address && (
-          <div className="mt-4 text-xs text-muted-foreground flex items-center gap-1.5 relative z-10 font-sans">
-            <MapPin size={13} className="text-accent"/> {s.address}
+
+        {(s.address || s.notes) && (
+          <div className="border-t border-border/50 px-6 py-4 space-y-2">
+            {s.address && (
+              <div className="text-xs text-muted-foreground flex items-start gap-1.5">
+                <MapPin size={13} className="text-accent mt-0.5 shrink-0"/>
+                <span>{s.address}</span>
+              </div>
+            )}
+            {s.notes && (
+              <div className="text-xs text-muted-foreground">
+                <span className="font-bold uppercase tracking-wider">Notes: </span>{s.notes}
+              </div>
+            )}
           </div>
         )}
       </div>
 
-      {/* Ledger summary snapshot cards */}
+      {/* Fee Summary */}
       <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
         <StatCard label="Total Course Fee" value={fmtINR(stmt.total_fee)}/>
-        <StatCard label="Waiver Scholarship" value={`${stmt.scholarship_percent}%`} sub={`Saved ${fmtINR(stmt.scholarship_amount)}`}/>
+        <StatCard label="Scholarship" value={`${stmt.scholarship_percent}%`} sub={`Saved ${fmtINR(stmt.scholarship_amount)}`}/>
         <StatCard label="Flat Discount" value={fmtINR(stmt.discount)}/>
-        <StatCard label="Net Obligation" value={fmtINR(stmt.net_fee)} accent="text-sky-400"/>
+        <StatCard label="Net Payable" value={fmtINR(stmt.net_fee)} accent="text-sky-400"/>
         <StatCard 
-          label="Outstanding Balance" 
+          label="Outstanding" 
           value={fmtINR(stmt.pending)} 
           accent={stmt.pending > 0 ? "text-rose-600" : "text-emerald-600"} 
           testid="pending-amount"
           actionElement={stmt.pending > 0 ? (
-            <button onClick={notifyParentViaWhatsApp} className="text-[10px] font-bold uppercase tracking-wider text-emerald-600 underline block mt-1 hover:text-emerald-300">
+            <button onClick={notifyParentViaWhatsApp} className="text-[10px] font-bold uppercase tracking-wider text-emerald-600 underline block mt-1 hover:text-emerald-400">
               Nudge via WhatsApp
             </button>
           ) : null}
         />
       </div>
 
-      {/* Payments history ledger view (UPGRADED INDEPENDENT SCROLL ZONE) */}
-      <div className="glass-elevated rounded-2xl overflow-hidden border border-border animate-fadeIn flex flex-col max-h-[420px]">
-        <div className="px-6 py-5 border-b border-border flex justify-between items-center bg-background/40 shrink-0">
-          <h3 className="font-display font-medium text-lg flex items-center gap-2">
-            <ClipboardList size={18} className="text-accent" /> Transaction Ledger History
+      {/* Payment History */}
+      <div className="glass-elevated rounded-2xl overflow-hidden border border-border flex flex-col">
+        <div className="px-5 py-4 border-b border-border flex justify-between items-center bg-background/40 shrink-0">
+          <h3 className="font-display font-medium text-base flex items-center gap-2">
+            <ClipboardList size={17} className="text-accent" /> Payment History
           </h3>
-          {canRecordPayment && stmt.pending > 0 && (
+          {canRecordPayment && (
             <button 
               onClick={() => setShowPay(true)} 
-              className="px-4 py-2 bg-primary text-primary-foreground rounded-xl text-xs uppercase tracking-wider font-bold flex items-center gap-2 hover:bg-primary/90 shadow-lg transition shrink-0" 
+              className="px-4 py-2 bg-primary text-primary-foreground rounded-xl text-xs uppercase tracking-wider font-bold flex items-center gap-2 hover:bg-primary/90 shadow transition shrink-0" 
               data-testid="record-payment-btn"
             >
               <Plus size={14}/> Record Payment
             </button>
           )}
         </div>
-        
-        {/* Scroll Box Shell Container Layer */}
-        <div className="overflow-y-auto overflow-x-auto w-full flex-1 custom-scrollbar min-h-0">
-          <table className="w-full text-sm table-fixed border-collapse min-w-[780px]">
-            <thead className="bg-muted text-muted-foreground sticky top-0 z-10 border-b border-border shadow-[0_1px_0_rgba(255,255,255,0.05)]">
-              <tr className="text-left text-[10px] font-bold uppercase tracking-widest backdrop-blur-md">
-                <th className="w-[18%] px-6 py-3.5 bg-muted">Receipt ID</th>
-                <th className="w-[15%] px-6 py-3.5 bg-muted">Clearance Date</th>
-                <th className="w-[12%] px-6 py-3.5 bg-muted">Payment Method</th>
-                <th className="w-[12%] px-6 py-3.5 text-right bg-muted">Base Tuition</th>
-                <th className="w-[10%] px-6 py-3.5 text-right bg-muted">CGST (9%)</th>
-                <th className="w-[10%] px-6 py-3.5 text-right bg-muted">SGST (9%)</th>
-                <th className="w-[15%] px-6 py-3.5 text-right bg-muted">Gross Collected</th>
-                <th className="w-[8%] bg-muted"></th>
+
+        <div className="overflow-y-auto overflow-x-auto w-full custom-scrollbar" style={{maxHeight: 400}}>
+          <table className="w-full text-sm border-collapse min-w-[680px]">
+            <thead className="sticky top-0 z-10 bg-muted border-b border-border text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+              <tr className="text-left">
+                <th className="px-5 py-3">Receipt</th>
+                <th className="px-5 py-3">Date</th>
+                <th className="px-5 py-3">Mode</th>
+                <th className="px-5 py-3 text-right">Base</th>
+                <th className="px-5 py-3 text-right">CGST</th>
+                <th className="px-5 py-3 text-right">SGST</th>
+                <th className="px-5 py-3 text-right">Total</th>
+                <th className="px-5 py-3 w-36"></th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border bg-background/20">
               {stmt.payments.map(p => (
-                <tr key={p.id} className="hover:bg-muted/50 transition-colors group">
-                  <td className="px-6 py-4 font-mono text-xs text-foreground font-semibold">{p.receipt_no}</td>
-                  <td className="px-6 py-4 text-xs text-muted-foreground whitespace-nowrap">{fmtDate(p.paid_at)}</td>
-                  <td className="px-6 py-4 text-xs whitespace-nowrap"><span className="px-1.5 py-0.5 bg-muted/50 rounded text-[10px] font-bold text-muted-foreground">{p.mode}</span></td>
-                  <td className="px-6 py-4 font-mono text-right text-xs text-muted-foreground whitespace-nowrap">{fmtINR(p.base_amount)}</td>
-                  <td className="px-6 py-4 font-mono text-right text-xs text-muted-foreground/60 whitespace-nowrap">{fmtINR(p.cgst)}</td>
-                  <td className="px-6 py-4 font-mono text-right text-xs text-muted-foreground/60 whitespace-nowrap">{fmtINR(p.sgst)}</td>
-                  <td className="px-6 py-4 font-mono text-right font-bold text-emerald-600 text-sm whitespace-nowrap">{fmtINR(p.amount)}</td>
-                  <td className="px-6 py-4 text-right whitespace-nowrap">
-                    <div className="flex items-center justify-end gap-1.5">
-                      <button 
+                <tr key={p.id} className="hover:bg-muted/40 transition-colors">
+                  <td className="px-5 py-3.5 font-mono text-xs font-semibold">{p.receipt_no}</td>
+                  <td className="px-5 py-3.5 text-xs text-muted-foreground whitespace-nowrap">{fmtDate(p.paid_at)}</td>
+                  <td className="px-5 py-3.5">
+                    <span className="px-1.5 py-0.5 bg-muted/50 rounded text-[10px] font-bold text-muted-foreground uppercase">{p.mode}</span>
+                  </td>
+                  <td className="px-5 py-3.5 font-mono text-right text-xs text-muted-foreground">{fmtINR(p.base_amount)}</td>
+                  <td className="px-5 py-3.5 font-mono text-right text-xs text-muted-foreground/60">{fmtINR(p.cgst)}</td>
+                  <td className="px-5 py-3.5 font-mono text-right text-xs text-muted-foreground/60">{fmtINR(p.sgst)}</td>
+                  <td className="px-5 py-3.5 font-mono text-right font-bold text-emerald-600">{fmtINR(p.amount)}</td>
+                  <td className="px-5 py-3.5">
+                    <div className="flex items-center justify-end gap-1">
+                      <button
                         onClick={() => setSelectedReceipt(p)}
-                        className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-bold uppercase tracking-wider text-accent bg-accent/10 border border-accent/20 hover:bg-accent/20 rounded-lg transition" 
+                        className="inline-flex items-center gap-1 px-2 py-1 text-[10px] font-bold uppercase text-accent bg-accent/10 border border-accent/20 hover:bg-accent/20 rounded-lg transition"
+                        title="View Receipt"
                         data-testid={`receipt-modal-${p.id}`}
-                        title="Print or View Receipt (A4 or Thermal POS)"
                       >
-                        <Printer size={12}/> Receipt
+                        <Printer size={11}/> Receipt
                       </button>
                       <a 
                         href={`${API_BASE}/erp/payments/${p.id}/receipt`} 
-                        target="_blank" 
-                        rel="noreferrer" 
-                        className="p-1.5 hover:bg-muted/50 border border-transparent hover:border-border rounded-lg text-muted-foreground hover:text-foreground transition" 
-                        title="Direct A4 PDF Download"
+                        target="_blank" rel="noreferrer"
+                        className="p-1.5 hover:bg-muted/50 border border-transparent hover:border-border rounded-lg text-muted-foreground hover:text-foreground transition"
+                        title="Download PDF"
                         data-testid={`download-receipt-${p.id}`}
                       >
-                        <FileDown size={14}/>
+                        <FileDown size={13}/>
                       </a>
                       {isSuper(erpUser) && (
                         <>
                           <button
                             onClick={() => setEditPayment(p)}
                             className="p-1.5 hover:bg-amber-500/10 border border-transparent hover:border-amber-500/20 rounded-lg text-amber-500 transition"
-                            title="Edit Payment Transaction"
+                            title="Edit Transaction"
                           >
-                            <Edit3 size={14}/>
+                            <Edit3 size={13}/>
                           </button>
                           <button
                             onClick={() => setDeleteModal({ type: "payment", id: p.id, label: p.receipt_no })}
                             className="p-1.5 hover:bg-rose-500/10 border border-transparent hover:border-rose-500/20 rounded-lg text-rose-500 transition"
-                            title="Purge Payment Transaction"
+                            title="Delete Transaction"
                             data-testid={`delete-payment-${p.id}`}
                           >
-                            <Trash2 size={14}/>
+                            <Trash2 size={13}/>
                           </button>
                         </>
                       )}
                     </div>
                   </td>
-
                 </tr>
               ))}
               {stmt.payments.length === 0 && (
                 <tr>
-                  <td colSpan="8" className="px-6 py-16 text-center text-muted-foreground italic">
+                  <td colSpan="8" className="px-5 py-14 text-center text-muted-foreground">
                     <ReceiptIcon size={28} className="mx-auto mb-3 opacity-30 text-accent"/>
-                    No verified cashbook transaction sequences matching this enrollment signature.
+                    <p className="text-sm">No payment records found for this student.</p>
                   </td>
                 </tr>
               )}
@@ -504,26 +497,23 @@ export default function ErpStudentDetail() {
           </table>
         </div>
 
-        {/* Fixed Foot Aggregate Ledger Totals */}
         {stmt.payments.length > 0 && (
-          <div className="bg-muted border-t border-border px-6 py-4 flex items-center justify-between font-bold text-foreground shrink-0 z-10 shadow-[0_-1px_0_rgba(255,255,255,0.05)]">
-            <div className="text-xs uppercase tracking-wider text-muted-foreground">Aggregate Sunk Income</div>
-            <div className="font-mono text-lg text-emerald-600">{fmtINR(stmt.total_paid)}</div>
+          <div className="bg-muted border-t border-border px-5 py-3.5 flex items-center justify-between font-bold shrink-0">
+            <span className="text-xs uppercase tracking-wider text-muted-foreground">Total Collected</span>
+            <span className="font-mono text-lg text-emerald-600">{fmtINR(stmt.total_paid)}</span>
           </div>
         )}
       </div>
 
-      {/* CREATE RECORD PAYMENT SUB MODAL PORTAL */}
+      {/* Modals */}
       {showPay && (
         <RecordPaymentModal
           studentId={s.id}
           pending={stmt.pending}
           onClose={() => setShowPay(false)}
-          onCreated={() => { setShowPay(false); reload(); toast.success("Installment clearance written safely."); }}
+          onCreated={() => { setShowPay(false); reload(); toast.success("Payment recorded successfully."); }}
         />
       )}
-
-      {/* UPDATE STUDENT DOSSIER PARAMETERS MODAL SHEET */}
       {showEditProfile && (
         <EditStudentProfileModal 
           student={s}
@@ -538,42 +528,35 @@ export default function ErpStudentDetail() {
         <CropModal
           src={cropSrc}
           onClose={() => { setCropping(false); setCropSrc(null); setCropBlob(null); }}
-          onConfirm={(blob) => {
-            setCropBlob(blob);
-            confirmCropAndUpload(blob);
-          }}
+          onConfirm={(blob) => { setCropBlob(blob); confirmCropAndUpload(blob); }}
         />
       )}
       {selectedReceipt && (
-        <ReceiptModal
-          payment={selectedReceipt}
-          student={s}
-          onClose={() => setSelectedReceipt(null)}
-        />
+        <ReceiptModal payment={selectedReceipt} student={s} onClose={() => setSelectedReceipt(null)} />
       )}
       {editPayment && <PaymentEditModal payment={editPayment} onClose={() => setEditPayment(null)} onUpdated={reload} />}
       {deleteModal && (
         <div className="fixed inset-0 bg-black/50 z-50 grid place-items-center p-4 backdrop-blur-sm animate-fadeIn" onClick={() => !deleting && setDeleteModal(null)}>
           <div onClick={e => e.stopPropagation()} className="bg-background border border-border rounded-2xl max-w-sm w-full p-6 space-y-4 shadow-2xl">
             <div className="flex items-center gap-3 text-rose-500">
-              <div className="p-2.5 bg-rose-500/10 rounded-xl"><AlertTriangle size={24}/></div>
+              <div className="p-2.5 bg-rose-500/10 rounded-xl"><AlertTriangle size={22}/></div>
               <div>
-                <h3 className="font-display font-medium text-lg text-foreground">Confirm Permanent Purge</h3>
+                <h3 className="font-display font-medium text-lg text-foreground">Confirm Delete</h3>
                 <p className="text-[10px] text-rose-500 uppercase tracking-widest font-bold">Irreversible Action</p>
               </div>
             </div>
             <p className="text-sm text-muted-foreground leading-relaxed">
-              Are you sure you want to permanently delete {deleteModal.type === "student" ? "student" : "payment receipt"}{" "}
+              Permanently delete {deleteModal.type === "student" ? "student" : "payment"}{" "}
               <strong className="text-foreground font-mono">{deleteModal.label}</strong>?
-              {deleteModal.type === "student" && " This will permanently erase the student's profile, financial records, attendance logs, and generated certificates."}
+              {deleteModal.type === "student" && " All records, payments, and attendance will be erased."}
             </p>
-            <div className="flex gap-2.5 pt-2">
+            <div className="flex gap-2.5 pt-1">
               <button
                 disabled={deleting}
                 onClick={confirmDelete}
                 className="flex-1 py-2.5 bg-rose-600 text-white rounded-xl text-xs uppercase tracking-wider font-bold hover:bg-rose-700 disabled:opacity-50 transition shadow-md flex items-center justify-center gap-1.5"
               >
-                <Trash2 size={13}/> {deleting ? "Purging..." : "Confirm Purge"}
+                <Trash2 size={13}/> {deleting ? "Deleting..." : "Delete"}
               </button>
               <button
                 disabled={deleting}
