@@ -8,7 +8,7 @@ import openpyxl
 from datetime import datetime, timezone, timedelta
 from typing import List, Optional, Literal, Dict, Any
 
-from fastapi import APIRouter, Depends, HTTPException, Query, Response, BackgroundTasks, UploadFile, File
+from fastapi import APIRouter, Request, Depends, HTTPException, Query, Response, BackgroundTasks, UploadFile, File
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, EmailStr, Field
 
@@ -828,13 +828,23 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
             "payments": payments,
         }
 
-    @erp.get("/receipts/{receipt_no}.pdf")
+    @erp.get("/receipts/{receipt_no:path}")
     async def download_receipt(
         receipt_no: str,
+        request: Request,
         format: Optional[str] = Query("a4"),
-        width_mm: Optional[int] = Query(80),
-        user: dict = Depends(require_erp),
+        width_mm: Optional[int] = Query(80)
     ):
+        # Attempt to get user silently for audit purposes
+        user = None
+        try:
+            user = await get_current_user(request)
+        except Exception:
+            pass
+        # Strip .pdf if present
+        if receipt_no.endswith(".pdf"):
+            receipt_no = receipt_no[:-4]
+            
         # If it looks like a UUID (length 36), try matching ID for backwards compatibility
         if len(receipt_no) == 36 and "-" in receipt_no:
             p = await db.erp_payments.find_one({"id": receipt_no}, {"_id": 0})
@@ -843,7 +853,8 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
             
         if not p:
             raise HTTPException(404, "Payment/Receipt not found")
-        if not can_view_branch(user, p["branch_id"]):
+        # If user is logged in, check branch access. Otherwise, it's a public download.
+        if user and not can_view_branch(user, p["branch_id"]):
             raise HTTPException(403, "Cross-branch denied")
         s = await db.erp_students.find_one({"id": p["student_id"]}, {"_id": 0}) or {}
         b = await db.centers.find_one({"id": p["branch_id"]}, {"_id": 0}) or {}
@@ -863,7 +874,8 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
             pdf_bytes = fee_receipt_pdf(p, s, b, c.get("title", "—"), prev_paid, net_fee)
             fmt_tag = "a4"
 
-        await audit(user, "download", "receipt", p["id"], p["branch_id"], {"format": fmt_tag})
+        if user:
+            await audit(user, "download", "receipt", p["id"], p["branch_id"], {"format": fmt_tag})
         safe_no = (p.get("receipt_no") or "receipt").replace("/", "-")
         return StreamingResponse(
             io.BytesIO(pdf_bytes),
