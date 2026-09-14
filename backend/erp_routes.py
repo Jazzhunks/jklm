@@ -24,7 +24,7 @@ from notifications import (
 
 # -- Constants
 ROLES_ALL = {"super_admin", "center_manager", "accountant", "counsellor", "attendance"}
-ROLES_BRANCH = {"center_manager", "accountant", "counsellor"}
+ROLES_BRANCH = {"center_manager", "accountant", "counsellor", "attendance"}
 EXPENSE_CATEGORIES = ["Salary", "Rent", "Electricity", "Internet", "Marketing", "Maintenance", "Miscellaneous"]
 PAYMENT_MODES = ["cash", "upi", "online", "cheque", "card"]
 LEAD_STATUSES = ["new", "contacted", "follow_up", "converted", "lost"]
@@ -46,13 +46,13 @@ class StaffCreate(BaseModel):
     name: str
     email: EmailStr
     password: str
-    role: Literal["center_manager", "accountant", "counsellor"]
+    role: Literal["center_manager", "accountant", "counsellor", "attendance"]
     branch_id: str
     phone: Optional[str] = None
 
 class StaffUpdate(BaseModel):
     name: Optional[str] = None
-    role: Optional[Literal["center_manager", "accountant", "counsellor"]] = None
+    role: Optional[Literal["center_manager", "accountant", "counsellor", "attendance"]] = None
     branch_id: Optional[str] = None
     phone: Optional[str] = None
     active: Optional[bool] = None
