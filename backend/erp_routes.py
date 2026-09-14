@@ -610,7 +610,7 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
             raise HTTPException(400, "Course not found")
         student_no = await gen_student_no(payload.branch_id)
         try:
-            doc = payload.model_dump()
+            doc = payload.model_dump(exclude_none=True)
         except Exception as e:
             raise HTTPException(500, f"Payload serialization error: {e}")
         doc.update({
