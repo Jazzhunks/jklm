@@ -5,6 +5,7 @@ export const ROLES = {
   CENTER_MANAGER: 'center_manager',
   ACCOUNTANT: 'accountant',
   COUNSELLOR: 'counsellor',
+  ATTENDANCE: 'attendance',
   SCHOOL: 'school',
   STUDENT: 'student',
 };
@@ -16,6 +17,7 @@ export const ERP_ROLES = [
   ROLES.CENTER_MANAGER,
   ROLES.ACCOUNTANT,
   ROLES.COUNSELLOR,
+  ROLES.ATTENDANCE,
 ];
 
 export const ADMIN_ONLY = [ROLES.ADMIN];
