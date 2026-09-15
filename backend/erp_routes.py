@@ -288,9 +288,9 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
         return user
 
     def can_view_branch(user: dict, branch_id: str) -> bool:
-        if user["role"] == "super_admin":
+        if user["role"] in {"super_admin", "admin"}:
             return True
-        return user.get("branch_id") == branch_id
+        return branch_id == "all" or user.get("branch_id") == branch_id
 
     def scope_branch_filter(user: dict, branch_id_param: Optional[str] = None) -> dict:
         if user["role"] == "super_admin":
@@ -299,7 +299,7 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
             raise HTTPException(403, "Context Error: User profile has no active branch assignment node.")
         if branch_id_param and branch_id_param not in (user["branch_id"], "all"):
             raise HTTPException(403, "Access Denied: Cross-branch query parameter operations rejected.")
-        return {"branch_id": user["branch_id"]}
+        return {"branch_id": {"$in": [user["branch_id"], "all"]}}
 
     # ---- Audit logger
     async def audit(user: dict, action: str, entity: str, entity_id: str, branch_id: Optional[str] = None, payload: Optional[dict] = None):
@@ -528,6 +528,10 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
     @erp.patch("/branches/{branch_id}")
     async def update_branch(branch_id: str, payload: BranchUpdate, user: dict = Depends(require_super)):
         patch = {k: v for k, v in payload.dict(exclude_unset=True).items() if v is not None}
+        if user["role"] != "super_admin":
+            patch.pop("total_fee", None)
+            patch.pop("scholarship_percent", None)
+            patch.pop("discount", None)
         if not patch:
             raise HTTPException(400, "Nothing to update")
         await db.centers.update_one({"id": branch_id}, {"$set": patch})
@@ -629,7 +633,6 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
             f["status"] = {"$ne": "temporary"}
         if counsellor_id:
             f["counsellor_id"] = counsellor_id
-        if user["role"] == "counsellor":
             f["counsellor_id"] = user["id"]
         
         search_query = search or q
@@ -655,7 +658,6 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
 
     @erp.post("/students")
     async def create_student(payload: StudentCreate, user: dict = Depends(require_erp)):
-        if user["role"] == "counsellor":
             raise HTTPException(403, "Counsellors cannot create student records directly")
         if not can_view_branch(user, payload.branch_id):
             raise HTTPException(403, "Cross-branch denied")
@@ -726,11 +728,13 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
         if not s:
             raise HTTPException(404, "Student not found")
         real_id = s["id"]
-        if user["role"] == "counsellor":
-            raise HTTPException(403, "Counsellors cannot edit student records")
         if not can_view_branch(user, s["branch_id"]):
             raise HTTPException(403, "Cross-branch denied")
         patch = {k: v for k, v in payload.dict(exclude_unset=True).items() if v is not None}
+        if user["role"] != "super_admin":
+            patch.pop("total_fee", None)
+            patch.pop("scholarship_percent", None)
+            patch.pop("discount", None)
         if patch:
             await db.erp_students.update_one({"id": real_id}, {"$set": patch})
         await audit(user, "update", "student", real_id, s.get("branch_id"), {"fields": list(patch.keys())})
@@ -753,7 +757,6 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
     # ===== PAYMENTS / RECEIPTS =====
     @erp.post("/payments")
     async def create_payment(payload: PaymentCreate, user: dict = Depends(require_erp)):
-        if user["role"] == "counsellor":
             raise HTTPException(403, "Counsellors cannot record payments")
         s = await db.erp_students.find_one({"id": payload.student_id}, {"_id": 0})
         if not s:
@@ -1030,7 +1033,6 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
         limit: Optional[int] = Query(None, ge=1, le=500),
         user: dict = Depends(require_erp),
     ):
-        if user["role"] == "counsellor":
             raise HTTPException(403, "Not allowed")
         f = scope_branch_filter(user, branch_id)
         if category:
@@ -1152,7 +1154,6 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
         user: dict = Depends(require_erp)
     ):
         f = scope_branch_filter(user, branch_id)
-        if user["role"] == "counsellor":
             f["counsellor_id"] = user["id"]
         if status:
             f["status"] = status
@@ -1188,6 +1189,10 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
             raise HTTPException(403, "Not your lead")
 
         patch = {k: v for k, v in payload.dict(exclude_unset=True).items() if v is not None}
+        if user["role"] != "super_admin":
+            patch.pop("total_fee", None)
+            patch.pop("scholarship_percent", None)
+            patch.pop("discount", None)
 
         # Auto-enroll lead to student list when marked as 'converted'
         converted_student = None
@@ -1343,7 +1348,7 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
 
     @erp.post("/leads/{lead_id}/enroll")
     async def enroll_lead(lead_id: str, payload: LeadEnrollRequest, user: dict = Depends(require_erp)):
-        if user["role"] not in {"super_admin", "center_manager", "finance"}:
+        if user["role"] not in {"super_admin", "center_manager", "accountant"}:
             raise HTTPException(403, "Only Accounts/Managers can process final admission")
         lead = await db.erp_leads.find_one({"id": lead_id})
         if not lead: raise HTTPException(404, "Lead not found")
@@ -1829,7 +1834,6 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
     # ===== EXPORTS =====
     @erp.get("/exports/payments.xlsx")
     async def export_payments_xlsx(branch_id: Optional[str] = None, user: dict = Depends(require_erp)):
-        if user["role"] == "counsellor":
             raise HTTPException(403, "Not allowed")
         f = scope_branch_filter(user, branch_id)
         items = await db.erp_payments.find(f, {"_id": 0}).sort("paid_at", -1).to_list(10000)
@@ -1843,7 +1847,6 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
 
     @erp.get("/exports/expenses.xlsx")
     async def export_expenses_xlsx(branch_id: Optional[str] = None, user: dict = Depends(require_erp)):
-        if user["role"] == "counsellor":
             raise HTTPException(403, "Not allowed")
         f = scope_branch_filter(user, branch_id)
         items = await db.erp_expenses.find(f, {"_id": 0}).sort("expense_date", -1).to_list(10000)
@@ -1857,7 +1860,6 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
 
     @erp.get("/exports/students.xlsx")
     async def export_students_xlsx(branch_id: Optional[str] = None, user: dict = Depends(require_erp)):
-        if user["role"] == "counsellor":
             raise HTTPException(403, "Not allowed")
         f = scope_branch_filter(user, branch_id)
         items = await db.erp_students.find(f, {"_id": 0}).sort("created_at", -1).to_list(10000)
@@ -1874,7 +1876,6 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
     # ============================================================================
     @erp.get("/erpattendance/exports/attendance_today.xlsx")
     async def export_todays_attendance_matrix(branch_id: Optional[str] = None, user: dict = Depends(require_erp)):
-        if user["role"] == "counsellor":
             raise HTTPException(403, "Access Denied: Administrative permission clearance required.")
             
         f = scope_branch_filter(user, branch_id)
@@ -2059,7 +2060,6 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
         real_id = s["id"]
         if s.get("branch_id") and not can_view_branch(user, s["branch_id"]):
             raise HTTPException(403, "Cross-branch denied")
-        if user["role"] == "counsellor":
             raise HTTPException(403, "Counsellors cannot update student photos")
 
         # Flexible content-type and extension parsing
