@@ -24,9 +24,7 @@ const Stat = ({ label, value, icon: Icon, accent, testid }) => (
       <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-muted/40 group-hover:bg-accent/10 transition-colors">
         {Icon && <Icon size={22} className={accent || "text-muted-foreground"}/>}
       </div>
-      <div className="flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-emerald-500 bg-emerald-500/10 px-2 py-1 rounded-md">
-        <TrendingUp size={12} /> +12%
-      </div>
+      
     </div>
     <div className="relative z-10">
       <div className={`font-display text-3xl font-black tracking-tight ${accent || "text-foreground"}`}>
