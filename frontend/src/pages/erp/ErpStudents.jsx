@@ -401,7 +401,6 @@ export default function ErpStudents() {
 
 // Admission Modal
 function CreateStudentModal({ erpUser, branches, defaultBranchId, onClose, onCreated }) {
-  const [courses, setCourses] = useState([]);
   const [form, setForm] = useState({
     full_name: "",
     gender: "Male",
@@ -432,8 +431,6 @@ function CreateStudentModal({ erpUser, branches, defaultBranchId, onClose, onCre
   const [busy, setBusy] = useState(false);
   const [submitted, setSubmitted] = useState(false);
 
-  const filteredCourses = courses.filter(c => ["Foundation", "NEET", "IIT-JEE"].includes(c.category));
-
   const computeFinalFee = () => {
     const total = parseFloat(form.total_fee) || 0;
     const scholarship = parseFloat(form.scholarship_percent) || 0;
@@ -444,11 +441,7 @@ function CreateStudentModal({ erpUser, branches, defaultBranchId, onClose, onCre
 
   const finalFee = computeFinalFee();
 
-  useEffect(() => {
-    api.get("/courses").then(r => setCourses(Array.isArray(r.data) ? r.data : (r.data?.items || []))).catch(() => setCourses([]));
-  }, []);
-
-  const handleSubmit = async (e) => {
+const handleSubmit = async (e) => {
     e.preventDefault();
     setSubmitted(true);
     if (!form.full_name.trim() || !form.contact_phone.trim() || !form.branch_id || !form.course_id || !form.dob || !form.gender || !form.address || !form.current_class || !form.total_fee) {
@@ -462,7 +455,6 @@ function CreateStudentModal({ erpUser, branches, defaultBranchId, onClose, onCre
 
     setBusy(true);
     try {
-      const selectedCourse = courses.find(c => c.id === form.course_id);
       const payload = {
         full_name: form.full_name.trim(),
         gender: form.gender,
@@ -600,8 +592,7 @@ function CreateStudentModal({ erpUser, branches, defaultBranchId, onClose, onCre
             <div>
               <label className={labelCls}>Course *</label>
               <select required value={form.course_id} onChange={e => setForm(f => ({ ...f, course_id: e.target.value }))} className={inputCls}>
-                <option value="">Select Course</option>
-                {filteredCourses.map(c => <option key={c.id} value={c.id}>{c.title}</option>)}
+                {STUDENT_COURSES.map(c => <option key={c} value={c}>{c}</option>)}
               </select>
             </div>
             <div>

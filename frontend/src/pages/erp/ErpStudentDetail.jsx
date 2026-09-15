@@ -4,6 +4,7 @@ import { toast } from "sonner";
 import { erp, isSuper, isFinance, fmtINR, fmtDate } from "@/lib/erpApi";
 import { formatError } from "@/lib/api";
 import { api, API_BASE } from "@/lib/api";
+import { STUDENT_CLASSES } from "@/lib/erpApi";
 import { 
   ArrowLeft, Plus, FileDown, Receipt as ReceiptIcon, Edit3, 
   X, Save, CheckCircle, Smartphone, Mail, MapPin, Milestone, User, Users, ClipboardList, Badge, Printer, Camera,
@@ -176,13 +177,7 @@ export default function ErpStudentDetail() {
     return () => clearInterval(timer);
   }, [reload]);
 
-  useEffect(() => {
-    if (stmt?.student?.course_id) {
-      api.get(`/courses/${stmt.student.course_id}`)
-        .then(r => setCourse(r.data))
-        .catch(() => {});
-    }
-  }, [stmt?.student?.course_id]);
+
 
   if (!stmt) {
     return (
@@ -336,7 +331,7 @@ export default function ErpStudentDetail() {
             </div>
             <h1 className="font-display text-2xl sm:text-3xl font-medium tracking-tight text-foreground mt-0.5">{s.full_name}</h1>
             <p className="text-muted-foreground text-sm mt-0.5 flex flex-wrap gap-x-1">
-              <span>{course?.title || "—"}</span>
+              <span>{s.course_id || "—"}</span>
               {s.batch && <span className="font-mono text-xs">· Batch: {s.batch}</span>}
               {s.batch_timing && <span className="font-mono text-xs">· {s.batch_timing}</span>}
               <span className="text-xs">· Admitted {fmtDate(s.admission_date)}</span>
@@ -798,7 +793,10 @@ function EditStudentProfileModal({ student, onClose, onUpdated, onPhotoSelect, e
             </div>
             <div>
               <label className="text-xs uppercase tracking-wider font-bold text-muted-foreground mb-1 block">Current Class</label>
-              <input type="text" value={form.current_class} onChange={e => setForm({...form, current_class: e.target.value})} placeholder="e.g. 11th / NEET Repeater" className="w-full px-3 py-2 border border-border bg-background/50 rounded-xl text-sm focus:outline-none focus:border-accent" />
+              <select value={form.current_class} onChange={e => setForm({...form, current_class: e.target.value})} className="w-full px-3 py-2 border border-border bg-background/50 rounded-xl text-sm focus:outline-none focus:border-accent">
+                <option value="">Select Class</option>
+                {STUDENT_CLASSES.map(c => <option key={c} value={c}>{c}</option>)}
+              </select>
             </div>
             <div>
               <label className="text-xs uppercase tracking-wider font-bold text-muted-foreground mb-1 block">Batch Timing</label>
