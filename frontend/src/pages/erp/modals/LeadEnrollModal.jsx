@@ -63,7 +63,7 @@ export default function LeadEnrollModal({ lead, onClose }) {
             <div><label className="text-xs font-bold block mb-1">Approved Total Fee (₹) *</label>
             <input required type="number" value={form.total_fee} onChange={e => setForm({...form, total_fee: e.target.value})} className="w-full p-2 text-sm border border-border bg-card rounded text-emerald-600 font-black" /></div>
             <div><label className="text-xs font-bold block mb-1">Initial Deposit Amount (₹) *</label>
-            <input required type="number" value={form.deposit_amount} onChange={e => setForm({...form, deposit_amount: e.target.value})} className="w-full p-2 text-sm border border-border bg-card rounded font-bold" placeholder="Amount collected today" /></div>
+            <input required type="number" min="1" value={form.deposit_amount} onChange={e => setForm({...form, deposit_amount: e.target.value})} className="w-full p-2 text-sm border border-border bg-card rounded font-bold" placeholder="Amount collected today" /></div>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div><label className="text-xs font-bold block mb-1">Payment Mode *</label>
