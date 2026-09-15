@@ -214,8 +214,7 @@ export default function ErpStudentDetail() {
     try {
       await erp.updateStudent(s.id, { luid: s.luid, enrollment_number: s.enrollment_number });
       await api.post(`/erp/students/${encodeURIComponent(s.id)}/queue-id-card`);
-      toast.success("Sent to ID card generation queue");
-      nav("/erp/erpidcards");
+      toast.success("ID card sent to bin");
     } catch (e) {
       toast.error(formatError(e.response?.data?.detail) || "Failed to queue ID card");
     }
