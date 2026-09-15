@@ -2,7 +2,12 @@ import React, { useState } from "react";
 import { useQueryClient, useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { erp } from "@/lib/erpApi";
-import { X, Phone, MessageCircle, Mail, FileText, CheckCircle2, Clock, Calendar } from "lucide-react";
+import { X, Phone, MessageCircle, Mail, FileText, CheckCircle2, Clock, Calendar, Target, AlertCircle, Replace, Trash2 } from "lucide-react";
+import LeadProposeModal from "@/pages/erp/modals/LeadProposeModal";
+import LeadReviewModal from "@/pages/erp/modals/LeadReviewModal";
+import LeadEnrollModal from "@/pages/erp/modals/LeadEnrollModal";
+import LeadTransferModal from "@/pages/erp/modals/LeadTransferModal";
+import { isSuper } from "@/lib/erpApi";
 
 const parseDate = (d) => {
   if (!d) return "";
@@ -19,6 +24,12 @@ export default function LeadActivityDrawer({ lead, onClose }) {
   const [notes, setNotes] = useState("");
   const [nextFollowup, setNextFollowup] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [proposeModal, setProposeModal] = useState(false);
+  const [reviewModal, setReviewModal] = useState(false);
+  const [enrollModal, setEnrollModal] = useState(false);
+  const [transferModal, setTransferModal] = useState(false);
+  
+  const erpUser = JSON.parse(localStorage.getItem("nw_user") || "{}"); // fallback
 
   const addInteraction = useMutation({
     mutationFn: async (payload) => await erp.addLeadInteraction(lead.id, payload),
@@ -46,7 +57,7 @@ export default function LeadActivityDrawer({ lead, onClose }) {
 
   return (
     <div className="fixed inset-0 z-[100] flex justify-end bg-black/40 backdrop-blur-sm transition-opacity">
-      <div className="w-full max-w-md bg-background h-full shadow-2xl border-l border-border flex flex-col animate-in slide-in-from-right duration-300">
+      <div className="w-full max-w-xl bg-background h-full shadow-2xl border-l border-border flex flex-col animate-in slide-in-from-right duration-300">
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b border-border/50 bg-muted/20">
           <div>
@@ -54,9 +65,34 @@ export default function LeadActivityDrawer({ lead, onClose }) {
             <div className="flex items-center gap-2 mt-1">
               <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-accent/10 text-accent uppercase tracking-wider">{lead.source || "Manual"}</span>
               <span className="text-xs font-medium text-muted-foreground">{lead.phone}</span>
+              <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-muted text-muted-foreground uppercase tracking-wider">{lead.status.replace("_", " ")}</span>
             </div>
           </div>
-          <button onClick={onClose} className="p-2 hover:bg-muted rounded-full transition"><X size={18} /></button>
+          <div className="flex items-center gap-2">
+            <button onClick={onClose} className="p-2 hover:bg-muted rounded-full transition"><X size={18} /></button>
+          </div>
+        </div>
+        
+        {/* Actions Bar */}
+        <div className="px-4 py-2 bg-card border-b border-border flex gap-2 overflow-x-auto custom-scrollbar">
+          {["new", "contacted", "follow_up"].includes(lead.status) && (
+            <button onClick={() => setProposeModal(true)} className="flex items-center gap-1.5 px-3 py-1.5 bg-fuchsia-500/10 text-fuchsia-500 border border-fuchsia-500/20 rounded-lg text-xs font-bold hover:bg-fuchsia-500/20 transition whitespace-nowrap">
+              <Target size={14}/> Propose Fee
+            </button>
+          )}
+          {lead.status === "pending_approval" && (isSuper(erpUser) || erpUser?.role === "center_manager") && (
+            <button onClick={() => setReviewModal(true)} className="flex items-center gap-1.5 px-3 py-1.5 bg-orange-500/10 text-orange-500 border border-orange-500/20 rounded-lg text-xs font-bold hover:bg-orange-500/20 transition whitespace-nowrap">
+              <AlertCircle size={14}/> Review Proposal
+            </button>
+          )}
+          {lead.status === "approved_for_accounts" && (isSuper(erpUser) || erpUser?.role === "center_manager" || erpUser?.role === "accountant") && (
+            <button onClick={() => setEnrollModal(true)} className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-600/10 text-emerald-600 border border-emerald-600/20 rounded-lg text-xs font-bold hover:bg-emerald-600/20 transition whitespace-nowrap">
+              <CheckCircle2 size={14}/> Process Admission
+            </button>
+          )}
+          <button onClick={() => setTransferModal(true)} className="flex items-center gap-1.5 px-3 py-1.5 bg-indigo-500/10 text-indigo-500 border border-indigo-500/20 rounded-lg text-xs font-bold hover:bg-indigo-500/20 transition whitespace-nowrap">
+            <Replace size={14}/> Transfer Branch
+          </button>
         </div>
 
         {/* Content (Timeline) */}
@@ -152,6 +188,12 @@ export default function LeadActivityDrawer({ lead, onClose }) {
           </div>
         </div>
       </div>
+      
+      {/* Drawer Modals */}
+      {proposeModal && <LeadProposeModal lead={lead} onClose={() => setProposeModal(false)} />}
+      {reviewModal && <LeadReviewModal lead={lead} onClose={() => setReviewModal(false)} />}
+      {enrollModal && <LeadEnrollModal lead={lead} onClose={() => setEnrollModal(false)} />}
+      {transferModal && <LeadTransferModal lead={lead} branches={[]} onClose={() => setTransferModal(false)} />}
     </div>
   );
 }

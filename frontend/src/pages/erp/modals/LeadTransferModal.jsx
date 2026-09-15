@@ -1,11 +1,19 @@
 import React, { useState } from "react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { erp } from "@/lib/erpApi";
 
 export default function LeadTransferModal({ lead, branches, onClose }) {
   const queryClient = useQueryClient();
   const [form, setForm] = useState({ branch_id: "", notes: "" });
+  
+  const { data: fetchBranches = [] } = useQuery({
+    queryKey: ['erp-branches-all'],
+    queryFn: erp.listBranches,
+    enabled: !branches || branches.length === 0
+  });
+  
+  const activeBranches = branches?.length > 0 ? branches : fetchBranches;
   
   const transfer = useMutation({
     mutationFn: () => erp.transferLead(lead.id, form),
@@ -26,7 +34,7 @@ export default function LeadTransferModal({ lead, branches, onClose }) {
         <div><label className="text-xs font-bold text-muted-foreground mb-1 block">Destination Branch *</label>
         <select required value={form.branch_id} onChange={e => setForm({...form, branch_id: e.target.value})} className="w-full p-2 text-sm border border-border bg-card rounded">
           <option value="">-- Select Branch --</option>
-          {branches.map(b => (
+          {activeBranches.map(b => (
             <option key={b.id} value={b.id}>{b.name}</option>
           ))}
         </select></div>

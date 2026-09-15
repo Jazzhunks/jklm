@@ -90,6 +90,12 @@ export const erp = {
   createLead: (body) => api.post("/erp/leads", body).then(resData).then((d) => { broadcastMutation("lead", "create", d); return d; }),
   updateLead: (id, body) => api.patch(`/erp/leads/${encodeURIComponent(id)}`, body).then(resData).then((d) => { broadcastMutation("lead", "update", { id, ...d }); return d; }),
   deleteLead: (id) => api.delete(`/erp/leads/${encodeURIComponent(id)}`).then(resData).then((d) => { broadcastMutation("lead", "delete", { id }); return d; }),
+  addLeadInteraction: (id, body) => api.post(`/erp/leads/${id}/interactions`, body).then(resData).then((d) => { broadcastMutation("lead", "update", { id }); return d; }),
+  proposeLead: (id, body) => api.post(`/erp/leads/${id}/propose`, body).then(resData).then((d) => { broadcastMutation("lead", "update", { id }); return d; }),
+  approveLead: (id, body) => api.post(`/erp/leads/${id}/approve`, body).then(resData).then((d) => { broadcastMutation("lead", "update", { id }); return d; }),
+  rejectLead: (id, body) => api.post(`/erp/leads/${id}/reject`, body).then(resData).then((d) => { broadcastMutation("lead", "update", { id }); return d; }),
+  enrollLead: (id, body) => api.post(`/erp/leads/${id}/enroll`, body).then(resData).then((d) => { broadcastMutation("lead", "update", { id }); return d; }),
+  transferLead: (id, body) => api.post(`/erp/leads/${id}/transfer`, body).then(resData).then((d) => { broadcastMutation("lead", "update", { id }); return d; }),
 
   // --- GST Taxation & Compliance ---
   monthlyGst: (params = {}) => api.get("/erp/gst/monthly", { params }).then(resData),

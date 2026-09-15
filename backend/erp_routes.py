@@ -521,12 +521,8 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
     # ===== BRANCHES =====
     @erp.get("/branches")
     async def list_branches(user: dict = Depends(require_erp)):
-        if user["role"] == "super_admin":
-            items = await db.centers.find({}, {"_id": 0}).to_list(200)
-        else:
-            if not user.get("branch_id"):
-                return []
-            items = await db.centers.find({"id": user["branch_id"]}, {"_id": 0}).to_list(10)
+        # Everyone can see branches (e.g. for Lead Transfer)
+        items = await db.centers.find({}, {"_id": 0, "name": 1, "id": 1, "prefix": 1}).to_list(200)
         return items
 
     @erp.patch("/branches/{branch_id}")
