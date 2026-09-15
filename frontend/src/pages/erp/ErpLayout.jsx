@@ -1,5 +1,5 @@
 import { useEffect, useState, useMemo } from "react";
-import { Outlet, NavLink, useNavigate, useLocation } from "react-router-dom";
+import { Outlet, NavLink, useNavigate, useLocation, Navigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { erp, isSuper, isManagerPlus, isERPUser } from "@/lib/erpApi";
 import ErpCommandPalette from "./ErpCommandPalette";
