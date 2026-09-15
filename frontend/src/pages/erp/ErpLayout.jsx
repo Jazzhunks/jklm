@@ -51,6 +51,13 @@ export default function ErpLayout() {
     }
   }, [erpUser]);
 
+  // Redirect gatekeeper away from root dashboard
+  useEffect(() => {
+    if (erpUser?.role === "attendance" && location.pathname === "/erp") {
+      nav("/erp/erpattendance", { replace: true });
+    }
+  }, [erpUser, location.pathname, nav]);
+
   // Live clock
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
