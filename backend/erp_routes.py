@@ -1254,7 +1254,7 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
         l = await db.erp_leads.find_one({"id": lead_id}, {"_id": 0})
         if not l:
             raise HTTPException(404, "Lead not found")
-        if user["role"] != "super_admin" and l.get("branch_id") != user.get("branch_id"):
+        if user["role"] not in {"super_admin", "admin"} and l.get("branch_id") not in {"all", user.get("branch_id")}:
             raise HTTPException(403, "Cross-branch denied")
         await db.erp_leads.delete_one({"id": lead_id})
         await audit(user, "delete", "lead", lead_id, l.get("branch_id"), {"student_name": l.get("name")})
@@ -1268,7 +1268,7 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
             raise HTTPException(403, "Not allowed")
         lead = await db.erp_leads.find_one({"id": lead_id}, {"_id": 0})
         if not lead: raise HTTPException(404, "Lead not found")
-        if user["role"] != "super_admin" and lead.get("branch_id") != user.get("branch_id"):
+        if user["role"] not in {"super_admin", "admin"} and lead.get("branch_id") not in {"all", user.get("branch_id")}:
             raise HTTPException(403, "Cross-branch denied")
         interaction = {
             "id": new_id(), "type": payload.type, "notes": payload.notes,

@@ -22,7 +22,7 @@ export default function LeadTransferModal({ lead, branches, onClose }) {
       queryClient.invalidateQueries(["erpLeads"]);
       onClose();
     },
-    onError: () => toast.error("Failed to transfer lead")
+    onError: (err) => toast.error(err?.response?.data?.detail || "Failed to transfer lead")
   });
 
   return (

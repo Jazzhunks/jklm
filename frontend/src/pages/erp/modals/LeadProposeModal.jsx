@@ -14,7 +14,7 @@ export default function LeadProposeModal({ lead, onClose }) {
       queryClient.invalidateQueries(["erpLeads"]);
       onClose();
     },
-    onError: () => toast.error("Failed to propose fee")
+    onError: (err) => toast.error(err?.response?.data?.detail || "Failed to propose fee")
   });
 
   return (

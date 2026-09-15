@@ -38,7 +38,7 @@ export default function LeadActivityDrawer({ lead, onClose }) {
       setNotes("");
       toast.success("Activity logged successfully");
     },
-    onError: (err) => toast.error("Failed to log activity")
+    onError: (err) => { console.error("Lead Error:", err); toast.error(err?.response?.data?.detail || err?.message || "Failed to log activity"); }
   });
 
   const handleSave = () => {

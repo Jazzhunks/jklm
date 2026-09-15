@@ -10,13 +10,13 @@ export default function LeadReviewModal({ lead, onClose }) {
   const approve = useMutation({
     mutationFn: () => erp.approveLead(lead.id, { notes }),
     onSuccess: () => { toast.success("Fee approved. Handed off to accounts."); queryClient.invalidateQueries(["erpLeads"]); onClose(); },
-    onError: () => toast.error("Failed to approve")
+    onError: (err) => toast.error("Failed to approve")
   });
 
   const reject = useMutation({
     mutationFn: () => erp.rejectLead(lead.id, { notes }),
     onSuccess: () => { toast.success("Fee rejected. Returned to counselor."); queryClient.invalidateQueries(["erpLeads"]); onClose(); },
-    onError: () => toast.error("Failed to reject")
+    onError: (err) => toast.error("Failed to reject")
   });
 
   return (
