@@ -8,7 +8,7 @@ import LeadReviewModal from "@/pages/erp/modals/LeadReviewModal";
 import LeadEnrollModal from "@/pages/erp/modals/LeadEnrollModal";
 import LeadTransferModal from "@/pages/erp/modals/LeadTransferModal";
 import { Replace } from "lucide-react";
-import { isFinance } from "@/lib/erpApi";
+import { isFinance, STUDENT_CLASSES } from "@/lib/erpApi";
 import { erp, isSuper, isManagerPlus, fmtDate, extractItems, extractTotal } from "@/lib/erpApi";
 import { formatError, api } from "@/lib/api";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip as RechartsTooltip, Legend } from "recharts";

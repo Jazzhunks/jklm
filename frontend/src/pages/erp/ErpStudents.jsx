@@ -2,7 +2,7 @@ import { useState, useMemo, useEffect } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useOutletContext, Link, useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
-import { erp, isSuper, isManagerPlus, canManageStudents, fmtINR, fmtDate, extractItems, extractTotal } from "@/lib/erpApi";
+import { erp, isSuper, isManagerPlus, canManageStudents, fmtINR, fmtDate, extractItems, extractTotal, STUDENT_CLASSES, STUDENT_COURSES } from "@/lib/erpApi";
 import { api, formatError, API_BASE } from "@/lib/api";
 import { 
   Search, Plus, Download, X, GraduationCap, Users, User, 
