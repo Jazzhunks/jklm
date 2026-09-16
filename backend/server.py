@@ -851,18 +851,19 @@ async def verify_otp(payload: VerifyOtpIn, response: Response):
         raise HTTPException(400, "OTP has expired")
         
     if payload.action == "login":
-        user = await db.users.find_one({"phone": phone})
-        if not user: raise HTTPException(404, "User not found")
-        # Clean OTP
-        await db.otps.delete_one({"_id": record["_id"]})
-        # Generate tokens
-        role = user.get("role", "student")
-        access = create_access_token(user["id"], user.get("email", ""), role)
-        refresh = create_refresh_token(user["id"], role)
-        refresh_ttl = 2592000 if role == "admin" else 604800
-        set_auth_cookies(response, access, refresh, refresh_max_age=refresh_ttl)
-        doc = dict(user); doc.pop("_id", None); doc.pop("password_hash", None)
-        return {"user": doc, "access_token": access, "refresh_token": refresh}
+        try:
+            user = await db.users.find_one({"phone": phone})
+            if not user: raise HTTPException(404, "User not found")
+            await db.otps.delete_one({"_id": record["_id"]})
+            role = user.get("role", "student")
+            access = create_access_token(user["id"], user.get("email", ""), role)
+            refresh = create_refresh_token(user["id"], role)
+            refresh_ttl = 2592000 if role == "admin" else 604800
+            set_auth_cookies(response, access, refresh, refresh_max_age=refresh_ttl)
+            doc = dict(user); doc.pop("_id", None); doc.pop("password_hash", None)
+            return {"user": doc, "access_token": access, "refresh_token": refresh}
+        except Exception as e:
+            raise HTTPException(500, f"Login processing failed: {repr(e)}")
         
     elif payload.action == "register":
         # Just return ok, meaning frontend can proceed with creating account
