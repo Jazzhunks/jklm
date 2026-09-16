@@ -55,7 +55,7 @@ export default function ReceiptModal({ payment, student, onClose }) {
   };
 
   const handleShareWhatsApp = () => {
-    const text = `*NORTHEND EDUCATIONAL WORLD*\nOfficial Payment Receipt\n\nReceipt No: ${receiptNo}\nStudent ID: ${studentNo}\nStudent Name: ${studentName}\nCourse: ${finalCourseTitle}\nAmount Paid: ₹${amount.toLocaleString("en-IN")}\nDate: ${paidAt}\nPayment Mode: ${mode}\nNext Term Due: ${nextDueDate}\n\nDownload Digital Tax Receipt:\n${window.location.origin}/rec%2F${encodeURIComponent(receiptNo)}`;
+    const text = `*UNACADEMY*\nOfficial Payment Receipt\n\nReceipt No: ${receiptNo}\nStudent ID: ${studentNo}\nStudent Name: ${studentName}\nCourse: ${finalCourseTitle}\nAmount Paid: ₹${amount.toLocaleString("en-IN")}\nDate: ${paidAt}\nPayment Mode: ${mode}\nNext Term Due: ${nextDueDate}\n\nDownload Digital Tax Receipt:\n${window.location.origin}/rec%2F${encodeURIComponent(receiptNo)}`;
     const cleanPhone = phone.replace(/[^0-9]/g, "");
     const target = cleanPhone.length === 10 ? `91${cleanPhone}` : cleanPhone;
     window.open(`https://wa.me/${target}?text=${encodeURIComponent(text)}`, "_blank");
@@ -210,9 +210,9 @@ export default function ReceiptModal({ payment, student, onClose }) {
               <div className="space-y-6 text-slate-900 font-sans text-sm">
                 <div className="flex justify-between items-start border-b border-slate-200 pb-5">
                   <div>
-                    <h1 className="font-bold text-xl tracking-tight text-slate-900">NORTHEND EDUCATIONAL WORLD</h1>
+                    <h1 className="font-bold text-xl tracking-tight text-slate-900">UNACADEMY</h1>
                     <p className="text-xs text-slate-600 mt-1">Head Office: I.G Road Parraypora, Srinagar - 190005</p>
-                    <p className="text-xs text-slate-600">info@northendedu.com | www.northendedu.com</p>
+                    <p className="text-xs text-slate-600">info@unacademy.com | www.unacademy.com</p>
                     <p className="text-xs font-bold text-slate-800 mt-1">GSTIN: 01AAZFN0892N1ZL</p>
                   </div>
                   <div className="text-right">
@@ -270,7 +270,7 @@ export default function ReceiptModal({ payment, student, onClose }) {
                     <div>
                       <div className="font-bold text-slate-800 uppercase text-[10px] tracking-wider">Official Bank Settlement</div>
                       <div className="text-slate-600 text-[11px] mt-0.5 font-mono">
-                        Northend Educational World<br />
+                        Unacademy<br />
                         A/C: 0361010100002781 | IFSC: JAKA0RAWWAL
                       </div>
                     </div>
@@ -307,10 +307,10 @@ export default function ReceiptModal({ payment, student, onClose }) {
               /* THERMAL 80MM / 58MM POS RECEIPT PREVIEW */
               <div className="space-y-2.5 text-slate-900 leading-tight">
                 <div className="text-center pb-2 border-b border-dashed border-slate-400">
-                  <div className="font-bold text-sm tracking-tight">NORTHEND EDUCATIONAL WORLD</div>
+                  <div className="font-bold text-sm tracking-tight">UNACADEMY</div>
                   <div className="text-[10px] text-slate-600">Unacademy Kashmir</div>
                   <div className="text-[10px] text-slate-600">Head Office: I.G Road Parraypora, Srinagar - 190005</div>
-                  <div className="text-[10px] text-slate-600">info@northendedu.com | www.northendedu.com</div>
+                  <div className="text-[10px] text-slate-600">info@unacademy.com | www.unacademy.com</div>
                   <div className="text-[10px] font-bold text-slate-800">GSTIN: 01AAZFN0892N1ZL</div>
                   <div className="text-[10px] font-bold tracking-widest mt-1 uppercase text-slate-700">** FEE RECEIPT **</div>
                 </div>
@@ -379,7 +379,7 @@ export default function ReceiptModal({ payment, student, onClose }) {
                 </div>
 
                 <div className="text-center pt-1 text-[9px] text-slate-600 space-y-0.5">
-                  <div className="font-bold text-slate-800">Thank you for studying at Northend!</div>
+                  <div className="font-bold text-slate-800">Thank you for studying at Unacademy!</div>
                   <div>Fees once deposited are non-refundable.</div>
                   <div>Computer generated thermal receipt.</div>
                   <div>No physical signature required.</div>
@@ -393,7 +393,7 @@ export default function ReceiptModal({ payment, student, onClose }) {
         <div className="px-6 py-3 border-t border-border bg-muted/20 flex items-center justify-between shrink-0">
           <div className="text-xs text-muted-foreground flex items-center gap-1.5">
             <CheckCircle2 size={13} className="text-emerald-500" />
-            <span>Digital fiscal authorization valid across all Northend branch hubs.</span>
+            <span>Digital fiscal authorization valid across all Unacademy branch hubs.</span>
           </div>
 
           <div className="flex gap-2">

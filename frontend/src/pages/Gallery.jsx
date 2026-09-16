@@ -41,14 +41,14 @@ export default function Gallery() {
   return (
     <>
       <Helmet>
-        <title>Gallery | Northend Educational World</title>
-        <link rel="canonical" href="https://northendedu.com/gallery" />
+        <title>Gallery | Unacademy</title>
+        <link rel="canonical" href="https://unacademyedu.com/gallery" />
       </Helmet>
 
       <div data-testid="gallery-page">
         <PageHero
           eyebrow="Moments"
-          title="Life at Northend"
+          title="Life at Unacademy"
           accent="in frames."
           subtitle="Campus, classrooms, events, and student milestones — captured live from our centres across Kashmir."
         />

@@ -57,14 +57,14 @@ export default function Home() {
   return (
     <>
       <Helmet>
-        <link rel="canonical" href="https://northendedu.com" />
+        <link rel="canonical" href="https://unacademyedu.com" />
         <script type="application/ld+json">
           {JSON.stringify({
             "@context": "https://schema.org",
             "@type": "EducationalOrganization",
-            "name": "Northend Educational World",
-            "url": "https://northendedu.com",
-            "logo": "https://northendedu.com/logo192.png",
+            "name": "Unacademy",
+            "url": "https://unacademyedu.com",
+            "logo": "https://unacademyedu.com/logo192.png",
             "description": "Premium academic coaching and competitive exam preparation platform for students across Kashmir.",
             "sameAs": [
               "https://www.facebook.com/unacademykashmiroffline",
@@ -470,7 +470,7 @@ export default function Home() {
                       Up to <span className="font-medium italic text-accent">100% off</span><br/>on tuition fees.
                     </h2>
                     <p className="mt-5 text-sm sm:text-base text-muted-foreground max-w-md leading-relaxed">
-                      Sit the Northend Scholarship Test 2026 and unlock partial to full waivers across all programmes.
+                      Sit the Unacademy Scholarship Test 2026 and unlock partial to full waivers across all programmes.
                     </p>
                     <div className="mt-8 flex flex-col sm:flex-row gap-3">
                       <Link to="/scholarship" className="w-full sm:w-auto"><CTAPrimary data-testid="scholarship-cta-btn" className="w-full sm:w-auto justify-center">Apply now</CTAPrimary></Link>
@@ -555,7 +555,7 @@ export default function Home() {
                 Your AIR is <span className="font-medium italic text-accent">closer</span> than you think.
               </h2>
               <p className="mt-6 text-base sm:text-lg text-muted-foreground max-w-xl mx-auto">
-                Walk into your nearest Northend centre, or enrol online in 90 seconds.
+                Walk into your nearest Unacademy centre, or enrol online in 90 seconds.
               </p>
               <div className="mt-10 flex justify-center gap-3 flex-wrap">
                 <Link to="/enroll" className="w-full sm:w-auto"><CTAPrimary data-testid="final-enroll-btn" className="w-full sm:w-auto justify-center">Start my journey</CTAPrimary></Link>

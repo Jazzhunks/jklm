@@ -198,7 +198,7 @@ function Footer() {
           <ul className="space-y-2.5 text-xs text-foreground/90 mb-5">
             <li className="flex items-start gap-2"><MapPinSimple weight="duotone" size={16} className="text-primary shrink-0"/> I G Road, Parray Pora, Srinagar, J&amp;K 190005</li>
             <li className="flex items-center gap-2"><Phone weight="duotone" size={16} className="text-primary shrink-0"/> +91-8766238623</li>
-            <li className="flex items-center gap-2"><EnvelopeSimple weight="duotone" size={16} className="text-primary shrink-0"/> info@northendedu.com</li>
+            <li className="flex items-center gap-2"><EnvelopeSimple weight="duotone" size={16} className="text-primary shrink-0"/> info@unacademyedu.com</li>
           </ul>
           
           <div className="flex items-center gap-3">
@@ -215,7 +215,7 @@ function Footer() {
         </div>
       </div>
       <div className="border-t border-border py-4 px-4 text-center text-[11px] text-foreground/70">
-        © {new Date().getFullYear()} Northend Educational World · Authorised Unacademy Franchise · Kashmir
+        © {new Date().getFullYear()} Unacademy · Authorised Unacademy Franchise · Kashmir
       </div>
     </footer>
   );
@@ -224,7 +224,7 @@ function Footer() {
 function WhatsAppFab() {
   return (
     <motion.a
-      href="https://wa.me/917006149481?text=Hi%20Northend%2C%20I%20want%20to%20know%20about%20your%20courses"
+      href="https://wa.me/917006149481?text=Hi%20Unacademy%2C%20I%20want%20to%20know%20about%20your%20courses"
       target="_blank" rel="noreferrer"
       data-testid="floating-whatsapp"
       initial={{ scale: 0, opacity: 0 }}
@@ -241,7 +241,7 @@ function WhatsAppFab() {
 export default function Layout() {
   const loc = useLocation();
   const isAdminPath = loc.pathname.startsWith("/admin") || loc.pathname.startsWith("/erp");
-  const canonicalUrl = `https://northendedu.com${loc.pathname === "/" ? "" : loc.pathname}`;
+  const canonicalUrl = `https://unacademyedu.com${loc.pathname === "/" ? "" : loc.pathname}`;
 
   if (isAdminPath) {
     return (

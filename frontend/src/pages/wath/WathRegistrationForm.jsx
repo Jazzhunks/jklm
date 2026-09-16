@@ -511,7 +511,7 @@ export default function WathRegistrationForm({ campaign, carnival, mode, loading
     <>
       <Helmet>
         <title>WATH | Wisdom Aptitude Talent Hunt</title>
-        <link rel="canonical" href="https://northendedu.com/wath" />
+        <link rel="canonical" href="https://unacademyedu.com/wath" />
       </Helmet>
 
       <section className="relative min-h-screen flex items-center overflow-hidden">

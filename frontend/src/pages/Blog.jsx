@@ -21,14 +21,14 @@ export default function Blog() {
   return (
     <>
       <Helmet>
-        <title>Blog | Northend Educational World</title>
-        <link rel="canonical" href="https://northendedu.com/blog" />
+        <title>Blog | Unacademy</title>
+        <link rel="canonical" href="https://unacademyedu.com/blog" />
       </Helmet>
 
       <div data-testid="blog-page">
         <PageHero
           eyebrow="Insights"
-          title="The Northend Blog"
+          title="The Unacademy Blog"
           accent="stories & guides."
           subtitle="Exam strategies, student success stories, coaching tips, and updates from our Kashmir centres."
         />

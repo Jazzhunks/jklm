@@ -141,8 +141,8 @@ export default function Login() {
   return (
     <>
       <Helmet>
-        <title>Sign In | Northend Educational World</title>
-        <link rel="canonical" href="https://northendedu.com/login" />
+        <title>Sign In | Unacademy</title>
+        <link rel="canonical" href="https://unacademyedu.com/login" />
       </Helmet>
 
       <div className="min-h-[calc(100vh-64px)] grid lg:grid-cols-12 relative overflow-hidden bg-background" data-testid="login-page">

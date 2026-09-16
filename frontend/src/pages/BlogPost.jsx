@@ -45,10 +45,10 @@ export default function BlogPost() {
   return (
     <>
       <Helmet>
-        <title>{`${post.meta_title || post.title || "Untitled Post"} | Northend Blog`}</title>
+        <title>{`${post.meta_title || post.title || "Untitled Post"} | Unacademy Blog`}</title>
         <meta name="description" content={post.meta_description || post.excerpt || ""} />
         {post.og_image_url ? <meta property="og:image" content={post.og_image_url} /> : null}
-        <link rel="canonical" href={`https://northendedu.com/blog/${post.slug}`} />
+        <link rel="canonical" href={`https://unacademyedu.com/blog/${post.slug}`} />
       </Helmet>
 
       <div data-testid="blog-post-page">

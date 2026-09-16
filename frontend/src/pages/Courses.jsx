@@ -55,17 +55,17 @@ export default function Courses() {
   return (
     <>
       <Helmet>
-        <title>Academic Programmes | Northend Educational World</title>
-        <link rel="canonical" href="https://northendedu.com/courses" />
+        <title>Academic Programmes | Unacademy</title>
+        <link rel="canonical" href="https://unacademyedu.com/courses" />
         <link rel="alternate" href="https://nexed-neet.preview.emergentagent.com/courses" />
         
         <script type="application/ld+json">
           {JSON.stringify({
             "@context": "https://schema.org",
             "@type": "ItemList",
-            "name": "Northend Coaching Catalog",
+            "name": "Unacademy Coaching Catalog",
             "description": "NEET, IIT-JEE, Foundation, CBSE, and JKBOSE integrated regular coaching batches across Kashmir.",
-            "url": "https://northendedu.com/courses",
+            "url": "https://unacademyedu.com/courses",
             "numberOfItems": schemaSourceData.length,
             "itemListElement": schemaSourceData.map((c, idx) => ({
               "@type": "ListItem",
@@ -76,8 +76,8 @@ export default function Courses() {
                 "description": c.description || "Premium competitive academic coaching curriculum.",
                 "provider": {
                   "@type": "EducationalOrganization",
-                  "name": "Northend Educational World",
-                  "sameAs": "https://northendedu.com"
+                  "name": "Unacademy",
+                  "sameAs": "https://unacademyedu.com"
                 }
               }
             }))
