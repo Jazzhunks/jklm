@@ -791,6 +791,17 @@ async def register(payload: RegisterIn, response: Response, background: Backgrou
 import random
 from datetime import timedelta
 
+
+@api.post("/auth/test-whatsapp")
+async def test_whatsapp(payload: dict):
+    phone_id = os.environ.get("WHATSAPP_PHONE_NUMBER_ID")
+    access_token = os.environ.get("WHATSAPP_ACCESS_TOKEN")
+    async with httpx.AsyncClient() as client:
+        msg_url = f"https://graph.facebook.com/v18.0/{phone_id}/messages"
+        headers = {"Authorization": f"Bearer {access_token}"}
+        res = await client.post(msg_url, json=payload, headers=headers)
+        return {"status": res.status_code, "text": res.text}
+
 @api.post("/auth/send-otp")
 async def send_otp(payload: SendOtpIn):
     phone = payload.phone.strip()
