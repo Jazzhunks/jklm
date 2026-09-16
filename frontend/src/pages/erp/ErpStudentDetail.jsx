@@ -505,7 +505,7 @@ export default function ErpStudentDetail() {
           studentId={s.id}
           pending={stmt.pending}
           onClose={() => setShowPay(false)}
-          onCreated={(newPayment) => { setShowPay(false); reload(); toast.success("Payment recorded successfully."); setViewingReceipt(newPayment); }}
+          onCreated={(newPayment) => { setShowPay(false); reload(); toast.success("Payment recorded successfully."); setSelectedReceipt(newPayment); }}
         />
       )}
       {showEditProfile && (

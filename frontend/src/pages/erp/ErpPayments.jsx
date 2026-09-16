@@ -621,7 +621,7 @@ export default function ErpPayments() {
       {showCreate && (
         <CreatePaymentModal 
           onClose={() => { setShowCreate(false); setSearchParams({}); }} 
-          onSuccess={() => { setShowCreate(false); setSearchParams({}); reload(); }} 
+          onSuccess={(p) => { setShowCreate(false); setSearchParams({}); reload(); setSelectedReceipt(p); }} 
           defaultBranchId={branchId || erpUser.branch_id}
           branches={branches}
         />
