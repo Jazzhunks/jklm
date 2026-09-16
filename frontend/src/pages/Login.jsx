@@ -79,7 +79,12 @@ export default function Login() {
     try {
       setBusy(true);
       setInlineError("");
-      await api.post("/auth/send-otp", { phone, action });
+      const trimmed = identifier.trim();
+      const payload = isValidMobile(trimmed)
+        ? { phone: trimmed, action }
+        : { email: trimmed, action };
+      const res = await api.post("/auth/send-otp", payload);
+      setPhone(res.data?.phone || trimmed);
       setOtpSent(true);
       setResendTimer(60);
       toast.success("OTP sent to your WhatsApp!");
@@ -333,7 +338,7 @@ export default function Login() {
               )}
 
               {authMode === "otp" && !otpSent && (
-                <form onSubmit={(e) => { e.preventDefault(); setPhone(identifier.trim()); handleSendOtp("login"); }} className="space-y-4">
+                <form onSubmit={(e) => { e.preventDefault(); handleSendOtp("login"); }} className="space-y-4">
                   <div className="mb-4">
                     <h3 className="text-sm font-bold">Login with WhatsApp</h3>
                     <p className="text-xs text-muted-foreground mt-1">Enter your registered mobile number to receive a 6-digit OTP via WhatsApp.</p>
@@ -373,7 +378,7 @@ export default function Login() {
               )}
 
               {authMode === "forgot" && !otpSent && (
-                <form onSubmit={(e) => { e.preventDefault(); setPhone(identifier.trim()); handleSendOtp("forgot"); }} className="space-y-4">
+                <form onSubmit={(e) => { e.preventDefault(); handleSendOtp("forgot"); }} className="space-y-4">
                   <div className="mb-4">
                     <h3 className="text-sm font-bold">Reset Password</h3>
                     <p className="text-xs text-muted-foreground mt-1">Enter your registered mobile number to receive a 6-digit OTP via WhatsApp.</p>

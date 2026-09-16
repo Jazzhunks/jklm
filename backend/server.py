@@ -490,7 +490,8 @@ class RegisterIn(BaseModel):
 
 
 class SendOtpIn(BaseModel):
-    phone: str
+    phone: Optional[str] = None
+    email: Optional[str] = None
     action: str = "login" # "login", "register", "forgot"
 
 class VerifyOtpIn(BaseModel):
@@ -821,15 +822,29 @@ async def ping():
 
 @api.post("/auth/send-otp")
 async def send_otp(payload: SendOtpIn):
-    phone = payload.phone.strip()
-    if not re.fullmatch(r"\d{10}", phone):
-        raise HTTPException(400, "Mobile number must be exactly 10 digits")
+    phone = payload.phone.strip() if payload.phone else None
+    email = payload.email.strip().lower() if payload.email else None
+
+    if phone:
+        if not re.fullmatch(r"\d{10}", phone):
+            raise HTTPException(400, "Mobile number must be exactly 10 digits")
+    elif email:
+        user = await db.users.find_one({"email": email})
+        if not user:
+            raise HTTPException(404, "No account found with this email")
+        phone = user.get("phone", "")
+        if not phone or not re.fullmatch(r"\d{10}", str(phone).strip()):
+            raise HTTPException(400, "No mobile number registered with this account")
+        phone = str(phone).strip()
+    else:
+        raise HTTPException(400, "Provide either mobile number or email")
+
     user = await db.users.find_one({"phone": phone})
     if payload.action in ("login", "forgot") and not user:
         raise HTTPException(404, "Phone number not registered")
     if payload.action in ("register", "update_phone") and user:
         raise HTTPException(400, "Phone number already registered to another account")
-        
+    
     existing = await db.otps.find_one({"phone": phone, "action": payload.action})
     if existing and existing["expires_at"] > datetime.utcnow():
         code = existing["code"]
@@ -846,7 +861,7 @@ async def send_otp(payload: SendOtpIn):
     success, err_msg = await send_whatsapp_otp(phone, code)
     if not success:
         raise HTTPException(500, f"WhatsApp Delivery Failed: {err_msg}")
-    return {"ok": True, "message": "OTP sent via WhatsApp"}
+    return {"ok": True, "message": "OTP sent via WhatsApp", "phone": phone}
 
 @api.post("/auth/verify-otp")
 async def verify_otp(payload: VerifyOtpIn, response: Response):
