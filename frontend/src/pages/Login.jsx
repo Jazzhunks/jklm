@@ -93,34 +93,46 @@ export default function Login() {
     }
   };
 
-  const handleVerifyOtp = async (e) => {
-    e.preventDefault();
-    try {
-      setBusy(true);
-      setInlineError("");
+  const handleVerifyOtp = () => {
+    const code = (otpCode || "").trim();
+    if (!code || code.length !== 6) {
+      setInlineError("Enter the 6-digit OTP code.");
+      return;
+    }
+    if (!isValidMobile(phone)) {
+      setIdentifierError("Enter a valid 10-digit mobile number.");
+      return;
+    }
 
-      if (authMode === "forgot") {
-        if (!password || password.length < 8) {
-          setInlineError("Enter a new password with at least 8 characters.");
+    (async () => {
+      try {
+        setBusy(true);
+        setInlineError("");
+
+        if (authMode === "forgot") {
+          if (!password || password.length < 8) {
+            setInlineError("Enter a new password with at least 8 characters.");
+            return;
+          }
+          await api.post("/auth/reset-password", { phone, code, new_password: password });
+          toast.success("Password reset successfully! You can now log in.");
+          setAuthMode("password");
+          setOtpSent(false);
+          setOtpCode("");
+          setPassword("");
           return;
         }
-        await api.post("/auth/reset-password", { phone, code: otpCode, new_password: password });
-        toast.success("Password reset successfully! You can now log in.");
-        setAuthMode("password");
-        setOtpSent(false);
-        setOtpCode("");
-        setPassword("");
-      } else {
-        const user = await otpLogin(phone, otpCode);
+
+        const user = await otpLogin(phone, code);
         toast.success(`Welcome back, ${user.name}!`);
         const target = searchParams.get("redirect") || "/erp";
         nav(ALLOWED_REDIRECTS.has(target) ? target : "/erp");
+      } catch (err) {
+        setInlineError(formatError(err));
+      } finally {
+        setBusy(false);
       }
-    } catch (err) {
-      setInlineError(formatError(err));
-    } finally {
-      setBusy(false);
-    }
+    })();
   };
 
   const submit = async (e) => {
@@ -433,9 +445,9 @@ export default function Login() {
                   )}
                   <div className="pt-3 flex gap-2">
                     <button type="button" onClick={() => { setOtpSent(false); setOtpCode(""); }} className="flex-1 py-3.5 rounded-xl border border-border text-sm font-bold">Change Number</button>
-                    <CTAPrimary type="submit" className="flex-1 justify-center py-4 text-sm font-medium" disabled={busy || otpCode.length !== 6}>
+                    <button type="submit" className="flex-1 justify-center py-4 text-sm font-medium" disabled={busy || otpCode.length !== 6}>
                       {busy ? "Verifying…" : authMode === "forgot" ? "Reset Password" : "Verify & Login"}
-                    </CTAPrimary>
+                    </button>
                   </div>
                   <div className="pt-2 text-center">
                     <button
