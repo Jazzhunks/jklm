@@ -505,7 +505,7 @@ export default function ErpStudentDetail() {
           studentId={s.id}
           pending={stmt.pending}
           onClose={() => setShowPay(false)}
-          onCreated={() => { setShowPay(false); reload(); toast.success("Payment recorded successfully."); }}
+          onCreated={(newPayment) => { setShowPay(false); reload(); toast.success("Payment recorded successfully."); setViewingReceipt(newPayment); }}
         />
       )}
       {showEditProfile && (
@@ -890,7 +890,7 @@ function RecordPaymentModal({ studentId, pending, onClose, onCreated }) {
 
     setBusy(true);
     try {
-      await erp.createPayment({
+      const p = await erp.createPayment({
         student_id: studentId,
         amount: entryAmount,
         mode: form.mode,
@@ -899,7 +899,7 @@ function RecordPaymentModal({ studentId, pending, onClose, onCreated }) {
         notes: form.notes || null,
         transaction_ref: form.transaction_ref || undefined,
       });
-      onCreated();
+      onCreated(p);
     } catch (err) {
       toast.error(formatError(err.response?.data?.detail) || "Failed to finalize cash token allocation mapping");
     } finally { setBusy(false); }

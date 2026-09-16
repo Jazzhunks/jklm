@@ -5,7 +5,9 @@ import { Printer, Download, Share2, X, FileText, CheckCircle2, Copy } from "luci
 import { toast } from "sonner";
 
 export default function ReceiptModal({ payment, student, onClose }) {
-  const [format, setFormat] = useState("thermal-80"); // "a4" | "thermal-80" | "thermal-58"
+    const savedSize = localStorage.getItem("receipt_print_size");
+  const defaultFormat = savedSize === "A4" ? "a4" : savedSize === "58mm" ? "thermal-58" : "thermal-80";
+  const [format, setFormat] = useState(defaultFormat); // "a4" | "thermal-80" | "thermal-58" 
   const printRef = useRef(null);
 
   if (!payment) return null;

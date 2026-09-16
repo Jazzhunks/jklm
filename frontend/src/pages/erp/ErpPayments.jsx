@@ -761,7 +761,7 @@ function CreatePaymentModal({ onClose, onSuccess, defaultBranchId, branches }) {
 
     setSubmitting(true);
     try {
-      await erp.createPayment({
+      const p = await erp.createPayment({
         student_id: selectedStudent.id,
         amount: parseFloat(amount),
         mode,
@@ -771,7 +771,7 @@ function CreatePaymentModal({ onClose, onSuccess, defaultBranchId, branches }) {
         apply_gst: applyGst,
       });
       toast.success(`Fee receipt generated successfully for ${selectedStudent.full_name}`);
-      onSuccess();
+      onSuccess(p);
     } catch (err) {
       toast.error(formatError(err) || "Failed to record payment");
     } finally {

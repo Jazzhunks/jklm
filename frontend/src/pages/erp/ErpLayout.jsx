@@ -6,7 +6,7 @@ import ErpCommandPalette from "./ErpCommandPalette";
 import {
   LayoutDashboard, Users, Receipt, Wallet, UserPlus, Building2,
   ScrollText, LogOut, Menu, X, GraduationCap, Contact2, QrCode, MessageSquare,
-  Search, ChevronRight, Clock, Plus, Shield
+  Search, UserCog, ChevronRight, Clock, Plus, Shield
 } from "lucide-react";
 
 const NAV = [
@@ -30,6 +30,7 @@ export default function ErpLayout() {
   const [erpUser, setErpUser] = useState(null);
   const [open, setOpen] = useState(false);
   const [paletteOpen, setPaletteOpen] = useState(false);
+  const [profileModalOpen, setProfileModalOpen] = useState(false);
   const [err, setErr] = useState(null);
   const [branches, setBranches] = useState([]);
   const [selectedBranchId, setSelectedBranchId] = useState("");
@@ -232,6 +233,12 @@ export default function ErpLayout() {
             <kbd className="text-[10px] font-mono bg-muted px-1.5 py-0.5 rounded border border-border">⌘K</kbd>
           </button>
           <button 
+            onClick={() => { setProfileModalOpen(true); setOpen(false); }}
+            className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold text-muted-foreground hover:text-primary hover:bg-primary/10 transition duration-150"
+          >
+            <UserCog size={16} className="shrink-0"/> <span>Profile & Settings</span>
+          </button>
+          <button 
             onClick={async () => { await logout(); nav("/login"); }}
             data-testid="erp-logout-btn"
             className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold text-muted-foreground hover:text-rose-600 hover:bg-rose-500/10 transition duration-150"
@@ -269,7 +276,7 @@ export default function ErpLayout() {
             </nav>
           </div>
 
-          {/* Right: Branch Context Selector, Global Search, Live Clock, and Quick Actions */}
+          {/* Right: Branch Context Selector, Global Search, UserCog, Live Clock, and Quick Actions */}
           <div className="flex items-center gap-2 sm:gap-3 shrink-0">
             {/* Super Admin Global Branch Context Switcher */}
             {isSuper(erpUser) && branches.length > 0 && (
@@ -323,6 +330,7 @@ export default function ErpLayout() {
         {/* Dynamic Route Container */}
         <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 max-w-7xl w-full mx-auto relative custom-scrollbar print:p-0 print:h-auto print:overflow-visible">
           <Outlet context={{ erpUser, selectedBranchId, setSelectedBranchId, openCommandPalette: () => setPaletteOpen(true) }} />
+          {profileModalOpen && <ProfileModal onClose={() => setProfileModalOpen(false)} />}
         </main>
       </div>
     </div>
