@@ -300,126 +300,145 @@ export default function Login() {
                 <button type="button" onClick={() => { setAuthMode("otp"); setInlineError(""); setIdentifierError(""); setOtpSent(false); setOtpCode(""); }} className={`flex-1 text-xs font-bold py-2 rounded-lg transition ${authMode === "otp" ? "bg-background shadow text-foreground" : "text-muted-foreground hover:text-foreground"}`}>WhatsApp OTP</button>
               </div>
 
-              {authMode === "password" && (
-                <form onSubmit={submit} className="space-y-4">
-                  <div className="space-y-1.5">
-                    <label className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground font-bold ml-1">Email Address or Mobile</label>
-                    <div className="relative">
-                      <EnvelopeSimple weight="duotone" size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground"/>
-                      <input
-                        className={inputCls}
-                        type="text"
-                        placeholder="name@example.com or 10-digit mobile"
-                        value={identifier}
-                        onChange={e => setIdentifier(e.target.value.replace(/[^0-9a-zA-Z@._-]/g, ""))}
-                        required
-                        autoComplete="email"
-                      />
-                    </div>
-                    {identifierError && <p className="text-xs text-destructive ml-1">{identifierError}</p>}
+              <form onSubmit={submit} className="space-y-4">
+                <div className="space-y-1.5">
+                  <label className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground font-bold ml-1">Email Address or Mobile</label>
+                  <div className="relative">
+                    <EnvelopeSimple weight="duotone" size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground"/>
+                    <input
+                      className={inputCls}
+                      type="text"
+                      placeholder="name@example.com or 10-digit mobile"
+                      value={identifier}
+                      onChange={e => setIdentifier(e.target.value.replace(/[^0-9a-zA-Z@._-]/g, ""))}
+                      required
+                      autoComplete="email"
+                    />
                   </div>
-                  <div className="space-y-1.5">
-                    <div className="flex items-center justify-between ml-1 mr-1">
-                      <label className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground font-bold">Password</label>
-                      <button type="button" onClick={() => setAuthMode("forgot")} className="text-[10px] font-bold text-accent hover:underline">Forgot?</button>
-                    </div>
-                    <div className="relative">
-                      <Lock weight="duotone" size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground"/>
-                      <input className={inputCls} type={showPassword ? "text" : "password"} placeholder="••••••••••••" value={password} onChange={e => setPassword(e.target.value)} required />
-                      <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition" aria-label={showPassword ? "Hide password" : "Show password"}>
-                        {showPassword ? <EyeSlash size={18} weight="duotone" /> : <Eye size={18} weight="duotone" />}
-                      </button>
-                    </div>
-                  </div>
-                  <div className="pt-3">
+                  {identifierError && <p className="text-xs text-destructive ml-1">{identifierError}</p>}
+                </div>
+
+                <AnimatePresence mode="wait">
+                  {authMode === "password" && (
+                    <motion.div
+                      key="password"
+                      initial={{ opacity: 0, y: 8 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -8 }}
+                      transition={{ duration: 0.2 }}
+                      className="space-y-1.5"
+                    >
+                      <div className="flex items-center justify-between ml-1 mr-1">
+                        <label className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground font-bold">Password</label>
+                        <button type="button" onClick={() => setAuthMode("forgot")} className="text-[10px] font-bold text-accent hover:underline">Forgot?</button>
+                      </div>
+                      <div className="relative">
+                        <Lock weight="duotone" size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground"/>
+                        <input className={inputCls} type={showPassword ? "text" : "password"} placeholder="••••••••••••" value={password} onChange={e => setPassword(e.target.value)} required />
+                        <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition" aria-label={showPassword ? "Hide password" : "Show password"}>
+                          {showPassword ? <EyeSlash size={18} weight="duotone" /> : <Eye size={18} weight="duotone" />}
+                        </button>
+                      </div>
+                    </motion.div>
+                  )}
+
+                  {authMode === "otp" && !otpSent && (
+                    <motion.div
+                      key="otp"
+                      initial={{ opacity: 0, y: 8 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -8 }}
+                      transition={{ duration: 0.2 }}
+                      className="space-y-1.5"
+                    >
+                      <label className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground font-bold ml-1">WhatsApp Mobile Number</label>
+                      <div className="relative">
+                        <input
+                          className={inputCls}
+                          type="text"
+                          inputMode="numeric"
+                          placeholder="10-digit mobile number"
+                          value={identifier}
+                          onChange={e => {
+                            const digits = e.target.value.replace(/\D/g, "").slice(0, 10);
+                            setIdentifier(digits);
+                            setIdentifierError(digits.length === 10 ? "" : "");
+                          }}
+                          onBlur={() => {
+                            if (identifier && identifier.length !== 10) {
+                              setIdentifierError("Mobile number must be exactly 10 digits.");
+                            } else {
+                              setIdentifierError("");
+                            }
+                          }}
+                          required
+                          maxLength={10}
+                          aria-invalid={Boolean(identifierError)}
+                        />
+                      </div>
+                      {identifierError && <p className="text-xs text-destructive ml-1">{identifierError}</p>}
+                      <p className="text-[11px] text-muted-foreground">We will send a 6-digit OTP to your WhatsApp.</p>
+                    </motion.div>
+                  )}
+
+                  {authMode === "forgot" && !otpSent && (
+                    <motion.div
+                      key="forgot"
+                      initial={{ opacity: 0, y: 8 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -8 }}
+                      transition={{ duration: 0.2 }}
+                      className="space-y-1.5"
+                    >
+                      <label className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground font-bold ml-1">Registered Mobile Number</label>
+                      <div className="relative">
+                        <input
+                          className={inputCls}
+                          type="text"
+                          inputMode="numeric"
+                          placeholder="10-digit mobile number"
+                          value={identifier}
+                          onChange={e => {
+                            const digits = e.target.value.replace(/\D/g, "").slice(0, 10);
+                            setIdentifier(digits);
+                            setIdentifierError(digits.length === 10 ? "" : "");
+                          }}
+                          onBlur={() => {
+                            if (identifier && identifier.length !== 10) {
+                              setIdentifierError("Mobile number must be exactly 10 digits.");
+                            } else {
+                              setIdentifierError("");
+                            }
+                          }}
+                          required
+                          maxLength={10}
+                          aria-invalid={Boolean(identifierError)}
+                        />
+                      </div>
+                      {identifierError && <p className="text-xs text-destructive ml-1">{identifierError}</p>}
+                      <p className="text-[11px] text-muted-foreground">Enter the mobile number linked to your account.</p>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+
+                <div className="pt-3">
+                  {authMode === "password" && (
                     <CTAPrimary type="submit" className="w-full justify-center py-4 text-sm font-medium" disabled={busy}>{busy ? "Signing in…" : "Sign In"}</CTAPrimary>
-                  </div>
-                </form>
-              )}
-
-              {authMode === "otp" && !otpSent && (
-                <form onSubmit={(e) => { e.preventDefault(); handleSendOtp("login"); }} className="space-y-4">
-                  <div className="mb-4">
-                    <h3 className="text-sm font-bold">Login with WhatsApp</h3>
-                    <p className="text-xs text-muted-foreground mt-1">Enter your registered mobile number to receive a 6-digit OTP via WhatsApp.</p>
-                  </div>
-                  <div className="space-y-1.5">
-                    <label className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground font-bold ml-1">Mobile Number</label>
-                    <div className="relative">
-                      <input
-                        className={inputCls}
-                        type="text"
-                        inputMode="numeric"
-                        placeholder="10-digit mobile number"
-                        value={identifier}
-                        onChange={e => {
-                          const digits = e.target.value.replace(/\D/g, "").slice(0, 10);
-                          setIdentifier(digits);
-                          setIdentifierError(digits.length === 10 ? "" : "");
-                        }}
-                        onBlur={() => {
-                          if (identifier && identifier.length !== 10) {
-                            setIdentifierError("Mobile number must be exactly 10 digits.");
-                          } else {
-                            setIdentifierError("");
-                          }
-                        }}
-                        required
-                        maxLength={10}
-                        aria-invalid={Boolean(identifierError)}
-                      />
-                    </div>
-                    {identifierError && <p className="text-xs text-destructive ml-1">{identifierError}</p>}
-                  </div>
-                  <div className="pt-3">
-                    <CTAPrimary type="submit" className="w-full justify-center py-4 text-sm font-medium" disabled={busy}>{busy ? "Sending…" : "Get OTP"}</CTAPrimary>
-                  </div>
-                </form>
-              )}
-
-              {authMode === "forgot" && !otpSent && (
-                <form onSubmit={(e) => { e.preventDefault(); handleSendOtp("forgot"); }} className="space-y-4">
-                  <div className="mb-4">
-                    <h3 className="text-sm font-bold">Reset Password</h3>
-                    <p className="text-xs text-muted-foreground mt-1">Enter your registered mobile number to receive a 6-digit OTP via WhatsApp.</p>
-                  </div>
-                  <div className="space-y-1.5">
-                    <label className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground font-bold ml-1">Mobile Number</label>
-                    <div className="relative">
-                      <input
-                        className={inputCls}
-                        type="text"
-                        inputMode="numeric"
-                        placeholder="10-digit mobile number"
-                        value={identifier}
-                        onChange={e => {
-                          const digits = e.target.value.replace(/\D/g, "").slice(0, 10);
-                          setIdentifier(digits);
-                          setIdentifierError(digits.length === 10 ? "" : "");
-                        }}
-                        onBlur={() => {
-                          if (identifier && identifier.length !== 10) {
-                            setIdentifierError("Mobile number must be exactly 10 digits.");
-                          } else {
-                            setIdentifierError("");
-                          }
-                        }}
-                        required
-                        maxLength={10}
-                        aria-invalid={Boolean(identifierError)}
-                      />
-                    </div>
-                    {identifierError && <p className="text-xs text-destructive ml-1">{identifierError}</p>}
-                  </div>
-                  <div className="pt-3 flex gap-2">
-                    <button type="button" onClick={() => setAuthMode("password")} className="flex-1 py-3.5 rounded-xl border border-border text-sm font-bold">Back</button>
-                    <CTAPrimary type="submit" className="flex-1 justify-center py-4 text-sm font-medium" disabled={busy}>{busy ? "Sending…" : "Get OTP"}</CTAPrimary>
-                  </div>
-                </form>
-              )}
+                  )}
+                  {(authMode === "otp" || authMode === "forgot") && !otpSent && (
+                    <CTAPrimary type="button" onClick={() => handleSendOtp(authMode === "forgot" ? "forgot" : "login")} className="w-full justify-center py-4 text-sm font-medium" disabled={busy}>{busy ? "Sending…" : "Get OTP"}</CTAPrimary>
+                  )}
+                </div>
+              </form>
 
               {(otpSent && authMode !== "password") && (
-                <form onSubmit={handleVerifyOtp} className="space-y-4">
+                <motion.form
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.2 }}
+                  onSubmit={handleVerifyOtp}
+                  className="mt-4 space-y-4"
+                >
                   <div className="mb-4">
                     <h3 className="text-sm font-bold">Enter OTP</h3>
                     <p className="text-xs text-muted-foreground mt-1">We sent a 6-digit code to {phone || identifier} on WhatsApp.</p>
@@ -450,7 +469,7 @@ export default function Login() {
                       {resendTimer > 0 ? `Resend OTP in ${resendTimer}s` : "Resend OTP"}
                     </button>
                   </div>
-                </form>
+                </motion.form>
               )}
 
               <div className="mt-8 pt-6 border-t border-border/60 text-center">
