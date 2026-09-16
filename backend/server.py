@@ -839,8 +839,12 @@ async def verify_otp(payload: VerifyOtpIn):
     phone = payload.phone.strip()
     record = await db.otps.find_one({"phone": phone, "action": payload.action})
     
-    if not record or record["code"] != payload.code or record["expires_at"] < datetime.utcnow():
-        raise HTTPException(400, "Invalid or expired OTP")
+    if not record:
+        raise HTTPException(400, "OTP not found for this number/action")
+    if record["code"] != payload.code:
+        raise HTTPException(400, f"OTP mismatch (expected {record['code']}, got {payload.code})")
+    if record["expires_at"] < datetime.utcnow():
+        raise HTTPException(400, "OTP has expired")
         
     if payload.action == "login":
         user = await db.users.find_one({"phone": phone})
@@ -866,8 +870,12 @@ async def reset_password(payload: ResetPasswordIn):
     phone = payload.phone.strip()
     record = await db.otps.find_one({"phone": phone, "action": "forgot"})
     
-    if not record or record["code"] != payload.code or record["expires_at"] < datetime.utcnow():
-        raise HTTPException(400, "Invalid or expired OTP")
+    if not record:
+        raise HTTPException(400, "OTP not found for this number/action")
+    if record["code"] != payload.code:
+        raise HTTPException(400, f"OTP mismatch (expected {record['code']}, got {payload.code})")
+    if record["expires_at"] < datetime.utcnow():
+        raise HTTPException(400, "OTP has expired")
         
     user = await db.users.find_one({"phone": phone})
     if not user: raise HTTPException(404, "User not found")
