@@ -117,7 +117,7 @@ export function AuthProvider({ children }) {
 
   return (
     // Provided formatError securely to Context value object mapping
-    <AuthCtx.Provider value={{ user, loading, login, register, logout, refresh, formatError }}>
+    <AuthCtx.Provider value={{ user, loading, login, otpLogin, register, logout, refresh, formatError }}>
       {children}
     </AuthCtx.Provider>
   );

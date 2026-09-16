@@ -33,6 +33,15 @@ export default function Login() {
   const [busy, setBusy] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [inlineError, setInlineError] = useState("");
+  const [resendTimer, setResendTimer] = useState(0);
+
+  useEffect(() => {
+    let interval;
+    if (resendTimer > 0) {
+      interval = setInterval(() => setResendTimer(prev => prev - 1), 1000);
+    }
+    return () => clearInterval(interval);
+  }, [resendTimer]);
   const [authMode, setAuthMode] = useState("password"); // "password", "otp", "forgot"
   const [phone, setPhone] = useState("");
   const [otpSent, setOtpSent] = useState(false);
@@ -67,6 +76,7 @@ export default function Login() {
       setInlineError("");
       await api.post("/auth/send-otp", { phone, action });
       setOtpSent(true);
+      setResendTimer(60);
       toast.success("OTP sent to your WhatsApp!");
     } catch (err) {
       setInlineError(formatError(err));
@@ -329,6 +339,16 @@ export default function Login() {
                     <CTAPrimary type="submit" className="flex-1 justify-center py-4 text-sm font-medium" disabled={busy || otpCode.length !== 6}>
                       {busy ? "Verifying…" : authMode === "forgot" ? "Reset Password" : "Verify & Login"}
                     </CTAPrimary>
+                  </div>
+                  <div className="pt-2 text-center">
+                    <button 
+                      type="button" 
+                      onClick={() => handleSendOtp(authMode === "forgot" ? "forgot" : "login")} 
+                      disabled={resendTimer > 0 || busy} 
+                      className={`text-[11px] font-bold uppercase tracking-wider ${resendTimer > 0 ? "text-muted-foreground" : "text-accent hover:underline"}`}
+                    >
+                      {resendTimer > 0 ? `Resend OTP in ${resendTimer}s` : "Resend OTP"}
+                    </button>
                   </div>
                 </form>
               )}
