@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { X, Save, Printer, User, Key, Building2 } from "lucide-react";
 import { toast } from "sonner";
-import { api, formatError } from "@/lib/api";
+import { api } from "@/lib/api";
 import { useAuth } from "@/contexts/AuthContext";
 
 export default function ProfileModal({ onClose }) {
-  const { user, login } = useAuth(); // login actually updates user context in some implementations, wait, we might just have `checkAuth` or `refresh`
+  const { user, login, formatError } = useAuth(); // login actually updates user context in some implementations, wait, we might just have `checkAuth` or `refresh`
   
   const [form, setForm] = useState({
     name: user?.name || "",
