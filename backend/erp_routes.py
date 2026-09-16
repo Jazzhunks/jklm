@@ -1762,7 +1762,7 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
         # Header Title Block
         ws.merge_cells("A1:M1")
         top_cell = ws["A1"]
-        top_cell.value = "NORTHEND EDUCATIONAL WORLD · MONTHLY GST SETTLEMENT REPORT"
+        top_cell.value = "UNACADEMY · MONTHLY GST SETTLEMENT REPORT"
         top_cell.font = title_font
         top_cell.fill = navy_fill
         top_cell.alignment = Alignment(horizontal="center", vertical="center")
