@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useOutletContext, Link } from "react-router-dom";
-import { erp, isSuper, isFinance, isManagerPlus, fmtINR, fmtDate, extractItems } from "@/lib/erpApi";
+import { erp, isSuper, isFinance, isManagerPlus, fmtINR, fmtDate, extractItems, STUDENT_CLASSES, STUDENT_COURSES } from "@/lib/erpApi";
 import { formatError, api, API_BASE } from "@/lib/api";
 import { toast } from "sonner";
 import { 
@@ -63,7 +63,8 @@ export default function ErpDashboard() {
   const { erpUser, selectedBranchId } = useOutletContext();
   const [data, setData] = useState(null);
   const [err, setErr] = useState(null);
-  const [activeModal, setActiveModal] = useState(null); // 'admission' | 'expense' | 'cashbook' | 'students' | 'outflow' | 'duelist'
+  const [activeModal, setActiveModal] = useState(null);
+  const [showFeeMatrix, setShowFeeMatrix] = useState(false); // 'admission' | 'expense' | 'cashbook' | 'students' | 'outflow' | 'duelist'
 
   const refreshDashboard = () => {
     setData(null); setErr(null);
@@ -121,6 +122,11 @@ export default function ErpDashboard() {
               <Plus size={14} /> <span className="whitespace-nowrap">New Admission</span>
             </button>
           )}
+          {isSuper(erpUser) && (
+            <button onClick={() => setShowFeeMatrix(true)} className="inline-flex items-center gap-1.5 px-3 py-2 sm:px-4 sm:py-2 rounded-full bg-accent/10 hover:bg-accent/20 text-accent text-xs font-bold uppercase tracking-wider transition border border-accent/20 shadow-md whitespace-nowrap">
+              <span className="whitespace-nowrap">Fee Matrix</span>
+            </button>
+          )}
           {canSeeFinance && (
             <button onClick={() => setActiveModal("expense")} className="inline-flex items-center gap-1.5 px-3 py-2 sm:px-4 sm:py-2 rounded-full bg-muted/50 hover:bg-muted/80 text-foreground text-xs font-bold uppercase tracking-wider transition whitespace-nowrap">
               <Wallet size={14} /> <span className="whitespace-nowrap">Add Expense</span>
@@ -150,6 +156,7 @@ export default function ErpDashboard() {
       )}
 
       {/* CONTROL SHEETS PORTALS */}
+      {showFeeMatrix && <FeeMatrixConfigModal onClose={() => setShowFeeMatrix(false)} />}
       {activeModal === "admission" && (
         <CreateStudentModal erpUser={erpUser} onClose={() => setActiveModal(null)} onCreated={() => { setActiveModal(null); refreshDashboard(); }} />
       )}
@@ -797,7 +804,7 @@ function ExpensesViewModal({ erpUser, onClose, refreshRoot }) {
 
 function CreateStudentModal({ erpUser, onClose, onCreated }) {
   const [branches, setBranches] = useState([]);
-  const [courses, setCourses] = useState([]);
+  const [matrix, setMatrix] = useState({});
   const [form, setForm] = useState({
     full_name: "",
     gender: "Male",
@@ -808,11 +815,11 @@ function CreateStudentModal({ erpUser, onClose, onCreated }) {
     parent_name: "",
     parent_phone: "",
     parent_email: "",
-    current_class: "",
-    course_id: "",
+    current_class: STUDENT_CLASSES[0],
+    course_id: STUDENT_COURSES[0],
     batch: "",
     batch_timing: "",
-    course_duration: "",
+    course_duration: "1 Year",
     branch_id: isSuper(erpUser) ? "" : erpUser.branch_id,
     total_fee: "",
     scholarship_percent: 0,
@@ -822,8 +829,6 @@ function CreateStudentModal({ erpUser, onClose, onCreated }) {
   });
   const [busy, setBusy] = useState(false);
   const [submitted, setSubmitted] = useState(false);
-
-  const filteredCourses = courses.filter(c => ["Foundation", "NEET", "IIT-JEE"].includes(c.category));
 
   const computeFinalFee = () => {
     const total = parseFloat(form.total_fee) || 0;
@@ -837,8 +842,20 @@ function CreateStudentModal({ erpUser, onClose, onCreated }) {
 
   useEffect(() => {
     erp.listBranches().then(setBranches);
-    api.get("/courses").then(r => setCourses(Array.isArray(r.data) ? r.data : (r.data?.items || []))).catch(() => setCourses([]));
+    erp.getFeeMatrix().then(res => {
+      setMatrix(res.matrix || {});
+      // Auto-init fee
+      if (res.matrix?.[STUDENT_CLASSES[0]]?.[STUDENT_COURSES[0]] !== undefined) {
+        setForm(f => ({ ...f, total_fee: res.matrix[STUDENT_CLASSES[0]][STUDENT_COURSES[0]] }));
+      }
+    });
   }, []);
+
+  useEffect(() => {
+    if (form.current_class && form.course_id && matrix[form.current_class]?.[form.course_id] !== undefined) {
+      setForm(prev => ({ ...prev, total_fee: matrix[form.current_class][form.course_id] }));
+    }
+  }, [form.current_class, form.course_id, matrix]);
 
   const executeSubmit = async (e) => {
     e.preventDefault();
@@ -938,20 +955,13 @@ function CreateStudentModal({ erpUser, onClose, onCreated }) {
           <div>
             <label className={labelCls}>Current Class *</label>
             <select required value={form.current_class} onChange={e => setForm({...form, current_class: e.target.value})} className={inputCls}>
-              <option value="">Select Class</option>
-              <option value="Class 8">Class 8</option>
-              <option value="Class 9">Class 9</option>
-              <option value="Class 10">Class 10</option>
-              <option value="Class 11">Class 11</option>
-              <option value="Class 12">Class 12</option>
-              <option value="Droppers">Droppers</option>
+              {STUDENT_CLASSES.map(c => <option key={c} value={c}>{c}</option>)}
             </select>
           </div>
           <div>
             <label className={labelCls}>Course *</label>
             <select required value={form.course_id} onChange={e => setForm({...form, course_id: e.target.value})} className={inputCls}>
-              <option value="">Select Course</option>
-              {filteredCourses.map(c => <option key={c.id} value={c.id}>{c.title}</option>)}
+              {STUDENT_COURSES.map(c => <option key={c} value={c}>{c}</option>)}
             </select>
           </div>
           <div>
