@@ -57,6 +57,29 @@ export default function Login() {
     return () => abortControllerRef.current?.abort();
   }, []);
 
+  useEffect(() => {
+    try {
+      if (typeof window !== "undefined" && window.posthog) {
+        if (typeof window.posthog.sessionRecording === "object" && typeof window.posthog.sessionRecording.stop === "function") {
+          window.posthog.sessionRecording.stop();
+        }
+      }
+    } catch {
+      // no-op: analytics guard should not break login
+    }
+    return () => {
+      try {
+        if (typeof window !== "undefined" && window.posthog) {
+          if (typeof window.posthog.sessionRecording === "object" && typeof window.posthog.sessionRecording.start === "function") {
+            window.posthog.sessionRecording.start();
+          }
+        }
+      } catch {
+        // no-op: analytics guard should not break login
+      }
+    };
+  }, []);
+
   const isValidRedirect = (path) => {
     if (!path) return false;
     try {
