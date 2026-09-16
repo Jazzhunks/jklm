@@ -760,8 +760,13 @@ async def register(payload: RegisterIn, response: Response, background: Backgrou
     if len(email) > 254 or len(payload.password) > 128:
         raise HTTPException(400, "Invalid payload length")
 
+    if payload.phone and not re.fullmatch(r"\d{10}", payload.phone.strip()):
+        raise HTTPException(400, "Mobile number must be exactly 10 digits")
+
     if await db.users.find_one({"email": email}):
         raise HTTPException(400, "Email already registered")
+    if payload.phone and await db.users.find_one({"phone": payload.phone.strip()}):
+        raise HTTPException(400, "Phone number already registered")
     user_id = new_id()
     role = "school" if payload.school_name else "student"
     doc = {
@@ -817,7 +822,8 @@ async def ping():
 @api.post("/auth/send-otp")
 async def send_otp(payload: SendOtpIn):
     phone = payload.phone.strip()
-    # Check if user exists based on action
+    if not re.fullmatch(r"\d{10}", phone):
+        raise HTTPException(400, "Mobile number must be exactly 10 digits")
     user = await db.users.find_one({"phone": phone})
     if payload.action in ("login", "forgot") and not user:
         raise HTTPException(404, "Phone number not registered")
@@ -845,6 +851,8 @@ async def send_otp(payload: SendOtpIn):
 @api.post("/auth/verify-otp")
 async def verify_otp(payload: VerifyOtpIn, response: Response):
     phone = payload.phone.strip()
+    if not re.fullmatch(r"\d{10}", phone):
+        raise HTTPException(400, "Mobile number must be exactly 10 digits")
     record = await db.otps.find_one({"phone": phone, "action": payload.action})
     
     if not record:
@@ -879,6 +887,8 @@ async def verify_otp(payload: VerifyOtpIn, response: Response):
 @api.post("/auth/reset-password")
 async def reset_password(payload: ResetPasswordIn):
     phone = payload.phone.strip()
+    if not re.fullmatch(r"\d{10}", phone):
+        raise HTTPException(400, "Mobile number must be exactly 10 digits")
     record = await db.otps.find_one({"phone": phone, "action": "forgot"})
     
     if not record:

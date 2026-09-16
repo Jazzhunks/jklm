@@ -20,12 +20,28 @@ export default function Register() {
 
   const [otpSent, setOtpSent] = useState(false);
   const [otpCode, setOtpCode] = useState("");
-  const { api } = useAuth();
+  const [phoneError, setPhoneError] = useState("");
+  const [verifyError, setVerifyError] = useState("");
 
+
+async function validatePhoneNumber(): Promise<boolean> {
+    const digits = f.phone.replace(/\D/g, "");
+    if (digits.length !== 10) {
+      setPhoneError("Mobile number must be exactly 10 digits.");
+      return false;
+    }
+    setPhoneError("");
+    return true;
+  }
 
   const submit = async (e) => {
     e.preventDefault(); 
     
+    // Validate phone number for all account types
+    if (!(await validatePhoneNumber())) {
+      return;
+    }
+
     if (!otpSent) {
       if (!f.phone) {
         toast.error("Mobile number is required for verification.");
@@ -103,8 +119,30 @@ export default function Register() {
               </div>
               <div className="relative">
                 <Phone weight="duotone" size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground"/>
-                <input className={inputCls} placeholder="10-digit mobile number" value={f.phone} onChange={e=>setF({...f, phone: e.target.value})} data-testid="reg-phone" required />
+                <input
+                  className={inputCls}
+                  inputMode="numeric"
+                  autoComplete="tel"
+                  placeholder="10-digit mobile number"
+                  value={f.phone}
+                  onChange={e => {
+                    const digits = e.target.value.replace(/\D/g, "").slice(0, 10);
+                    setF({...f, phone: digits});
+                    setPhoneError(digits.length === 10 ? "" : "");
+                  }}
+                  onBlur={() => {
+                    if (f.phone && f.phone.length !== 10) {
+                      setPhoneError("Mobile number must be exactly 10 digits.");
+                    } else {
+                      setPhoneError("");
+                    }
+                  }}
+                  aria-invalid={Boolean(phoneError)}
+                  data-testid="reg-phone"
+                  required
+                />
               </div>
+              {phoneError && <p className="text-xs text-destructive -mt-1 ml-1">{phoneError}</p>}
               <div className="relative">
                 <Lock weight="duotone" size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground"/>
                 <input className={inputCls} type="password" placeholder="Password (min 6 chars)" minLength={6} value={f.password} onChange={e=>setF({...f, password: e.target.value})} required data-testid="reg-password"/>
