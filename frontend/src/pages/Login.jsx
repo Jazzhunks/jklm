@@ -69,7 +69,7 @@ export default function Login() {
       setOtpSent(true);
       toast.success("OTP sent to your WhatsApp!");
     } catch (err) {
-      setInlineError(err.response?.data?.detail || "Failed to send OTP.");
+      setInlineError(formatError(err));
     } finally {
       setBusy(false);
     }
@@ -94,7 +94,7 @@ export default function Login() {
         nav(ALLOWED_REDIRECTS.has(target) ? target : "/erp");
       }
     } catch (err) {
-      setInlineError(err.response?.data?.detail || "Invalid or expired OTP.");
+      setInlineError(formatError(err));
     } finally {
       setBusy(false);
     }
