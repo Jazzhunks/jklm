@@ -34,6 +34,22 @@ export function AuthProvider({ children }) {
   // ============================================================================
   // AUTHENTICATION INTERACTION MUTATORS
   // ============================================================================
+  
+  const otpLogin = async (phone, code) => {
+    setLoading(true);
+    try {
+      const { data } = await api.post("/auth/verify-otp", { phone, code, action: "login" });
+      if (data?.access_token) {
+        localStorage.setItem("nw_token", data.access_token);
+        api.defaults.headers.common["Authorization"] = `Bearer ${data.access_token}`;
+      }
+      setUser(data.user);
+      return data.user;
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const login = async (email, password, options = {}) => {
     setLoading(true);
     try {
