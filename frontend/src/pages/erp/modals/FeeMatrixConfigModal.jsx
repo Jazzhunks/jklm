@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { toast } from "sonner";
-import { erp, STUDENT_CLASSES, STUDENT_COURSES } from "@/lib/erpApi";
+import { erp, STUDENT_CLASSES, STUDENT_COURSES, getValidCoursesForClass } from "@/lib/erpApi";
 import { Save, X } from "lucide-react";
 
 export default function FeeMatrixConfigModal({ onClose }) {
@@ -71,17 +71,21 @@ export default function FeeMatrixConfigModal({ onClose }) {
                     <td className="px-4 py-3 font-medium">{cls}</td>
                     {STUDENT_COURSES.map(course => (
                       <td key={course} className="px-4 py-3">
-                        <div className="flex items-center gap-2 justify-center">
-                          <span className="text-muted-foreground">₹</span>
-                          <input 
-                            type="number"
-                            min="0"
-                            className="w-24 px-2 py-1.5 border border-border bg-background rounded text-sm text-right focus:outline-none focus:border-accent"
-                            value={matrix[cls]?.[course] || ""}
-                            onChange={(e) => handleChange(cls, course, e.target.value)}
-                            placeholder="0"
-                          />
-                        </div>
+                        {getValidCoursesForClass(cls).includes(course) ? (
+                          <div className="flex items-center gap-2 justify-center">
+                            <span className="text-muted-foreground">₹</span>
+                            <input 
+                              type="number"
+                              min="0"
+                              className="w-24 px-2 py-1.5 border border-border bg-background rounded text-sm text-right focus:outline-none focus:border-accent"
+                              value={matrix[cls]?.[course] || ""}
+                              onChange={(e) => handleChange(cls, course, e.target.value)}
+                              placeholder="0"
+                            />
+                          </div>
+                        ) : (
+                          <div className="text-center text-muted-foreground/30 text-xs italic">N/A</div>
+                        )}
                       </td>
                     ))}
                   </tr>

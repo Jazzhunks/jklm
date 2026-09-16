@@ -156,6 +156,13 @@ export const STUDENT_COURSES = [
   "NEET UG"
 ];
 
+export const getValidCoursesForClass = (className) => {
+  if (["Biggner (8th)", "Adapt (9th)", "Elivate (10th)"].includes(className)) {
+    return ["Foundation"];
+  }
+  return ["IIT JEE", "NEET UG"];
+};
+
 
 // ============================================================================
 // LOCALIZED FORMATTING UTILITY MATRIX

@@ -2,7 +2,7 @@ import { useState, useMemo, useEffect } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useOutletContext, Link, useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
-import { erp, isSuper, isManagerPlus, canManageStudents, fmtINR, fmtDate, extractItems, extractTotal, STUDENT_CLASSES, STUDENT_COURSES } from "@/lib/erpApi";
+import { erp, isSuper, isManagerPlus, canManageStudents, fmtINR, fmtDate, extractItems, extractTotal, STUDENT_CLASSES, STUDENT_COURSES, getValidCoursesForClass } from "@/lib/erpApi";
 import { api, formatError, API_BASE } from "@/lib/api";
 import { 
   Search, Plus, Download, X, GraduationCap, Users, User, 
@@ -547,7 +547,14 @@ const handleSubmit = async (e) => {
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div>
               <label className={labelCls}>Current Class *</label>
-              <select required value={form.current_class} onChange={e => setForm(f => ({ ...f, current_class: e.target.value }))} className={inputCls}>
+              <select required value={form.current_class} onChange={e => {
+                const newClass = e.target.value;
+                const valid = getValidCoursesForClass(newClass);
+                setForm(f => {
+                  const newCourse = valid.includes(f.course_id) ? f.course_id : valid[0];
+                  return { ...f, current_class: newClass, course_id: newCourse };
+                });
+              }} className={inputCls}>
                 <option value="">Select Class</option>
                 <option value="Class 8">Class 8</option>
                 <option value="Class 9">Class 9</option>
@@ -592,7 +599,7 @@ const handleSubmit = async (e) => {
             <div>
               <label className={labelCls}>Course *</label>
               <select required value={form.course_id} onChange={e => setForm(f => ({ ...f, course_id: e.target.value }))} className={inputCls}>
-                {STUDENT_COURSES.map(c => <option key={c} value={c}>{c}</option>)}
+                {getValidCoursesForClass(form.current_class).map(c => <option key={c} value={c}>{c}</option>)}
               </select>
             </div>
             <div>

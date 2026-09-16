@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useOutletContext, Link } from "react-router-dom";
-import { erp, isSuper, isFinance, isManagerPlus, fmtINR, fmtDate, extractItems, STUDENT_CLASSES, STUDENT_COURSES } from "@/lib/erpApi";
+import { erp, isSuper, isFinance, isManagerPlus, fmtINR, fmtDate, extractItems, STUDENT_CLASSES, STUDENT_COURSES, getValidCoursesForClass } from "@/lib/erpApi";
 import { formatError, api, API_BASE } from "@/lib/api";
 import FeeMatrixConfigModal from "./modals/FeeMatrixConfigModal";
 import { toast } from "sonner";
@@ -955,14 +955,19 @@ function CreateStudentModal({ erpUser, onClose, onCreated }) {
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div>
             <label className={labelCls}>Current Class *</label>
-            <select required value={form.current_class} onChange={e => setForm({...form, current_class: e.target.value})} className={inputCls}>
+            <select required value={form.current_class} onChange={e => {
+              const newClass = e.target.value;
+              const valid = getValidCoursesForClass(newClass);
+              const newCourse = valid.includes(form.course_id) ? form.course_id : valid[0];
+              setForm({...form, current_class: newClass, course_id: newCourse});
+            }} className={inputCls}>
               {STUDENT_CLASSES.map(c => <option key={c} value={c}>{c}</option>)}
             </select>
           </div>
           <div>
             <label className={labelCls}>Course *</label>
             <select required value={form.course_id} onChange={e => setForm({...form, course_id: e.target.value})} className={inputCls}>
-              {STUDENT_COURSES.map(c => <option key={c} value={c}>{c}</option>)}
+              {getValidCoursesForClass(form.current_class).map(c => <option key={c} value={c}>{c}</option>)}
             </select>
           </div>
           <div>

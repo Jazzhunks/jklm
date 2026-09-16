@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { erp, STUDENT_CLASSES, STUDENT_COURSES } from "@/lib/erpApi";
+import { erp, STUDENT_CLASSES, STUDENT_COURSES, getValidCoursesForClass } from "@/lib/erpApi";
 import { useEffect } from "react";
 
 export default function LeadProposeModal({ lead, onClose }) {
@@ -38,14 +38,19 @@ export default function LeadProposeModal({ lead, onClose }) {
         <div className="grid grid-cols-2 gap-3">
           <div>
             <label className="text-xs font-bold text-muted-foreground mb-1 block">Target Class *</label>
-            <select required value={form.moving_to_class} onChange={e => setForm({...form, moving_to_class: e.target.value})} className="w-full p-2 text-sm border border-border bg-card rounded">
+            <select required value={form.moving_to_class} onChange={e => {
+              const newClass = e.target.value;
+              const valid = getValidCoursesForClass(newClass);
+              const newCourse = valid.includes(form.course) ? form.course : valid[0];
+              setForm({...form, moving_to_class: newClass, course: newCourse});
+            }} className="w-full p-2 text-sm border border-border bg-card rounded">
               {STUDENT_CLASSES.map(c => <option key={c} value={c}>{c}</option>)}
             </select>
           </div>
           <div>
             <label className="text-xs font-bold text-muted-foreground mb-1 block">Course *</label>
             <select required value={form.course} onChange={e => setForm({...form, course: e.target.value})} className="w-full p-2 text-sm border border-border bg-card rounded">
-              {STUDENT_COURSES.map(c => <option key={c} value={c}>{c}</option>)}
+              {getValidCoursesForClass(form.moving_to_class).map(c => <option key={c} value={c}>{c}</option>)}
             </select>
           </div>
         </div>
