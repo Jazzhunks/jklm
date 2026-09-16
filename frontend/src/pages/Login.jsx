@@ -34,7 +34,7 @@ export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const [inlineError, setInlineError] = useState("");
   const [resendTimer, setResendTimer] = useState(0);
-  const [useOtp, setUseOtp] = useState(false);
+  const [useOtp, setUseOtp] = useState(true);
   const [authMode, setAuthMode] = useState("password");
   const [phone, setPhone] = useState("");
   const [otpSent, setOtpSent] = useState(false);
@@ -72,9 +72,6 @@ export default function Login() {
 
   const isValidEmail = (v) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
   const isValidMobile = (v) => /^[0-9]{10}$/.test(v);
-
-  const isEmailMode = authMode === "password" && isValidEmail(identifier.trim());
-  const isPhoneMode = authMode === "otp" && isValidMobile(identifier.trim());
 
   const handleSendOtp = async (action = "login") => {
     try {
@@ -147,12 +144,23 @@ export default function Login() {
         return;
       }
     } else {
-      if (!isValidMobile(trimmed)) {
+      if (!otpSent) {
+        setInlineError("Please send the OTP first.");
+        return;
+      }
+      if (!isValidMobile(phone)) {
         setIdentifierError("Enter a valid 10-digit mobile number.");
         return;
       }
-      setPhone(trimmed);
-      await handleSendOtp("login");
+      if (otpCode.length !== 6) {
+        setInlineError("Enter the 6-digit OTP code.");
+        return;
+      }
+      setPhone(phone);
+      const user = await otpLogin(phone, otpCode);
+      toast.success(`Welcome back, ${user.name}!`);
+      const target = searchParams.get("redirect") || "/erp";
+      nav(ALLOWED_REDIRECTS.has(target) ? target : "/erp");
       return;
     }
 
@@ -313,7 +321,50 @@ export default function Login() {
                 </div>
 
                 <AnimatePresence mode="wait">
-                  {!useOtp && (
+                  {useOtp ? (
+                    <motion.div
+                      key="otp"
+                      initial={{ opacity: 0, y: 8 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -8 }}
+                      transition={{ duration: 0.2 }}
+                      className="space-y-1.5"
+                    >
+                      <div className="flex items-center justify-between ml-1 mr-1">
+                        <label className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground font-bold">Enter Verification Code</label>
+                        {!otpSent && (
+                          <button type="button" onClick={handleSendOtp} className="text-xs text-accent hover:underline font-medium" disabled={busy}>{busy ? "Sending…" : "Send OTP"}</button>
+                        )}
+                      </div>
+                      <div className="relative">
+                        <Lock weight="duotone" size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground"/>
+                        <input
+                          className={`${inputCls} font-mono tracking-widest text-center text-lg`}
+                          type="text"
+                          inputMode="numeric"
+                          placeholder="------"
+                          value={otpCode}
+                          onChange={e => setOtpCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                          required
+                          maxLength={6}
+                          disabled={!otpSent}
+                        />
+                      </div>
+                      <p className="text-[11px] text-muted-foreground ml-1">We will send a 6-digit OTP via Email or WhatsApp.</p>
+                      {otpSent && (
+                        <div className="pt-2 text-center">
+                          <button
+                            type="button"
+                            onClick={handleSendOtp}
+                            disabled={resendTimer > 0 || busy}
+                            className={`text-[11px] font-bold uppercase tracking-wider ${resendTimer > 0 ? "text-muted-foreground" : "text-accent hover:underline"}`}
+                          >
+                            {resendTimer > 0 ? `Resend OTP in ${resendTimer}s` : "Resend OTP"}
+                          </button>
+                        </div>
+                      )}
+                    </motion.div>
+                  ) : (
                     <motion.div
                       key="password"
                       initial={{ opacity: 0, y: 8 }}
@@ -335,52 +386,13 @@ export default function Login() {
                       </div>
                     </motion.div>
                   )}
-
-                  {useOtp && !otpSent && (
-                    <motion.div
-                      key="otp"
-                      initial={{ opacity: 0, y: 8 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -8 }}
-                      transition={{ duration: 0.2 }}
-                      className="space-y-1.5"
-                    >
-                      <label className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground font-bold ml-1">WhatsApp Mobile Number</label>
-                      <div className="relative">
-                        <input
-                          className={inputCls}
-                          type="text"
-                          inputMode="numeric"
-                          placeholder="10-digit mobile number"
-                          value={identifier}
-                          onChange={e => {
-                            const digits = e.target.value.replace(/\D/g, "").slice(0, 10);
-                            setIdentifier(digits);
-                            setIdentifierError(digits.length === 10 ? "" : "");
-                          }}
-                          onBlur={() => {
-                            if (identifier && identifier.length !== 10) {
-                              setIdentifierError("Mobile number must be exactly 10 digits.");
-                            } else {
-                              setIdentifierError("");
-                            }
-                          }}
-                          required
-                          maxLength={10}
-                          aria-invalid={Boolean(identifierError)}
-                        />
-                      </div>
-                      {identifierError && <p className="text-xs text-destructive ml-1">{identifierError}</p>}
-                      <p className="text-[11px] text-muted-foreground ml-1">We will send a 6-digit OTP to your WhatsApp.</p>
-                    </motion.div>
-                  )}
                 </AnimatePresence>
 
                 <div className="pt-1 text-right">
                   {!useOtp ? (
-                    <button type="button" onClick={() => { setUseOtp(true); setAuthMode("otp"); setInlineError(""); setIdentifierError(""); setOtpSent(false); setOtpCode(""); }} className="text-xs font-semibold text-accent hover:underline focus:outline-none">Login with OTP instead</button>
+                    <button type="button" onClick={() => { setUseOtp(true); setInlineError(""); setIdentifierError(""); setOtpSent(false); setOtpCode(""); }} className="text-xs font-semibold text-accent hover:underline focus:outline-none">Login with OTP instead</button>
                   ) : (
-                    <button type="button" onClick={() => { setUseOtp(false); setAuthMode("password"); setInlineError(""); setIdentifierError(""); setOtpSent(false); setOtpCode(""); }} className="text-xs font-semibold text-accent hover:underline focus:outline-none">Login with Password instead</button>
+                    <button type="button" onClick={() => { setUseOtp(false); setInlineError(""); setIdentifierError(""); }} className="text-xs font-semibold text-accent hover:underline focus:outline-none">Login with Password instead</button>
                   )}
                 </div>
 
@@ -388,13 +400,16 @@ export default function Login() {
                   {!useOtp && authMode !== "forgot" && (
                     <CTAPrimary type="submit" className="w-full justify-center py-4 text-sm font-medium" disabled={busy}>{busy ? "Signing in…" : "Sign In"}</CTAPrimary>
                   )}
-                  {(useOtp || authMode === "forgot") && !otpSent && (
-                    <CTAPrimary type="button" onClick={() => handleSendOtp(authMode === "forgot" ? "forgot" : "login")} className="w-full justify-center py-4 text-sm font-medium" disabled={busy}>{busy ? "Sending…" : "Get OTP"}</CTAPrimary>
+                  {useOtp && authMode !== "forgot" && (
+                    <CTAPrimary type="submit" className="w-full justify-center py-4 text-sm font-medium" disabled={busy || (otpSent && otpCode.length !== 6)}>{busy ? "Verifying…" : "Sign In"}</CTAPrimary>
+                  )}
+                  {authMode === "forgot" && (
+                    <CTAPrimary type="submit" className="w-full justify-center py-4 text-sm font-medium" disabled={busy || (otpSent && otpCode.length !== 6)}>{busy ? "Resetting…" : "Reset Password"}</CTAPrimary>
                   )}
                 </div>
               </form>
 
-              {(otpSent || authMode === "forgot") && (
+              {(otpSent || authMode === "forgot") && authMode !== "password" && (
                 <motion.form
                   initial={{ opacity: 0, y: 8 }}
                   animate={{ opacity: 1, y: 0 }}
