@@ -250,6 +250,6 @@ def build_notifications_router(require_admin_dep, db=None) -> APIRouter:
                     if client_queue in _broadcast_queues:
                         _broadcast_queues.remove(client_queue)
 
-        return StreamingResponse(event_generator(), media_type="text/event-stream")
+        return StreamingResponse(event_generator(), media_type="text/event-stream", headers={"Cache-Control": "no-cache", "Connection": "keep-alive", "X-Accel-Buffering": "no"})
 
     return router
