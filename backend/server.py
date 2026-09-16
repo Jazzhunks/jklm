@@ -820,14 +820,18 @@ async def send_otp(payload: SendOtpIn):
     if payload.action in ("register", "update_phone") and user:
         raise HTTPException(400, "Phone number already registered to another account")
         
-    code = f"{random.randint(100000, 999999)}"
-    expires_at = datetime.utcnow() + timedelta(minutes=5)
-    
-    await db.otps.update_one(
-        {"phone": phone, "action": payload.action},
-        {"$set": {"code": code, "expires_at": expires_at}},
-        upsert=True
-    )
+    existing = await db.otps.find_one({"phone": phone, "action": payload.action})
+    if existing and existing["expires_at"] > datetime.utcnow():
+        code = existing["code"]
+        expires_at = existing["expires_at"]
+    else:
+        code = f"{random.randint(100000, 999999)}"
+        expires_at = datetime.utcnow() + timedelta(minutes=5)
+        await db.otps.update_one(
+            {"phone": phone, "action": payload.action},
+            {"$set": {"code": code, "expires_at": expires_at}},
+            upsert=True
+        )
     
     success, err_msg = await send_whatsapp_otp(phone, code)
     if not success:
