@@ -19,7 +19,8 @@ export function AuthProvider({ children }) {
       setUser(data);
     } catch (err) {
       if (err?.response?.status !== 401) {
-        console.error("Session verification fallback triggered:", err);
+        const sanitized = typeof err === "object" ? { ...err, request: undefined, response: undefined, config: undefined, stack: err.stack } : err;
+        console.error("Session verification fallback triggered:", sanitized);
       }
       setUser(null);
     } finally {
