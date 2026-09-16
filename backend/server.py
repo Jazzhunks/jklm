@@ -798,8 +798,8 @@ async def send_otp(payload: SendOtpIn):
     user = await db.users.find_one({"phone": phone})
     if payload.action in ("login", "forgot") and not user:
         raise HTTPException(404, "Phone number not registered")
-    if payload.action == "register" and user:
-        raise HTTPException(400, "Phone number already registered")
+    if payload.action in ("register", "update_phone") and user:
+        raise HTTPException(400, "Phone number already registered to another account")
         
     code = f"{random.randint(100000, 999999)}"
     expires_at = datetime.utcnow() + timedelta(minutes=5)
@@ -897,12 +897,40 @@ class ProfileUpdate(BaseModel):
     name: Optional[str] = None
     password: Optional[str] = None
     receipt_print_size: Optional[str] = None
+    phone: Optional[str] = None
+    photo: Optional[str] = None
+    otp_code: Optional[str] = None
 
 @api.patch("/auth/profile")
 async def update_profile(payload: ProfileUpdate, user: dict = Depends(get_current_user)):
     patch = payload.model_dump(exclude_unset=True)
+    
+    # If phone is being updated, we MUST verify the OTP sent to that NEW phone
+    if "phone" in patch and patch["phone"] != user.get("phone"):
+        new_phone = patch["phone"]
+        code = patch.pop("otp_code", None)
+        if not code:
+            raise HTTPException(400, "otp_code is required when changing phone number")
+        
+        # Verify OTP
+        record = await db.otps.find_one({"phone": new_phone, "action": "update_phone"})
+        if not record or record["code"] != code or record["expires_at"] < datetime.utcnow():
+            raise HTTPException(400, "Invalid or expired OTP for new phone number")
+            
+        # Clean OTP
+        await db.otps.delete_one({"_id": record["_id"]})
+        
+        # Check if phone is already taken by another user
+        existing = await db.users.find_one({"phone": new_phone})
+        if existing and existing["id"] != user["id"]:
+            raise HTTPException(400, "Phone number is already registered to another account")
+
     if "password" in patch:
         patch["password_hash"] = hash_password(patch.pop("password"))
+    
+    # Remove otp_code from patch if it wasn't popped
+    patch.pop("otp_code", None)
+
     if not patch:
         return {"user": user}
     
