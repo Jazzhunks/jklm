@@ -24,6 +24,7 @@ const ALLOWED_REDIRECTS = new Set([
 export default function Login() {
   const { login, formatError } = useAuth();
   const nav = useNavigate();
+  const [searchParams] = useSearchParams();
   const [params] = useSearchParams();
   const isMobile = useIsMobile();
   
