@@ -315,11 +315,7 @@ export default function NotificationCenter() {
     const connectStream = () => {
       if (isDisposed) return;
       const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || "";
-      const token = typeof window !== "undefined" ? localStorage.getItem("nw_token") : null;
-      const url = token
-        ? `${BACKEND_URL}/api/admin/notifications/stream?token=${encodeURIComponent(token)}`
-        : `${BACKEND_URL}/api/admin/notifications/stream`;
-
+      const url = `${BACKEND_URL}/api/admin/notifications/stream`;
       const es = new EventSource(url, { withCredentials: true });
       eventSourceRef.current = es;
 
