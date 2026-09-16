@@ -161,6 +161,14 @@ api.interceptors.response.use(
 // FASTAPI / PYDANTIC ERROR FORMATTER
 // ============================================================================
 
+function safeStringify(value) {
+  try {
+    return JSON.stringify(value);
+  } catch {
+    return "";
+  }
+}
+
 export function formatError(error) {
   if (!error) return "An unexpected error occurred.";
 
@@ -205,7 +213,7 @@ export function formatError(error) {
         }
         if (typeof item === "string") return item;
         try {
-          return JSON.stringify(item);
+          return safeStringify(item);
         } catch {
           return "Invalid validation error.";
         }
@@ -218,7 +226,7 @@ export function formatError(error) {
   }
 
   try {
-    return JSON.stringify(detail);
+    return safeStringify(detail);
   } catch {
     return "Something went wrong while processing the server response.";
   }
