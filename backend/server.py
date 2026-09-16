@@ -810,6 +810,10 @@ async def debug_otp(phone: str):
         return {"code": record["code"], "expires_at": str(record["expires_at"])}
     return {"error": "Not found"}
 
+@api.get("/auth/ping")
+async def ping():
+    return {"status": "pong_v2"}
+
 @api.post("/auth/send-otp")
 async def send_otp(payload: SendOtpIn):
     phone = payload.phone.strip()
