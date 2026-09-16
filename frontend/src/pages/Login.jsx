@@ -4,6 +4,7 @@ import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/contexts/AuthContext";
+import { api } from "@/lib/api";
 import GlassPanel from "@/components/GlassPanel";
 import { CTAPrimary, Eyebrow } from "@/components/Cinematic";
 import { useIsMobile } from "@/hooks/useIsMobile";
