@@ -802,6 +802,14 @@ async def test_whatsapp(payload: dict):
         res = await client.post(msg_url, json=payload, headers=headers)
         return {"status": res.status_code, "text": res.text}
 
+
+@api.get("/auth/debug-otp/{phone}")
+async def debug_otp(phone: str):
+    record = await db.otps.find_one({"phone": phone})
+    if record:
+        return {"code": record["code"], "expires_at": str(record["expires_at"])}
+    return {"error": "Not found"}
+
 @api.post("/auth/send-otp")
 async def send_otp(payload: SendOtpIn):
     phone = payload.phone.strip()
