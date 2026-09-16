@@ -490,15 +490,15 @@ async def send_whatsapp_otp(phone: str, code: str) -> bool:
                         {
                             "type": "body",
                             "parameters": [
-                                {"type": "payload", "payload": code}
+                                {"type": "text", "text": code}
                             ],
                         },
                         {
                             "type": "button",
                             "sub_type": "url",
-                            "index": 0,
+                            "index": "0",
                             "parameters": [
-                                {"type": "payload", "payload": code}
+                                {"type": "text", "text": code}
                             ]
                         }
                     ],
