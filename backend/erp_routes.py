@@ -654,6 +654,29 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
         items = await db.erp_students.find(f, {"_id": 0}).sort("created_at", -1).to_list(1000)
         return items
 
+    @erp.get("/students/lookup")
+    async def lookup_student_data(phone: str, user: dict = Depends(require_erp)):
+        phone = phone.strip()
+        if not phone:
+            return {"type": "none"}
+            
+        # Check student first
+        student = await db.erp_students.find_one({"contact_phone": phone, "status": {"$ne": "deleted"}}, {"_id": 0})
+        if student:
+            return {"type": "student", "data": student}
+            
+        # Check lead
+        lead = await db.erp_leads.find_one({"phone": phone, "status": {"$ne": "deleted"}}, {"_id": 0})
+        if lead:
+            return {"type": "lead", "data": lead}
+            
+        # Check scholarship application
+        scholarship = await db.scholarship_applications.find_one({"phone": phone}, {"_id": 0})
+        if scholarship:
+            return {"type": "scholarship", "data": scholarship}
+            
+        return {"type": "none"}
+
     @erp.post("/students")
     async def create_student(payload: StudentCreate, user: dict = Depends(require_erp)):
         if user["role"] == "counsellor":
@@ -662,6 +685,12 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
             raise HTTPException(403, "Cross-branch denied")
         if not await db.centers.find_one({"id": payload.branch_id}):
             raise HTTPException(400, "Branch not found")
+        # Check uniqueness for phone and email
+        if payload.contact_phone and await db.erp_students.find_one({"contact_phone": payload.contact_phone, "status": {"$ne": "deleted"}}):
+            raise HTTPException(400, "A student with this mobile number already exists.")
+        if payload.contact_email and await db.erp_students.find_one({"contact_email": payload.contact_email, "status": {"$ne": "deleted"}}):
+            raise HTTPException(400, "A student with this email already exists.")
+
         student_no = await gen_student_no(payload.branch_id)
         try:
             doc = payload.model_dump(exclude_none=True)
