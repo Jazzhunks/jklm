@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { X, Save, Printer, User, Key, Building2 } from "lucide-react";
-import toast from "react-hot-toast";
+import { toast } from "sonner";
 import { api, formatError } from "@/lib/api";
 import { useAuth } from "@/contexts/AuthContext";
 

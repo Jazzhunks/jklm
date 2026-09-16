@@ -3,6 +3,7 @@ import { Outlet, NavLink, useNavigate, useLocation, Navigate } from "react-route
 import { useAuth } from "@/contexts/AuthContext";
 import { erp, isSuper, isManagerPlus, isERPUser } from "@/lib/erpApi";
 import ErpCommandPalette from "./ErpCommandPalette";
+import ProfileModal from "./modals/ProfileModal";
 import {
   LayoutDashboard, Users, Receipt, Wallet, UserPlus, Building2,
   ScrollText, LogOut, Menu, X, GraduationCap, Contact2, QrCode, MessageSquare,
