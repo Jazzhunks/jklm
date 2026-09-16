@@ -236,6 +236,7 @@ class LeadEnrollRequest(BaseModel):
     full_name: str
     contact_phone: str
     current_class: str
+    course: Optional[str] = None
     batch: Optional[str] = None
     parent_name: str
     parent_phone: str
@@ -661,8 +662,6 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
             raise HTTPException(403, "Cross-branch denied")
         if not await db.centers.find_one({"id": payload.branch_id}):
             raise HTTPException(400, "Branch not found")
-        if not await db.courses.find_one({"id": payload.course_id}):
-            raise HTTPException(400, "Course not found")
         student_no = await gen_student_no(payload.branch_id)
         try:
             doc = payload.model_dump(exclude_none=True)
@@ -758,7 +757,27 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
         return {"ok": True, "deleted_id": real_id, "student_no": s.get("student_no")}
 
 
+
+    # ===== FEE MATRIX (GLOBAL SETTINGS) =====
+    @erp.get("/fee-matrix")
+    async def get_fee_matrix(user: dict = Depends(require_erp)):
+        doc = await db.erp_settings.find_one({"id": "fee_matrix"}, {"_id": 0})
+        if not doc:
+            return {"matrix": {}}
+        return doc
+        
+    @erp.post("/fee-matrix")
+    async def update_fee_matrix(payload: dict, user: dict = Depends(require_super)):
+        matrix = payload.get("matrix", {})
+        await db.erp_settings.update_one(
+            {"id": "fee_matrix"},
+            {"$set": {"matrix": matrix}},
+            upsert=True
+        )
+        return {"ok": True, "matrix": matrix}
+        
     # ===== PAYMENTS / RECEIPTS =====
+
     @erp.post("/payments")
     async def create_payment(payload: PaymentCreate, user: dict = Depends(require_erp)):
         if user["role"] == "counsellor":
@@ -1367,6 +1386,7 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
             "full_name": payload.full_name,
             "contact_phone": payload.contact_phone,
             "current_class": payload.current_class,
+            "course_id": payload.course,
             "batch": payload.batch,
             "parent_name": payload.parent_name,
             "parent_phone": payload.parent_phone,
