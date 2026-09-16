@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useOutletContext, Link } from "react-router-dom";
 import { erp, isSuper, isFinance, isManagerPlus, fmtINR, fmtDate, extractItems, STUDENT_CLASSES, STUDENT_COURSES } from "@/lib/erpApi";
 import { formatError, api, API_BASE } from "@/lib/api";
+import FeeMatrixConfigModal from "./modals/FeeMatrixConfigModal";
 import { toast } from "sonner";
 import { 
   TrendingUp, TrendingDown, Users, AlertCircle, Building2, 
