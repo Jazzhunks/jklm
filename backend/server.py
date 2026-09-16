@@ -810,9 +810,9 @@ async def send_otp(payload: SendOtpIn):
         upsert=True
     )
     
-    success = await send_whatsapp_otp(phone, code)
+    success, err_msg = await send_whatsapp_otp(phone, code)
     if not success:
-        raise HTTPException(500, "Failed to send WhatsApp message")
+        raise HTTPException(500, f"WhatsApp Delivery Failed: {err_msg}")
     return {"ok": True, "message": "OTP sent via WhatsApp"}
 
 @api.post("/auth/verify-otp")

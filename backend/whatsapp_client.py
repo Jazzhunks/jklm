@@ -468,7 +468,7 @@ async def send_whatsapp_otp(phone: str, code: str) -> bool:
 
     if not phone_id or not access_token:
         log.warning("WhatsApp credentials missing; skipping OTP send.")
-        return False
+        return False, "Missing WhatsApp credentials"
 
     clean_phone = str(phone).split(".")[0].strip()
     clean_phone = "".join(filter(str.isdigit, clean_phone))
@@ -511,11 +511,15 @@ async def send_whatsapp_otp(phone: str, code: str) -> bool:
                     wa_msg_id=wa_msg_id,
                     preview_text=f"🔐 [OTP] {code} is your verification code.",
                     msg_type="text",
-                    caption=f"{code} is your verification code. For your security, do not share this code. Expires in 5 minutes."
+                    text=f"{code} is your verification code. For your security, do not share this code. Expires in 5 minutes."
                 )
 
             log.info("OTP sent successfully to %s", clean_phone)
-            return True
+            return True, ""
+        except httpx.HTTPStatusError as e:
+            err_msg = f"HTTP {e.response.status_code}: {e.response.text}"
+            log.error("OTP WhatsApp delivery failed for %s: %s", clean_phone, err_msg)
+            return False, err_msg
         except Exception as e:
             log.error("OTP WhatsApp delivery failed for %s: %s", clean_phone, str(e))
-            return False
+            return False, str(e)
