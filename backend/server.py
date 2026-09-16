@@ -839,7 +839,7 @@ async def send_otp(payload: SendOtpIn):
     return {"ok": True, "message": "OTP sent via WhatsApp"}
 
 @api.post("/auth/verify-otp")
-async def verify_otp(payload: VerifyOtpIn):
+async def verify_otp(payload: VerifyOtpIn, response: Response):
     phone = payload.phone.strip()
     record = await db.otps.find_one({"phone": phone, "action": payload.action})
     
@@ -855,12 +855,14 @@ async def verify_otp(payload: VerifyOtpIn):
         if not user: raise HTTPException(404, "User not found")
         # Clean OTP
         await db.otps.delete_one({"_id": record["_id"]})
-        # Generate token
-        access = create_access_token({"sub": user["id"], "role": user.get("role", "student")})
-        # We also want to set cookies if needed, but LoginIn does it differently maybe?
-        # Actually, let's just return what standard login returns
+        # Generate tokens
+        role = user.get("role", "student")
+        access = create_access_token(user["id"], user.get("email", ""), role)
+        refresh = create_refresh_token(user["id"], role)
+        refresh_ttl = 2592000 if role == "admin" else 604800
+        set_auth_cookies(response, access, refresh, refresh_max_age=refresh_ttl)
         doc = dict(user); doc.pop("_id", None); doc.pop("password_hash", None)
-        return {"user": doc, "access_token": access}
+        return {"user": doc, "access_token": access, "refresh_token": refresh}
         
     elif payload.action == "register":
         # Just return ok, meaning frontend can proceed with creating account
