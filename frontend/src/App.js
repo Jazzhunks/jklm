@@ -30,6 +30,7 @@ const AdminDashboard = lazy(() => import('@/pages/AdminDashboard'));
 const CarnivalDashboard = lazy(() => import('@/pages/CarnivalDashboard'));
 const ScholarshipDashboard = lazy(() => import('@/pages/ScholarshipDashboard'));
 const CampaignFormPage = lazy(() => import('@/pages/CampaignFormPage'));
+const SpatialUITest = lazy(() => import('@/pages/SpatialUITest'));
 const SchoolDashboard = lazy(() => import('@/pages/SchoolDashboard'));
 const AdminSchoolVisits = lazy(() => import('@/pages/AdminSchoolVisits'));
 const Examiner = lazy(() => import('@/pages/Examiner'));
@@ -158,6 +159,7 @@ export default function App() {
               <Route path="/admin/campaigns/new" element={<Protected allowedRoles={ADMIN_ONLY}><CampaignFormPage /></Protected>} />
               <Route path="/admin/campaigns/:slug/edit" element={<Protected allowedRoles={ADMIN_ONLY}><CampaignFormPage /></Protected>} />
               <Route path="/admin/campaigns/:id/edit" element={<Protected allowedRoles={ADMIN_ONLY}><CampaignFormPage /></Protected>} />
+              <Route path="/admin/spatial-test" element={<Protected allowedRoles={ADMIN_ONLY}><SpatialUITest /></Protected>} />
               
               {/* Universal Fallback Direct Catch */}
               <Route path=":hash" element={<MagicProxy />} />
