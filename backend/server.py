@@ -2092,11 +2092,14 @@ RESULT_HEADERS = ["application_no", "name", "school", "standard",
 
 @api.get("/admin/scholarships/{sid}/results-template")
 async def results_template(sid: str, _admin = Depends(require_admin)):
-    camp = await db.scholarships.find_one({"id": sid}, {"_id": 0, "total_marks": 1, "title": 1})
+    camp = await db.scholarships.find_one({"$or": [{"id": sid}, {"slug": sid}]}, {"_id": 0, "total_marks": 1, "title": 1})
     if not camp:
-        raise HTTPException(404, "Campaign not found")
+        camp = await db.wath_carnivals.find_one({"$or": [{"id": sid}, {"slug": sid}]}, {"_id": 0, "title": 1})
+    if not camp:
+        raise HTTPException(404, "Campaign or Carnival not found")
         
-    total_count = await db.scholarship_applications.count_documents({"scholarship_id": sid})
+    real_id = camp.get("id") or sid
+    total_count = await db.scholarship_applications.count_documents({"$or": [{"scholarship_id": real_id}, {"carnival_id": real_id}, {"scholarship_id": sid}, {"carnival_id": sid}]})
     if total_count == 0:
         raise HTTPException(404, "No scholarship applications found for this campaign")
 
@@ -2140,9 +2143,11 @@ async def results_template(sid: str, _admin = Depends(require_admin)):
 @api.post("/admin/scholarships/{sid}/bulk-results")
 async def bulk_results(sid: str, background: BackgroundTasks,
                        file: UploadFile = File(...), _admin = Depends(require_admin)):
-    camp = await db.scholarships.find_one({"id": sid}, {"_id": 0})
+    camp = await db.scholarships.find_one({"$or": [{"id": sid}, {"slug": sid}]}, {"_id": 0})
     if not camp:
-        raise HTTPException(404, "Campaign not found")
+        camp = await db.wath_carnivals.find_one({"$or": [{"id": sid}, {"slug": sid}]}, {"_id": 0})
+    if not camp:
+        raise HTTPException(404, "Campaign or Carnival not found")
     data = await file.read()
     if not data:
         raise HTTPException(400, "Empty file")
@@ -2224,9 +2229,11 @@ BULK_SCHOLARSHIP_HEADERS = [
 
 @api.get("/admin/scholarships/{sid}/bulk-register-template")
 async def bulk_register_template(sid: str, _admin = Depends(require_admin)):
-    camp = await db.scholarships.find_one({"id": sid}, {"_id": 0})
+    camp = await db.scholarships.find_one({"$or": [{"id": sid}, {"slug": sid}]}, {"_id": 0})
     if not camp:
-        raise HTTPException(404, "Campaign not found")
+        camp = await db.wath_carnivals.find_one({"$or": [{"id": sid}, {"slug": sid}]}, {"_id": 0})
+    if not camp:
+        raise HTTPException(404, "Campaign or Carnival not found")
     wb = openpyxl.Workbook(); ws = wb.active; ws.title = "Bulk Registrations"
     ws.append(BULK_SCHOLARSHIP_HEADERS)
     sample_venue = (camp.get("available_venues") or ["90 FT"])[0]
@@ -2304,8 +2311,10 @@ async def _process_bulk_file_bg(job_id: str, sid: str, file_path: str):
                     raise ValueError(f"Missing required data for Name: {name}")
 
                 existing = await db.scholarship_applications.find_one({
-                    "scholarship_id": sid,
-                    "$or": [{"email": email}, {"phone": phone}],
+                    "$or": [
+                        {"scholarship_id": real_sid, "$or": [{"email": email}, {"phone": phone}]},
+                        {"carnival_id": real_sid, "$or": [{"email": email}, {"phone": phone}]},
+                    ]
                 })
                 
                 if existing:
@@ -2324,10 +2333,12 @@ async def _process_bulk_file_bg(job_id: str, sid: str, file_path: str):
                 else:
                     app_no = str(int(datetime.now(timezone.utc).timestamp() * 1000))[-8:]
                 
+                is_carnival = campaign.get("exam_dates") is not None
                 doc = {
                     "id": new_id(),
                     "application_no": app_no,
-                    "scholarship_id": sid,
+                    "scholarship_id": None if is_carnival else real_sid,
+                    "carnival_id": real_sid if is_carnival else None,
                     "scholarship_title": campaign.get("title", "Scholarship Test"),
                     "name": name, "email": email, "phone": phone,
                     "standard": standard, "school": school,
@@ -2409,9 +2420,11 @@ async def bulk_register_scholarship(
     file: UploadFile = File(...),
     _admin = Depends(require_admin),
 ):
-    campaign = await db.scholarships.find_one({"id": sid}, {"_id": 0})
+    campaign = await db.scholarships.find_one({"$or": [{"id": sid}, {"slug": sid}]}, {"_id": 0})
     if not campaign:
-        raise HTTPException(404, "Campaign not found")
+        campaign = await db.wath_carnivals.find_one({"$or": [{"id": sid}, {"slug": sid}]}, {"_id": 0})
+    if not campaign:
+        raise HTTPException(404, "Campaign or Carnival not found")
 
     data = await file.read()
     if not data:
@@ -2467,7 +2480,7 @@ async def bulk_register_scholarship(
             continue
 
         existing = await db.scholarship_applications.find_one({
-            "scholarship_id": sid,
+            "scholarship_id": real_sid,
             "$or": [{"email": email}, {"phone": phone}],
         })
 
@@ -2492,7 +2505,7 @@ async def bulk_register_scholarship(
         doc = {
             "id": new_id(),
             "application_no": app_no,
-            "scholarship_id": sid,
+            "scholarship_id": real_sid,
             "scholarship_title": campaign.get("title", "Scholarship Test"),
             "name": name, "email": email, "phone": phone,
             "standard": standard, "school": school,
@@ -2539,7 +2552,7 @@ async def bulk_register_scholarship(
     job_id = new_id()
     job_doc = {
         "id": job_id,
-        "scholarship_id": sid,
+        "scholarship_id": real_sid,
         "status": "completed",
         "total_rows": len(valid_rows),
         "processed": len(valid_rows),
