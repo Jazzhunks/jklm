@@ -1,12 +1,12 @@
 {
-  "name": "Northend Admin",
-  "short_name": "Northend",
-  "description": "Operations admin dashboard",
-  "start_url": "/admin",
+  "name": "Unacademy Admin",
+  "short_name": "Unacademy",
+  "description": "Unacademy ERP & Operations Dashboard",
+  "start_url": "/",
   "scope": "/",
   "display": "standalone",
   "orientation": "any",
-  "theme_color": "#3C4952",
+  "theme_color": "#000000",
   "background_color": "#ffffff",
   "icons": [
     {

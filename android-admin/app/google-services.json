@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1020345802825",
+    "project_id": "northend-admin-app",
+    "storage_bucket": "northend-admin-app.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1020345802825:android:c8eac8a2551308f91c1f98",
+        "android_client_info": {
+          "package_name": "com.northend.admin"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCt8_IbBr3rfe-116gYzY8epqW9XVxmqQM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

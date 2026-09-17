@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="gcm_defaultSenderId" translatable="false">1020345802825</string>
+    <string name="google_api_key" translatable="false">AIzaSyCt8_IbBr3rfe-116gYzY8epqW9XVxmqQM</string>
+    <string name="google_app_id" translatable="false">1:1020345802825:android:c8eac8a2551308f91c1f98</string>
+    <string name="google_crash_reporting_api_key" translatable="false">AIzaSyCt8_IbBr3rfe-116gYzY8epqW9XVxmqQM</string>
+    <string name="google_storage_bucket" translatable="false">northend-admin-app.firebasestorage.app</string>
+    <string name="project_id" translatable="false">northend-admin-app</string>
+</resources>

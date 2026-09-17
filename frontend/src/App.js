@@ -1,3 +1,5 @@
+import { requestFirebaseNotificationPermission } from './lib/firebase';
+import { useEffect } from 'react';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { queryClient } from './queryClient';
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
@@ -80,6 +82,12 @@ function OneSignalBridge() {
 }
 
 export default function App() {
+
+  useEffect(() => {
+    requestFirebaseNotificationPermission().catch(console.error);
+  }, []);
+
+
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
