@@ -7,7 +7,8 @@ import { toast } from "sonner";
 import BulkProgressModal from "./admin/BulkProgressModal";
 
 export default function CarnivalDashboard() {
-  const { id } = useParams();
+  const { id, slug } = useParams();
+  const campaignIdentifier = id || slug;
   const navigate = useNavigate();
   
   const [bulkState, setBulkState] = useState({ progress: 0, status: "idle" });
@@ -16,13 +17,13 @@ export default function CarnivalDashboard() {
   const uploadInputRef = useRef();
 
   const { data: carnival, isLoading: loadingCar } = useQuery({
-    queryKey: ["admin-carnival", id],
-    queryFn: () => api.get(`/admin/wath/carnivals/${id}`).then(r => r.data)
+    queryKey: ["admin-carnival", campaignIdentifier],
+    queryFn: () => api.get(`/admin/wath/carnivals/${campaignIdentifier}`).then(r => r.data)
   });
 
   const { data: regs = [], isLoading: loadingRegs } = useQuery({
-    queryKey: ["admin-carnival-regs", id],
-    queryFn: () => api.get(`/admin/wath/carnivals/${id}/registrations`).then(r => r.data)
+    queryKey: ["admin-carnival-regs", campaignIdentifier],
+    queryFn: () => api.get(`/admin/wath/carnivals/${campaignIdentifier}/registrations`).then(r => r.data)
   });
 
   const loading = loadingCar || loadingRegs;
@@ -53,10 +54,10 @@ export default function CarnivalDashboard() {
 
   const downloadResultsTemplate = async () => {
     try {
-      const res = await api.get(`/admin/scholarships/${id}/results-template`, { responseType: 'blob' });
+      const res = await api.get(`/admin/scholarships/${campaignIdentifier}/results-template`, { responseType: 'blob' });
       const url = window.URL.createObjectURL(new Blob([res.data]));
       const link = document.createElement('a');
-      link.href = url; link.setAttribute('download', `results-template-${id}.xlsx`);
+      link.href = url; link.setAttribute('download', `results-template-${campaignIdentifier}.xlsx`);
       document.body.appendChild(link); link.click(); link.remove();
     } catch (e) { toast.error("Failed to download template"); }
   };
@@ -69,7 +70,7 @@ export default function CarnivalDashboard() {
     try {
       const fd = new FormData();
       fd.append("file", file);
-      const res = await api.post(`/admin/scholarships/${id}/bulk-results`, fd, {
+      const res = await api.post(`/admin/scholarships/${campaignIdentifier}/bulk-results`, fd, {
         headers: { "Content-Type": "multipart/form-data" },
         onUploadProgress: (ev) => {
           if (ev.total) setBulkState({ progress: Math.round((ev.loaded * 100) / ev.total), status: "uploading" });
