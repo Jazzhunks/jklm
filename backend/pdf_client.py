@@ -230,7 +230,7 @@ def admit_card_pdf(application_no, name, phone, school, standard, target_exam,
                    exam_date, venue=None, exam_time=None, scholarship_title=None,
                    father_name=None, gender=None, dob=None, email=None,
                    address=None, district=None) -> bytes:
-    """Official-style Admit Card / Hall Ticket (A4) matched to the unacademy.com
+    """Official-style Admit Card / Hall Ticket (A4) matched to the northendedu.com
     brand — bordered sections, candidate photo box and a mandatory QR code."""
     buf = io.BytesIO()
     c = canvas.Canvas(buf, pagesize=A4)
@@ -330,7 +330,7 @@ def admit_card_pdf(application_no, name, phone, school, standard, target_exam,
     c.drawCentredString(ph_x + ph_w / 2, ph_y + ph_h / 2 - 11, "PHOTOGRAPH")
 
     # QR code and label positioned cleanly below the passport photo
-    qr_url = f"https://unacademy.com/wath?app_no={app_no_str}&phone={phone_str}#result"
+    qr_url = f"https://northendedu.com/wath?app_no={app_no_str}&phone={phone_str}#result"
     qr_sz = 20 * mm  
     qr_x = ph_x + (ph_w - qr_sz) / 2
     
@@ -395,7 +395,7 @@ def admit_card_pdf(application_no, name, phone, school, standard, target_exam,
         "Affix a recent passport-size photograph in the box above before the exam day.",
         "Report to your designated centre at least 30 minutes prior to the Exam time.",
         "Mobile phones, smart watches, calculators and electronic gadgets are strictly prohibited.",
-        "Results will be declared within 7 days and can be verified at unacademy.com via the QR.",
+        "Results will be declared within 7 days and can be verified at northendedu.com via the QR.",
     ]
     for n in notes:
         c.setFillColor(BRAND_GREEN)
@@ -428,7 +428,7 @@ def admit_card_pdf(application_no, name, phone, school, standard, target_exam,
     c.line(LM, 22 * mm, RM, 22 * mm)
     c.setFillColor(BRAND_GREEN)
     c.setFont("Helvetica-Bold", 8)
-    c.drawString(LM, 17 * mm, "unacademy.com")
+    c.drawString(LM, 17 * mm, "northendedu.com")
     c.setFillColor(INK_SOFT)
     c.setFont("Helvetica", 6.5)
     c.drawString(LM, 13.5 * mm, "Unacademy Kashmir · System-generated admit card — verify authenticity via QR.")
@@ -577,7 +577,7 @@ def result_card_pdf(application_no, name, school, standard, target_exam,
     c.setFillColor(MUTED)
     c.setFont("Helvetica", 6.5)
     c.drawCentredString(W/2, 11 * mm, "This is a system-generated document. Verify authenticity by scanning the QR code.")
-    c.drawCentredString(W/2, 7 * mm, "Unacademy Offline Centre · Kashmir · unacademy.com")
+    c.drawCentredString(W/2, 7 * mm, "Unacademy Offline Centre · Kashmir · northendedu.com")
 
     c.showPage()
     c.save()
@@ -673,7 +673,7 @@ def id_card_pdf(student: dict, branch: dict, course: dict, photo_bytes: bytes | 
     c.drawCentredString(W / 2, 10 * mm, f"BRANCH : {branch_name}")
     c.setFont("Helvetica", 6)
     c.drawCentredString(W / 2, 7 * mm, "If found, please return to nearest Unacademy centre.")
-    c.drawCentredString(W / 2, 4.5 * mm, "This card is non-transferable and remains property of Unacademy.")
+    c.drawCentredString(W / 2, 4.5 * mm, "This card is non-transferable and remains property of Unacademy kashmir.")
 
     c.showPage()
     c.save()

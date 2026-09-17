@@ -96,12 +96,12 @@ def fee_receipt_pdf(payment: dict, student: dict, branch: dict, course_title: st
     # ---- Header: Company Info ----
     c.setFillColor(TEXT)
     c.setFont("Helvetica-Bold", 16)
-    c.drawString(15 * mm, H - 20 * mm, "UNACADEMY".upper())
+    c.drawString(15 * mm, H - 20 * mm, "Northend Educational World".upper())
     
     c.setFont("Helvetica", 9)
     c.setFillColor(MUTED)
     c.drawString(15 * mm, H - 25 * mm, "Head Office: I.G Road Parraypora, Srinagar - 190005")
-    c.drawString(15 * mm, H - 30 * mm, "info@unacademy.com | www.unacademy.com")
+    c.drawString(15 * mm, H - 30 * mm, "info@northendedu.com   | www.northendedu.com")
     c.setFillColor(TEXT)
     c.setFont("Helvetica-Bold", 16)
     c.drawRightString(W - 15 * mm, H - 20 * mm, "Tax Invoice")
@@ -187,7 +187,7 @@ def fee_receipt_pdf(payment: dict, student: dict, branch: dict, course_title: st
     c.drawString(15 * mm, y5, "Bank Details")
     c.setFont("Helvetica", 9)
     c.setFillColor(MUTED)
-    c.drawString(15 * mm, y5 - 5 * mm, f"Account Name: {payment.get('bank_account_name') or 'Unacademy'}")
+    c.drawString(15 * mm, y5 - 5 * mm, f"Account Name: {payment.get('bank_account_name') or 'Northend Educational World'}")
     c.drawString(15 * mm, y5 - 10 * mm, f"Account Number: {payment.get('bank_account_number') or '0361010100002781'}")
     c.drawString(15 * mm, y5 - 15 * mm, f"IFSC Code: {payment.get('bank_ifsc') or 'JAKA0RAWWAL'}")
     
@@ -271,7 +271,7 @@ def fee_receipt_pdf(payment: dict, student: dict, branch: dict, course_title: st
     c.drawString(15 * mm, y6 - 13 * mm, "3. This is a computer-generated invoice and does not require a physical signature.")
     
     c.setFont("Helvetica-Oblique", 7.5)
-    c.drawString(15 * mm, y6 - 22 * mm, "Disclaimer: This centre is independently owned and operated by UNACADEMY, an Authorised")
+    c.drawString(15 * mm, y6 - 22 * mm, "Disclaimer: This centre is independently owned and operated by Northend Educational World, an Authorised")
     c.drawString(15 * mm, y6 - 26 * mm, "Franchisee of Sorting Hat Solutions Pvt. Ltd. (Unacademy).")
 
     c.showPage()
@@ -353,7 +353,7 @@ def fee_receipt_thermal_pdf(
     # Header
     c.setFont("Helvetica-Bold", 9.0 if w_val == 80 else 8.0)
     c.setFillColor(TEXT)
-    c.drawCentredString(W / 2.0, y, "UNACADEMY")
+    c.drawCentredString(W / 2.0, y, "Northend Educational World")
     y -= 3.8 * mm
 
     c.setFont("Helvetica", 6.5)
@@ -363,7 +363,7 @@ def fee_receipt_thermal_pdf(
 
     c.drawCentredString(W / 2.0, y, "Head Office: I.G Road Parraypora, Srinagar - 190005")
     y -= 3.2 * mm
-    c.drawCentredString(W / 2.0, y, "info@unacademy.com | www.unacademy.com")
+    c.drawCentredString(W / 2.0, y, "info@northendedu.com | www.northendedu.com")
     y -= 3.2 * mm
 
     gstin = branch.get("gstin") or "01AAZFN0892N1ZL"
