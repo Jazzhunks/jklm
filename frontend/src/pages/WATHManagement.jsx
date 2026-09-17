@@ -188,6 +188,9 @@ function CarnivalEditor({ value, onClose, onSaved }) {
     })),
   }));
   const [busy, setBusy] = useState(false);
+  const [genStartTime, setGenStartTime] = useState("10:00");
+  const [genEndTime, setGenEndTime] = useState("15:00");
+  const [genCapacity, setGenCapacity] = useState(20);
   const isNew = !!c.__new;
 
   const save = async () => {
