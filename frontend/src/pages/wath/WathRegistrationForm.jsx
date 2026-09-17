@@ -456,6 +456,8 @@ export default function WathRegistrationForm({ campaign, carnival, mode, loading
   });
   const [submitted, setSubmitted] = useState(null);
   const [busy, setBusy] = useState(false);
+  const [otpSent, setOtpSent] = useState(false);
+  const [otpCode, setOtpCode] = useState("");
 
   const venueOptions = useMemo(() => {
     if (isCarnival) return carnival.available_venues || ["90 FT", "Anantnag", "Zakura", "Parraypora", "Sopore"];
