@@ -1,3 +1,6 @@
+/* eslint-disable no-undef */
+/* global self, clients, importScripts */
+
 const CACHE_NAME = "northend-static-v2";
 const RUNTIME_CACHE = "northend-runtime-v2";
 const PRECACHE_URLS = [

@@ -56,6 +56,7 @@ from whatsapp_broadcast import (
     run_broadcast_job,
     calculate_campaign_cost,
     broadcast_analytics_stream,
+    get_message_cost,
 )
 from notifications import (
     build_notifications_router,
@@ -793,10 +794,6 @@ async def register(payload: RegisterIn, response: Response, background: Backgrou
     doc.pop("_id", None)
     background.add_task(_safe_send_registration_group_notification, doc)
     return {"user": doc, "access_token": access}
-
-
-import random
-from datetime import timedelta
 
 
 @api.post("/auth/test-whatsapp")
@@ -2262,6 +2259,7 @@ async def _process_bulk_file_bg(job_id: str, sid: str, file_path: str):
         campaign = await db.scholarships.find_one({"id": sid}, {"_id": 0})
         if not campaign:
             raise Exception("Campaign not found during processing.")
+        real_sid = campaign.get("id", sid)
 
         wb = openpyxl.load_workbook(file_path, read_only=True, data_only=True)
         ws = wb.active
@@ -2425,6 +2423,7 @@ async def bulk_register_scholarship(
         campaign = await db.wath_carnivals.find_one({"$or": [{"id": sid}, {"slug": sid}]}, {"_id": 0})
     if not campaign:
         raise HTTPException(404, "Campaign or Carnival not found")
+    real_sid = campaign["id"]
 
     data = await file.read()
     if not data:
@@ -3697,7 +3696,7 @@ async def wa_list_templates(_admin = Depends(require_admin)):
         templates = await fetch_approved_templates(token, waba_id)
         return {"data": templates}
     except Exception as e:
-        logger.error(f"Failed to fetch templates: {e}")
+        logging.error(f"Failed to fetch templates: {e}")
         raise HTTPException(502, f"Meta API error: {e}")
 
 

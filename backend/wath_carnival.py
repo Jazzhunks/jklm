@@ -223,6 +223,50 @@ def build_wath_router(db, require_admin_dep) -> APIRouter:
             {"$or": [{"carnival_id": cid}, {"carnival_id": real_id}]}, {"_id": 0}
         ).sort("created_at", -1).to_list(2000)
 
+    @router.get("/admin/wath/carnivals/{cid}/registrations/export")
+    async def export_registrations(cid: str, _admin=Depends(require_admin_dep)):
+        import io as _io
+        import openpyxl
+        from fastapi.responses import StreamingResponse
+        existing = await db.wath_carnivals.find_one({"$or": [{"id": cid}, {"slug": cid}]}, {"_id": 0})
+        real_id = existing["id"] if existing else cid
+        title = (existing or {}).get("title", "WATH Carnival")
+        regs = await db.scholarship_applications.find(
+            {"$or": [{"carnival_id": cid}, {"carnival_id": real_id}]}, {"_id": 0}
+        ).sort("created_at", 1).to_list(5000)
+
+        columns = [
+            ("application_no", "Application No"),
+            ("name", "Name"),
+            ("father_name", "Father's / Guardian's Name"),
+            ("gender", "Gender"),
+            ("dob", "Date of Birth"),
+            ("phone", "Phone"),
+            ("email", "Email"),
+            ("standard", "Class"),
+            ("school", "School"),
+            ("target_exam", "Target Exam"),
+            ("venue", "Venue"),
+            ("chosen_date", "Exam Date"),
+            ("chosen_slot_time", "Slot"),
+            ("created_at", "Registered On"),
+        ]
+        wb = openpyxl.Workbook()
+        ws = wb.active
+        ws.title = "Carnival Registrants"
+        ws.append([label for _, label in columns])
+        for r in regs:
+            ws.append([str(r.get(key, "") or "") for key, _ in columns])
+        buf = _io.BytesIO()
+        wb.save(buf)
+        buf.seek(0)
+        safe = re.sub(r"[^A-Za-z0-9]+", "-", title).strip("-").lower() or "carnival"
+        return StreamingResponse(
+            buf,
+            media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            headers={"Content-Disposition": f'attachment; filename="{safe}-registrants.xlsx"'},
+        )
+
     return router
 
 

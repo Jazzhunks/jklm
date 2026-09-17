@@ -52,6 +52,18 @@ export default function CarnivalDashboard() {
     };
   }, [regs, carnival]);
 
+  const exportRegistrants = async () => {
+    try {
+      const res = await api.get(`/admin/wath/carnivals/${campaignIdentifier}/registrations/export`, { responseType: 'blob' });
+      const url = window.URL.createObjectURL(new Blob([res.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `${(carnival?.title || 'carnival').replace(/[^A-Za-z0-9]+/g, '-').toLowerCase()}-registrants.xlsx`);
+      document.body.appendChild(link); link.click(); link.remove();
+      toast.success("Registrants exported");
+    } catch (e) { toast.error("Failed to export registrants"); }
+  };
+
   const downloadResultsTemplate = async () => {
     try {
       const res = await api.get(`/admin/scholarships/${campaignIdentifier}/results-template`, { responseType: 'blob' });
@@ -115,13 +127,16 @@ export default function CarnivalDashboard() {
             </div>
           </div>
 
-          <div className="flex flex-wrap items-center gap-3 shrink-0">
+          <div className="flex flex-wrap items-center gap-3 shrink-0 w-full md:w-auto">
             <input type="file" className="hidden" ref={uploadInputRef} onChange={uploadResults} accept=".xlsx,.xls" />
             
-            <button onClick={downloadResultsTemplate} className="h-12 px-5 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 text-sm font-bold flex items-center gap-2 transition-all backdrop-blur-md text-white">
+            <button onClick={exportRegistrants} data-testid="export-registrants-btn" className="h-12 px-5 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 text-sm font-bold flex items-center justify-center gap-2 transition-all backdrop-blur-md text-white flex-1 md:flex-none min-w-[130px]">
+              <Download size={16} /> Export Excel
+            </button>
+            <button onClick={downloadResultsTemplate} className="h-12 px-5 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 text-sm font-bold flex items-center justify-center gap-2 transition-all backdrop-blur-md text-white flex-1 md:flex-none min-w-[120px]">
               <Download size={16} /> Template
             </button>
-            <button onClick={() => uploadInputRef.current?.click()} className="h-12 px-5 rounded-xl bg-gradient-to-r from-accent to-[#1a9df4] hover:opacity-90 text-accent-foreground text-sm font-bold flex items-center gap-2 transition-all shadow-[0_0_20px_rgba(30,160,250,0.3)] hover:shadow-[0_0_30px_rgba(30,160,250,0.5)]">
+            <button onClick={() => uploadInputRef.current?.click()} className="h-12 px-5 rounded-xl bg-gradient-to-r from-accent to-[#1a9df4] hover:opacity-90 text-accent-foreground text-sm font-bold flex items-center justify-center gap-2 transition-all shadow-[0_0_20px_rgba(30,160,250,0.3)] hover:shadow-[0_0_30px_rgba(30,160,250,0.5)] flex-1 md:flex-none min-w-[150px]">
               <Upload size={16} /> Upload Results
             </button>
           </div>

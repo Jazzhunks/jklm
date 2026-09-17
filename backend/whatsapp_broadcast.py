@@ -285,6 +285,56 @@ def resolve_variables(
 # Single message send
 # ============================================================================
 
+# ============================================================================
+# Component builder (header / body / media) — required so templates with an
+# IMAGE/DOCUMENT/VIDEO header or a TEXT header with variables don't get
+# rejected by Meta with a parameter-mismatch error.
+# ============================================================================
+
+def _count_vars(text: str) -> int:
+    return len(set(re.findall(r"\{\{(\d+)\}\}", text or "")))
+
+
+def build_message_components(
+    template_components: List[Dict[str, Any]],
+    body_params: List[Dict[str, Any]],
+    header_media_url: Optional[str] = None,
+    header_text_params: Optional[List[Dict[str, Any]]] = None,
+) -> Tuple[Optional[List[Dict[str, Any]]], Optional[str]]:
+    """Build the WhatsApp `template.components` array from the approved template
+    structure. Returns (components, error). Only includes a component when it
+    actually needs parameters, otherwise Meta rejects the message."""
+    components: List[Dict[str, Any]] = []
+
+    for comp in template_components or []:
+        if comp.get("type") != "HEADER":
+            continue
+        fmt = (comp.get("format") or "TEXT").upper()
+        if fmt in ("IMAGE", "DOCUMENT", "VIDEO"):
+            if not header_media_url:
+                return None, f"This template has a {fmt.lower()} header — a header media file/link is required to broadcast it."
+            key = fmt.lower()
+            components.append({"type": "header", "parameters": [{"type": key, key: {"link": header_media_url}}]})
+        else:  # TEXT header
+            nvars = _count_vars(comp.get("text") or "")
+            if nvars > 0:
+                params = (header_text_params or [])[:nvars]
+                if len(params) < nvars:
+                    params += [{"type": "text", "text": f"[missing h{i+1}]"} for i in range(len(params), nvars)]
+                components.append({"type": "header", "parameters": params})
+        break
+
+    body_var_count = 0
+    for comp in template_components or []:
+        if comp.get("type") == "BODY":
+            body_var_count = _count_vars(comp.get("text") or "")
+            break
+    if body_var_count > 0:
+        components.append({"type": "body", "parameters": (body_params or [])[:body_var_count]})
+
+    return components, None
+
+
 async def send_broadcast_template(
     wa_id: str,
     template_name: str,
@@ -293,23 +343,31 @@ async def send_broadcast_template(
     variables: List[Dict[str, Any]],
     access_token: str,
     phone_id: str,
+    header_media_url: Optional[str] = None,
+    header_text_params: Optional[List[Dict[str, Any]]] = None,
 ) -> Dict[str, Any]:
+    if not access_token or not phone_id:
+        return {"ok": False, "status": "failed", "error": {"reason": "WhatsApp credentials (WHATSAPP_ACCESS_TOKEN / WHATSAPP_PHONE_NUMBER_ID) are not configured."}}
+
+    msg_components, err = build_message_components(components, variables, header_media_url, header_text_params)
+    if err:
+        logger.error(f"WhatsApp send skipped for {wa_id}: {err}")
+        return {"ok": False, "status": "failed", "error": {"reason": err}}
+
     url = f"https://graph.facebook.com/{VERSION}/{phone_id}/messages"
+    template_payload: Dict[str, Any] = {
+        "name": template_name,
+        "language": {"code": language},
+    }
+    if msg_components:
+        template_payload["components"] = msg_components
+
     payload = {
         "messaging_product": "whatsapp",
         "recipient_type": "individual",
         "to": wa_id,
         "type": "template",
-        "template": {
-            "name": template_name,
-            "language": {"code": language},
-            "components": [
-                {
-                    "type": "body",
-                    "parameters": variables,
-                }
-            ],
-        },
+        "template": template_payload,
     }
     async with httpx.AsyncClient(timeout=15) as client:
         resp = await client.post(url, headers={"Authorization": f"Bearer {access_token}"}, json=payload)
@@ -357,6 +415,9 @@ async def run_broadcast_job(campaign_id: str, job_id: str):
     target_group = campaign.get("target_group", "all")
     branch_id = campaign.get("branch_id")
     external_job_id = campaign.get("external_contact_job_id")
+    header_media_url = campaign.get("header_media_url")
+    header_text_params = campaign.get("header_text_params") or None
+    pricing_category = (campaign.get("template_category") or _extract_category(template_components)).lower()
 
     token = os.environ.get("WHATSAPP_ACCESS_TOKEN", "")
     phone_id = os.environ.get("WHATSAPP_PHONE_NUMBER_ID", "")
@@ -406,6 +467,8 @@ async def run_broadcast_job(campaign_id: str, job_id: str):
                 variables=variables,
                 access_token=token,
                 phone_id=phone_id,
+                header_media_url=header_media_url,
+                header_text_params=header_text_params,
             )
 
             analytics_doc = {
@@ -414,7 +477,7 @@ async def run_broadcast_job(campaign_id: str, job_id: str):
                 "wa_id": wa_id,
                 "wa_message_id": result.get("wa_message_id"),
                 "status": result.get("status", "failed"),
-                "pricing_category": _extract_category(template_components),
+                "pricing_category": pricing_category,
                 "sent_at": now_iso(),
                 "created_at": now_iso(),
             }
