@@ -529,7 +529,7 @@ export default function WathRegistrationForm({ campaign, carnival, mode, loading
     <>
       <Helmet>
         <title>WATH | Wisdom Aptitude Talent Hunt</title>
-        <link rel="canonical" href="https://unacademyedu.com/wath" />
+        <link rel="canonical" href="https://northendedu.com/wath" />
       </Helmet>
 
       <section className="relative min-h-screen flex items-center overflow-hidden">
@@ -679,7 +679,7 @@ export default function WathRegistrationForm({ campaign, carnival, mode, loading
                         <CustomDatePicker 
                           value={form.dob} 
                           onChange={val => setForm({...form, dob: val})} 
-                          placeholder="dd / mm / yyyy" 
+                          placeholder="Date of Birth" 
                           testid="wath-dob" 
                         />
                         <input className={inputCls} placeholder="School / current institute" required value={form.school_name} onChange={e => setForm({...form, school_name: e.target.value})} data-testid="wath-school"/>

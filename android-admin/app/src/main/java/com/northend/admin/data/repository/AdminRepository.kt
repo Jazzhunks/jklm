@@ -31,7 +31,7 @@ class AdminRepository @Inject constructor(
 
     
     suspend fun updateFcmToken(token: String): ResultWrapper<Any> {
-        return safeApiCall { apiService.updateFcmToken(com.northend.admin.data.remote.FCMTokenRequest(token)) }
+        return safeResponseCall { apiService.updateFcmToken(com.northend.admin.data.remote.FCMTokenRequest(token)) }
     }
 
     suspend fun login(email: String, password: String): ResultWrapper<User> = withContext(Dispatchers.IO) {
@@ -77,60 +77,87 @@ class AdminRepository @Inject constructor(
             response
         }
 
-    suspend fun getMe(): ResultWrapper<User> = safeApiCall { apiService.me().body()!! }
+    suspend fun getMe(): ResultWrapper<User> = safeResponseCall { apiService.me() }
 
     suspend fun getStudents(branchId: String? = null, query: String? = null): ResultWrapper<List<Student>> =
-        safeApiCall { apiService.listStudents(branchId = branchId, q = query, search = query).body()!! }
+        safeResponseCall { apiService.listStudents(branchId = branchId, q = query, search = query) }
 
     suspend fun createStudent(student: com.northend.admin.data.remote.models.Student): ResultWrapper<Student> =
-        safeApiCall { apiService.createStudent(student).body()!! }
+        safeResponseCall { apiService.createStudent(student) }
 
     suspend fun getPayments(branchId: String? = null, query: String? = null): ResultWrapper<List<Payment>> =
-        safeApiCall { apiService.listPayments(branchId = branchId, search = query).body()!! }
+        safeResponseCall { apiService.listPayments(branchId = branchId, search = query) }
 
     suspend fun createPayment(payment: PaymentCreateRequest): ResultWrapper<Payment> =
-        safeApiCall { apiService.createPayment(payment).body()!! }
+        safeResponseCall { apiService.createPayment(payment) }
 
     suspend fun getExpenses(branchId: String? = null, status: String? = null): ResultWrapper<List<Expense>> =
-        safeApiCall { apiService.listExpenses(branchId = branchId, status = status).body()!! }
+        safeResponseCall { apiService.listExpenses(branchId = branchId, status = status) }
 
     suspend fun createExpense(expense: ExpenseCreateRequest): ResultWrapper<Expense> =
-        safeApiCall { apiService.createExpense(expense).body()!! }
+        safeResponseCall { apiService.createExpense(expense) }
 
     suspend fun decideExpense(id: String, decision: String, note: String? = null): ResultWrapper<Expense> =
         safeApiCall { apiService.decideExpense(id, ExpenseDecisionRequest(decision, note)).body()!! }
 
     suspend fun getLeads(branchId: String? = null, status: String? = null): ResultWrapper<List<Lead>> =
-        safeApiCall { apiService.listLeads(branchId = branchId, status = status).body()!! }
+        safeResponseCall { apiService.listLeads(branchId = branchId, status = status) }
 
     suspend fun createLead(lead: LeadCreateRequest): ResultWrapper<Lead> =
-        safeApiCall { apiService.createLead(lead).body()!! }
+        safeResponseCall { apiService.createLead(lead) }
 
     suspend fun updateLead(id: String, lead: LeadUpdateRequest): ResultWrapper<Lead> =
-        safeApiCall { apiService.updateLead(id, lead).body()!! }
+        safeResponseCall { apiService.updateLead(id, lead) }
 
     suspend fun getSuperDashboard(): ResultWrapper<DashboardSuperResponse> =
-        safeApiCall { apiService.superDashboard().body()!! }
+        safeResponseCall { apiService.superDashboard() }
 
     suspend fun getBranchDashboard(branchId: String): ResultWrapper<DashboardBranchResponse> =
-        safeApiCall { apiService.branchDashboard(branchId).body()!! }
+        safeResponseCall { apiService.branchDashboard(branchId) }
 
 
     suspend fun listWhatsAppThreads(): ResultWrapper<List<com.northend.admin.data.remote.models.WhatsAppThread>> =
-        safeApiCall { apiService.listWhatsAppThreads().body()!! }
-
-    suspend fun getWhatsAppMessages(threadId: String): ResultWrapper<List<com.northend.admin.data.remote.models.WhatsAppMessage>> =
-        safeApiCall { apiService.getWhatsAppMessages(threadId).body()!!.items }
+        safeResponseCall { apiService.listWhatsAppThreads() }
+    suspend fun getWhatsAppMessages(threadId: String): ResultWrapper<List<com.northend.admin.data.remote.models.WhatsAppMessage>> {
+        val res = safeResponseCall { apiService.getWhatsAppMessages(threadId) }
+        return if (res is ResultWrapper.Success) {
+            ResultWrapper.Success(res.data.items)
+        } else {
+            res as ResultWrapper.Error
+        }
+    }
 
     suspend fun sendWhatsAppMessage(threadId: String, text: String): ResultWrapper<com.northend.admin.data.remote.models.WhatsAppMessage> =
         safeApiCall { apiService.sendWhatsAppMessage(threadId, com.northend.admin.data.remote.models.WhatsAppSendMessageRequest(text = text)).body()!! }
 
     suspend fun getMeta(): ResultWrapper<com.northend.admin.data.remote.MetaResponse> =
-        safeApiCall { apiService.meta().body()!! }
+        safeResponseCall { apiService.meta() }
 
     suspend fun logout(): ResultWrapper<Unit> = safeApiCall {
         apiService.logout()
         tokenManager.clearTokens()
+    }
+
+
+    private suspend fun <T> safeResponseCall(apiCall: suspend () -> retrofit2.Response<T>): ResultWrapper<T> = withContext(Dispatchers.IO) {
+        try {
+            val response = apiCall()
+            if (response.isSuccessful) {
+                ResultWrapper.Success(response.body()!!)
+            } else {
+                val errorMsg = response.errorBody()?.string() ?: response.message()
+                // Try to extract detail message if it's a JSON {"detail": "..."}
+                val cleanError = try {
+                    val jsonObj = org.json.JSONObject(errorMsg)
+                    jsonObj.optString("detail", errorMsg)
+                } catch (e: Exception) {
+                    errorMsg
+                }
+                ResultWrapper.Error(cleanError)
+            }
+        } catch (e: Exception) {
+            ResultWrapper.Error(e.localizedMessage ?: "Unknown error")
+        }
     }
 
     private suspend fun <T> safeApiCall(apiCall: suspend () -> T): ResultWrapper<T> = withContext(Dispatchers.IO) {

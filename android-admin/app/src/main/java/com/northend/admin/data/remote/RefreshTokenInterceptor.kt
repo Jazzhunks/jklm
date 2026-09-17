@@ -24,8 +24,6 @@ class RefreshTokenInterceptor @Inject constructor(
     override fun intercept(chain: Interceptor.Chain): Response {
         val response = chain.proceed(chain.request())
 
-        val body = response.peekBody(Long.MAX_VALUE).string()
-
         return if (response.code == 401 && !isAuthEndpoint(chain.request())) {
             synchronized(lock) {
                 if (isRefreshing) return response
@@ -42,6 +40,7 @@ class RefreshTokenInterceptor @Inject constructor(
                             .removeHeader("Authorization")
                             .addHeader("Authorization", "Bearer $newToken")
                             .build()
+                        response.close()
                         chain.proceed(newRequest)
                     } else {
                         tokenManager.clearTokens()

@@ -3,6 +3,7 @@ package com.northend.admin.data.remote.models
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 
+@JsonClass(generateAdapter = true)
 data class WhatsAppThread(
     val id: String,
     @Json(name = "wa_id") val phone: String? = null,
@@ -14,6 +15,7 @@ data class WhatsAppThread(
     val tags: List<String> = emptyList()
 )
 
+@JsonClass(generateAdapter = true)
 data class WhatsAppMessage(
     val id: String,
     @Json(name = "thread_id") val threadId: String,
@@ -24,6 +26,7 @@ data class WhatsAppMessage(
     val timestamp: String
 )
 
+@JsonClass(generateAdapter = true)
 data class WhatsAppSendMessageRequest(
     val kind: String = "text",
     val text: String

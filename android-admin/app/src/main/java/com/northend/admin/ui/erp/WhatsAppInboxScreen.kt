@@ -14,6 +14,7 @@ import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Send
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.activity.compose.BackHandler
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -38,6 +39,10 @@ val WhatsAppGrayText = Color(0xFF667781)
 @Composable
 fun WhatsAppInboxScreen(viewModel: WhatsAppViewModel = hiltViewModel(), targetThreadId: String? = null, onLogout: () -> Unit = {}) {
     val state by viewModel.uiState.collectAsState()
+
+    BackHandler(enabled = state.currentThread != null) {
+        viewModel.deselectThread()
+    }
 
     LaunchedEffect(targetThreadId, state.threads) {
         if (targetThreadId != null && state.threads.isNotEmpty()) {
