@@ -568,6 +568,7 @@ class ScholarshipApplicationIn(BaseModel):
     carnival_id: Optional[str] = None
     chosen_date: Optional[str] = None   # YYYY-MM-DD
     chosen_slot_time: Optional[str] = None  # "10:00 AM"
+    otp_code: Optional[str] = None
 
 class ScholarshipApplicationUpdateIn(BaseModel):
     name: Optional[str] = None
@@ -1279,6 +1280,16 @@ async def apply_scholarship(payload: ScholarshipApplicationIn, background: Backg
 
     clean_email = payload.email.lower().strip()
     clean_phone = payload.phone.strip()
+
+    # VERIFY OTP
+    if not payload.otp_code:
+        raise HTTPException(400, "OTP verification code is required")
+    
+    otp_record = await db.otps.find_one({"phone": clean_phone})
+    if not otp_record or otp_record["code"] != payload.otp_code.strip() or otp_record["expires_at"] < datetime.utcnow():
+        raise HTTPException(400, "Invalid or expired OTP")
+    # Delete OTP to prevent reuse
+    await db.otps.delete_one({"_id": otp_record["_id"]})
 
     # Duplicate check within the same campaign or carnival
     dup_query: Dict[str, Any] = {"$or": [{"email": clean_email}, {"phone": clean_phone}]}
