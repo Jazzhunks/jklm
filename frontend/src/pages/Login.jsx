@@ -97,6 +97,7 @@ export default function Login() {
   const isValidMobile = (v) => /^[0-9]{10}$/.test(v);
 
   const handleSendOtp = async (action = "login") => {
+    if (typeof action !== "string") action = "login"; // Prevent React SyntheticEvent from being used as action
     try {
       setBusy(true);
       setInlineError("");
