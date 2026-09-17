@@ -1,3 +1,4 @@
+import { createPortal } from 'react-dom';
 import React, { useState } from "react";
 import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -25,7 +26,7 @@ export default function LeadTransferModal({ lead, branches, onClose }) {
     onError: (err) => toast.error(err?.response?.data?.detail || "Failed to transfer lead")
   });
 
-  return (
+  return createPortal(
     <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 backdrop-blur-sm" onClick={onClose}>
       <form onClick={e => e.stopPropagation()} onSubmit={e => { e.preventDefault(); transfer.mutate(); }} className="bg-background border border-border rounded-xl w-full max-w-sm p-5 space-y-4 shadow-2xl">
         <h3 className="font-bold text-lg">Transfer Lead</h3>
@@ -48,5 +49,5 @@ export default function LeadTransferModal({ lead, branches, onClose }) {
         </div>
       </form>
     </div>
-  );
+  , document.body);
 }

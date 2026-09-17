@@ -1,3 +1,4 @@
+import { createPortal } from 'react-dom';
 import { useState, useMemo, useEffect } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useOutletContext, useSearchParams } from "react-router-dom";
@@ -148,7 +149,7 @@ function TreasuryTransferModal({ branchId, onClose, onUpdated }) {
     }
   };
 
-  return (
+  return createPortal(
     <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 backdrop-blur-sm animate-fadeIn" onClick={() => !busy && onClose()}>
       <div onClick={e => e.stopPropagation()} className="bg-background border border-border rounded-2xl w-full max-w-md shadow-2xl flex flex-col max-h-[90vh]">
         <div className="p-4 border-b border-border flex justify-between items-center bg-background/50 sticky top-0 rounded-t-2xl z-10">
@@ -280,7 +281,7 @@ function TreasuryView({ branchId }) {
         </div>
       </div>
     </div>
-  );
+  ), document.body);
 }
 
 export default function ErpPayments() {

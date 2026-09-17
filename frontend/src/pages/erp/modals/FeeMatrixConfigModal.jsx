@@ -1,3 +1,4 @@
+import { createPortal } from 'react-dom';
 import React, { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { erp, STUDENT_CLASSES, STUDENT_COURSES, getValidCoursesForClass } from "@/lib/erpApi";
@@ -41,7 +42,7 @@ export default function FeeMatrixConfigModal({ onClose }) {
     }
   };
 
-  return (
+  return createPortal(
     <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 backdrop-blur-sm overflow-y-auto" onClick={onClose}>
       <div onClick={e => e.stopPropagation()} className="bg-background border border-border rounded-2xl w-full max-w-4xl p-6 shadow-2xl my-8">
         <div className="flex justify-between items-center mb-6">
@@ -107,5 +108,5 @@ export default function FeeMatrixConfigModal({ onClose }) {
         </div>
       </div>
     </div>
-  );
+  , document.body);
 }

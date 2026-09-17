@@ -1,3 +1,4 @@
+import { createPortal } from 'react-dom';
 import { useState, useRef } from "react";
 import { API_BASE, formatError } from "@/lib/api";
 import { fmtINR, fmtDate } from "@/lib/erpApi";
@@ -66,7 +67,7 @@ export default function ReceiptModal({ payment, student, onClose }) {
     toast.success("Receipt link copied to clipboard");
   };
 
-  return (
+  return createPortal(
     <div className="fixed inset-0 bg-black/60 z-50 grid place-items-center p-2 sm:p-4 backdrop-blur-sm animate-fadeIn" onClick={onClose} data-testid="receipt-modal">
       {/* Print CSS specific to selected format */}
       <style>{`
@@ -414,5 +415,5 @@ export default function ReceiptModal({ payment, student, onClose }) {
         </div>
       </div>
     </div>
-  );
+  , document.body);
 }

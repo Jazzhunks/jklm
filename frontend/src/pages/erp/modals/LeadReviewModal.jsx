@@ -1,3 +1,4 @@
+import { createPortal } from 'react-dom';
 import React, { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -19,7 +20,7 @@ export default function LeadReviewModal({ lead, onClose }) {
     onError: (err) => toast.error("Failed to reject")
   });
 
-  return (
+  return createPortal(
     <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 backdrop-blur-sm" onClick={onClose}>
       <div onClick={e => e.stopPropagation()} className="bg-background border border-border rounded-xl w-full max-w-sm p-5 space-y-4 shadow-2xl">
         <h3 className="font-bold text-lg">Review Proposed Fee</h3>
@@ -41,5 +42,5 @@ export default function LeadReviewModal({ lead, onClose }) {
         </div>
       </div>
     </div>
-  );
+  , document.body);
 }
