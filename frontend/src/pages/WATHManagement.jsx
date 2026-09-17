@@ -273,14 +273,14 @@ function CarnivalEditor({ value, onClose, onSaved }) {
   };
 
   return (
-    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-black/70 backdrop-blur-sm z-[60] grid place-items-center p-4" onClick={onClose}>
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-black/70 backdrop-blur-sm z-[9999] grid place-items-center p-4" onClick={onClose}>
       <motion.div initial={{ y: 24, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 24, opacity: 0 }} className="w-full max-w-3xl bg-background border border-white/10 rounded-2xl overflow-hidden max-h-[90vh] flex flex-col" onClick={e => e.stopPropagation()} data-testid="carnival-editor">
         <div className="px-5 py-4 border-b border-white/10 flex items-center justify-between shrink-0 bg-background">
           <div className="font-medium">{isNew ? "New Carnival" : "Edit Carnival"}</div>
            <button type="button" onClick={onClose} className="p-1.5 rounded-lg hover:bg-white/5 cursor-pointer z-10"><XCircle size={16}/></button>
         </div>
 
-        <div className="p-5 space-y-4 overflow-y-auto flex-1">
+        <div className="p-5 space-y-4 overflow-y-auto flex-1 min-h-0">
           <input className="w-full px-3 py-2 rounded-xl bg-white/[0.03] border border-white/10 text-sm focus:outline-none focus:border-accent/40" placeholder="Title (e.g. WATH Carnival 2026)" value={c.title || ""} onChange={e => setC({ ...c, title: e.target.value })} data-testid="carnival-title"/>
           <input className="w-full px-3 py-2 rounded-xl bg-white/[0.03] border border-white/10 text-sm focus:outline-none focus:border-accent/40" placeholder="Subtitle (optional)" value={c.subtitle || ""} onChange={e => setC({ ...c, subtitle: e.target.value })}/>
           <textarea className="w-full px-3 py-2 rounded-xl bg-white/[0.03] border border-white/10 text-sm focus:outline-none focus:border-accent/40" rows={2} placeholder="Description (optional)" value={c.description || ""} onChange={e => setC({ ...c, description: e.target.value })}/>
@@ -356,7 +356,7 @@ function CarnivalEditor({ value, onClose, onSaved }) {
           </div>
         </div>
 
-        <div className="p-4 border-t border-white/10 flex gap-2">
+        <div className="p-4 border-t border-white/10 flex gap-2 shrink-0 bg-background">
           <button onClick={onClose} className="flex-1 px-4 py-2 rounded-xl border border-white/10 text-xs font-bold uppercase tracking-wider">Cancel</button>
           <button onClick={save} disabled={busy} className="flex-1 px-4 py-2 rounded-xl bg-accent text-accent-foreground text-xs font-bold uppercase tracking-wider disabled:opacity-50" data-testid="carnival-save">
             {busy ? "Saving…" : isNew ? "Create Carnival" : "Save Changes"}
