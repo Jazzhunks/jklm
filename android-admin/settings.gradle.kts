@@ -16,3 +16,8 @@ dependencyResolutionManagement {
 
 rootProject.name = "android-admin"
 include(":app")
+
+include(":core:domain")
+include(":core:network")
+include(":core:ui")
+include(":macrobenchmark")

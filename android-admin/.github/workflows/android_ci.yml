@@ -1,0 +1,38 @@
+name: Android CI
+
+on:
+  push:
+    branches: [ "main", "temp-clean" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: set up JDK 17
+      uses: actions/setup-java@v3
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+        cache: gradle
+
+    - name: Grant execute permission for gradlew
+      run: chmod +x gradlew
+      working-directory: ./android-admin
+
+    - name: Build Debug APK
+      run: ./gradlew assembleDebug --stacktrace
+      working-directory: ./android-admin
+
+    - name: Run Unit Tests
+      run: ./gradlew testDebugUnitTest
+      working-directory: ./android-admin
+      
+    - name: Run Lint
+      run: ./gradlew lintDebug
+      working-directory: ./android-admin

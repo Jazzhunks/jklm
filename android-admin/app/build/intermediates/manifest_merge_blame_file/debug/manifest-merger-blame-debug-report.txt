@@ -27,22 +27,22 @@
 17-->/Users/mudasirmushtaq/Documents/app/northend/android-admin/app/src/main/AndroidManifest.xml:10:5-77
 17-->/Users/mudasirmushtaq/Documents/app/northend/android-admin/app/src/main/AndroidManifest.xml:10:22-74
 18    <uses-permission android:name="android.permission.WAKE_LOCK" /> <!-- Required by older versions of Google Play services to create IID tokens -->
-18-->[com.google.firebase:firebase-messaging:23.4.1] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/1d600d1215756592b76f9e39c8ecb3d4/transformed/firebase-messaging-23.4.1/AndroidManifest.xml:24:5-68
-18-->[com.google.firebase:firebase-messaging:23.4.1] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/1d600d1215756592b76f9e39c8ecb3d4/transformed/firebase-messaging-23.4.1/AndroidManifest.xml:24:22-65
+18-->[com.google.firebase:firebase-messaging:23.4.1] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/bb5282f95b711040f789d928a8095699/transformed/firebase-messaging-23.4.1/AndroidManifest.xml:24:5-68
+18-->[com.google.firebase:firebase-messaging:23.4.1] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/bb5282f95b711040f789d928a8095699/transformed/firebase-messaging-23.4.1/AndroidManifest.xml:24:22-65
 19    <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
-19-->[com.google.firebase:firebase-messaging:23.4.1] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/1d600d1215756592b76f9e39c8ecb3d4/transformed/firebase-messaging-23.4.1/AndroidManifest.xml:26:5-82
-19-->[com.google.firebase:firebase-messaging:23.4.1] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/1d600d1215756592b76f9e39c8ecb3d4/transformed/firebase-messaging-23.4.1/AndroidManifest.xml:26:22-79
+19-->[com.google.firebase:firebase-messaging:23.4.1] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/bb5282f95b711040f789d928a8095699/transformed/firebase-messaging-23.4.1/AndroidManifest.xml:26:5-82
+19-->[com.google.firebase:firebase-messaging:23.4.1] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/bb5282f95b711040f789d928a8095699/transformed/firebase-messaging-23.4.1/AndroidManifest.xml:26:22-79
 20
 21    <permission
-21-->[androidx.core:core:1.12.0] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/53462592065f51278c7b27453a6cde6e/transformed/core-1.12.0/AndroidManifest.xml:22:5-24:47
+21-->[androidx.core:core:1.12.0] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/13e2ec15ebe540ba74041043159a28e3/transformed/core-1.12.0/AndroidManifest.xml:22:5-24:47
 22        android:name="com.northend.admin.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
-22-->[androidx.core:core:1.12.0] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/53462592065f51278c7b27453a6cde6e/transformed/core-1.12.0/AndroidManifest.xml:23:9-81
+22-->[androidx.core:core:1.12.0] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/13e2ec15ebe540ba74041043159a28e3/transformed/core-1.12.0/AndroidManifest.xml:23:9-81
 23        android:protectionLevel="signature" />
-23-->[androidx.core:core:1.12.0] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/53462592065f51278c7b27453a6cde6e/transformed/core-1.12.0/AndroidManifest.xml:24:9-44
+23-->[androidx.core:core:1.12.0] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/13e2ec15ebe540ba74041043159a28e3/transformed/core-1.12.0/AndroidManifest.xml:24:9-44
 24
 25    <uses-permission android:name="com.northend.admin.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION" />
-25-->[androidx.core:core:1.12.0] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/53462592065f51278c7b27453a6cde6e/transformed/core-1.12.0/AndroidManifest.xml:26:5-97
-25-->[androidx.core:core:1.12.0] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/53462592065f51278c7b27453a6cde6e/transformed/core-1.12.0/AndroidManifest.xml:26:22-94
+25-->[androidx.core:core:1.12.0] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/13e2ec15ebe540ba74041043159a28e3/transformed/core-1.12.0/AndroidManifest.xml:26:5-97
+25-->[androidx.core:core:1.12.0] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/13e2ec15ebe540ba74041043159a28e3/transformed/core-1.12.0/AndroidManifest.xml:26:22-94
 26
 27    <application
 27-->/Users/mudasirmushtaq/Documents/app/northend/android-admin/app/src/main/AndroidManifest.xml:12:5-54:19
@@ -51,7 +51,7 @@
 29        android:allowBackup="false"
 29-->/Users/mudasirmushtaq/Documents/app/northend/android-admin/app/src/main/AndroidManifest.xml:14:9-36
 30        android:appComponentFactory="androidx.core.app.CoreComponentFactory"
-30-->[androidx.core:core:1.12.0] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/53462592065f51278c7b27453a6cde6e/transformed/core-1.12.0/AndroidManifest.xml:28:18-86
+30-->[androidx.core:core:1.12.0] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/13e2ec15ebe540ba74041043159a28e3/transformed/core-1.12.0/AndroidManifest.xml:28:18-86
 31        android:dataExtractionRules="@xml/data_extraction_rules"
 31-->/Users/mudasirmushtaq/Documents/app/northend/android-admin/app/src/main/AndroidManifest.xml:15:9-65
 32        android:debuggable="true"
@@ -121,97 +121,97 @@
 67            </intent-filter>
 68        </service>
 69        <service
-69-->[com.google.firebase:firebase-messaging-ktx:23.4.1] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/92b11d002fc002651e914b75e5406a65/transformed/firebase-messaging-ktx-23.4.1/AndroidManifest.xml:23:9-29:19
+69-->[com.google.firebase:firebase-messaging-ktx:23.4.1] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/be0c15cca46c9bceb00022eae3d95410/transformed/firebase-messaging-ktx-23.4.1/AndroidManifest.xml:23:9-29:19
 70            android:name="com.google.firebase.components.ComponentDiscoveryService"
-70-->[com.google.firebase:firebase-messaging-ktx:23.4.1] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/92b11d002fc002651e914b75e5406a65/transformed/firebase-messaging-ktx-23.4.1/AndroidManifest.xml:24:13-84
+70-->[com.google.firebase:firebase-messaging-ktx:23.4.1] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/be0c15cca46c9bceb00022eae3d95410/transformed/firebase-messaging-ktx-23.4.1/AndroidManifest.xml:24:13-84
 71            android:directBootAware="true"
-71-->[com.google.firebase:firebase-common:20.4.2] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/170832bf84cf72c99a78787f580c0949/transformed/firebase-common-20.4.2/AndroidManifest.xml:32:13-43
+71-->[com.google.firebase:firebase-common:20.4.2] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/4560cbfb79a2654e8804c1a5aec97df7/transformed/firebase-common-20.4.2/AndroidManifest.xml:32:13-43
 72            android:exported="false" >
-72-->[com.google.firebase:firebase-messaging-ktx:23.4.1] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/92b11d002fc002651e914b75e5406a65/transformed/firebase-messaging-ktx-23.4.1/AndroidManifest.xml:25:13-37
+72-->[com.google.firebase:firebase-messaging-ktx:23.4.1] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/be0c15cca46c9bceb00022eae3d95410/transformed/firebase-messaging-ktx-23.4.1/AndroidManifest.xml:25:13-37
 73            <meta-data
-73-->[com.google.firebase:firebase-messaging-ktx:23.4.1] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/92b11d002fc002651e914b75e5406a65/transformed/firebase-messaging-ktx-23.4.1/AndroidManifest.xml:26:13-28:85
+73-->[com.google.firebase:firebase-messaging-ktx:23.4.1] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/be0c15cca46c9bceb00022eae3d95410/transformed/firebase-messaging-ktx-23.4.1/AndroidManifest.xml:26:13-28:85
 74                android:name="com.google.firebase.components:com.google.firebase.messaging.ktx.FirebaseMessagingLegacyRegistrar"
-74-->[com.google.firebase:firebase-messaging-ktx:23.4.1] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/92b11d002fc002651e914b75e5406a65/transformed/firebase-messaging-ktx-23.4.1/AndroidManifest.xml:27:17-129
+74-->[com.google.firebase:firebase-messaging-ktx:23.4.1] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/be0c15cca46c9bceb00022eae3d95410/transformed/firebase-messaging-ktx-23.4.1/AndroidManifest.xml:27:17-129
 75                android:value="com.google.firebase.components.ComponentRegistrar" />
-75-->[com.google.firebase:firebase-messaging-ktx:23.4.1] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/92b11d002fc002651e914b75e5406a65/transformed/firebase-messaging-ktx-23.4.1/AndroidManifest.xml:28:17-82
+75-->[com.google.firebase:firebase-messaging-ktx:23.4.1] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/be0c15cca46c9bceb00022eae3d95410/transformed/firebase-messaging-ktx-23.4.1/AndroidManifest.xml:28:17-82
 76            <meta-data
-76-->[com.google.firebase:firebase-messaging:23.4.1] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/1d600d1215756592b76f9e39c8ecb3d4/transformed/firebase-messaging-23.4.1/AndroidManifest.xml:57:13-59:85
+76-->[com.google.firebase:firebase-messaging:23.4.1] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/bb5282f95b711040f789d928a8095699/transformed/firebase-messaging-23.4.1/AndroidManifest.xml:57:13-59:85
 77                android:name="com.google.firebase.components:com.google.firebase.messaging.FirebaseMessagingKtxRegistrar"
-77-->[com.google.firebase:firebase-messaging:23.4.1] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/1d600d1215756592b76f9e39c8ecb3d4/transformed/firebase-messaging-23.4.1/AndroidManifest.xml:58:17-122
+77-->[com.google.firebase:firebase-messaging:23.4.1] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/bb5282f95b711040f789d928a8095699/transformed/firebase-messaging-23.4.1/AndroidManifest.xml:58:17-122
 78                android:value="com.google.firebase.components.ComponentRegistrar" />
-78-->[com.google.firebase:firebase-messaging:23.4.1] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/1d600d1215756592b76f9e39c8ecb3d4/transformed/firebase-messaging-23.4.1/AndroidManifest.xml:59:17-82
+78-->[com.google.firebase:firebase-messaging:23.4.1] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/bb5282f95b711040f789d928a8095699/transformed/firebase-messaging-23.4.1/AndroidManifest.xml:59:17-82
 79            <meta-data
-79-->[com.google.firebase:firebase-messaging:23.4.1] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/1d600d1215756592b76f9e39c8ecb3d4/transformed/firebase-messaging-23.4.1/AndroidManifest.xml:60:13-62:85
+79-->[com.google.firebase:firebase-messaging:23.4.1] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/bb5282f95b711040f789d928a8095699/transformed/firebase-messaging-23.4.1/AndroidManifest.xml:60:13-62:85
 80                android:name="com.google.firebase.components:com.google.firebase.messaging.FirebaseMessagingRegistrar"
-80-->[com.google.firebase:firebase-messaging:23.4.1] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/1d600d1215756592b76f9e39c8ecb3d4/transformed/firebase-messaging-23.4.1/AndroidManifest.xml:61:17-119
+80-->[com.google.firebase:firebase-messaging:23.4.1] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/bb5282f95b711040f789d928a8095699/transformed/firebase-messaging-23.4.1/AndroidManifest.xml:61:17-119
 81                android:value="com.google.firebase.components.ComponentRegistrar" />
-81-->[com.google.firebase:firebase-messaging:23.4.1] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/1d600d1215756592b76f9e39c8ecb3d4/transformed/firebase-messaging-23.4.1/AndroidManifest.xml:62:17-82
+81-->[com.google.firebase:firebase-messaging:23.4.1] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/bb5282f95b711040f789d928a8095699/transformed/firebase-messaging-23.4.1/AndroidManifest.xml:62:17-82
 82            <meta-data
-82-->[com.google.firebase:firebase-installations:17.2.0] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/2a86dd82b439c172a1ce3e1a9e732492/transformed/firebase-installations-17.2.0/AndroidManifest.xml:15:13-17:85
+82-->[com.google.firebase:firebase-installations:17.2.0] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/64e992ce288dde9e6cfa3e9aa5f38470/transformed/firebase-installations-17.2.0/AndroidManifest.xml:15:13-17:85
 83                android:name="com.google.firebase.components:com.google.firebase.installations.FirebaseInstallationsKtxRegistrar"
-83-->[com.google.firebase:firebase-installations:17.2.0] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/2a86dd82b439c172a1ce3e1a9e732492/transformed/firebase-installations-17.2.0/AndroidManifest.xml:16:17-130
+83-->[com.google.firebase:firebase-installations:17.2.0] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/64e992ce288dde9e6cfa3e9aa5f38470/transformed/firebase-installations-17.2.0/AndroidManifest.xml:16:17-130
 84                android:value="com.google.firebase.components.ComponentRegistrar" />
-84-->[com.google.firebase:firebase-installations:17.2.0] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/2a86dd82b439c172a1ce3e1a9e732492/transformed/firebase-installations-17.2.0/AndroidManifest.xml:17:17-82
+84-->[com.google.firebase:firebase-installations:17.2.0] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/64e992ce288dde9e6cfa3e9aa5f38470/transformed/firebase-installations-17.2.0/AndroidManifest.xml:17:17-82
 85            <meta-data
-85-->[com.google.firebase:firebase-installations:17.2.0] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/2a86dd82b439c172a1ce3e1a9e732492/transformed/firebase-installations-17.2.0/AndroidManifest.xml:18:13-20:85
+85-->[com.google.firebase:firebase-installations:17.2.0] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/64e992ce288dde9e6cfa3e9aa5f38470/transformed/firebase-installations-17.2.0/AndroidManifest.xml:18:13-20:85
 86                android:name="com.google.firebase.components:com.google.firebase.installations.FirebaseInstallationsRegistrar"
-86-->[com.google.firebase:firebase-installations:17.2.0] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/2a86dd82b439c172a1ce3e1a9e732492/transformed/firebase-installations-17.2.0/AndroidManifest.xml:19:17-127
+86-->[com.google.firebase:firebase-installations:17.2.0] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/64e992ce288dde9e6cfa3e9aa5f38470/transformed/firebase-installations-17.2.0/AndroidManifest.xml:19:17-127
 87                android:value="com.google.firebase.components.ComponentRegistrar" />
-87-->[com.google.firebase:firebase-installations:17.2.0] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/2a86dd82b439c172a1ce3e1a9e732492/transformed/firebase-installations-17.2.0/AndroidManifest.xml:20:17-82
+87-->[com.google.firebase:firebase-installations:17.2.0] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/64e992ce288dde9e6cfa3e9aa5f38470/transformed/firebase-installations-17.2.0/AndroidManifest.xml:20:17-82
 88            <meta-data
-88-->[com.google.firebase:firebase-common-ktx:20.4.2] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/315980d5569cdc2530c5d977a67764f8/transformed/firebase-common-ktx-20.4.2/AndroidManifest.xml:12:13-14:85
+88-->[com.google.firebase:firebase-common-ktx:20.4.2] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/2658c01b6eaea6450d9c928736b1fb0c/transformed/firebase-common-ktx-20.4.2/AndroidManifest.xml:12:13-14:85
 89                android:name="com.google.firebase.components:com.google.firebase.ktx.FirebaseCommonLegacyRegistrar"
-89-->[com.google.firebase:firebase-common-ktx:20.4.2] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/315980d5569cdc2530c5d977a67764f8/transformed/firebase-common-ktx-20.4.2/AndroidManifest.xml:13:17-116
+89-->[com.google.firebase:firebase-common-ktx:20.4.2] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/2658c01b6eaea6450d9c928736b1fb0c/transformed/firebase-common-ktx-20.4.2/AndroidManifest.xml:13:17-116
 90                android:value="com.google.firebase.components.ComponentRegistrar" />
-90-->[com.google.firebase:firebase-common-ktx:20.4.2] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/315980d5569cdc2530c5d977a67764f8/transformed/firebase-common-ktx-20.4.2/AndroidManifest.xml:14:17-82
+90-->[com.google.firebase:firebase-common-ktx:20.4.2] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/2658c01b6eaea6450d9c928736b1fb0c/transformed/firebase-common-ktx-20.4.2/AndroidManifest.xml:14:17-82
 91            <meta-data
-91-->[com.google.firebase:firebase-common:20.4.2] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/170832bf84cf72c99a78787f580c0949/transformed/firebase-common-20.4.2/AndroidManifest.xml:35:13-37:85
+91-->[com.google.firebase:firebase-common:20.4.2] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/4560cbfb79a2654e8804c1a5aec97df7/transformed/firebase-common-20.4.2/AndroidManifest.xml:35:13-37:85
 92                android:name="com.google.firebase.components:com.google.firebase.FirebaseCommonKtxRegistrar"
-92-->[com.google.firebase:firebase-common:20.4.2] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/170832bf84cf72c99a78787f580c0949/transformed/firebase-common-20.4.2/AndroidManifest.xml:36:17-109
+92-->[com.google.firebase:firebase-common:20.4.2] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/4560cbfb79a2654e8804c1a5aec97df7/transformed/firebase-common-20.4.2/AndroidManifest.xml:36:17-109
 93                android:value="com.google.firebase.components.ComponentRegistrar" />
-93-->[com.google.firebase:firebase-common:20.4.2] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/170832bf84cf72c99a78787f580c0949/transformed/firebase-common-20.4.2/AndroidManifest.xml:37:17-82
+93-->[com.google.firebase:firebase-common:20.4.2] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/4560cbfb79a2654e8804c1a5aec97df7/transformed/firebase-common-20.4.2/AndroidManifest.xml:37:17-82
 94            <meta-data
-94-->[com.google.firebase:firebase-datatransport:18.1.7] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/c380a707d143fd537a246cc743ff9ac5/transformed/firebase-datatransport-18.1.7/AndroidManifest.xml:27:13-29:85
+94-->[com.google.firebase:firebase-datatransport:18.1.7] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/38e6ffe91d4230be1e2e95e3854cba98/transformed/firebase-datatransport-18.1.7/AndroidManifest.xml:27:13-29:85
 95                android:name="com.google.firebase.components:com.google.firebase.datatransport.TransportRegistrar"
-95-->[com.google.firebase:firebase-datatransport:18.1.7] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/c380a707d143fd537a246cc743ff9ac5/transformed/firebase-datatransport-18.1.7/AndroidManifest.xml:28:17-115
+95-->[com.google.firebase:firebase-datatransport:18.1.7] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/38e6ffe91d4230be1e2e95e3854cba98/transformed/firebase-datatransport-18.1.7/AndroidManifest.xml:28:17-115
 96                android:value="com.google.firebase.components.ComponentRegistrar" />
-96-->[com.google.firebase:firebase-datatransport:18.1.7] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/c380a707d143fd537a246cc743ff9ac5/transformed/firebase-datatransport-18.1.7/AndroidManifest.xml:29:17-82
+96-->[com.google.firebase:firebase-datatransport:18.1.7] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/38e6ffe91d4230be1e2e95e3854cba98/transformed/firebase-datatransport-18.1.7/AndroidManifest.xml:29:17-82
 97        </service>
 98
 99        <receiver
-99-->[com.google.firebase:firebase-messaging:23.4.1] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/1d600d1215756592b76f9e39c8ecb3d4/transformed/firebase-messaging-23.4.1/AndroidManifest.xml:29:9-40:20
+99-->[com.google.firebase:firebase-messaging:23.4.1] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/bb5282f95b711040f789d928a8095699/transformed/firebase-messaging-23.4.1/AndroidManifest.xml:29:9-40:20
 100            android:name="com.google.firebase.iid.FirebaseInstanceIdReceiver"
-100-->[com.google.firebase:firebase-messaging:23.4.1] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/1d600d1215756592b76f9e39c8ecb3d4/transformed/firebase-messaging-23.4.1/AndroidManifest.xml:30:13-78
+100-->[com.google.firebase:firebase-messaging:23.4.1] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/bb5282f95b711040f789d928a8095699/transformed/firebase-messaging-23.4.1/AndroidManifest.xml:30:13-78
 101            android:exported="true"
-101-->[com.google.firebase:firebase-messaging:23.4.1] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/1d600d1215756592b76f9e39c8ecb3d4/transformed/firebase-messaging-23.4.1/AndroidManifest.xml:31:13-36
+101-->[com.google.firebase:firebase-messaging:23.4.1] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/bb5282f95b711040f789d928a8095699/transformed/firebase-messaging-23.4.1/AndroidManifest.xml:31:13-36
 102            android:permission="com.google.android.c2dm.permission.SEND" >
-102-->[com.google.firebase:firebase-messaging:23.4.1] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/1d600d1215756592b76f9e39c8ecb3d4/transformed/firebase-messaging-23.4.1/AndroidManifest.xml:32:13-73
+102-->[com.google.firebase:firebase-messaging:23.4.1] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/bb5282f95b711040f789d928a8095699/transformed/firebase-messaging-23.4.1/AndroidManifest.xml:32:13-73
 103            <intent-filter>
-103-->[com.google.firebase:firebase-messaging:23.4.1] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/1d600d1215756592b76f9e39c8ecb3d4/transformed/firebase-messaging-23.4.1/AndroidManifest.xml:33:13-35:29
+103-->[com.google.firebase:firebase-messaging:23.4.1] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/bb5282f95b711040f789d928a8095699/transformed/firebase-messaging-23.4.1/AndroidManifest.xml:33:13-35:29
 104                <action android:name="com.google.android.c2dm.intent.RECEIVE" />
-104-->[com.google.firebase:firebase-messaging:23.4.1] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/1d600d1215756592b76f9e39c8ecb3d4/transformed/firebase-messaging-23.4.1/AndroidManifest.xml:34:17-81
-104-->[com.google.firebase:firebase-messaging:23.4.1] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/1d600d1215756592b76f9e39c8ecb3d4/transformed/firebase-messaging-23.4.1/AndroidManifest.xml:34:25-78
+104-->[com.google.firebase:firebase-messaging:23.4.1] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/bb5282f95b711040f789d928a8095699/transformed/firebase-messaging-23.4.1/AndroidManifest.xml:34:17-81
+104-->[com.google.firebase:firebase-messaging:23.4.1] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/bb5282f95b711040f789d928a8095699/transformed/firebase-messaging-23.4.1/AndroidManifest.xml:34:25-78
 105            </intent-filter>
 106
 107            <meta-data
-107-->[com.google.firebase:firebase-messaging:23.4.1] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/1d600d1215756592b76f9e39c8ecb3d4/transformed/firebase-messaging-23.4.1/AndroidManifest.xml:37:13-39:40
+107-->[com.google.firebase:firebase-messaging:23.4.1] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/bb5282f95b711040f789d928a8095699/transformed/firebase-messaging-23.4.1/AndroidManifest.xml:37:13-39:40
 108                android:name="com.google.android.gms.cloudmessaging.FINISHED_AFTER_HANDLED"
-108-->[com.google.firebase:firebase-messaging:23.4.1] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/1d600d1215756592b76f9e39c8ecb3d4/transformed/firebase-messaging-23.4.1/AndroidManifest.xml:38:17-92
+108-->[com.google.firebase:firebase-messaging:23.4.1] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/bb5282f95b711040f789d928a8095699/transformed/firebase-messaging-23.4.1/AndroidManifest.xml:38:17-92
 109                android:value="true" />
-109-->[com.google.firebase:firebase-messaging:23.4.1] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/1d600d1215756592b76f9e39c8ecb3d4/transformed/firebase-messaging-23.4.1/AndroidManifest.xml:39:17-37
+109-->[com.google.firebase:firebase-messaging:23.4.1] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/bb5282f95b711040f789d928a8095699/transformed/firebase-messaging-23.4.1/AndroidManifest.xml:39:17-37
 110        </receiver>
 111        <!--
 112             FirebaseMessagingService performs security checks at runtime,
 113             but set to not exported to explicitly avoid allowing another app to call it.
 114        -->
 115        <service
-115-->[com.google.firebase:firebase-messaging:23.4.1] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/1d600d1215756592b76f9e39c8ecb3d4/transformed/firebase-messaging-23.4.1/AndroidManifest.xml:46:9-53:19
+115-->[com.google.firebase:firebase-messaging:23.4.1] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/bb5282f95b711040f789d928a8095699/transformed/firebase-messaging-23.4.1/AndroidManifest.xml:46:9-53:19
 116            android:name="com.google.firebase.messaging.FirebaseMessagingService"
-116-->[com.google.firebase:firebase-messaging:23.4.1] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/1d600d1215756592b76f9e39c8ecb3d4/transformed/firebase-messaging-23.4.1/AndroidManifest.xml:47:13-82
+116-->[com.google.firebase:firebase-messaging:23.4.1] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/bb5282f95b711040f789d928a8095699/transformed/firebase-messaging-23.4.1/AndroidManifest.xml:47:13-82
 117            android:directBootAware="true"
-117-->[com.google.firebase:firebase-messaging:23.4.1] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/1d600d1215756592b76f9e39c8ecb3d4/transformed/firebase-messaging-23.4.1/AndroidManifest.xml:48:13-43
+117-->[com.google.firebase:firebase-messaging:23.4.1] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/bb5282f95b711040f789d928a8095699/transformed/firebase-messaging-23.4.1/AndroidManifest.xml:48:13-43
 118            android:exported="false" >
-118-->[com.google.firebase:firebase-messaging:23.4.1] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/1d600d1215756592b76f9e39c8ecb3d4/transformed/firebase-messaging-23.4.1/AndroidManifest.xml:49:13-37
+118-->[com.google.firebase:firebase-messaging:23.4.1] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/bb5282f95b711040f789d928a8095699/transformed/firebase-messaging-23.4.1/AndroidManifest.xml:49:13-37
 119            <intent-filter android:priority="-500" >
 119-->/Users/mudasirmushtaq/Documents/app/northend/android-admin/app/src/main/AndroidManifest.xml:49:13-51:29
 120                <action android:name="com.google.firebase.MESSAGING_EVENT" />
@@ -221,142 +221,142 @@
 122        </service>
 123
 124        <provider
-124-->[com.google.firebase:firebase-common:20.4.2] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/170832bf84cf72c99a78787f580c0949/transformed/firebase-common-20.4.2/AndroidManifest.xml:23:9-28:39
+124-->[com.google.firebase:firebase-common:20.4.2] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/4560cbfb79a2654e8804c1a5aec97df7/transformed/firebase-common-20.4.2/AndroidManifest.xml:23:9-28:39
 125            android:name="com.google.firebase.provider.FirebaseInitProvider"
-125-->[com.google.firebase:firebase-common:20.4.2] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/170832bf84cf72c99a78787f580c0949/transformed/firebase-common-20.4.2/AndroidManifest.xml:24:13-77
+125-->[com.google.firebase:firebase-common:20.4.2] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/4560cbfb79a2654e8804c1a5aec97df7/transformed/firebase-common-20.4.2/AndroidManifest.xml:24:13-77
 126            android:authorities="com.northend.admin.firebaseinitprovider"
-126-->[com.google.firebase:firebase-common:20.4.2] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/170832bf84cf72c99a78787f580c0949/transformed/firebase-common-20.4.2/AndroidManifest.xml:25:13-72
+126-->[com.google.firebase:firebase-common:20.4.2] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/4560cbfb79a2654e8804c1a5aec97df7/transformed/firebase-common-20.4.2/AndroidManifest.xml:25:13-72
 127            android:directBootAware="true"
-127-->[com.google.firebase:firebase-common:20.4.2] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/170832bf84cf72c99a78787f580c0949/transformed/firebase-common-20.4.2/AndroidManifest.xml:26:13-43
+127-->[com.google.firebase:firebase-common:20.4.2] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/4560cbfb79a2654e8804c1a5aec97df7/transformed/firebase-common-20.4.2/AndroidManifest.xml:26:13-43
 128            android:exported="false"
-128-->[com.google.firebase:firebase-common:20.4.2] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/170832bf84cf72c99a78787f580c0949/transformed/firebase-common-20.4.2/AndroidManifest.xml:27:13-37
+128-->[com.google.firebase:firebase-common:20.4.2] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/4560cbfb79a2654e8804c1a5aec97df7/transformed/firebase-common-20.4.2/AndroidManifest.xml:27:13-37
 129            android:initOrder="100" />
-129-->[com.google.firebase:firebase-common:20.4.2] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/170832bf84cf72c99a78787f580c0949/transformed/firebase-common-20.4.2/AndroidManifest.xml:28:13-36
+129-->[com.google.firebase:firebase-common:20.4.2] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/4560cbfb79a2654e8804c1a5aec97df7/transformed/firebase-common-20.4.2/AndroidManifest.xml:28:13-36
 130
 131        <activity
-131-->[com.google.android.gms:play-services-base:18.0.1] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/327776ccf00a9d4ec35883530bf8de67/transformed/play-services-base-18.0.1/AndroidManifest.xml:20:9-22:45
+131-->[com.google.android.gms:play-services-base:18.0.1] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/543f624cc723163fbd3615ae9676d1ca/transformed/play-services-base-18.0.1/AndroidManifest.xml:20:9-22:45
 132            android:name="com.google.android.gms.common.api.GoogleApiActivity"
-132-->[com.google.android.gms:play-services-base:18.0.1] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/327776ccf00a9d4ec35883530bf8de67/transformed/play-services-base-18.0.1/AndroidManifest.xml:20:19-85
+132-->[com.google.android.gms:play-services-base:18.0.1] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/543f624cc723163fbd3615ae9676d1ca/transformed/play-services-base-18.0.1/AndroidManifest.xml:20:19-85
 133            android:exported="false"
-133-->[com.google.android.gms:play-services-base:18.0.1] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/327776ccf00a9d4ec35883530bf8de67/transformed/play-services-base-18.0.1/AndroidManifest.xml:22:19-43
+133-->[com.google.android.gms:play-services-base:18.0.1] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/543f624cc723163fbd3615ae9676d1ca/transformed/play-services-base-18.0.1/AndroidManifest.xml:22:19-43
 134            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
-134-->[com.google.android.gms:play-services-base:18.0.1] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/327776ccf00a9d4ec35883530bf8de67/transformed/play-services-base-18.0.1/AndroidManifest.xml:21:19-78
+134-->[com.google.android.gms:play-services-base:18.0.1] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/543f624cc723163fbd3615ae9676d1ca/transformed/play-services-base-18.0.1/AndroidManifest.xml:21:19-78
 135
 136        <provider
-136-->[androidx.emoji2:emoji2:1.4.0] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/13e106e665f522849a61a20db50e8c9c/transformed/emoji2-1.4.0/AndroidManifest.xml:24:9-32:20
+136-->[androidx.emoji2:emoji2:1.4.0] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/27762fd6bc781bd108272ece28b37d20/transformed/emoji2-1.4.0/AndroidManifest.xml:24:9-32:20
 137            android:name="androidx.startup.InitializationProvider"
-137-->[androidx.emoji2:emoji2:1.4.0] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/13e106e665f522849a61a20db50e8c9c/transformed/emoji2-1.4.0/AndroidManifest.xml:25:13-67
+137-->[androidx.emoji2:emoji2:1.4.0] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/27762fd6bc781bd108272ece28b37d20/transformed/emoji2-1.4.0/AndroidManifest.xml:25:13-67
 138            android:authorities="com.northend.admin.androidx-startup"
-138-->[androidx.emoji2:emoji2:1.4.0] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/13e106e665f522849a61a20db50e8c9c/transformed/emoji2-1.4.0/AndroidManifest.xml:26:13-68
+138-->[androidx.emoji2:emoji2:1.4.0] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/27762fd6bc781bd108272ece28b37d20/transformed/emoji2-1.4.0/AndroidManifest.xml:26:13-68
 139            android:exported="false" >
-139-->[androidx.emoji2:emoji2:1.4.0] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/13e106e665f522849a61a20db50e8c9c/transformed/emoji2-1.4.0/AndroidManifest.xml:27:13-37
+139-->[androidx.emoji2:emoji2:1.4.0] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/27762fd6bc781bd108272ece28b37d20/transformed/emoji2-1.4.0/AndroidManifest.xml:27:13-37
 140            <meta-data
-140-->[androidx.emoji2:emoji2:1.4.0] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/13e106e665f522849a61a20db50e8c9c/transformed/emoji2-1.4.0/AndroidManifest.xml:29:13-31:52
+140-->[androidx.emoji2:emoji2:1.4.0] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/27762fd6bc781bd108272ece28b37d20/transformed/emoji2-1.4.0/AndroidManifest.xml:29:13-31:52
 141                android:name="androidx.emoji2.text.EmojiCompatInitializer"
-141-->[androidx.emoji2:emoji2:1.4.0] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/13e106e665f522849a61a20db50e8c9c/transformed/emoji2-1.4.0/AndroidManifest.xml:30:17-75
+141-->[androidx.emoji2:emoji2:1.4.0] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/27762fd6bc781bd108272ece28b37d20/transformed/emoji2-1.4.0/AndroidManifest.xml:30:17-75
 142                android:value="androidx.startup" />
-142-->[androidx.emoji2:emoji2:1.4.0] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/13e106e665f522849a61a20db50e8c9c/transformed/emoji2-1.4.0/AndroidManifest.xml:31:17-49
+142-->[androidx.emoji2:emoji2:1.4.0] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/27762fd6bc781bd108272ece28b37d20/transformed/emoji2-1.4.0/AndroidManifest.xml:31:17-49
 143            <meta-data
-143-->[androidx.lifecycle:lifecycle-process:2.6.2] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/caa76aea10c3b4eda520e32156f7cb37/transformed/lifecycle-process-2.6.2/AndroidManifest.xml:29:13-31:52
+143-->[androidx.lifecycle:lifecycle-process:2.6.2] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/a518f316412f5e0a24ce0e276bb671f2/transformed/lifecycle-process-2.6.2/AndroidManifest.xml:29:13-31:52
 144                android:name="androidx.lifecycle.ProcessLifecycleInitializer"
-144-->[androidx.lifecycle:lifecycle-process:2.6.2] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/caa76aea10c3b4eda520e32156f7cb37/transformed/lifecycle-process-2.6.2/AndroidManifest.xml:30:17-78
+144-->[androidx.lifecycle:lifecycle-process:2.6.2] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/a518f316412f5e0a24ce0e276bb671f2/transformed/lifecycle-process-2.6.2/AndroidManifest.xml:30:17-78
 145                android:value="androidx.startup" />
-145-->[androidx.lifecycle:lifecycle-process:2.6.2] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/caa76aea10c3b4eda520e32156f7cb37/transformed/lifecycle-process-2.6.2/AndroidManifest.xml:31:17-49
+145-->[androidx.lifecycle:lifecycle-process:2.6.2] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/a518f316412f5e0a24ce0e276bb671f2/transformed/lifecycle-process-2.6.2/AndroidManifest.xml:31:17-49
 146            <meta-data
-146-->[androidx.profileinstaller:profileinstaller:1.3.1] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/fa74a1a516f6bdd4de5a81eb0c948ee5/transformed/profileinstaller-1.3.1/AndroidManifest.xml:29:13-31:52
+146-->[androidx.profileinstaller:profileinstaller:1.3.1] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/288f53b9b43846b1ba47ccf6e686f379/transformed/profileinstaller-1.3.1/AndroidManifest.xml:29:13-31:52
 147                android:name="androidx.profileinstaller.ProfileInstallerInitializer"
-147-->[androidx.profileinstaller:profileinstaller:1.3.1] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/fa74a1a516f6bdd4de5a81eb0c948ee5/transformed/profileinstaller-1.3.1/AndroidManifest.xml:30:17-85
+147-->[androidx.profileinstaller:profileinstaller:1.3.1] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/288f53b9b43846b1ba47ccf6e686f379/transformed/profileinstaller-1.3.1/AndroidManifest.xml:30:17-85
 148                android:value="androidx.startup" />
-148-->[androidx.profileinstaller:profileinstaller:1.3.1] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/fa74a1a516f6bdd4de5a81eb0c948ee5/transformed/profileinstaller-1.3.1/AndroidManifest.xml:31:17-49
+148-->[androidx.profileinstaller:profileinstaller:1.3.1] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/288f53b9b43846b1ba47ccf6e686f379/transformed/profileinstaller-1.3.1/AndroidManifest.xml:31:17-49
 149        </provider>
 150
 151        <meta-data
-151-->[com.google.android.gms:play-services-basement:18.1.0] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/1dac5ce9cdff436cf39766cc593953b9/transformed/play-services-basement-18.1.0/AndroidManifest.xml:21:9-23:69
+151-->[com.google.android.gms:play-services-basement:18.1.0] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/a6fd07dd0629b075e743a8eb4827e3aa/transformed/play-services-basement-18.1.0/AndroidManifest.xml:21:9-23:69
 152            android:name="com.google.android.gms.version"
-152-->[com.google.android.gms:play-services-basement:18.1.0] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/1dac5ce9cdff436cf39766cc593953b9/transformed/play-services-basement-18.1.0/AndroidManifest.xml:22:13-58
+152-->[com.google.android.gms:play-services-basement:18.1.0] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/a6fd07dd0629b075e743a8eb4827e3aa/transformed/play-services-basement-18.1.0/AndroidManifest.xml:22:13-58
 153            android:value="@integer/google_play_services_version" />
-153-->[com.google.android.gms:play-services-basement:18.1.0] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/1dac5ce9cdff436cf39766cc593953b9/transformed/play-services-basement-18.1.0/AndroidManifest.xml:23:13-66
+153-->[com.google.android.gms:play-services-basement:18.1.0] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/a6fd07dd0629b075e743a8eb4827e3aa/transformed/play-services-basement-18.1.0/AndroidManifest.xml:23:13-66
 154
 155        <activity
-155-->[androidx.compose.ui:ui-tooling-android:1.5.4] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/3333db58e799e55e48c2272ab1a8066a/transformed/ui-tooling-release/AndroidManifest.xml:23:9-25:39
+155-->[androidx.compose.ui:ui-tooling-android:1.5.4] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/b6ee445d8729fb41ef500599bf0f6977/transformed/ui-tooling-release/AndroidManifest.xml:23:9-25:39
 156            android:name="androidx.compose.ui.tooling.PreviewActivity"
-156-->[androidx.compose.ui:ui-tooling-android:1.5.4] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/3333db58e799e55e48c2272ab1a8066a/transformed/ui-tooling-release/AndroidManifest.xml:24:13-71
+156-->[androidx.compose.ui:ui-tooling-android:1.5.4] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/b6ee445d8729fb41ef500599bf0f6977/transformed/ui-tooling-release/AndroidManifest.xml:24:13-71
 157            android:exported="true" />
-157-->[androidx.compose.ui:ui-tooling-android:1.5.4] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/3333db58e799e55e48c2272ab1a8066a/transformed/ui-tooling-release/AndroidManifest.xml:25:13-36
+157-->[androidx.compose.ui:ui-tooling-android:1.5.4] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/b6ee445d8729fb41ef500599bf0f6977/transformed/ui-tooling-release/AndroidManifest.xml:25:13-36
 158        <activity
-158-->[androidx.compose.ui:ui-test-manifest:1.5.4] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/d27b3dbd923856f6afc52b28449bb05c/transformed/ui-test-manifest-1.5.4/AndroidManifest.xml:23:9-25:39
+158-->[androidx.compose.ui:ui-test-manifest:1.5.4] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/aba99eff7961b4f4b78ed9b96c6a84aa/transformed/ui-test-manifest-1.5.4/AndroidManifest.xml:23:9-25:39
 159            android:name="androidx.activity.ComponentActivity"
-159-->[androidx.compose.ui:ui-test-manifest:1.5.4] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/d27b3dbd923856f6afc52b28449bb05c/transformed/ui-test-manifest-1.5.4/AndroidManifest.xml:24:13-63
+159-->[androidx.compose.ui:ui-test-manifest:1.5.4] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/aba99eff7961b4f4b78ed9b96c6a84aa/transformed/ui-test-manifest-1.5.4/AndroidManifest.xml:24:13-63
 160            android:exported="true" />
-160-->[androidx.compose.ui:ui-test-manifest:1.5.4] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/d27b3dbd923856f6afc52b28449bb05c/transformed/ui-test-manifest-1.5.4/AndroidManifest.xml:25:13-36
+160-->[androidx.compose.ui:ui-test-manifest:1.5.4] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/aba99eff7961b4f4b78ed9b96c6a84aa/transformed/ui-test-manifest-1.5.4/AndroidManifest.xml:25:13-36
 161
 162        <receiver
-162-->[androidx.profileinstaller:profileinstaller:1.3.1] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/fa74a1a516f6bdd4de5a81eb0c948ee5/transformed/profileinstaller-1.3.1/AndroidManifest.xml:34:9-52:20
+162-->[androidx.profileinstaller:profileinstaller:1.3.1] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/288f53b9b43846b1ba47ccf6e686f379/transformed/profileinstaller-1.3.1/AndroidManifest.xml:34:9-52:20
 163            android:name="androidx.profileinstaller.ProfileInstallReceiver"
-163-->[androidx.profileinstaller:profileinstaller:1.3.1] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/fa74a1a516f6bdd4de5a81eb0c948ee5/transformed/profileinstaller-1.3.1/AndroidManifest.xml:35:13-76
+163-->[androidx.profileinstaller:profileinstaller:1.3.1] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/288f53b9b43846b1ba47ccf6e686f379/transformed/profileinstaller-1.3.1/AndroidManifest.xml:35:13-76
 164            android:directBootAware="false"
-164-->[androidx.profileinstaller:profileinstaller:1.3.1] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/fa74a1a516f6bdd4de5a81eb0c948ee5/transformed/profileinstaller-1.3.1/AndroidManifest.xml:36:13-44
+164-->[androidx.profileinstaller:profileinstaller:1.3.1] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/288f53b9b43846b1ba47ccf6e686f379/transformed/profileinstaller-1.3.1/AndroidManifest.xml:36:13-44
 165            android:enabled="true"
-165-->[androidx.profileinstaller:profileinstaller:1.3.1] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/fa74a1a516f6bdd4de5a81eb0c948ee5/transformed/profileinstaller-1.3.1/AndroidManifest.xml:37:13-35
+165-->[androidx.profileinstaller:profileinstaller:1.3.1] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/288f53b9b43846b1ba47ccf6e686f379/transformed/profileinstaller-1.3.1/AndroidManifest.xml:37:13-35
 166            android:exported="true"
-166-->[androidx.profileinstaller:profileinstaller:1.3.1] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/fa74a1a516f6bdd4de5a81eb0c948ee5/transformed/profileinstaller-1.3.1/AndroidManifest.xml:38:13-36
+166-->[androidx.profileinstaller:profileinstaller:1.3.1] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/288f53b9b43846b1ba47ccf6e686f379/transformed/profileinstaller-1.3.1/AndroidManifest.xml:38:13-36
 167            android:permission="android.permission.DUMP" >
-167-->[androidx.profileinstaller:profileinstaller:1.3.1] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/fa74a1a516f6bdd4de5a81eb0c948ee5/transformed/profileinstaller-1.3.1/AndroidManifest.xml:39:13-57
+167-->[androidx.profileinstaller:profileinstaller:1.3.1] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/288f53b9b43846b1ba47ccf6e686f379/transformed/profileinstaller-1.3.1/AndroidManifest.xml:39:13-57
 168            <intent-filter>
-168-->[androidx.profileinstaller:profileinstaller:1.3.1] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/fa74a1a516f6bdd4de5a81eb0c948ee5/transformed/profileinstaller-1.3.1/AndroidManifest.xml:40:13-42:29
+168-->[androidx.profileinstaller:profileinstaller:1.3.1] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/288f53b9b43846b1ba47ccf6e686f379/transformed/profileinstaller-1.3.1/AndroidManifest.xml:40:13-42:29
 169                <action android:name="androidx.profileinstaller.action.INSTALL_PROFILE" />
-169-->[androidx.profileinstaller:profileinstaller:1.3.1] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/fa74a1a516f6bdd4de5a81eb0c948ee5/transformed/profileinstaller-1.3.1/AndroidManifest.xml:41:17-91
-169-->[androidx.profileinstaller:profileinstaller:1.3.1] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/fa74a1a516f6bdd4de5a81eb0c948ee5/transformed/profileinstaller-1.3.1/AndroidManifest.xml:41:25-88
+169-->[androidx.profileinstaller:profileinstaller:1.3.1] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/288f53b9b43846b1ba47ccf6e686f379/transformed/profileinstaller-1.3.1/AndroidManifest.xml:41:17-91
+169-->[androidx.profileinstaller:profileinstaller:1.3.1] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/288f53b9b43846b1ba47ccf6e686f379/transformed/profileinstaller-1.3.1/AndroidManifest.xml:41:25-88
 170            </intent-filter>
 171            <intent-filter>
-171-->[androidx.profileinstaller:profileinstaller:1.3.1] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/fa74a1a516f6bdd4de5a81eb0c948ee5/transformed/profileinstaller-1.3.1/AndroidManifest.xml:43:13-45:29
+171-->[androidx.profileinstaller:profileinstaller:1.3.1] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/288f53b9b43846b1ba47ccf6e686f379/transformed/profileinstaller-1.3.1/AndroidManifest.xml:43:13-45:29
 172                <action android:name="androidx.profileinstaller.action.SKIP_FILE" />
-172-->[androidx.profileinstaller:profileinstaller:1.3.1] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/fa74a1a516f6bdd4de5a81eb0c948ee5/transformed/profileinstaller-1.3.1/AndroidManifest.xml:44:17-85
-172-->[androidx.profileinstaller:profileinstaller:1.3.1] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/fa74a1a516f6bdd4de5a81eb0c948ee5/transformed/profileinstaller-1.3.1/AndroidManifest.xml:44:25-82
+172-->[androidx.profileinstaller:profileinstaller:1.3.1] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/288f53b9b43846b1ba47ccf6e686f379/transformed/profileinstaller-1.3.1/AndroidManifest.xml:44:17-85
+172-->[androidx.profileinstaller:profileinstaller:1.3.1] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/288f53b9b43846b1ba47ccf6e686f379/transformed/profileinstaller-1.3.1/AndroidManifest.xml:44:25-82
 173            </intent-filter>
 174            <intent-filter>
-174-->[androidx.profileinstaller:profileinstaller:1.3.1] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/fa74a1a516f6bdd4de5a81eb0c948ee5/transformed/profileinstaller-1.3.1/AndroidManifest.xml:46:13-48:29
+174-->[androidx.profileinstaller:profileinstaller:1.3.1] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/288f53b9b43846b1ba47ccf6e686f379/transformed/profileinstaller-1.3.1/AndroidManifest.xml:46:13-48:29
 175                <action android:name="androidx.profileinstaller.action.SAVE_PROFILE" />
-175-->[androidx.profileinstaller:profileinstaller:1.3.1] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/fa74a1a516f6bdd4de5a81eb0c948ee5/transformed/profileinstaller-1.3.1/AndroidManifest.xml:47:17-88
-175-->[androidx.profileinstaller:profileinstaller:1.3.1] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/fa74a1a516f6bdd4de5a81eb0c948ee5/transformed/profileinstaller-1.3.1/AndroidManifest.xml:47:25-85
+175-->[androidx.profileinstaller:profileinstaller:1.3.1] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/288f53b9b43846b1ba47ccf6e686f379/transformed/profileinstaller-1.3.1/AndroidManifest.xml:47:17-88
+175-->[androidx.profileinstaller:profileinstaller:1.3.1] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/288f53b9b43846b1ba47ccf6e686f379/transformed/profileinstaller-1.3.1/AndroidManifest.xml:47:25-85
 176            </intent-filter>
 177            <intent-filter>
-177-->[androidx.profileinstaller:profileinstaller:1.3.1] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/fa74a1a516f6bdd4de5a81eb0c948ee5/transformed/profileinstaller-1.3.1/AndroidManifest.xml:49:13-51:29
+177-->[androidx.profileinstaller:profileinstaller:1.3.1] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/288f53b9b43846b1ba47ccf6e686f379/transformed/profileinstaller-1.3.1/AndroidManifest.xml:49:13-51:29
 178                <action android:name="androidx.profileinstaller.action.BENCHMARK_OPERATION" />
-178-->[androidx.profileinstaller:profileinstaller:1.3.1] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/fa74a1a516f6bdd4de5a81eb0c948ee5/transformed/profileinstaller-1.3.1/AndroidManifest.xml:50:17-95
-178-->[androidx.profileinstaller:profileinstaller:1.3.1] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/fa74a1a516f6bdd4de5a81eb0c948ee5/transformed/profileinstaller-1.3.1/AndroidManifest.xml:50:25-92
+178-->[androidx.profileinstaller:profileinstaller:1.3.1] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/288f53b9b43846b1ba47ccf6e686f379/transformed/profileinstaller-1.3.1/AndroidManifest.xml:50:17-95
+178-->[androidx.profileinstaller:profileinstaller:1.3.1] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/288f53b9b43846b1ba47ccf6e686f379/transformed/profileinstaller-1.3.1/AndroidManifest.xml:50:25-92
 179            </intent-filter>
 180        </receiver>
 181
 182        <service
-182-->[com.google.android.datatransport:transport-backend-cct:3.1.8] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/759727cc25531dfbd715da425b8d4fc8/transformed/transport-backend-cct-3.1.8/AndroidManifest.xml:28:9-34:19
+182-->[com.google.android.datatransport:transport-backend-cct:3.1.8] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/be3e0cd483cabe841108e1f094797a3c/transformed/transport-backend-cct-3.1.8/AndroidManifest.xml:28:9-34:19
 183            android:name="com.google.android.datatransport.runtime.backends.TransportBackendDiscovery"
-183-->[com.google.android.datatransport:transport-backend-cct:3.1.8] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/759727cc25531dfbd715da425b8d4fc8/transformed/transport-backend-cct-3.1.8/AndroidManifest.xml:29:13-103
+183-->[com.google.android.datatransport:transport-backend-cct:3.1.8] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/be3e0cd483cabe841108e1f094797a3c/transformed/transport-backend-cct-3.1.8/AndroidManifest.xml:29:13-103
 184            android:exported="false" >
-184-->[com.google.android.datatransport:transport-backend-cct:3.1.8] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/759727cc25531dfbd715da425b8d4fc8/transformed/transport-backend-cct-3.1.8/AndroidManifest.xml:30:13-37
+184-->[com.google.android.datatransport:transport-backend-cct:3.1.8] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/be3e0cd483cabe841108e1f094797a3c/transformed/transport-backend-cct-3.1.8/AndroidManifest.xml:30:13-37
 185            <meta-data
-185-->[com.google.android.datatransport:transport-backend-cct:3.1.8] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/759727cc25531dfbd715da425b8d4fc8/transformed/transport-backend-cct-3.1.8/AndroidManifest.xml:31:13-33:39
+185-->[com.google.android.datatransport:transport-backend-cct:3.1.8] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/be3e0cd483cabe841108e1f094797a3c/transformed/transport-backend-cct-3.1.8/AndroidManifest.xml:31:13-33:39
 186                android:name="backend:com.google.android.datatransport.cct.CctBackendFactory"
-186-->[com.google.android.datatransport:transport-backend-cct:3.1.8] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/759727cc25531dfbd715da425b8d4fc8/transformed/transport-backend-cct-3.1.8/AndroidManifest.xml:32:17-94
+186-->[com.google.android.datatransport:transport-backend-cct:3.1.8] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/be3e0cd483cabe841108e1f094797a3c/transformed/transport-backend-cct-3.1.8/AndroidManifest.xml:32:17-94
 187                android:value="cct" />
-187-->[com.google.android.datatransport:transport-backend-cct:3.1.8] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/759727cc25531dfbd715da425b8d4fc8/transformed/transport-backend-cct-3.1.8/AndroidManifest.xml:33:17-36
+187-->[com.google.android.datatransport:transport-backend-cct:3.1.8] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/be3e0cd483cabe841108e1f094797a3c/transformed/transport-backend-cct-3.1.8/AndroidManifest.xml:33:17-36
 188        </service>
 189        <service
-189-->[com.google.android.datatransport:transport-runtime:3.1.8] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/13e51ae8f6faa6537b340366d7b1839d/transformed/transport-runtime-3.1.8/AndroidManifest.xml:26:9-30:19
+189-->[com.google.android.datatransport:transport-runtime:3.1.8] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/886a0e3cf5f1142501368c24d19380a3/transformed/transport-runtime-3.1.8/AndroidManifest.xml:26:9-30:19
 190            android:name="com.google.android.datatransport.runtime.scheduling.jobscheduling.JobInfoSchedulerService"
-190-->[com.google.android.datatransport:transport-runtime:3.1.8] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/13e51ae8f6faa6537b340366d7b1839d/transformed/transport-runtime-3.1.8/AndroidManifest.xml:27:13-117
+190-->[com.google.android.datatransport:transport-runtime:3.1.8] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/886a0e3cf5f1142501368c24d19380a3/transformed/transport-runtime-3.1.8/AndroidManifest.xml:27:13-117
 191            android:exported="false"
-191-->[com.google.android.datatransport:transport-runtime:3.1.8] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/13e51ae8f6faa6537b340366d7b1839d/transformed/transport-runtime-3.1.8/AndroidManifest.xml:28:13-37
+191-->[com.google.android.datatransport:transport-runtime:3.1.8] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/886a0e3cf5f1142501368c24d19380a3/transformed/transport-runtime-3.1.8/AndroidManifest.xml:28:13-37
 192            android:permission="android.permission.BIND_JOB_SERVICE" >
-192-->[com.google.android.datatransport:transport-runtime:3.1.8] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/13e51ae8f6faa6537b340366d7b1839d/transformed/transport-runtime-3.1.8/AndroidManifest.xml:29:13-69
+192-->[com.google.android.datatransport:transport-runtime:3.1.8] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/886a0e3cf5f1142501368c24d19380a3/transformed/transport-runtime-3.1.8/AndroidManifest.xml:29:13-69
 193        </service>
 194
 195        <receiver
-195-->[com.google.android.datatransport:transport-runtime:3.1.8] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/13e51ae8f6faa6537b340366d7b1839d/transformed/transport-runtime-3.1.8/AndroidManifest.xml:32:9-34:40
+195-->[com.google.android.datatransport:transport-runtime:3.1.8] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/886a0e3cf5f1142501368c24d19380a3/transformed/transport-runtime-3.1.8/AndroidManifest.xml:32:9-34:40
 196            android:name="com.google.android.datatransport.runtime.scheduling.jobscheduling.AlarmManagerSchedulerBroadcastReceiver"
-196-->[com.google.android.datatransport:transport-runtime:3.1.8] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/13e51ae8f6faa6537b340366d7b1839d/transformed/transport-runtime-3.1.8/AndroidManifest.xml:33:13-132
+196-->[com.google.android.datatransport:transport-runtime:3.1.8] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/886a0e3cf5f1142501368c24d19380a3/transformed/transport-runtime-3.1.8/AndroidManifest.xml:33:13-132
 197            android:exported="false" />
-197-->[com.google.android.datatransport:transport-runtime:3.1.8] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/13e51ae8f6faa6537b340366d7b1839d/transformed/transport-runtime-3.1.8/AndroidManifest.xml:34:13-37
+197-->[com.google.android.datatransport:transport-runtime:3.1.8] /Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/886a0e3cf5f1142501368c24d19380a3/transformed/transport-runtime-3.1.8/AndroidManifest.xml:34:13-37
 198    </application>
 199
 200</manifest>
