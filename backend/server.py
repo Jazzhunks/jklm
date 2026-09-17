@@ -1209,8 +1209,8 @@ async def create_scholarship(payload: ScholarshipIn, _admin = Depends(require_ad
     doc["examiner_token"] = uuid.uuid4().hex
     if doc.get("available_venues"):
         doc["available_venues"] = [_sanitize_venue(v) for v in doc["available_venues"]]
-    await db.scholarships.insert_one(doc)
     _validate_school_campaign(doc)
+    await db.scholarships.insert_one(doc)
     if doc.get("is_featured"):
         await _clear_featured_except("scholarships", doc["id"])
     doc.pop("_id", None)
@@ -1230,8 +1230,8 @@ async def update_scholarship(sid: str, payload: ScholarshipIn, _admin = Depends(
     data["slug"] = await unique_slug("scholarships", data["title"], exclude_id=real_id)
     if data.get("available_venues"):
         data["available_venues"] = [_sanitize_venue(v) for v in data["available_venues"]]
-    await db.scholarships.update_one({"id": real_id}, {"$set": data})
     _validate_school_campaign(data)
+    await db.scholarships.update_one({"id": real_id}, {"$set": data})
     if data.get("is_featured"):
         await _clear_featured_except("scholarships", real_id)
     return await db.scholarships.find_one({"id": real_id}, {"_id": 0})
