@@ -37,7 +37,10 @@ export default function Scholarship() {
             <div className="font-display font-bold text-2xl text-foreground">Active Campaigns</div>
             <div className="text-sm text-muted-foreground mt-1">Choose a campaign below to start your application.</div>
           </div>
-          <Button variant="outline" onClick={() => navigate("/scholarship/result")} className="cursor-pointer">Check Result</Button>
+          <div className="flex items-center gap-3">
+            <Button variant="outline" onClick={() => navigate("/scholarship/admit-card")} className="cursor-pointer border-emerald-500/30 text-emerald-600 hover:bg-emerald-50">Download Admit Card</Button>
+            <Button variant="outline" onClick={() => navigate("/scholarship/result")} className="cursor-pointer">Check Result</Button>
+          </div>
         </div>
         {loading ? (
           <div className="text-center text-muted-foreground py-12">Loading campaigns…</div>
