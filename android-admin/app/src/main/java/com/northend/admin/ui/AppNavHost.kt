@@ -20,14 +20,11 @@ import com.northend.admin.ui.erp.WhatsAppInboxScreen
 @Composable
 fun AppNavHost(targetThreadId: String? = null) {
     val navController = rememberNavController()
-    var startDestination by remember { mutableStateOf("login") }
-
+    
     val context = LocalContext.current
     val tokenManager = remember { NetworkModule.provideTokenManager(context) }
+    val startDestination = remember { if (tokenManager.isLoggedIn()) "whatsapp" else "login" }
 
-    LaunchedEffect(Unit) {
-        startDestination = if (tokenManager.isLoggedIn()) "whatsapp" else "login"
-    }
 
     NavHost(navController = navController, startDestination = startDestination) {
         composable("login") {
