@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { Helmet } from "react-helmet-async";
+import { OtpInput } from "@/components/ui/OtpInput";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
@@ -374,17 +375,7 @@ export default function Login() {
                       </div>
                       <div className="relative">
                         <Lock weight="duotone" size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground"/>
-                        <input
-                          className={`${inputCls} font-mono tracking-widest text-center text-lg`}
-                          type="text"
-                          inputMode="numeric"
-                          placeholder="------"
-                          value={otpCode}
-                          onChange={e => setOtpCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
-                          required
-                          maxLength={6}
-                          disabled={!otpSent}
-                        />
+                        <OtpInput value={otpCode} onChange={setOtpCode} disabled={!otpSent} />
                       </div>
                       <p className="text-[11px] text-muted-foreground ml-1">We will send a 6-digit OTP via Email or WhatsApp.</p>
                       {otpSent && (
@@ -459,7 +450,7 @@ export default function Login() {
                   </div>
                   <div className="space-y-1.5">
                     <label className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground font-bold ml-1">6-Digit Code</label>
-                    <input className={`${inputCls} font-mono tracking-widest text-center text-lg`} type="text" placeholder="------" value={otpCode} onChange={e => setOtpCode(e.target.value.replace(/\D/g, '').slice(0, 6))} required maxLength={6} />
+                    <OtpInput value={otpCode} onChange={setOtpCode} disabled={busy} />
                   </div>
                   {authMode === "forgot" && (
                     <div className="space-y-1.5 mt-4">

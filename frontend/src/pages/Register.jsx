@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { OtpInput } from "@/components/ui/OtpInput";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
@@ -175,7 +176,7 @@ async function validatePhoneNumber(): Promise<boolean> {
                 <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-3 pt-4 border-t border-border">
                   <div className="text-[10px] uppercase tracking-widest text-accent font-bold">WhatsApp Verification</div>
                   <p className="text-xs text-muted-foreground">Enter the 6-digit code sent to {f.phone}.</p>
-                  <input className={`${inputCls} text-center font-mono tracking-widest text-lg`} type="text" placeholder="------" value={otpCode} onChange={e => setOtpCode(e.target.value.replace(/\D/g, '').slice(0,6))} required maxLength={6} />
+                  <OtpInput value={otpCode} onChange={setOtpCode} disabled={busy} />
                   <button type="button" onClick={() => { setOtpSent(false); setOtpCode(""); }} className="text-xs text-muted-foreground hover:text-foreground underline">Change mobile number</button>
                 </motion.div>
               )}
