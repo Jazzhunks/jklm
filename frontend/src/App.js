@@ -15,6 +15,7 @@ const CourseDetail = lazy(() => import('@/pages/CourseDetail'));
 const Scholarship = lazy(() => import('@/pages/Scholarship'));
 const ScholarshipApply = lazy(() => import('@/pages/ScholarshipApply'));
 const ScholarshipResult = lazy(() => import('@/pages/ScholarshipResult'));
+const ScholarshipAdmitCard = lazy(() => import('@/pages/ScholarshipAdmitCard'));
 const WATH = lazy(() => import('@/pages/WATH'));
 const Enroll = lazy(() => import('@/pages/Enroll'));
 const Jobs = lazy(() => import('@/pages/Jobs'));
@@ -126,6 +127,7 @@ export default function App() {
               <Route path="/scholarship" element={<Scholarship />} />
               <Route path="/scholarship/:slug/apply" element={<ScholarshipApply />} />
               <Route path="/scholarship/result" element={<ScholarshipResult />} />
+              <Route path="/scholarship/admit-card" element={<ScholarshipAdmitCard />} />
               <Route path="/wath" element={<WATH />} />
               <Route path="/enroll" element={<Enroll />} />
               <Route path="/jobs" element={<Jobs />} />
