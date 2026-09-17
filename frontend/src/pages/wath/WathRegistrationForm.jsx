@@ -15,7 +15,7 @@ import {
 } from "@phosphor-icons/react";
 
 import WathSlotPicker from "./WathSlotPicker";
-import OtpInput from "@/components/ui/OtpInput";
+import { OtpInput } from "@/components/ui/OtpInput";
 
 const EASE = [0.16, 1, 0.3, 1];
 const DISTRICTS = [
