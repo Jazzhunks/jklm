@@ -1285,7 +1285,7 @@ async def apply_scholarship(payload: ScholarshipApplicationIn, background: Backg
     if not payload.otp_code:
         raise HTTPException(400, "OTP verification code is required")
     
-    otp_record = await db.otps.find_one({"phone": clean_phone})
+    otp_record = await db.otps.find_one({"phone": clean_phone}, sort=[("expires_at", -1)])
     if not otp_record or otp_record["code"] != payload.otp_code.strip() or otp_record["expires_at"] < datetime.utcnow():
         raise HTTPException(400, "Invalid or expired OTP")
     # Delete OTP to prevent reuse
