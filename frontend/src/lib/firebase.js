@@ -21,7 +21,7 @@ export const requestFirebaseNotificationPermission = async () => {
   try {
     const permission = await Notification.requestPermission();
     if (permission === "granted") {
-      const token = await messaging.getToken({ vapidKey: "YOUR_PUBLIC_VAPID_KEY_HERE" });
+      const token = await messaging.getToken({ vapidKey: process.env.REACT_APP_VAPID_PUBLIC_KEY || "" });
       if (token) {
         console.log("FCM Token:", token);
         // Send this token to the backend so it knows where to send notifications

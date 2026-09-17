@@ -395,8 +395,15 @@ else:
         db = client[os.environ.get('DB_NAME', 'northend_db')]
 
 
-import firebase_admin
-from firebase_admin import credentials, messaging
+
+try:
+    import firebase_admin
+    from firebase_admin import credentials, messaging
+except ImportError:
+    firebase_admin = None
+    credentials = None
+    messaging = None
+
 try:
     cred = credentials.Certificate("northend-admin-app-firebase-adminsdk-fbsvc-79accbd4db.json")
     firebase_admin.initialize_app(cred)
@@ -408,12 +415,11 @@ from pydantic import BaseModel
 class FCMTokenIn(BaseModel):
     token: str
 
-@app.post("/api/erp/users/fcm-token")
-async def update_fcm_token(req: FCMTokenIn, user=Depends(get_current_user)):
-    await db.users.update_one({"_id": user["_id"]}, {"$addToSet": {"fcm_tokens": req.token}})
-    return {"success": True}
 
 async def send_super_admin_notification(title: str, body: str, target_path: str = ""):
+    if messaging is None:
+        print("FCM not configured")
+        return
     try:
         admins = await db.users.find({"role": "super_admin"}).to_list(None)
         tokens = []
