@@ -195,7 +195,7 @@ function TreasuryTransferModal({ branchId, onClose, onUpdated }) {
         </form>
       </div>
     </div>
-  );
+  ), document.body);
 }
 
 function TreasuryView({ branchId }) {
@@ -281,7 +281,7 @@ function TreasuryView({ branchId }) {
         </div>
       </div>
     </div>
-  ), document.body);
+  );
 }
 
 export default function ErpPayments() {
