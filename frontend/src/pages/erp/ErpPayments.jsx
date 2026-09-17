@@ -195,7 +195,7 @@ function TreasuryTransferModal({ branchId, onClose, onUpdated }) {
         </form>
       </div>
     </div>
-  ), document.body);
+  , document.body);
 }
 
 function TreasuryView({ branchId }) {
