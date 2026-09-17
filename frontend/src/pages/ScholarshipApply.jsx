@@ -53,7 +53,7 @@ export default function ScholarshipApply() {
     if (!otpSent) {
       setSubmitting(true);
       try {
-        await api.post("/auth/send-otp", { phone: form.phone, action: "register" });
+        await api.post("/auth/send-otp", { phone: form.phone, action: "campaign_apply" });
         setOtpSent(true);
         toast.success("OTP sent to your mobile number via WhatsApp");
       } catch (e) {

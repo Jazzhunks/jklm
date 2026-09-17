@@ -15,6 +15,7 @@ import {
 } from "@phosphor-icons/react";
 
 import WathSlotPicker from "./WathSlotPicker";
+import OtpInput from "@/components/ui/OtpInput";
 
 const EASE = [0.16, 1, 0.3, 1];
 const DISTRICTS = [
@@ -473,6 +474,20 @@ export default function WathRegistrationForm({ campaign, carnival, mode, loading
       return;
     }
     setBusy(true);
+
+    if (!otpSent) {
+      try {
+        await api.post("/auth/send-otp", { phone: form.phone, action: "campaign_apply" });
+        setOtpSent(true);
+        toast.success("OTP sent to your mobile number via WhatsApp");
+      } catch (err) {
+        toast.error(formatError(err.response?.data?.detail) || "Failed to send OTP");
+      } finally {
+        setBusy(false);
+      }
+      return;
+    }
+
     try {
       const [, d2] = form.class_or_course.includes("(") ? form.class_or_course.split("(") : [form.class_or_course, ""];
       const targetExam = d2.includes("NEET") ? "NEET" : d2.includes("JEE") ? "JEE" : form.class_or_course.includes("11") || form.class_or_course.includes("12") ? "NEET/JEE" : "Foundation";
@@ -491,6 +506,7 @@ export default function WathRegistrationForm({ campaign, carnival, mode, loading
         venue: form.venue || undefined,
         address: form.address || undefined,
         district: form.district || undefined,
+        otp_code: otpCode,
       };
       const payload = isCarnival
         ? { ...basePayload, carnival_id: carnival.id, chosen_date: form.chosen_date, chosen_slot_time: form.chosen_slot_time }
