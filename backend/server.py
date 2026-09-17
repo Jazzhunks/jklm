@@ -829,7 +829,7 @@ async def send_otp(payload: SendOtpIn):
         if not re.fullmatch(r"\d{10}", phone):
             raise HTTPException(400, "Mobile number must be exactly 10 digits")
     elif email:
-        user = await db.users.find_one({"email": email})
+        user = await db.users.find_one({"$or": [{"email": email}, {"phone": email}]})
         if not user:
             raise HTTPException(404, "No account found with this email")
         phone = user.get("phone", "")
@@ -932,7 +932,7 @@ async def login(payload: LoginIn, request: Request, response: Response):
         record_failed_login(lockout_key)
         raise HTTPException(401, "Invalid email or password")
 
-    user = await db.users.find_one({"email": email})
+    user = await db.users.find_one({"$or": [{"email": email}, {"phone": email}]})
     dummy_hash = "$2b$12$UnV2ZWRuZWVkTG9naW5IYXJkZW5lZFNlY3VyaXR5R29vZA=="
     target_hash = user["password_hash"] if user else dummy_hash
     password_correct = verify_password(payload.password, target_hash)
