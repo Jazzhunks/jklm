@@ -5,7 +5,7 @@ import { CalendarBlank, CaretDown, ArrowUp, ArrowDown, X, Clock } from "@phospho
 
 function isSlotInPast(dateStr, timeStr) {
   if (!dateStr || !timeStr) return false;
-  const dateObj = new Date(dateStr);
+  const dateObj = parseLocal(dateStr);
   dateObj.setHours(0, 0, 0, 0);
   const today = new Date();
   today.setHours(0, 0, 0, 0);
@@ -28,6 +28,11 @@ function isSlotInPast(dateStr, timeStr) {
   return slotTime.getTime() <= new Date().getTime();
 }
 
+function parseLocal(ds) {
+  if (!ds) return new Date();
+  return new Date(ds.includes('T') ? ds : `${ds}T12:00:00`);
+}
+
 export default function WathSlotPicker({ carnival, chosenDate, chosenSlot, onPick }) {
   const dates = carnival?.exam_dates || [];
   const [isOpen, setIsOpen] = useState(false);
@@ -47,7 +52,7 @@ export default function WathSlotPicker({ carnival, chosenDate, chosenSlot, onPic
   }, [dates, chosenDate]);
 
   const [activeDate, setActiveDate] = useState(initialAvailableDate);
-  const initialView = initialAvailableDate ? new Date(initialAvailableDate) : new Date();
+  const initialView = initialAvailableDate ? parseLocal(initialAvailableDate) : new Date();
   const [viewDate, setViewDate] = useState(initialView);
 
   useEffect(() => {
@@ -174,7 +179,7 @@ export default function WathSlotPicker({ carnival, chosenDate, chosenSlot, onPic
           <CalendarBlank size={16} className={chosenDate ? "text-[#08BD80]" : "text-gray-400"}/>
           <span className={chosenDate ? "text-gray-800" : "text-gray-400"}>
             {chosenDate && chosenSlot
-              ? `${new Date(chosenDate).toLocaleDateString("en-IN", { weekday: "short", day: "2-digit", month: "short" })} · ${chosenSlot}`
+              ? `${parseLocal(chosenDate).toLocaleDateString("en-IN", { weekday: "short", day: "2-digit", month: "short" })} · ${chosenSlot}`
               : "Pick your exam date & slot"}
           </span>
         </div>
@@ -294,7 +299,7 @@ export default function WathSlotPicker({ carnival, chosenDate, chosenSlot, onPic
                     className="pt-4 border-t border-gray-100 overflow-hidden"
                   >
                     <div className="text-[10px] uppercase tracking-widest text-gray-500 mb-3 font-semibold text-center">
-                      Slots for {new Date(activeDate).toLocaleDateString("en-IN", { day: "numeric", month: "short" })}
+                      Slots for {parseLocal(activeDate).toLocaleDateString("en-IN", { day: "numeric", month: "short" })}
                     </div>
                     <div className="grid grid-cols-2 gap-2.5">
                       {(active.slots || []).map(s => {

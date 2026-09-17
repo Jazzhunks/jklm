@@ -34,7 +34,7 @@ const SLABS = [
 
 function formatDate(dateStr) {
   if (!dateStr) return "";
-  const d = new Date(dateStr);
+  const d = new Date(dateStr.includes('T') ? dateStr : `${dateStr}T12:00:00`);
   return isNaN(d.getTime()) ? dateStr : d.toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" });
 }
 function InfoBlock({ label, value, testid, mono }) {
