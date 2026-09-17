@@ -1,5 +1,5 @@
-import { initializeApp } from "firebase/app";
-import { getMessaging, getToken, onMessage } from "firebase/messaging";
+import firebase from "firebase/compat/app";
+import "firebase/compat/messaging";
 import { api } from "./api"; // Assume we have our Axios API wrapper here
 
 const firebaseConfig = {
@@ -12,15 +12,16 @@ const firebaseConfig = {
   measurementId: "G-D79GYH0YCK"
 };
 
-const app = initializeApp(firebaseConfig);
-export const messaging = typeof window !== "undefined" && "serviceWorker" in navigator ? getMessaging(app) : null;
+firebase.initializeApp(firebaseConfig);
+const app = firebase.app();
+export const messaging = typeof window !== "undefined" && "serviceWorker" in navigator ? firebase.messaging() : null;
 
 export const requestFirebaseNotificationPermission = async () => {
   if (!messaging) return;
   try {
     const permission = await Notification.requestPermission();
     if (permission === "granted") {
-      const token = await getToken(messaging, { vapidKey: "YOUR_PUBLIC_VAPID_KEY_HERE" });
+      const token = await messaging.getToken({ vapidKey: "YOUR_PUBLIC_VAPID_KEY_HERE" });
       if (token) {
         console.log("FCM Token:", token);
         // Send this token to the backend so it knows where to send notifications
