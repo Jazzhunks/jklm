@@ -1164,7 +1164,7 @@ async def list_scholarships(include_wath: bool = False, type: Optional[str] = Qu
     if not include_wath:
         q["$and"] = [
             {"$or": [{"kind": {"$exists": False}}, {"kind": {"$ne": "wath"}}]},
-            {"$or": [{"title": {"$not": {"$regex": "^WATH", "$options": "i"}}}, {"kind": "scholarship"}]},
+            {"title": {"$not": {"$regex": "WATH", "$options": "i"}}}
         ]
     if type:
         q["$or"] = [
