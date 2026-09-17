@@ -1,231 +1,263 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Eye, Shield, Cpu, Activity, Zap, Layers, Maximize, Settings, LogOut, ChevronRight, Bell, Search, User } from 'lucide-react';
+import { Eye, Shield, Cpu, Activity, Zap, Layers, Maximize, Settings, LogOut, Search, Bell, Monitor, Droplet, Box, Layers as LayersIcon } from 'lucide-react';
 
-export default function SpatialUITest() {
+export default function DesignPlayground() {
+  const [theme, setTheme] = useState('glass'); // glass, neumorphic, clay, skeuomorphic, flat
   const [activeTab, setActiveTab] = useState("overview");
-  const [panelOpen, setPanelOpen] = useState(false);
+  
+  const themes = [
+    { id: 'glass', name: 'Glassmorphism', icon: Droplet },
+    { id: 'neumorphic', name: 'Neumorphism', icon: Monitor },
+    { id: 'clay', name: 'Claymorphism', icon: Box },
+    { id: 'skeuomorphic', name: 'Skeuomorphism', icon: LayersIcon },
+    { id: 'flat', name: 'Flat 2.0 + Clay', icon: Layers }
+  ];
+
+  const stats = [
+    { title: "Network Latency", val: "12ms", diff: "-2ms", status: "good" },
+    { title: "Active Connections", val: "1,248", diff: "+14%", status: "good" },
+    { title: "Memory Heap", val: "4.2 GB", diff: "+0.8 GB", status: "warn" },
+    { title: "Threat Blocks", val: "84", diff: "Normal", status: "good" }
+  ];
+
+  const renderContent = () => {
+    switch(theme) {
+      case 'glass': return <GlassTheme stats={stats} activeTab={activeTab} setActiveTab={setActiveTab} />;
+      case 'neumorphic': return <NeumorphicTheme stats={stats} activeTab={activeTab} setActiveTab={setActiveTab} />;
+      case 'clay': return <ClayTheme stats={stats} activeTab={activeTab} setActiveTab={setActiveTab} />;
+      case 'skeuomorphic': return <SkeuomorphicTheme stats={stats} activeTab={activeTab} setActiveTab={setActiveTab} />;
+      case 'flat': return <FlatTheme stats={stats} activeTab={activeTab} setActiveTab={setActiveTab} />;
+      default: return null;
+    }
+  };
 
   return (
-    <div className="min-h-[100dvh] w-full relative overflow-hidden bg-slate-950 font-sans text-slate-100 flex items-center justify-center p-4 sm:p-8">
-      {/* Background Orbs for Spatial Depth */}
+    <div className="min-h-screen w-full relative flex flex-col">
+      {/* Universal Theme Selector Bar */}
+      <div className="h-14 bg-slate-900 border-b border-slate-800 flex items-center justify-center gap-2 sm:gap-4 px-4 shrink-0 z-[100] relative text-white">
+        <span className="text-xs font-bold text-slate-400 uppercase tracking-widest mr-4 hidden md:inline">Select UI Paradigm:</span>
+        {themes.map(t => (
+          <button
+            key={t.id}
+            onClick={() => setTheme(t.id)}
+            className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${theme === t.id ? 'bg-indigo-500 text-white' : 'bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-white'}`}
+          >
+            <t.icon size={14} />
+            <span className="hidden sm:inline">{t.name}</span>
+          </button>
+        ))}
+      </div>
+      
+      {/* Theme Viewport */}
+      <div className="flex-1 relative overflow-hidden flex items-center justify-center">
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={theme}
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 1.05 }}
+            transition={{ duration: 0.3 }}
+            className="absolute inset-0 flex items-center justify-center p-4 sm:p-8"
+          >
+            {renderContent()}
+          </motion.div>
+        </AnimatePresence>
+      </div>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------
+// 1. GLASSMORPHISM (Spatial UI)
+// ---------------------------------------------------------
+function GlassTheme({ stats, activeTab, setActiveTab }) {
+  return (
+    <div className="w-full h-full bg-slate-950 text-slate-100 flex items-center justify-center absolute inset-0 overflow-hidden">
       <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-purple-500/30 rounded-full blur-[100px] mix-blend-screen animate-pulse" style={{ animationDuration: '8s' }} />
       <div className="absolute bottom-1/4 right-1/4 w-[30rem] h-[30rem] bg-indigo-500/30 rounded-full blur-[120px] mix-blend-screen animate-pulse" style={{ animationDuration: '12s', animationDelay: '2s' }} />
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-teal-500/20 rounded-full blur-[90px] mix-blend-screen" />
-
-      {/* Main Spatial Container */}
-      <motion.div 
-        initial={{ opacity: 0, scale: 0.9, y: 20 }}
-        animate={{ opacity: 1, scale: 1, y: 0 }}
-        transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-        className="relative w-full max-w-6xl h-[85vh] rounded-[2.5rem] overflow-hidden flex flex-col shadow-[0_32px_64px_-16px_rgba(0,0,0,0.5)] border border-white/10 bg-black/20 backdrop-blur-[40px] z-10"
-      >
-        {/* Spatial Top Bar */}
-        <header className="h-20 shrink-0 border-b border-white/5 flex items-center justify-between px-8 relative z-20">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-indigo-400 to-purple-600 flex items-center justify-center shadow-lg shadow-purple-500/20">
-              <Layers className="text-white" size={20} />
-            </div>
-            <div>
-              <h1 className="text-lg font-medium tracking-wide">Spatial Admin</h1>
-              <p className="text-[10px] text-slate-400 uppercase tracking-widest">VisionOS Protocol</p>
-            </div>
+      
+      <div className="relative w-full max-w-5xl h-[80vh] rounded-[2.5rem] flex flex-col shadow-[0_32px_64px_-16px_rgba(0,0,0,0.5)] border border-white/10 bg-white/[0.02] backdrop-blur-[40px] z-10 overflow-hidden">
+        <header className="h-20 shrink-0 border-b border-white/5 flex items-center justify-between px-8">
+          <h1 className="text-xl font-medium tracking-wide">GlassOS</h1>
+          <div className="flex bg-white/5 p-1 rounded-2xl border border-white/10">
+            {["overview", "analytics"].map(t => (
+              <button key={t} onClick={() => setActiveTab(t)} className={`px-6 py-2 rounded-xl text-sm font-medium capitalize transition-all ${activeTab === t ? 'bg-white/15 shadow-sm' : 'text-slate-400 hover:text-slate-200'}`}>
+                {t}
+              </button>
+            ))}
           </div>
-          
-          <div className="flex bg-white/5 p-1 rounded-2xl border border-white/10 backdrop-blur-md">
-            {["overview", "analytics", "security", "system"].map(t => (
+        </header>
+        <div className="flex-1 p-8 grid grid-cols-2 gap-6 overflow-y-auto">
+          {stats.map((s, i) => (
+            <div key={i} className="p-6 rounded-3xl bg-white/[0.03] border border-white/10 hover:bg-white/[0.08] transition-all relative overflow-hidden group">
+              <div className="text-sm font-medium text-slate-400 mb-2">{s.title}</div>
+              <div className="text-4xl font-light text-white mb-2">{s.val}</div>
+              <div className="absolute -right-6 -bottom-6 w-32 h-32 bg-indigo-500/10 rounded-full blur-2xl group-hover:bg-indigo-500/20 transition-colors" />
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------
+// 2. NEUMORPHISM (Soft UI)
+// ---------------------------------------------------------
+function NeumorphicTheme({ stats, activeTab, setActiveTab }) {
+  // Classic Neumorphism: light gray bg, soft light top-left, dark shadow bottom-right
+  return (
+    <div className="w-full h-full bg-[#e0e5ec] text-[#4a5568] flex items-center justify-center absolute inset-0">
+      <div className="w-full max-w-5xl h-[80vh] rounded-[2.5rem] flex flex-col bg-[#e0e5ec] shadow-[9px_9px_16px_rgb(163,177,198,0.6),-9px_-9px_16px_rgba(255,255,255,0.5)] overflow-hidden">
+        <header className="h-20 shrink-0 flex items-center justify-between px-8 border-b border-white/20">
+          <h1 className="text-xl font-bold tracking-wide text-slate-600">SoftUI</h1>
+          <div className="flex gap-4">
+            {["overview", "analytics"].map(t => (
               <button 
-                key={t}
-                onClick={() => setActiveTab(t)}
-                className={`px-6 py-2 rounded-xl text-sm font-medium capitalize transition-all duration-300 ${activeTab === t ? 'bg-white/15 text-white shadow-sm' : 'text-slate-400 hover:text-slate-200 hover:bg-white/5'}`}
+                key={t} 
+                onClick={() => setActiveTab(t)} 
+                className={`px-6 py-2 rounded-2xl text-sm font-bold capitalize transition-all ${
+                  activeTab === t 
+                  ? 'shadow-[inset_4px_4px_8px_rgb(163,177,198,0.6),inset_-4px_-4px_8px_rgba(255,255,255,0.5)] text-indigo-500' 
+                  : 'shadow-[4px_4px_8px_rgb(163,177,198,0.6),-4px_-4px_8px_rgba(255,255,255,0.5)] hover:text-indigo-400'
+                }`}
               >
                 {t}
               </button>
             ))}
           </div>
-
-          <div className="flex items-center gap-4">
-            <button className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center hover:bg-white/10 transition-colors">
-              <Search size={18} className="text-slate-300" />
-            </button>
-            <button className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center hover:bg-white/10 transition-colors relative">
-              <Bell size={18} className="text-slate-300" />
-              <span className="absolute top-2 right-2 w-2 h-2 bg-pink-500 rounded-full shadow-[0_0_8px_rgba(236,72,153,0.8)]" />
-            </button>
-            <button className="w-10 h-10 rounded-full bg-gradient-to-tr from-slate-700 to-slate-600 border border-white/20 overflow-hidden ml-2 shadow-lg">
-               <img src="https://ui-avatars.com/api/?name=Admin&background=random" alt="admin" className="w-full h-full object-cover" />
-            </button>
-          </div>
         </header>
-
-        {/* Spatial Content Area */}
-        <main className="flex-1 flex overflow-hidden relative z-10">
-          
-          {/* Left Sidebar (Glass Context Menu) */}
-          <div className="w-64 border-r border-white/5 p-6 flex flex-col gap-2 shrink-0 overflow-y-auto">
-            <div className="text-xs uppercase tracking-widest text-slate-500 font-bold mb-2 ml-2">Controls</div>
-            {[
-              { icon: Activity, label: "Live Traffic" },
-              { icon: Shield, label: "Threat Matrix" },
-              { icon: Cpu, label: "Core Processing" },
-              { icon: Zap, label: "Performance" }
-            ].map((item, i) => (
-              <button key={i} className="flex items-center gap-3 px-4 py-3 rounded-2xl hover:bg-white/10 transition-colors text-left group">
-                <item.icon size={18} className="text-slate-400 group-hover:text-indigo-400 transition-colors" />
-                <span className="text-sm font-medium text-slate-300 group-hover:text-white transition-colors">{item.label}</span>
-              </button>
-            ))}
-            
-            <div className="mt-auto space-y-2">
-              <button className="flex items-center gap-3 px-4 py-3 rounded-2xl hover:bg-white/10 transition-colors text-left w-full">
-                <Settings size={18} className="text-slate-400" />
-                <span className="text-sm font-medium text-slate-300">Preferences</span>
-              </button>
-              <button className="flex items-center gap-3 px-4 py-3 rounded-2xl hover:bg-rose-500/20 transition-colors text-left w-full group">
-                <LogOut size={18} className="text-slate-400 group-hover:text-rose-400" />
-                <span className="text-sm font-medium text-slate-300 group-hover:text-rose-400">Exit Spatial</span>
-              </button>
+        <div className="flex-1 p-8 grid grid-cols-2 gap-8 overflow-y-auto">
+          {stats.map((s, i) => (
+            <div key={i} className="p-8 rounded-3xl bg-[#e0e5ec] shadow-[9px_9px_16px_rgb(163,177,198,0.6),-9px_-9px_16px_rgba(255,255,255,0.5)] flex flex-col justify-center">
+              <div className="text-sm font-bold text-slate-500 uppercase tracking-widest mb-2">{s.title}</div>
+              <div className="text-4xl font-extrabold text-slate-700">{s.val}</div>
             </div>
+          ))}
+          <div className="col-span-2 h-40 rounded-3xl bg-[#e0e5ec] shadow-[inset_6px_6px_12px_rgb(163,177,198,0.6),inset_-6px_-6px_12px_rgba(255,255,255,0.5)] flex items-center justify-center p-6">
+             <div className="w-full h-full rounded-2xl bg-[#e0e5ec] shadow-[4px_4px_8px_rgb(163,177,198,0.6),-4px_-4px_8px_rgba(255,255,255,0.5)]"></div>
           </div>
-
-          {/* Main Viewport */}
-          <div className="flex-1 p-8 overflow-y-auto custom-scrollbar relative">
-            <AnimatePresence mode="wait">
-              <motion.div 
-                key={activeTab}
-                initial={{ opacity: 0, y: 20, filter: 'blur(10px)' }}
-                animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
-                exit={{ opacity: 0, y: -20, filter: 'blur(10px)' }}
-                transition={{ duration: 0.4 }}
-                className="space-y-6"
-              >
-                <div className="flex justify-between items-end mb-8">
-                  <div>
-                    <h2 className="text-3xl font-light tracking-tight text-white mb-2">System <span className="font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 to-teal-400 capitalize">{activeTab}</span></h2>
-                    <p className="text-slate-400 text-sm">Real-time spatial telemetry and intelligence.</p>
-                  </div>
-                  <button onClick={() => setPanelOpen(true)} className="flex items-center gap-2 px-5 py-2.5 rounded-full bg-white/10 hover:bg-white/20 border border-white/20 backdrop-blur-md transition-all text-sm font-medium shadow-xl">
-                    <Maximize size={16} /> Inspect Node
-                  </button>
-                </div>
-
-                {/* Spatial Grid Cards */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {[
-                    { title: "Network Latency", val: "12ms", diff: "-2ms", status: "good" },
-                    { title: "Active Connections", val: "1,248", diff: "+14%", status: "good" },
-                    { title: "Memory Heap", val: "4.2 GB", diff: "+0.8 GB", status: "warn" },
-                    { title: "Threat Blocks", val: "84", diff: "Normal", status: "good" },
-                    { title: "Database Load", val: "42%", diff: "-5%", status: "good" },
-                    { title: "Cluster Status", val: "Healthy", diff: "All Nodes Up", status: "good" },
-                  ].map((stat, i) => (
-                    <div key={i} className="group relative p-6 rounded-3xl bg-white/[0.03] border border-white/10 hover:bg-white/[0.08] hover:border-white/20 transition-all duration-300 overflow-hidden cursor-default">
-                      <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                      <div className="relative z-10">
-                        <div className="text-sm font-medium text-slate-400 mb-4">{stat.title}</div>
-                        <div className="text-4xl font-light tracking-tight text-white mb-2">{stat.val}</div>
-                        <div className={`text-xs font-medium px-2 py-1 inline-flex rounded-md bg-black/40 backdrop-blur-md border ${stat.status === 'warn' ? 'border-amber-500/30 text-amber-400' : 'border-emerald-500/30 text-emerald-400'}`}>
-                          {stat.diff}
-                        </div>
-                      </div>
-                      
-                      {/* Decorative internal elements */}
-                      <div className="absolute -right-6 -bottom-6 w-32 h-32 bg-gradient-to-br from-indigo-500/10 to-purple-500/10 rounded-full blur-2xl group-hover:bg-indigo-500/20 transition-colors duration-500" />
-                    </div>
-                  ))}
-                </div>
-
-                {/* Large Chart/Data Area */}
-                <div className="w-full h-80 rounded-3xl bg-gradient-to-b from-white/[0.05] to-transparent border border-white/10 mt-8 p-6 relative overflow-hidden flex flex-col">
-                   <div className="text-sm font-medium text-slate-300 mb-6 flex justify-between items-center">
-                     <span>Throughput Timeline</span>
-                     <div className="flex gap-2">
-                       <div className="w-2 h-2 rounded-full bg-indigo-400 animate-ping" />
-                       <span className="text-[10px] text-indigo-400 tracking-widest uppercase">Live</span>
-                     </div>
-                   </div>
-                   
-                   {/* Fake Chart Lines using CSS */}
-                   <div className="flex-1 relative flex items-end justify-between gap-2 px-2 pb-2">
-                     {[...Array(24)].map((_, i) => {
-                       const h = 20 + Math.random() * 80;
-                       return (
-                         <div key={i} className="w-full bg-indigo-500/20 rounded-t-sm relative group overflow-hidden" style={{ height: `${h}%` }}>
-                            <div className="absolute bottom-0 left-0 w-full bg-indigo-400/80 transition-all duration-500" style={{ height: '0%', top: '100%' }} />
-                            <div className="absolute inset-0 bg-gradient-to-t from-indigo-500/40 to-teal-400/80 opacity-50 group-hover:opacity-100 transition-opacity" />
-                         </div>
-                       )
-                     })}
-                   </div>
-                   {/* Glass scanline effect */}
-                   <div className="absolute inset-0 pointer-events-none bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:100%_4px]" />
-                </div>
-              </motion.div>
-            </AnimatePresence>
-          </div>
-        </main>
-
-        {/* Floating Context Panel (Simulating Z-Depth) */}
-        <AnimatePresence>
-          {panelOpen && (
-            <motion.div 
-              initial={{ opacity: 0, x: 100, scale: 0.95 }}
-              animate={{ opacity: 1, x: 0, scale: 1 }}
-              exit={{ opacity: 0, x: 50, scale: 0.95 }}
-              transition={{ type: "spring", damping: 25, stiffness: 300 }}
-              className="absolute top-6 bottom-6 right-6 w-96 bg-black/40 backdrop-blur-[60px] border border-white/20 rounded-[2rem] shadow-2xl z-50 p-6 flex flex-col"
-            >
-              <div className="flex justify-between items-center mb-6">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-teal-500/20 border border-teal-500/30 flex items-center justify-center">
-                    <Cpu size={18} className="text-teal-400" />
-                  </div>
-                  <h3 className="font-medium text-lg text-white">Node Inspector</h3>
-                </div>
-                <button onClick={() => setPanelOpen(false)} className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors">
-                  <X size={16} className="text-slate-300" />
-                </button>
-              </div>
-
-              <div className="flex-1 space-y-4 overflow-y-auto custom-scrollbar pr-2">
-                <div className="p-4 rounded-2xl bg-white/5 border border-white/10 space-y-3">
-                  <div className="text-xs text-slate-500 font-bold uppercase tracking-wider">Node Details</div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-slate-400">ID</span>
-                    <span className="font-mono text-slate-200">ND-8X42-F</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-slate-400">Location</span>
-                    <span className="text-slate-200">us-east-1a</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-slate-400">Status</span>
-                    <span className="text-emerald-400 flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-emerald-400" /> Active</span>
-                  </div>
-                </div>
-
-                <div className="p-4 rounded-2xl bg-white/5 border border-white/10 space-y-3">
-                  <div className="text-xs text-slate-500 font-bold uppercase tracking-wider">Process Log</div>
-                  <div className="space-y-2 font-mono text-[10px] text-slate-400">
-                    <div className="truncate text-teal-400">] Auth sequence initiated</div>
-                    <div className="truncate">] Handshake accepted</div>
-                    <div className="truncate text-rose-400">] Packet loss detected (0.01%)</div>
-                    <div className="truncate">] Re-routing traffic via proxy-2</div>
-                    <div className="truncate text-teal-400">] Connection stabilized</div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="mt-4 pt-4 border-t border-white/10">
-                <button className="w-full py-3 rounded-xl bg-white text-black font-semibold text-sm hover:bg-slate-200 transition-colors shadow-[0_0_20px_rgba(255,255,255,0.3)]">
-                  Initiate Diagnostic
-                </button>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-      </motion.div>
+        </div>
+      </div>
     </div>
   );
 }
+
+// ---------------------------------------------------------
+// 3. CLAYMORPHISM
+// ---------------------------------------------------------
+function ClayTheme({ stats, activeTab, setActiveTab }) {
+  // Claymorphism: pastel bg, fluffy 3D shapes (inner shadow + outer shadow)
+  return (
+    <div className="w-full h-full bg-[#f1f3f9] text-[#333] flex items-center justify-center absolute inset-0">
+      <div className="w-full max-w-5xl h-[80vh] rounded-[3rem] flex flex-col bg-[#f5f7fa] overflow-hidden shadow-[35px_35px_68px_#d1d5df,-35px_-35px_68px_#ffffff,inset_-8px_-8px_16px_rgba(0,0,0,0.05),inset_8px_8px_16px_rgba(255,255,255,0.8)]">
+        <header className="h-24 shrink-0 flex items-center justify-between px-10">
+          <h1 className="text-2xl font-black tracking-tight text-slate-700">Clay<span className="text-rose-400">OS</span></h1>
+          <div className="flex gap-4">
+            {["overview", "analytics"].map(t => (
+              <button 
+                key={t} 
+                onClick={() => setActiveTab(t)} 
+                className={`px-8 py-3 rounded-full text-sm font-bold capitalize transition-all ${
+                  activeTab === t 
+                  ? 'bg-rose-400 text-white shadow-[inset_-4px_-4px_8px_rgba(0,0,0,0.15),inset_4px_4px_8px_rgba(255,255,255,0.4)]' 
+                  : 'bg-white text-slate-500 shadow-[8px_8px_16px_#d1d5df,-8px_-8px_16px_#ffffff,inset_-4px_-4px_8px_rgba(0,0,0,0.02),inset_4px_4px_8px_rgba(255,255,255,1)] hover:-translate-y-1'
+                }`}
+              >
+                {t}
+              </button>
+            ))}
+          </div>
+        </header>
+        <div className="flex-1 p-10 grid grid-cols-2 gap-8 overflow-y-auto">
+          {stats.map((s, i) => (
+            <div key={i} className="p-8 rounded-[2.5rem] bg-white flex flex-col justify-center shadow-[16px_16px_32px_#d1d5df,-16px_-16px_32px_#ffffff,inset_-6px_-6px_12px_rgba(0,0,0,0.03),inset_6px_6px_12px_rgba(255,255,255,1)] transition-transform hover:scale-[1.02]">
+              <div className="text-sm font-bold text-slate-400 mb-2">{s.title}</div>
+              <div className="text-5xl font-black text-slate-700">{s.val}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------
+// 4. SKEUOMORPHISM
+// ---------------------------------------------------------
+function SkeuomorphicTheme({ stats, activeTab, setActiveTab }) {
+  // Realistic textures, heavy bevels, drop shadows.
+  return (
+    <div className="w-full h-full bg-[url('https://www.transparenttextures.com/patterns/wood-pattern.png')] bg-[#3e2723] text-[#fff] flex items-center justify-center absolute inset-0 shadow-[inset_0_0_100px_rgba(0,0,0,0.9)]">
+      <div className="w-full max-w-5xl h-[80vh] rounded-xl flex flex-col bg-[#d7ccc8] overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.8),inset_0_2px_2px_rgba(255,255,255,0.8)] border-[8px] border-[#5d4037]">
+        <header className="h-20 shrink-0 flex items-center justify-between px-8 bg-gradient-to-b from-[#efebe9] to-[#d7ccc8] shadow-[0_4px_6px_rgba(0,0,0,0.3)] z-10 border-b border-[#a1887f]">
+          <h1 className="text-xl font-serif font-bold text-[#3e2723] drop-shadow-[0_1px_1px_rgba(255,255,255,0.8)]">Skeuo Panel</h1>
+          <div className="flex gap-3">
+            {["overview", "analytics"].map(t => (
+              <button 
+                key={t} 
+                onClick={() => setActiveTab(t)} 
+                className={`px-6 py-1.5 rounded text-sm font-bold font-serif capitalize transition-all border border-[#5d4037] ${
+                  activeTab === t 
+                  ? 'bg-gradient-to-t from-[#8d6e63] to-[#a1887f] text-white shadow-[inset_0_3px_5px_rgba(0,0,0,0.6)]' 
+                  : 'bg-gradient-to-b from-[#ffffff] to-[#d7ccc8] text-[#3e2723] shadow-[0_3px_5px_rgba(0,0,0,0.4),inset_0_1px_0_rgba(255,255,255,1)] hover:brightness-110'
+                }`}
+              >
+                {t}
+              </button>
+            ))}
+          </div>
+        </header>
+        <div className="flex-1 p-8 grid grid-cols-2 gap-6 overflow-y-auto bg-[url('https://www.transparenttextures.com/patterns/leather.png')] bg-[#795548] shadow-[inset_0_10px_20px_rgba(0,0,0,0.5)]">
+          {stats.map((s, i) => (
+            <div key={i} className="p-6 rounded-lg bg-gradient-to-b from-[#eceff1] to-[#cfd8dc] border-2 border-[#b0bec5] flex flex-col justify-center shadow-[0_10px_15px_rgba(0,0,0,0.6),inset_0_2px_3px_rgba(255,255,255,0.9)]">
+              <div className="text-xs font-serif font-bold text-[#455a64] uppercase tracking-wider mb-2 drop-shadow-[0_1px_0_rgba(255,255,255,0.8)]">{s.title}</div>
+              <div className="text-4xl font-serif font-black text-[#263238] drop-shadow-[0_2px_1px_rgba(255,255,255,0.8)]">{s.val}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------
+// 5. FLAT DESIGN 2.0 (Semi-Flat + Subtle Clay)
+// ---------------------------------------------------------
+function FlatTheme({ stats, activeTab, setActiveTab }) {
+  // Bold solid colors, crisp borders, solid offset shadows or very soft large shadows
+  return (
+    <div className="w-full h-full bg-[#fce4ec] text-[#1e293b] flex items-center justify-center absolute inset-0">
+      <div className="w-full max-w-5xl h-[80vh] rounded-[2rem] flex flex-col bg-white overflow-hidden border-4 border-[#1e293b] shadow-[12px_12px_0_#1e293b]">
+        <header className="h-24 shrink-0 flex items-center justify-between px-8 border-b-4 border-[#1e293b] bg-[#f8fafc]">
+          <h1 className="text-2xl font-black tracking-tight text-[#1e293b]">Flat 2.0</h1>
+          <div className="flex gap-4">
+            {["overview", "analytics"].map(t => (
+              <button 
+                key={t} 
+                onClick={() => setActiveTab(t)} 
+                className={`px-8 py-2.5 rounded-xl text-sm font-bold capitalize transition-all border-2 border-[#1e293b] ${
+                  activeTab === t 
+                  ? 'bg-[#1e293b] text-white shadow-[4px_4px_0_#94a3b8]' 
+                  : 'bg-white text-[#1e293b] shadow-[4px_4px_0_#1e293b] hover:-translate-y-1 hover:shadow-[6px_6px_0_#1e293b]'
+                }`}
+              >
+                {t}
+              </button>
+            ))}
+          </div>
+        </header>
+        <div className="flex-1 p-8 grid grid-cols-2 gap-8 overflow-y-auto bg-[#f8fafc]">
+          {stats.map((s, i) => (
+            <div key={i} className="p-8 rounded-3xl bg-[#fbbf24] border-4 border-[#1e293b] flex flex-col justify-center shadow-[8px_8px_0_#1e293b] hover:-translate-y-2 hover:shadow-[12px_12px_0_#1e293b] transition-all">
+              <div className="text-sm font-bold text-[#1e293b] uppercase tracking-black mb-2">{s.title}</div>
+              <div className="text-5xl font-black text-[#1e293b]">{s.val}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
