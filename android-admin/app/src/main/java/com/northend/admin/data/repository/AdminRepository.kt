@@ -120,7 +120,7 @@ class AdminRepository @Inject constructor(
         safeApiCall { apiService.listWhatsAppThreads().body()!! }
 
     suspend fun getWhatsAppMessages(threadId: String): ResultWrapper<List<com.northend.admin.data.remote.models.WhatsAppMessage>> =
-        safeApiCall { apiService.getWhatsAppMessages(threadId).body()!! }
+        safeApiCall { apiService.getWhatsAppMessages(threadId).body()!!.items }
 
     suspend fun sendWhatsAppMessage(threadId: String, text: String): ResultWrapper<com.northend.admin.data.remote.models.WhatsAppMessage> =
         safeApiCall { apiService.sendWhatsAppMessage(threadId, com.northend.admin.data.remote.models.WhatsAppSendMessageRequest(text = text)).body()!! }

@@ -28,3 +28,6 @@ data class WhatsAppSendMessageRequest(
     val kind: String = "text",
     val text: String
 )
+
+@JsonClass(generateAdapter = true)
+data class WhatsAppMessagesResponse(val items: List<WhatsAppMessage>)

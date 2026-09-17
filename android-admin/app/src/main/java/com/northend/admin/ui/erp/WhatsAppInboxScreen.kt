@@ -122,7 +122,9 @@ fun WhatsAppInboxScreen(viewModel: WhatsAppViewModel = hiltViewModel(), targetTh
                 )
             },
             bottomBar = {
-                MessageInput { text -> viewModel.sendMessage(text) }
+                Box(modifier = Modifier.imePadding().navigationBarsPadding()) {
+                    MessageInput { text -> viewModel.sendMessage(text) }
+                }
             }
         ) { padding ->
             Column(modifier = Modifier.fillMaxSize().padding(padding).background(WhatsAppChatBg)) {
