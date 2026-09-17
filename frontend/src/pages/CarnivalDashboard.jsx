@@ -1,61 +1,42 @@
-import { useEffect, useMemo, useState } from "react";
+import React, { useState, useMemo, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { api, formatError } from "@/lib/api";
+import { useQuery } from "@tanstack/react-query";
+import { ArrowLeft, Users, Calendar, GraduationCap, Download, Upload, Loader2, Target, Eye, Database, ListChecks } from "lucide-react";
+import { api, formatError, fmtDate } from "@/lib/api";
 import { toast } from "sonner";
-import { motion } from "framer-motion";
-import {
-  Calendar, Clock, Users, GraduationCap, ArrowLeft, XCircle
-} from "lucide-react";
-
-const CLASSES = ["Class 7", "Class 8", "Class 9", "Class 10", "Class 11", "Class 12", "Dropper (JEE)", "Dropper (NEET)"];
+import BulkProgressModal from "./admin/BulkProgressModal";
 
 export default function CarnivalDashboard() {
-  const { id, slug } = useParams();
-  const carnivalId = slug || id;
+  const { id } = useParams();
   const navigate = useNavigate();
-  const [carnival, setCarnival] = useState(null);
-  const [regs, setRegs] = useState([]);
-  const [loading, setLoading] = useState(true);
+  
+  const [bulkState, setBulkState] = useState({ progress: 0, status: "idle" });
+  const [bulkModalOpen, setBulkModalOpen] = useState(false);
+  
+  const uploadInputRef = useRef();
 
-  useEffect(() => {
-    let mounted = true;
-    setLoading(true);
-    Promise.all([
-      api.get(`/admin/wath/carnivals/${carnivalId}`),
-      api.get(`/admin/wath/carnivals/${carnivalId}/registrations`),
-    ])
-      .then(([cRes, rRes]) => {
-        if (!mounted) return;
-        setCarnival(cRes.data);
-        setRegs(Array.isArray(rRes.data) ? rRes.data : []);
-      })
-      .catch(e => {
-        if (!mounted) return;
-        const status = e?.response?.status;
-        if (status === 401) {
-          toast.error("Session expired. Please log in again.");
-        } else {
-          toast.error(formatError(e.response?.data?.detail) || "Failed to load carnival dashboard");
-        }
-      })
-      .finally(() => {
-        if (mounted) setLoading(false);
-      });
-    return () => { mounted = false; };
-  }, [carnivalId]);
+  const { data: carnival, isLoading: loadingCar } = useQuery({
+    queryKey: ["admin-carnival", id],
+    queryFn: () => api.get(`/admin/wath/carnivals/${id}`).then(r => r.data)
+  });
 
-  const fmtDate = (iso) => {
-    if (!iso) return "—";
-    const d = new Date(iso);
-    return isNaN(d.getTime()) ? "—" : d.toLocaleDateString("en-IN", { day: "2-digit", month: "short" }) + " " + d.toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" });
-  };
+  const { data: regs = [], isLoading: loadingRegs } = useQuery({
+    queryKey: ["admin-carnival-regs", id],
+    queryFn: () => api.get(`/admin/wath/carnivals/${id}/registrations`).then(r => r.data)
+  });
+
+  const loading = loadingCar || loadingRegs;
 
   const stats = useMemo(() => {
-    if (!carnival) return { totalCap: 0, total: 0, pct: 0, byDate: [], byVenue: [], byClass: [] };
-    const totalCap = (carnival.exam_dates || []).flatMap(d => d.slots || []).reduce((s, x) => s + (x.capacity || 0), 0);
+    let totalCap = 0;
+    (carnival?.exam_dates || []).forEach(d => {
+      (d.slots || []).forEach(s => { totalCap += Number(s.capacity) || 0; });
+    });
     const total = regs.length;
-    const byDate = (carnival.exam_dates || []).map(d => {
-      const cap = (d.slots || []).reduce((s, x) => s + (x.capacity || 0), 0);
+    
+    const byDate = (carnival?.exam_dates || []).map(d => {
+      let cap = 0;
+      (d.slots || []).forEach(s => { cap += Number(s.capacity) || 0; });
       const count = regs.filter(r => r.chosen_date === d.date).length;
       return { date: d.date, cap, count, pct: cap ? Math.round((count / cap) * 100) : 0 };
     });
@@ -70,124 +51,214 @@ export default function CarnivalDashboard() {
     };
   }, [regs, carnival]);
 
-  const bySlot = useMemo(() => {
-    const map = {};
-    for (const r of regs) {
-      const key = `${r.chosen_date || "—"}|${r.chosen_slot_time || "—"}`;
-      if (!map[key]) map[key] = { date: r.chosen_date, time: r.chosen_slot_time, rows: [] };
-      map[key].rows.push(r);
-    }
-    return Object.values(map).sort((a, b) => (a.date || "").localeCompare(b.date || "") || (a.time || "").localeCompare(b.time || ""));
-  }, [regs]);
+  const downloadResultsTemplate = async () => {
+    try {
+      const res = await api.get(`/admin/scholarships/${id}/results-template`, { responseType: 'blob' });
+      const url = window.URL.createObjectURL(new Blob([res.data]));
+      const link = document.createElement('a');
+      link.href = url; link.setAttribute('download', `results-template-${id}.xlsx`);
+      document.body.appendChild(link); link.click(); link.remove();
+    } catch (e) { toast.error("Failed to download template"); }
+  };
 
-  const StatCard = ({ label, value, sub }) => (
-    <div className="glass border border-white/10 rounded-xl p-3 text-center flex flex-col justify-center min-h-[56px] sm:min-h-[76px]">
-      <div className="text-[9px] uppercase tracking-[0.16em] text-muted-foreground font-bold leading-tight">{label}</div>
-      <div className="font-display text-lg sm:text-2xl font-medium text-foreground mt-1 leading-none">{value}</div>
-      {sub && <div className="text-[10px] text-muted-foreground mt-1">{sub}</div>}
-    </div>
-  );
+  const uploadResults = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setBulkModalOpen(true);
+    setBulkState({ progress: 0, status: "uploading" });
+    try {
+      const fd = new FormData();
+      fd.append("file", file);
+      const res = await api.post(`/admin/scholarships/${id}/bulk-results`, fd, {
+        headers: { "Content-Type": "multipart/form-data" },
+        onUploadProgress: (ev) => {
+          if (ev.total) setBulkState({ progress: Math.round((ev.loaded * 100) / ev.total), status: "uploading" });
+        }
+      });
+      setBulkState({ progress: 100, status: "success", data: res.data });
+      toast.success(`Results uploaded: ${res.data.processed} processed`);
+    } catch (err) {
+      setBulkState({ progress: 0, status: "error", error: formatError(err.response?.data?.detail) || err.message });
+      toast.error("Upload failed");
+    } finally {
+      e.target.value = "";
+    }
+  };
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
-      <div className="max-w-6xl mx-auto p-4 sm:p-6 lg:p-8 space-y-6">
-        <div className="flex items-center gap-3">
-          <button type="button" onClick={() => navigate("/admin")} className="p-2 rounded-xl border border-border hover:bg-muted/50 cursor-pointer">
-            <ArrowLeft size={18} />
-          </button>
-          <div className="min-w-0">
-            <div className="text-[10px] uppercase tracking-[0.22em] text-accent font-bold">WATH Carnival Dashboard</div>
-            <div className="font-display text-xl sm:text-3xl font-light tracking-tight text-foreground truncate">{carnival?.title || "Loading…"}</div>
+    <div className="min-h-screen bg-[#050505] text-foreground font-sans relative overflow-hidden">
+      <BulkProgressModal isOpen={bulkModalOpen} onClose={() => setBulkModalOpen(false)} state={bulkState} />
+      
+      {/* Billion dollar ambient background */}
+      <div className="absolute top-0 left-0 w-full h-[500px] bg-gradient-to-b from-accent/10 to-transparent pointer-events-none opacity-50 blur-3xl" />
+      <div className="absolute -top-40 -right-40 w-[600px] h-[600px] bg-primary/10 rounded-full blur-[100px] pointer-events-none" />
+
+      <div className="max-w-[1400px] mx-auto p-4 sm:p-6 lg:p-8 relative z-10 space-y-8">
+        
+        {/* Header Section */}
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+          <div className="space-y-4">
+            <button type="button" onClick={() => navigate("/admin")} className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-muted-foreground hover:text-foreground transition-colors group">
+              <div className="p-1.5 rounded-lg border border-border bg-background/50 group-hover:bg-accent/10 group-hover:border-accent/30 group-hover:text-accent transition-all">
+                <ArrowLeft size={14} />
+              </div>
+              Back to Command Center
+            </button>
+            <div>
+              <div className="text-[11px] uppercase tracking-[0.25em] text-accent font-bold mb-1.5 flex items-center gap-2">
+                <Target size={12} className="text-accent" /> WATH Carnival Intelligence
+              </div>
+              <h1 className="font-display text-4xl md:text-5xl lg:text-6xl font-light tracking-tight text-white drop-shadow-sm">
+                {carnival?.title || "Loading Carnival..."}
+              </h1>
+            </div>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-3 shrink-0">
+            <input type="file" className="hidden" ref={uploadInputRef} onChange={uploadResults} accept=".xlsx,.xls" />
+            
+            <button onClick={downloadResultsTemplate} className="h-12 px-5 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 text-sm font-bold flex items-center gap-2 transition-all backdrop-blur-md text-white">
+              <Download size={16} /> Template
+            </button>
+            <button onClick={() => uploadInputRef.current?.click()} className="h-12 px-5 rounded-xl bg-gradient-to-r from-accent to-[#1a9df4] hover:opacity-90 text-accent-foreground text-sm font-bold flex items-center gap-2 transition-all shadow-[0_0_20px_rgba(30,160,250,0.3)] hover:shadow-[0_0_30px_rgba(30,160,250,0.5)]">
+              <Upload size={16} /> Upload Results
+            </button>
           </div>
         </div>
 
         {loading ? (
-          <div className="p-6 text-center text-xs text-muted-foreground">Loading…</div>
+          <div className="py-20 flex flex-col items-center justify-center text-muted-foreground">
+            <Loader2 className="animate-spin mb-4" size={32} />
+            <div className="text-sm font-medium uppercase tracking-widest">Aggregating Metrics...</div>
+          </div>
         ) : (
-          <>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-4">
-              <StatCard label="Registrations" value={stats.total}/>
-              <StatCard label="Total capacity" value={stats.totalCap}/>
-              <StatCard label="Overall fill" value={`${stats.pct}%`} sub={`${stats.total}/${stats.totalCap} seats`}/>
-              <StatCard label="Exam dates" value={carnival?.exam_dates?.length || 0}/>
+          <div className="space-y-6">
+            
+            {/* KPI Cards */}
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+              {[
+                { label: "Total Registrations", value: stats.total, icon: Users, color: "text-blue-400" },
+                { label: "Network Capacity", value: stats.totalCap, icon: Database, color: "text-emerald-400" },
+                { label: "Aggregate Fill Rate", value: `${stats.pct}%`, sub: `${stats.total} / ${stats.totalCap} seats allocated`, icon: Target, color: "text-amber-400" },
+                { label: "Available Exam Dates", value: carnival?.exam_dates?.length || 0, icon: Calendar, color: "text-purple-400" }
+              ].map((kpi, i) => (
+                <div key={i} className="glass border border-white/5 bg-gradient-to-br from-white/[0.03] to-transparent p-5 rounded-2xl relative overflow-hidden group hover:border-white/10 transition-colors">
+                  <div className={`absolute top-0 right-0 p-5 opacity-20 group-hover:opacity-40 transition-opacity ${kpi.color}`}>
+                    <kpi.icon size={48} weight="duotone" />
+                  </div>
+                  <div className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground font-bold mb-3">{kpi.label}</div>
+                  <div className="font-display text-4xl text-white font-medium drop-shadow-md">{kpi.value}</div>
+                  {kpi.sub && <div className="text-[11px] text-muted-foreground mt-2 font-medium">{kpi.sub}</div>}
+                </div>
+              ))}
             </div>
 
-            {stats.byDate.length > 0 && (
-              <div className="glass border border-white/10 rounded-2xl p-4 sm:p-6 space-y-4">
-                <div className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground font-bold flex items-center gap-1.5"><Calendar size={11}/> Fill by exam date</div>
-                <div className="space-y-2">
-                  {stats.byDate.map(d => (
-                    <div key={d.date} className="flex items-center gap-3">
-                      <div className="text-xs w-24 shrink-0 text-foreground/80">{d.date}</div>
-                      <div className="flex-1 h-2.5 rounded-full bg-white/[0.06] overflow-hidden">
-                        <div className="h-full rounded-full bg-gradient-to-r from-primary to-accent" style={{ width: `${Math.min(100, d.pct)}%` }}/>
+            {/* Visual Analytics */}
+            <div className="grid lg:grid-cols-3 gap-6">
+              
+              <div className="lg:col-span-2 glass border border-white/5 rounded-3xl p-6 md:p-8 flex flex-col">
+                <div className="flex items-center gap-2 text-xs uppercase tracking-widest font-bold text-muted-foreground mb-6">
+                  <Calendar size={14} className="text-accent"/> Allocation by Date
+                </div>
+                {stats.byDate.length === 0 ? (
+                  <div className="flex-1 grid place-items-center text-muted-foreground text-sm italic">No slot configurations found</div>
+                ) : (
+                  <div className="space-y-5 flex-1 justify-center flex flex-col">
+                    {stats.byDate.map(d => (
+                      <div key={d.date} className="group">
+                        <div className="flex items-end justify-between mb-2">
+                          <div className="text-sm font-bold text-white tracking-wide">{d.date}</div>
+                          <div className="text-xs font-mono text-muted-foreground"><span className="text-accent font-bold">{d.count}</span> / {d.cap} booked</div>
+                        </div>
+                        <div className="h-3 w-full bg-black/40 rounded-full overflow-hidden border border-white/5 shadow-inner relative">
+                          <div className="absolute top-0 left-0 h-full bg-gradient-to-r from-accent to-[#1a9df4] rounded-full transition-all duration-1000 ease-out shadow-[0_0_10px_rgba(30,160,250,0.5)]" style={{ width: `${Math.min(100, d.pct)}%` }} />
+                        </div>
                       </div>
-                      <div className="text-[11px] font-mono text-muted-foreground w-24 text-right shrink-0">{d.count}/{d.cap} · {d.pct}%</div>
-                    </div>
-                  ))}
-                </div>
+                    ))}
+                  </div>
+                )}
               </div>
-            )}
 
-            <div className="grid sm:grid-cols-2 gap-4 sm:gap-8">
-              <div className="glass border border-white/10 rounded-2xl p-4 sm:p-6">
-                <div className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground font-bold mb-2.5 flex items-center gap-1.5"><Users size={11}/> By venue</div>
-                <div className="flex flex-wrap gap-1.5">
-                  {stats.byVenue.length === 0 && <span className="text-[11px] text-muted-foreground">—</span>}
-                  {stats.byVenue.map(([v, n]) => <span key={v} className="text-[11px] px-2.5 py-1 rounded-lg bg-white/[0.04] border border-white/10 whitespace-nowrap">{v} <b className="text-accent ml-0.5">{n}</b></span>)}
+              <div className="flex flex-col gap-6">
+                <div className="glass border border-white/5 rounded-3xl p-6 flex-1">
+                  <div className="flex items-center gap-2 text-xs uppercase tracking-widest font-bold text-muted-foreground mb-5">
+                    <GraduationCap size={14} className="text-emerald-400"/> Demographic by Class
+                  </div>
+                  <div className="flex flex-col gap-2.5">
+                    {stats.byClass.length === 0 && <span className="text-xs text-muted-foreground">—</span>}
+                    {stats.byClass.map(([cl, n]) => (
+                      <div key={cl} className="flex items-center justify-between p-2.5 rounded-xl bg-white/[0.02] border border-white/[0.02] hover:bg-white/[0.04] transition-colors">
+                        <span className="text-sm font-medium text-white/90">{cl}</span>
+                        <span className="text-xs font-mono font-bold bg-emerald-500/10 text-emerald-400 px-2 py-0.5 rounded-md">{n}</span>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
-              <div className="glass border border-white/10 rounded-2xl p-4 sm:p-6">
-                <div className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground font-bold mb-2.5 flex items-center gap-1.5"><GraduationCap size={11}/> By class</div>
-                <div className="flex flex-wrap gap-1.5">
-                  {stats.byClass.length === 0 && <span className="text-[11px] text-muted-foreground">—</span>}
-                  {stats.byClass.map(([cl, n]) => <span key={cl} className="text-[11px] px-2.5 py-1 rounded-lg bg-white/[0.04] border border-white/10 whitespace-nowrap">{cl} <b className="text-accent ml-0.5">{n}</b></span>)}
+
+            </div>
+
+            {/* Registry Database */}
+            <div className="glass border border-white/5 rounded-3xl overflow-hidden mt-8 flex flex-col">
+              <div className="p-6 md:p-8 border-b border-white/5 bg-gradient-to-r from-white/[0.02] to-transparent flex items-center justify-between">
+                <div>
+                  <h3 className="font-display text-2xl text-white font-medium">Aspirant Registry</h3>
+                  <p className="text-xs text-muted-foreground mt-1">Live synchronized applicant ledger</p>
                 </div>
+                <div className="hidden sm:flex items-center gap-2 text-[10px] uppercase tracking-widest font-bold text-accent bg-accent/10 border border-accent/20 px-3 py-1.5 rounded-full">
+                  <Eye size={12} /> {regs.length} Active Records
+                </div>
+              </div>
+              
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm text-left">
+                  <thead className="bg-black/20 text-[10px] uppercase tracking-[0.2em] text-muted-foreground font-bold border-b border-white/5">
+                    <tr>
+                      <th className="px-6 py-4 whitespace-nowrap">App ID</th>
+                      <th className="px-6 py-4 whitespace-nowrap">Aspirant Name</th>
+                      <th className="px-6 py-4 whitespace-nowrap">Mobile</th>
+                      <th className="px-6 py-4 whitespace-nowrap">Standard</th>
+                      <th className="px-6 py-4 whitespace-nowrap">Allocated Date</th>
+                      <th className="px-6 py-4 whitespace-nowrap">Slot</th>
+                      <th className="px-6 py-4 text-center whitespace-nowrap">Evaluation</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-white/5 text-white/80">
+                    {regs.length === 0 ? (
+                      <tr>
+                        <td colSpan="7" className="p-12 text-center text-muted-foreground italic font-medium">
+                          No registrants detected in the matrix.
+                        </td>
+                      </tr>
+                    ) : (
+                      regs.map(r => (
+                        <tr key={r.id} className="hover:bg-white/[0.03] transition-colors group">
+                          <td className="px-6 py-4 font-mono text-xs text-accent font-medium">{r.application_no}</td>
+                          <td className="px-6 py-4 font-semibold text-white">{r.name}</td>
+                          <td className="px-6 py-4 font-mono text-xs text-muted-foreground group-hover:text-white/80 transition-colors">{r.phone}</td>
+                          <td className="px-6 py-4">{r.standard || "—"}</td>
+                          <td className="px-6 py-4 text-emerald-400 font-medium text-xs">{r.chosen_date || "—"}</td>
+                          <td className="px-6 py-4 text-muted-foreground text-xs font-mono">{r.chosen_slot_time || "—"}</td>
+                          <td className="px-6 py-4 text-center">
+                            {r.result_published ? (
+                              <span className="inline-flex items-center gap-1.5 text-[10px] uppercase tracking-wider bg-accent/20 border border-accent/30 text-accent px-2.5 py-1 rounded-md font-bold">
+                                <ListChecks size={10} /> Published ({r.result_marks_obtained || 0})
+                              </span>
+                            ) : (
+                              <span className="text-[10px] uppercase tracking-wider bg-white/5 border border-white/10 text-muted-foreground px-2.5 py-1 rounded-md font-bold">
+                                Pending
+                              </span>
+                            )}
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
               </div>
             </div>
 
-            {regs.length === 0 ? (
-              <div className="p-8 text-center text-xs text-muted-foreground">No registrations yet</div>
-            ) : (
-              <div className="glass border border-white/10 rounded-2xl overflow-hidden">
-                <div className="px-4 sm:px-5 py-3 border-b border-white/10">
-                  <div className="font-medium text-sm">Registrations</div>
-                </div>
-                <div className="overflow-x-auto">
-                  <table className="w-full text-xs min-w-[640px]">
-                    <thead>
-                      <tr className="text-[10px] uppercase tracking-[0.16em] text-muted-foreground/70">
-                        <th className="text-left px-5 py-2">App No</th>
-                        <th className="text-left px-5 py-2">Name</th>
-                        <th className="text-left px-5 py-2">Phone</th>
-                        <th className="text-left px-5 py-2">Class</th>
-                        <th className="text-left px-5 py-2">Venue</th>
-                        <th className="text-left px-5 py-2">Date</th>
-                        <th className="text-left px-5 py-2">Slot</th>
-                        <th className="text-left px-5 py-2">Registered on</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-white/[0.03]">
-                      {bySlot.map(grp => (
-                        grp.rows.map(r => (
-                          <tr key={r.id} className="hover:bg-white/[0.02]">
-                            <td className="px-5 py-2 font-mono text-accent">{r.application_no}</td>
-                            <td className="px-5 py-2">{r.name}</td>
-                            <td className="px-5 py-2 text-muted-foreground">{r.phone}</td>
-                            <td className="px-5 py-2 text-muted-foreground">{r.standard || "—"}</td>
-                            <td className="px-5 py-2 text-muted-foreground">{r.venue || "—"}</td>
-                            <td className="px-5 py-2 text-muted-foreground">{r.chosen_date || "—"}</td>
-                            <td className="px-5 py-2 text-muted-foreground">{r.chosen_slot_time || "—"}</td>
-                            <td className="px-5 py-2 text-muted-foreground font-mono">{fmtDate(r.created_at)}</td>
-                          </tr>
-                        ))
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            )}
-          </>
+          </div>
         )}
       </div>
     </div>
