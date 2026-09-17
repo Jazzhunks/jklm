@@ -9,7 +9,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
-import androidx.core.view.WindowCompat
+import androidx.activity.enableEdgeToEdge
 import com.northend.admin.ui.theme.NorthEndTheme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -20,7 +20,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        WindowCompat.setDecorFitsSystemWindows(window, false)
+        enableEdgeToEdge()
         
         handleIntent(intent)
 
@@ -35,17 +35,24 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
-
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
+        setIntent(intent) // Security Skill: keep active references updated
         handleIntent(intent)
     }
 
     private fun handleIntent(intent: Intent) {
-        val targetPath = intent.getStringExtra("target_path")
-        // Expected format: /admin/whatsapp?thread_id=123
-        if (targetPath != null && targetPath.contains("thread_id=")) {
-            targetThreadId.value = targetPath.split("thread_id=")[1]
+        try {
+            val targetPath = intent.getStringExtra("target_path")
+            // Expected format: /admin/whatsapp?thread_id=123
+            if (targetPath != null && targetPath.contains("thread_id=")) {
+                val parts = targetPath.split("thread_id=")
+                if (parts.size > 1 && parts[1].isNotEmpty()) {
+                    targetThreadId.value = parts[1]
+                }
+            }
+        } catch (e: Exception) {
+            // Handle missing or malformed intent extras gracefully to prevent crashes
         }
     }
 }
