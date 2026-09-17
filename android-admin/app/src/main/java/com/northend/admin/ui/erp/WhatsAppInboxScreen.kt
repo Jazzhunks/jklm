@@ -8,6 +8,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.ExitToApp
 import androidx.compose.material.icons.filled.Send
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -24,8 +25,32 @@ import com.northend.admin.ui.components.LoadingIndicator
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun WhatsAppInboxScreen(viewModel: WhatsAppViewModel = hiltViewModel()) {
+fun WhatsAppInboxScreen(viewModel: WhatsAppViewModel = hiltViewModel(), targetThreadId: String? = null, onLogout: () -> Unit = {}) {
     val state by viewModel.uiState.collectAsState()
+
+    LaunchedEffect(targetThreadId, state.threads) {
+        if (targetThreadId != null && state.threads.isNotEmpty()) {
+            val target = state.threads.find { it.id == targetThreadId }
+            if (target != null && state.currentThread?.id != targetThreadId) {
+                viewModel.selectThread(target)
+            }
+        }
+    }
+    
+    // Auto-fetch token and update on backend on launch of inbox
+    LaunchedEffect(Unit) {
+        try {
+            com.google.firebase.messaging.FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    val token = task.result
+                    android.util.Log.d("FCM", "Fetched token: $token")
+                    // Instead of creating a new API in WhatsAppViewModel, we can do it via a quick side-effect or we need to add it to WhatsAppViewModel.
+                    viewModel.updateFcmToken(token)
+                }
+            }
+        } catch(e: Exception) {}
+    }
+
 
     if (state.currentThread == null) {
         Scaffold(

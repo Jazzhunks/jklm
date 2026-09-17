@@ -30,8 +30,37 @@ class WhatsAppViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(WhatsAppUiState())
     val uiState: StateFlow<WhatsAppUiState> = _uiState.asStateFlow()
 
+    
     init {
         loadThreads()
+        startPolling()
+    }
+
+    private fun startPolling() {
+        viewModelScope.launch {
+            while(true) {
+                kotlinx.coroutines.delay(3000)
+                if (_uiState.value.currentThread == null) {
+                    val threadsResult = repository.listWhatsAppThreads()
+                    if (threadsResult is com.northend.admin.utils.ResultWrapper.Success<*>) {
+                        _uiState.value = _uiState.value.copy(threads = (threadsResult.data as List<com.northend.admin.data.remote.models.WhatsAppThread>))
+                    }
+                } else {
+                    val msgsResult = repository.getWhatsAppMessages(_uiState.value.currentThread!!.id)
+                    if (msgsResult is com.northend.admin.utils.ResultWrapper.Success<*>) {
+                        _uiState.value = _uiState.value.copy(messages = (msgsResult.data as List<com.northend.admin.data.remote.models.WhatsAppMessage>))
+                    }
+                }
+            }
+        }
+    }
+
+
+    
+    fun updateFcmToken(token: String) {
+        viewModelScope.launch {
+            repository.updateFcmToken(token)
+        }
     }
 
     fun loadThreads() {

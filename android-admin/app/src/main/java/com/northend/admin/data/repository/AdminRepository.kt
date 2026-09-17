@@ -29,6 +29,11 @@ class AdminRepository @Inject constructor(
     private val tokenManager: TokenManager
 ) {
 
+    
+    suspend fun updateFcmToken(token: String): ResultWrapper<Any> {
+        return safeApiCall { apiService.updateFcmToken(com.northend.admin.data.remote.FCMTokenRequest(token)) }
+    }
+
     suspend fun login(email: String, password: String): ResultWrapper<User> = withContext(Dispatchers.IO) {
         try {
             val res = apiService.login(LoginRequest(email, password))

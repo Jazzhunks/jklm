@@ -394,6 +394,46 @@ else:
         client = AsyncMongoMockClient()
         db = client[os.environ.get('DB_NAME', 'northend_db')]
 
+
+import firebase_admin
+from firebase_admin import credentials, messaging
+try:
+    cred = credentials.Certificate("northend-admin-app-firebase-adminsdk-fbsvc-79accbd4db.json")
+    firebase_admin.initialize_app(cred)
+    print("Firebase Admin initialized successfully.")
+except Exception as e:
+    print(f"Firebase initialization failed: {e}")
+
+from pydantic import BaseModel
+class FCMTokenIn(BaseModel):
+    token: str
+
+@app.post("/api/erp/users/fcm-token")
+async def update_fcm_token(req: FCMTokenIn, user=Depends(get_current_user)):
+    await db.users.update_one({"_id": user["_id"]}, {"$addToSet": {"fcm_tokens": req.token}})
+    return {"success": True}
+
+async def send_super_admin_notification(title: str, body: str, target_path: str = ""):
+    try:
+        admins = await db.users.find({"role": "super_admin"}).to_list(None)
+        tokens = []
+        for admin in admins:
+            tokens.extend(admin.get("fcm_tokens", []))
+        
+        tokens = list(set(tokens))
+        if not tokens:
+            return
+            
+        message = messaging.MulticastMessage(
+            notification=messaging.Notification(title=title, body=body),
+            data={"target_path": target_path},
+            tokens=tokens
+        )
+        response = messaging.send_multicast(message)
+        print(f"Successfully sent FCM messages: {response.success_count}")
+    except Exception as e:
+        print(f"Error sending FCM: {e}")
+
 app = FastAPI(title="Unacademy Offline Centre API")
 api = APIRouter(prefix="/api")
 

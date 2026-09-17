@@ -7,6 +7,9 @@ import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 
 interface AdminApiService {
+    @POST("erp/users/fcm-token")
+    suspend fun updateFcmToken(@Body request: com.northend.admin.data.remote.FCMTokenRequest): retrofit2.Response<Any>
+
 
     // Auth
     @POST("auth/login")

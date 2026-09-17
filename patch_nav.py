@@ -1,28 +1,61 @@
-with open('/Users/mudasirmushtaq/Documents/app/northend/android-admin/app/src/main/java/com/northend/admin/ui/erp/nav/ErpNavDrawer.kt', 'r') as f:
+with open('android-admin/app/src/main/java/com/northend/admin/ui/AppNavHost.kt', 'r') as f:
     nav = f.read()
 
-nav = nav.replace('import androidx.compose.material.icons.filled.School', 
-                  'import androidx.compose.material.icons.filled.School\nimport androidx.compose.material.icons.filled.Message')
+new_nav = """package com.northend.admin.ui
 
-nav = nav.replace('const val ID_CARDS = "idcards"', 
-                  'const val ID_CARDS = "idcards"\n    const val WHATSAPP = "whatsapp"')
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.LocalContext
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import com.northend.admin.data.local.TokenManager
+import com.northend.admin.ui.auth.LoginScreen
+import com.northend.admin.ui.auth.LoginViewModel
+import com.northend.admin.di.NetworkModule
+import com.northend.admin.ui.erp.WhatsAppInboxScreen
 
-# Insert WhatsApp into the drawer items
-wa_item = 'add(DrawerItem(ErpDestinations.WHATSAPP, "WhatsApp Inbox", Icons.Default.Message) { true })'
-nav = nav.replace('add(DrawerItem(ErpDestinations.ATTENDANCE, "Gate Attendance", Icons.Default.QrCodeScanner) { true })',
-                  wa_item + '\n        add(DrawerItem(ErpDestinations.ATTENDANCE, "Gate Attendance", Icons.Default.QrCodeScanner) { true })')
+@Composable
+fun AppNavHost(targetThreadId: String? = null) {
+    val navController = rememberNavController()
+    var startDestination by remember { mutableStateOf("login") }
 
-with open('/Users/mudasirmushtaq/Documents/app/northend/android-admin/app/src/main/java/com/northend/admin/ui/erp/nav/ErpNavDrawer.kt', 'w') as f:
-    f.write(nav)
+    val context = LocalContext.current
+    val tokenManager = remember { NetworkModule.provideTokenManager(context) }
 
-with open('/Users/mudasirmushtaq/Documents/app/northend/android-admin/app/src/main/java/com/northend/admin/ui/erp/ErpScreen.kt', 'r') as f:
-    erp = f.read()
+    LaunchedEffect(Unit) {
+        startDestination = if (tokenManager.isLoggedIn()) "whatsapp" else "login"
+    }
 
-wa_route = 'composable(com.northend.admin.ui.erp.nav.ErpDestinations.WHATSAPP) { com.northend.admin.ui.erp.WhatsAppInboxScreen() }'
-erp = erp.replace('composable(ErpDestinations.ATTENDANCE) { AttendanceScreen() }',
-                  wa_route + '\n                    composable(ErpDestinations.ATTENDANCE) { AttendanceScreen() }')
+    NavHost(navController = navController, startDestination = startDestination) {
+        composable("login") {
+            val viewModel: LoginViewModel = hiltViewModel()
+            LoginScreen(viewModel = viewModel, onLoginSuccess = {
+                navController.navigate("whatsapp") {
+                    popUpTo("login") { inclusive = true }
+                }
+            })
+        }
+        composable("whatsapp") {
+            WhatsAppInboxScreen(
+                targetThreadId = targetThreadId,
+                onLogout = {
+                    tokenManager.clearTokens()
+                    navController.navigate("login") {
+                        popUpTo(0) { inclusive = true }
+                    }
+                }
+            )
+        }
+    }
+}
+"""
+with open('android-admin/app/src/main/java/com/northend/admin/ui/AppNavHost.kt', 'w') as f:
+    f.write(new_nav)
 
-with open('/Users/mudasirmushtaq/Documents/app/northend/android-admin/app/src/main/java/com/northend/admin/ui/erp/ErpScreen.kt', 'w') as f:
-    f.write(erp)
-
-print("Nav patched")
+print("AppNavHost patched to WhatsApp only")

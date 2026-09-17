@@ -14,6 +14,9 @@ from __future__ import annotations
 import os
 import hmac
 import json
+
+from server import send_super_admin_notification
+
 import uuid
 import hashlib
 import logging
@@ -209,7 +212,14 @@ def build_whatsapp_router(db, require_super_admin_dep, on_inbound=None) -> APIRo
             "wa_timestamp": msg_ts,
             "created_at": now_iso(),
         }
-        await db.wa_messages.insert_one(doc)
+        
+                await db.wa_messages.insert_one(doc)
+                await send_super_admin_notification(
+                    title=f"New WhatsApp from {contact.get('name', contact.get('phone', 'Unknown'))}",
+                    body=doc.get("text") or "Media message received",
+                    target_path=f"/admin/whatsapp?thread_id={thread['id']}"
+                )
+
         if on_inbound is not None:
             asyncio.create_task(on_inbound({
                 "wa_id": wa_id,
@@ -406,7 +416,14 @@ def build_whatsapp_router(db, require_super_admin_dep, on_inbound=None) -> APIRo
             "wa_timestamp": ts,
             "created_at": ts,
         }
-        await db.wa_messages.insert_one(doc)
+        
+                await db.wa_messages.insert_one(doc)
+                await send_super_admin_notification(
+                    title=f"New WhatsApp from {contact.get('name', contact.get('phone', 'Unknown'))}",
+                    body=doc.get("text") or "Media message received",
+                    target_path=f"/admin/whatsapp?thread_id={thread['id']}"
+                )
+
         await db.wa_threads.update_one(
             {"id": thread["id"]},
             {"$set": {"last_message_at": ts, "last_message_preview": preview[:200]}},

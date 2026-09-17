@@ -73,3 +73,6 @@ data class VerifyOtpRequest(
     val code: String,
     val action: String = "login"
 )
+
+@com.squareup.moshi.JsonClass(generateAdapter = true)
+data class FCMTokenRequest(val token: String)

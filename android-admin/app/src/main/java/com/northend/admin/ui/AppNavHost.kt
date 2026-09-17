@@ -7,22 +7,18 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.northend.admin.data.local.TokenManager
-import com.northend.admin.domain.model.User
 import com.northend.admin.ui.auth.LoginScreen
 import com.northend.admin.ui.auth.LoginViewModel
-import com.northend.admin.ui.erp.DashboardViewModel
-import com.northend.admin.ui.erp.ErpScreen
 import com.northend.admin.di.NetworkModule
+import com.northend.admin.ui.erp.WhatsAppInboxScreen
 
 @Composable
-fun AppNavHost() {
+fun AppNavHost(targetThreadId: String? = null) {
     val navController = rememberNavController()
     var startDestination by remember { mutableStateOf("login") }
 
@@ -30,28 +26,25 @@ fun AppNavHost() {
     val tokenManager = remember { NetworkModule.provideTokenManager(context) }
 
     LaunchedEffect(Unit) {
-        startDestination = if (tokenManager.isLoggedIn()) "erp" else "login"
+        startDestination = if (tokenManager.isLoggedIn()) "whatsapp" else "login"
     }
 
     NavHost(navController = navController, startDestination = startDestination) {
         composable("login") {
             val viewModel: LoginViewModel = hiltViewModel()
             LoginScreen(viewModel = viewModel, onLoginSuccess = {
-                navController.navigate("erp") {
+                navController.navigate("whatsapp") {
                     popUpTo("login") { inclusive = true }
                 }
             })
         }
-        composable("erp") {
-            val dashboardViewModel: DashboardViewModel = androidx.hilt.navigation.compose.hiltViewModel()
-            val user by dashboardViewModel.user.collectAsStateWithLifecycle()
-            val currentUser = user ?: User(id = "", name = "", email = "", role = "attendance")
-            ErpScreen(
-                user = currentUser,
+        composable("whatsapp") {
+            WhatsAppInboxScreen(
+                targetThreadId = targetThreadId,
                 onLogout = {
                     tokenManager.clearTokens()
                     navController.navigate("login") {
-                        popUpTo("erp") { inclusive = true }
+                        popUpTo(0) { inclusive = true }
                     }
                 }
             )

@@ -1,5 +1,8 @@
 package com.northend.admin.ui.erp
 
+
+import com.google.firebase.messaging.FirebaseMessaging
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.northend.admin.data.local.TokenManager
@@ -38,8 +41,20 @@ class DashboardViewModel @Inject constructor(private val repository: AdminReposi
         _uiState.value = _uiState.value.copy(isLoading = true, error = null)
         viewModelScope.launch {
             val meResult = repository.getMe()
+            
             if (meResult is ResultWrapper.Success) {
                 user.value = meResult.data
+                
+                FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
+                    if (task.isSuccessful) {
+                        val token = task.result
+                        Log.d("FCM", "Fetched token: $token")
+                        viewModelScope.launch {
+                            repository.updateFcmToken(token)
+                        }
+                    }
+                }
+
                 val role = meResult.data.role
                 val dashboardResult = if (role == "super_admin" || role == "admin") {
                     repository.getSuperDashboard()
