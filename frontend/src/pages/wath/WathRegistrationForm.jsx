@@ -620,7 +620,7 @@ export default function WathRegistrationForm({ campaign, carnival, mode, loading
                       <div className="mt-5 p-5 glass rounded-2xl border border-accent/25 space-y-4">
                         <p className="text-xs text-muted-foreground leading-relaxed">Download your admit card and save it to your phone for exam day entry.</p>
                         <div className="flex flex-col gap-3">
-                          <a href={`/admt%2F${submitted.application_no}?phone=${encodeURIComponent(submitted.phone || form.phone)}`} target="_blank" rel="noreferrer" data-testid="download-admit-card">
+                          <a href={`/admt/${submitted.application_no}?phone=${encodeURIComponent(submitted.phone || form.phone)}`} target="_blank" rel="noreferrer" data-testid="download-admit-card">
                             <button type="button" className="w-full flex items-center justify-center gap-2 py-3.5 px-6 rounded-xl bg-gradient-to-r from-[#1380d0] to-accent text-accent-foreground font-medium text-xs uppercase tracking-[0.15em] shadow-lg shadow-accent/20 hover:opacity-95 transition">
                               <Download weight="bold" size={16}/> Download Admit Card <ArrowRight weight="bold" size={14}/>
                             </button>

@@ -16,8 +16,8 @@ export default function PublicPdfViewer({ type, manualId }) {
     const fetchPdf = async () => {
       try {
         const endpoint = type === 'admit-card' 
-          ? `/admt%2F${encodeURIComponent(applicationNo)}?phone=${encodeURIComponent(phone)}`
-          : `/res%2F${encodeURIComponent(applicationNo)}?phone=${encodeURIComponent(phone)}`;
+          ? `${API_BASE}/scholarship-applications/${encodeURIComponent(applicationNo)}/admit-card?phone=${encodeURIComponent(phone)}`
+          : `${API_BASE}/scholarship-applications/${encodeURIComponent(applicationNo)}/result-card?phone=${encodeURIComponent(phone)}`;
           
         const res = await fetch(endpoint, {
           method: 'GET'

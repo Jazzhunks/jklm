@@ -159,14 +159,14 @@ export default function StudentDashboard() {
                       {a.result_published ? (
                         <>
                           <span className="px-3 py-1 rounded-full bg-accent/15 text-accent text-[10px] font-bold uppercase tracking-[0.18em]">★ {a.result_scholarship_percentage}% scholarship</span>
-                          <a href={`/res%2F${a.application_no}?phone=${encodeURIComponent(a.phone)}`} target="_blank" rel="noreferrer" className="text-accent font-bold text-xs hover:underline flex items-center gap-1" data-testid={`dl-result-${a.id}`}>
+                          <a href={`/res/${a.application_no}?phone=${encodeURIComponent(a.phone)}`} target="_blank" rel="noreferrer" className="text-accent font-bold text-xs hover:underline flex items-center gap-1" data-testid={`dl-result-${a.id}`}>
                             <FileText weight="duotone" size={14}/>Download result card
                           </a>
                         </>
                       ) : (
                         <span className="text-xs text-muted-foreground">Result pending</span>
                       )}
-                          <a href={`/admt%2F${a.application_no}?phone=${encodeURIComponent(a.phone || '')}`} target="_blank" rel="noreferrer" className="text-muted-foreground text-xs hover:text-foreground hover:underline flex items-center gap-1">
+                          <a href={`/admt/${a.application_no}?phone=${encodeURIComponent(a.phone || '')}`} target="_blank" rel="noreferrer" className="text-muted-foreground text-xs hover:text-foreground hover:underline flex items-center gap-1">
                         <ArrowUpRight weight="bold" size={12}/>Admit card
                       </a>
                     </div>
