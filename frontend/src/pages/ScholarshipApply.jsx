@@ -4,6 +4,7 @@ import { api, formatError } from "@/lib/api";
 import { toast } from "sonner";
 import { ArrowLeft, Loader2, MapPin, ChevronDown, Check, Download, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { OtpInput } from "@/components/ui/OtpInput";
 import { Input } from "@/components/ui/input";
 import PageHero from "@/components/PageHero";
 import { API_BASE } from "@/lib/api";
@@ -23,6 +24,8 @@ export default function ScholarshipApply() {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(null);
+  const [otpSent, setOtpSent] = useState(false);
+  const [otpCode, setOtpCode] = useState("");
   const [form, setForm] = useState({
     name: "", email: "", phone: "", school: "", standard: "", target_exam: "NEET",
     city: "", venue: "", address: "", district: "", father_name: "", gender: "", dob: "",
@@ -46,11 +49,31 @@ export default function ScholarshipApply() {
     if (!form.name || !form.email || !form.phone || !form.school || !form.standard) {
       toast.error("Please fill all required fields."); return;
     }
+    
+    if (!otpSent) {
+      setSubmitting(true);
+      try {
+        await api.post("/auth/send-otp", { phone: form.phone, action: "register" });
+        setOtpSent(true);
+        toast.success("OTP sent to your mobile number via WhatsApp");
+      } catch (e) {
+        toast.error(formatError(e.response?.data?.detail) || "Failed to send OTP");
+      } finally {
+        setSubmitting(false);
+      }
+      return;
+    }
+
+    if (otpCode.length !== 6) {
+      toast.error("Please enter the 6-digit OTP"); return;
+    }
+
     setSubmitting(true);
     try {
       const { data } = await api.post("/scholarship-applications", {
         ...form,
         scholarship_id: slug,
+        otp_code: otpCode
       });
       setSubmitted(data);
       toast.success("Application submitted! Save your application number.");
@@ -216,8 +239,15 @@ export default function ScholarshipApply() {
               <textarea value={form.address} onChange={e => update({ address: e.target.value })} rows={2} className="w-full border border-border rounded-md px-3 py-2 bg-background text-sm" data-testid="sch-address" />
             </div>
           </div>
-          <Button type="submit" disabled={submitting} className="w-full bg-primary text-primary-foreground h-12" data-testid="sch-submit">
-            {submitting ? "Submitting…" : "Submit Application"}
+          {otpSent && (
+            <div className="pt-4 border-t border-border">
+              <label className="text-xs uppercase tracking-[0.18em] font-bold text-muted-foreground mb-2 block text-center">Enter 6-Digit OTP</label>
+              <OtpInput value={otpCode} onChange={setOtpCode} disabled={submitting} />
+              <p className="text-center text-[10px] text-muted-foreground mt-2">OTP sent to {form.phone} on WhatsApp</p>
+            </div>
+          )}
+          <Button type="submit" disabled={submitting || (otpSent && otpCode.length !== 6)} className="w-full bg-primary text-primary-foreground h-12" data-testid="sch-submit">
+            {submitting ? "Processing…" : (!otpSent ? "Verify Mobile & Submit" : "Verify OTP & Apply")}
           </Button>
         </form>
       </div>

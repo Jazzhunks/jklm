@@ -699,9 +699,16 @@ export default function WathRegistrationForm({ campaign, carnival, mode, loading
                         <input className={inputCls} placeholder="Preferred venue" required value={form.venue} onChange={e => setForm({...form, venue: e.target.value})} data-testid="wath-venue-text"/>
                       )}
 
+                      {otpSent && (
+                        <div className="pt-4 border-t border-border/10">
+                          <label className="text-[10px] uppercase tracking-[0.18em] font-bold text-foreground mb-3 block text-center">Verify Mobile Number</label>
+                          <OtpInput value={otpCode} onChange={setOtpCode} disabled={busy} />
+                          <p className="text-center text-[9px] text-muted-foreground mt-3">OTP sent to {form.phone} on WhatsApp</p>
+                        </div>
+                      )}
                       <div className="pt-2">
-                        <CTAPrimary type="submit" className="w-full justify-center text-xs py-3.5 rounded-full shadow-lg" data-testid="wath-submit" disabled={busy || (!campaign && !isCarnival)}>
-                          {busy ? "Registering…" : (campaign || isCarnival) ? "Register & get admit card" : "Notify me"}
+                        <CTAPrimary type="submit" className="w-full justify-center text-xs py-3.5 rounded-full shadow-lg" data-testid="wath-submit" disabled={busy || (!campaign && !isCarnival) || (otpSent && otpCode.length !== 6)}>
+                          {busy ? "Processing…" : (!otpSent ? "Verify Mobile & Continue" : "Verify OTP & Submit")}
                         </CTAPrimary>
                       </div>
 
