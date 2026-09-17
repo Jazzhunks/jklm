@@ -272,7 +272,7 @@ function CarnivalEditor({ value, onClose, onSaved }) {
     toast.success(`Generated ${generatedDates.length} days with ${eTime - sTime + 1} hourly slots each`);
   };
 
-  return (
+  return createPortal(
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-black/70 backdrop-blur-sm z-[9999] grid place-items-center p-4" onClick={onClose}>
       <motion.div initial={{ y: 24, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 24, opacity: 0 }} className="w-full max-w-3xl bg-background border border-white/10 rounded-2xl overflow-hidden max-h-[90vh] flex flex-col" onClick={e => e.stopPropagation()} data-testid="carnival-editor">
         <div className="px-5 py-4 border-b border-white/10 flex items-center justify-between shrink-0 bg-background">
@@ -363,6 +363,7 @@ function CarnivalEditor({ value, onClose, onSaved }) {
           </button>
         </div>
       </motion.div>
-    </motion.div>
+    </motion.div>,
+    document.body
   );
 }

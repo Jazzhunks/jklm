@@ -1,3 +1,4 @@
+import { createPortal } from "react-dom";
 import { useState, useEffect, useRef, useMemo } from "react";
 import { api, formatError } from "@/lib/api";
 import { toast } from "sonner";
@@ -50,7 +51,7 @@ function WhatsAppBroadcastModal({ scholarshipId, onClose, allApps }) {
 
   if (!scholarshipId) return null;
 
-  return (
+  return createPortal(
     <div className="fixed inset-0 z-[2147483648] flex items-center justify-center p-4 bg-black/30 backdrop-blur-md animate-fadeIn">
       <div className="w-full max-w-4xl glass-elevated border border-border bg-background p-6 rounded-3xl shadow-2xl flex flex-col max-h-[90vh]">
         <div className="flex items-center justify-between border-b border-border pb-4 mb-4 shrink-0">
@@ -193,7 +194,8 @@ function WhatsAppBroadcastModal({ scholarshipId, onClose, allApps }) {
         </div>
       </div>
     </div>
-  );
+  ,
+  document.body
+);
 }
-
 export default WhatsAppBroadcastModal;

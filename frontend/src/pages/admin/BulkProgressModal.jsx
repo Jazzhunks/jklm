@@ -1,10 +1,11 @@
+import { createPortal } from "react-dom";
 import { Button } from "@/components/ui/button";
 import { Loader2, CheckCircle2, AlertCircle, X } from "lucide-react";
 
 function BulkProgressModal({ isOpen, onClose, state }) {
   if (!isOpen) return null;
 
-  return (
+  return createPortal(
     <div className="fixed inset-0 z-[2147483648] flex items-center justify-center p-4 bg-black/30 backdrop-blur-md animate-fadeIn">
       <div className="w-full max-w-md glass-elevated border border-border bg-background p-6 rounded-3xl shadow-2xl space-y-5">
         <div className="flex items-center justify-between border-b border-border pb-4">
@@ -73,7 +74,8 @@ function BulkProgressModal({ isOpen, onClose, state }) {
         )}
       </div>
     </div>
-  );
+  ,
+  document.body
+);
 }
-
 export default BulkProgressModal;
