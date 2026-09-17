@@ -226,6 +226,49 @@ function CarnivalEditor({ value, onClose, onSaved }) {
   const removeSlot = (di, si) => patchDate(di, { slots: c.exam_dates[di].slots.filter((_, idx) => idx !== si) });
   const patchSlot = (di, si, patch) => patchDate(di, { slots: c.exam_dates[di].slots.map((s, idx) => idx === si ? { ...s, ...patch } : s) });
 
+  const autoGenerateSlots = () => {
+    if (!c.start_date || !c.end_date) {
+      toast.error("Please set Start date and End date first");
+      return;
+    }
+    const start = new Date(c.start_date);
+    const end = new Date(c.end_date);
+    if (start > end) {
+      toast.error("Start date must be before End date");
+      return;
+    }
+    const sTime = parseInt(genStartTime.split(':')[0], 10);
+    const eTime = parseInt(genEndTime.split(':')[0], 10);
+    if (sTime > eTime) {
+      toast.error("Start time must be before End time");
+      return;
+    }
+
+    const generatedDates = [];
+    const current = new Date(start);
+    
+    const formatTime = (h) => {
+      const ampm = h >= 12 ? 'PM' : 'AM';
+      const hours = h % 12 || 12;
+      return `${hours}:00 ${ampm}`;
+    };
+
+    while (current <= end) {
+      const slots = [];
+      for (let h = sTime; h <= eTime; h++) {
+        slots.push({ time: formatTime(h), capacity: parseInt(genCapacity, 10), is_open: true });
+      }
+      generatedDates.push({
+        date: current.toISOString().split('T')[0],
+        slots
+      });
+      current.setDate(current.getDate() + 1);
+    }
+    
+    setC(prev => ({ ...prev, exam_dates: generatedDates }));
+    toast.success(`Generated ${generatedDates.length} days with ${eTime - sTime + 1} hourly slots each`);
+  };
+
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-black/70 backdrop-blur-sm z-[60] grid place-items-center p-4" onClick={onClose}>
       <motion.div initial={{ y: 24, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 24, opacity: 0 }} className="w-full max-w-3xl bg-background border border-white/10 rounded-2xl overflow-hidden max-h-[90vh] flex flex-col" onClick={e => e.stopPropagation()} data-testid="carnival-editor">
@@ -254,6 +297,28 @@ function CarnivalEditor({ value, onClose, onSaved }) {
           </label>
 
           <div className="pt-4 border-t border-white/10">
+            <div className="bg-white/[0.02] border border-white/10 p-3 rounded-xl mb-4">
+              <div className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground font-bold mb-3">Auto-Generate Slots</div>
+              <div className="grid grid-cols-4 gap-2 mb-3">
+                <div>
+                  <div className="text-[9px] uppercase tracking-wider text-muted-foreground mb-1">From Time</div>
+                  <input type="time" step="3600" className="w-full px-2 py-1.5 rounded-lg bg-background border border-white/10 text-xs" value={genStartTime} onChange={e => setGenStartTime(e.target.value)} />
+                </div>
+                <div>
+                  <div className="text-[9px] uppercase tracking-wider text-muted-foreground mb-1">To Time</div>
+                  <input type="time" step="3600" className="w-full px-2 py-1.5 rounded-lg bg-background border border-white/10 text-xs" value={genEndTime} onChange={e => setGenEndTime(e.target.value)} />
+                </div>
+                <div>
+                  <div className="text-[9px] uppercase tracking-wider text-muted-foreground mb-1">Slot Cap.</div>
+                  <input type="number" min="1" className="w-full px-2 py-1.5 rounded-lg bg-background border border-white/10 text-xs" value={genCapacity} onChange={e => setGenCapacity(e.target.value)} />
+                </div>
+                <div className="flex items-end">
+                  <button type="button" onClick={autoGenerateSlots} className="w-full text-[10px] font-bold uppercase tracking-wider px-2 py-1.5 rounded-lg bg-accent/20 hover:bg-accent/30 text-accent border border-accent/20 transition-colors h-[28px]">Generate</button>
+                </div>
+              </div>
+              <div className="text-[9px] text-muted-foreground">This will overwrite existing slots and create hourly slots for every day between Start Date and End Date.</div>
+            </div>
+
             <div className="flex items-center justify-between mb-2">
               <div className="text-[10px] uppercase tracking-[0.2em] text-accent font-bold">Exam Dates & Slots</div>
               <button onClick={addDate} className="text-[11px] font-bold uppercase tracking-wider px-2.5 py-1.5 rounded-lg bg-accent text-accent-foreground inline-flex items-center gap-1" data-testid="carnival-add-date">
