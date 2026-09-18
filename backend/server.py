@@ -857,6 +857,16 @@ async def register(payload: RegisterIn, response: Response, background: Backgrou
     doc.pop("password_hash")
     doc.pop("_id", None)
     background.add_task(_safe_send_registration_group_notification, doc)
+    
+    background.add_task(
+        send_super_admin_notification, 
+        title="New Student Registration 🎓", 
+        body=f"{payload.name} ({payload.phone or email}) just registered.", 
+        target_path="/admin/students"
+    )
+    
+    return {"user": doc, "access_token": access}
+    
     return {"user": doc, "access_token": access}
 
 
