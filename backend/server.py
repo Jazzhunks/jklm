@@ -901,7 +901,7 @@ async def send_otp(payload: SendOtpIn):
         code = existing["code"]
         expires_at = existing["expires_at"]
     else:
-        code = f"{random.randint(100000, 999999)}"
+        code = f"{100000 + __import__("secrets").randbelow(900000)}"
         expires_at = datetime.utcnow() + timedelta(minutes=5)
         await db.otps.update_one(
             {"phone": phone, "action": payload.action},
@@ -1172,7 +1172,7 @@ async def set_featured(kind: str = Query(...), item_id: str = Query(...), _admin
 @api.get("/courses")
 async def list_courses(
     skip: int = Query(0, ge=0),
-    limit: int = Query(25, ge=1, le=100000),
+    limit: int = Query(25, ge=1, le=100),
     search: str = Query(None),
     category: Optional[str] = None,
     featured: Optional[bool] = None
@@ -1242,7 +1242,7 @@ async def list_scholarships(include_wath: bool = False, type: Optional[str] = Qu
 @api.get("/admin/scholarships")
 async def list_scholarships_admin(
     skip: int = Query(0, ge=0),
-    limit: int = Query(25, ge=1, le=100000),
+    limit: int = Query(25, ge=1, le=100),
     search: str = Query(None),
     _admin = Depends(require_admin)
 ):
@@ -1528,7 +1528,7 @@ async def update_scholarship_application(
 @api.get("/scholarship-applications")
 async def list_scholarship_apps(
     skip: int = Query(0, ge=0),
-    limit: int = Query(25, ge=1, le=100000),
+    limit: int = Query(25, ge=1, le=100),
     search: str = Query(None),
     campaign_kind: str = Query(None),
     _admin = Depends(require_admin)
@@ -2713,7 +2713,7 @@ async def create_enrollment(payload: EnrollmentIn, request: Request, background:
 @api.get("/enrollments")
 async def list_enrollments(
     skip: int = Query(0, ge=0),
-    limit: int = Query(25, ge=1, le=100000),
+    limit: int = Query(25, ge=1, le=100),
     search: str = Query(None),
     status: str = Query(None),
     _admin = Depends(require_admin)
@@ -2765,7 +2765,7 @@ async def list_jobs():
 @api.get("/jobs/all")
 async def list_all_jobs(
     skip: int = Query(0, ge=0),
-    limit: int = Query(25, ge=1, le=100000),
+    limit: int = Query(25, ge=1, le=100),
     search: str = Query(None),
     _admin = Depends(require_admin)
 ):
@@ -2833,7 +2833,7 @@ async def apply_job(payload: JobApplicationIn, background: BackgroundTasks):
 @api.get("/job-applications")
 async def list_job_apps(
     skip: int = Query(0, ge=0),
-    limit: int = Query(25, ge=1, le=100000),
+    limit: int = Query(25, ge=1, le=100),
     search: str = Query(None),
     _admin = Depends(require_admin)
 ):
@@ -2862,7 +2862,7 @@ async def update_job_app_status(aid: str, status: str = Query(...), _admin = Dep
 @api.get("/notices")
 async def list_notices(
     skip: int = Query(0, ge=0),
-    limit: int = Query(25, ge=1, le=100000),
+    limit: int = Query(25, ge=1, le=100),
     search: str = Query(None)
 ):
     query = {}
@@ -2911,7 +2911,7 @@ async def delete_notice(nid: str, _admin = Depends(require_admin)):
 @api.get("/centers")
 async def list_centers(
     skip: int = Query(0, ge=0),
-    limit: int = Query(25, ge=1, le=100000),
+    limit: int = Query(25, ge=1, le=100),
     search: str = Query(None)
 ):
     query = {}
@@ -2955,7 +2955,7 @@ async def delete_center(cid: str, _admin = Depends(require_admin)):
 @api.get("/results")
 async def list_results(
     skip: int = Query(0, ge=0),
-    limit: int = Query(25, ge=1, le=100000),
+    limit: int = Query(25, ge=1, le=100),
     search: str = Query(None)
 ):
     query = {}
@@ -2994,7 +2994,7 @@ async def delete_result(rid: str, _admin = Depends(require_admin)):
 @api.get("/testimonials")
 async def list_testimonials(
     skip: int = Query(0, ge=0),
-    limit: int = Query(25, ge=1, le=100000),
+    limit: int = Query(25, ge=1, le=100),
     search: str = Query(None)
 ):
     query = {}
@@ -3351,17 +3351,29 @@ async def get_admin_analytics(_admin = Depends(require_admin)):
         "scholarship_statuses": [{"status": d["_id"] or "pending", "count": d["count"]} for d in status_data]
     }
 
+import asyncio
+
 @api.get("/admin/summary")
 async def admin_summary(_admin = Depends(require_admin)):
+    results = await asyncio.gather(
+        db.users.count_documents({"role": "student"}),
+        db.courses.count_documents({}),
+        db.enrollments.count_documents({}),
+        db.enrollments.count_documents({"status": "pending"}),
+        db.scholarship_applications.count_documents({}),
+        db.job_applications.count_documents({}),
+        db.inquiries.count_documents({}),
+        db.jobs.count_documents({}),
+    )
     return {
-        "total_students": await db.users.count_documents({"role": "student"}),
-        "total_courses": await db.courses.count_documents({}),
-        "total_enrollments": await db.enrollments.count_documents({}),
-        "pending_enrollments": await db.enrollments.count_documents({"status": "pending"}),
-        "total_scholarship_apps": await db.scholarship_applications.count_documents({}),
-        "total_job_apps": await db.job_applications.count_documents({}),
-        "total_inquiries": await db.inquiries.count_documents({}),
-        "total_jobs": await db.jobs.count_documents({}),
+        "total_students": results[0],
+        "total_courses": results[1],
+        "total_enrollments": results[2],
+        "pending_enrollments": results[3],
+        "total_scholarship_apps": results[4],
+        "total_job_apps": results[5],
+        "total_inquiries": results[6],
+        "total_jobs": results[7],
     }
 
 # ---------- File Upload & Download ----------
