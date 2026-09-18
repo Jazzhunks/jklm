@@ -3,6 +3,7 @@ from fastapi import APIRouter, Request, Response, HTTPException
 from starlette.background import BackgroundTask
 import subprocess
 import os
+import re
 
 router = APIRouter()
 openwa_process = None
@@ -12,7 +13,6 @@ OPENWA_URL = f"http://localhost:{OPENWA_PORT}"
 def start_openwa():
     global openwa_process
     cwd = os.path.join(os.path.dirname(__file__), "openwa")
-    # Start OpenWA
     openwa_process = subprocess.Popen(
         ["npm", "run", "start"],
         cwd=cwd,
@@ -25,15 +25,18 @@ def stop_openwa():
         openwa_process.terminate()
         openwa_process = None
 
-client = httpx.AsyncClient(base_url=OPENWA_URL)
+client = httpx.AsyncClient(base_url=OPENWA_URL, timeout=30.0)
 
 @router.api_route("/{path:path}", methods=["GET", "POST", "PUT", "DELETE", "PATCH"])
 async def proxy_openwa(request: Request, path: str):
-    url = httpx.URL(path=request.url.path.replace("/api/openwa", "/api", 1),
-                    query=request.url.query.encode("utf-8"))
+    # Forward to the exact path on OpenWA
+    forward_path = f"/{path}"
+    
+    url = httpx.URL(path=forward_path, query=request.url.query.encode("utf-8"))
     
     headers = dict(request.headers)
     headers.pop("host", None)
+    headers.pop("accept-encoding", None) # Disable encoding so we can string-replace HTML
     headers["x-api-key"] = "internal_secret"
     
     content = await request.body()
@@ -46,6 +49,21 @@ async def proxy_openwa(request: Request, path: str):
             content=content
         )
         response = await client.send(req, stream=True)
+        
+        # If it's the root HTML, rewrite the asset paths
+        content_type = response.headers.get("content-type", "")
+        if "text/html" in content_type and response.status_code == 200:
+            await response.aread()
+            html = response.text
+            html = re.sub(r'href="/(?!api/openwa)', 'href="/api/openwa/', html)
+            html = re.sub(r'src="/(?!api/openwa)', 'src="/api/openwa/', html)
+            return Response(
+                content=html,
+                status_code=response.status_code,
+                headers={k: v for k, v in response.headers.items() if k.lower() not in ("content-length", "transfer-encoding")},
+                media_type="text/html"
+            )
+            
         return Response(
             content=response.aiter_raw(),
             status_code=response.status_code,
