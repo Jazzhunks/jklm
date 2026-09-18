@@ -1,10 +1,10 @@
-import { requestFirebaseNotificationPermission } from './lib/firebase';
+import { requestFirebaseNotificationPermission, messaging } from './lib/firebase';
 import { useEffect } from 'react';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { queryClient } from './queryClient';
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { Loader2 } from "lucide-react";
-import { Toaster } from "sonner";
+import { Toaster, toast } from "sonner";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { useOneSignal } from "@/hooks/useOneSignal";
 import ScrollToTop from "@/components/ScrollToTop";
@@ -86,6 +86,23 @@ export default function App() {
 
   useEffect(() => {
     requestFirebaseNotificationPermission().catch(console.error);
+    
+    if (messaging) {
+      const unsubscribe = messaging.onMessage((payload) => {
+        console.log("Foreground Message received: ", payload);
+        const title = payload.notification?.title || payload.data?.title || "New Notification";
+        const body = payload.notification?.body || payload.data?.body || "";
+        
+        // 1. Show in-app toast
+        toast.info(title, { description: body, duration: 8000 });
+        
+        // 2. Also force a system notification if browser permits
+        if (Notification.permission === "granted") {
+          new Notification(title, { body: body, icon: "/icons/icon-192.png" });
+        }
+      });
+      return () => unsubscribe();
+    }
   }, []);
 
 
