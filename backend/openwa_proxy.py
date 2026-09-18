@@ -13,8 +13,19 @@ OPENWA_URL = f"http://localhost:{OPENWA_PORT}"
 def start_openwa():
     global openwa_process
     cwd = os.path.join(os.path.dirname(__file__), "openwa")
+    
+    # Auto-install and build if missing (crucial for remote environments)
+    if not os.path.exists(os.path.join(cwd, "node_modules")):
+        print("OpenWA node_modules missing. Installing...", flush=True)
+        subprocess.run(["npm", "install"], cwd=cwd)
+    
+    if not os.path.exists(os.path.join(cwd, "dist")):
+        print("OpenWA dist missing. Building...", flush=True)
+        subprocess.run(["npm", "run", "build:all"], cwd=cwd)
+
+    print("Starting OpenWA Engine...", flush=True)
     openwa_process = subprocess.Popen(
-        ["npm", "run", "start"],
+        ["npm", "run", "prod"],
         cwd=cwd,
         env={**os.environ, "PORT": str(OPENWA_PORT), "API_MASTER_KEY": "internal_secret"}
     )
