@@ -3353,6 +3353,21 @@ async def get_admin_analytics(_admin = Depends(require_admin)):
 
 import asyncio
 
+
+from pydantic import BaseModel
+class FcmTokenIn(BaseModel):
+    token: str
+
+@api.post("/admin/fcm-token")
+async def update_fcm_token(payload: FcmTokenIn, _admin = Depends(require_admin)):
+    # Upsert the FCM token for the admin
+    await db.admin_devices.update_one(
+        {"admin_id": _admin.get("id")},
+        {"$set": {"push_token": payload.token, "platform": "web", "updated_at": now_iso()}},
+        upsert=True
+    )
+    return {"ok": True}
+
 @api.get("/admin/summary")
 async def admin_summary(_admin = Depends(require_admin)):
     results = await asyncio.gather(
