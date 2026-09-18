@@ -1,5 +1,7 @@
 # 1. LOAD ENVIRONMENT VARIABLES FIRST
 import os
+from openwa_proxy import router as openwa_router, start_openwa, stop_openwa
+
 from dotenv import load_dotenv
 from pathlib import Path
 
