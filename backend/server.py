@@ -901,7 +901,7 @@ async def send_otp(payload: SendOtpIn):
         code = existing["code"]
         expires_at = existing["expires_at"]
     else:
-        code = f"{100000 + __import__("secrets").randbelow(900000)}"
+        code = f"{100000 + __import__('secrets').randbelow(900000)}"
         expires_at = datetime.utcnow() + timedelta(minutes=5)
         await db.otps.update_one(
             {"phone": phone, "action": payload.action},
