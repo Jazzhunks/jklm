@@ -24,10 +24,14 @@ def start_openwa():
         subprocess.run(["npm", "run", "build:all"], cwd=cwd)
 
     print("Starting OpenWA Engine...", flush=True)
+    log_file = open(os.path.join(cwd, "openwa.log"), "w")
     openwa_process = subprocess.Popen(
         ["npm", "run", "prod"],
         cwd=cwd,
-        env={**os.environ, "PORT": str(OPENWA_PORT), "API_MASTER_KEY": "internal_secret"}
+        env={**os.environ, "PORT": str(OPENWA_PORT), "API_MASTER_KEY": "internal_secret"},
+        stdout=log_file,
+        stderr=subprocess.STDOUT
+    ), "API_MASTER_KEY": "internal_secret"}
     )
 
 def stop_openwa():
