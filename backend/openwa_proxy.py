@@ -31,7 +31,6 @@ def start_openwa():
         env={**os.environ, "PORT": str(OPENWA_PORT), "API_MASTER_KEY": "internal_secret"},
         stdout=log_file,
         stderr=subprocess.STDOUT
-    ), "API_MASTER_KEY": "internal_secret"}
     )
 
 def stop_openwa():
