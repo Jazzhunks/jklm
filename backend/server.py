@@ -4141,6 +4141,7 @@ async def wa_download_upload_template(_admin = Depends(require_admin)):
     )
 
 
+api.include_router(openwa_router, prefix="/openwa", tags=["OpenWA"])
 app.include_router(api)
 
 _default_allowed = [
