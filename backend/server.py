@@ -931,7 +931,7 @@ async def verify_otp(payload: VerifyOtpIn, response: Response):
         
     if record["code"] != payload.code:
         await db.otps.update_one({"_id": record["_id"]}, {"$inc": {"attempts": 1}})
-        raise HTTPException(400, f"OTP mismatch (expected {record['code']}, got {payload.code})")
+        raise HTTPException(400, "Incorrect OTP. Please try again.")
         
     if record["expires_at"] < datetime.utcnow():
         raise HTTPException(400, "OTP has expired")
@@ -974,7 +974,7 @@ async def reset_password(payload: ResetPasswordIn):
         
     if record["code"] != payload.code:
         await db.otps.update_one({"_id": record["_id"]}, {"$inc": {"attempts": 1}})
-        raise HTTPException(400, f"OTP mismatch (expected {record['code']}, got {payload.code})")
+        raise HTTPException(400, "Incorrect OTP. Please try again.")
         
     if record["expires_at"] < datetime.utcnow():
         raise HTTPException(400, "OTP has expired")
