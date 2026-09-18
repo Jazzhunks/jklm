@@ -422,13 +422,22 @@ async def send_super_admin_notification(title: str, body: str, target_path: str 
         print("FCM not configured")
         return
     try:
-        admins = await db.users.find({"role": "super_admin"}).to_list(None)
+        # Get super_admin AND admin IDs
+        admins = await db.users.find({"role": {"$in": ["admin", "super_admin"]}}).to_list(None)
+        admin_ids = [a["id"] for a in admins]
+        
         tokens = []
+        # Get tokens from the new admin_devices collection
+        devices = await db.admin_devices.find({"admin_id": {"$in": admin_ids}}).to_list(None)
+        tokens.extend([d["push_token"] for d in devices if d.get("push_token")])
+        
+        # Also fall back to the old fcm_tokens array on user docs just in case
         for admin in admins:
             tokens.extend(admin.get("fcm_tokens", []))
         
         tokens = list(set(tokens))
         if not tokens:
+            print("No FCM tokens found to send to")
             return
             
         message = messaging.MulticastMessage(
