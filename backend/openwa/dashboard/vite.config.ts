@@ -19,7 +19,8 @@ const { version: pkgVersion } = JSON.parse(
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react()],
-  appType: 'spa', // Enable SPA fallback for client-side routing
+  appType: 'spa',
+  base: '/api/openwa/', // Enable SPA fallback for client-side routing
   define: {
     __APP_VERSION__: JSON.stringify(process.env.APP_VERSION || pkgVersion),
     __BUILD_TIME__: JSON.stringify(new Date().toISOString()),
