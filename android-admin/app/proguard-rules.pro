@@ -1,6 +1,0 @@
--keepattributes *Annotation*
--keep class com.northend.admin.data.remote.models.** { *; }
--keep class com.squareup.moshi.** { *; }
--keep class androidx.security.crypto.** { *; }
--dontwarn com.squareup.moshi.**
--dontwarn javax.annotation.**
