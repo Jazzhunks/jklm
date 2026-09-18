@@ -16,7 +16,7 @@ def start_openwa():
     openwa_process = subprocess.Popen(
         ["npm", "run", "start"],
         cwd=cwd,
-        env={**os.environ, "PORT": str(OPENWA_PORT), "API_KEY": "internal_secret"}
+        env={**os.environ, "PORT": str(OPENWA_PORT), "API_MASTER_KEY": "internal_secret"}
     )
 
 def stop_openwa():
