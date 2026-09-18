@@ -17,9 +17,9 @@ const messaging = firebase.messaging();
 
 messaging.onBackgroundMessage((payload) => {
   console.log('[firebase-messaging-sw.js] Received background message ', payload);
-  const notificationTitle = payload.notification.title || payload.data.title || 'Unacademy Admin';
+  const notificationTitle = payload.notification?.title || payload.data.title || 'Unacademy Admin';
   const notificationOptions = {
-    body: payload.notification.body || payload.data.body || '',
+    body: payload.notification?.body || payload.data.body || '',
     icon: '/icons/icon-192.png',
     data: payload.data
   };
