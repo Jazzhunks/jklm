@@ -42,7 +42,17 @@ def stop_openwa():
 
 client = httpx.AsyncClient(base_url=OPENWA_URL, timeout=30.0)
 
+
+@router.get("/logs")
+async def get_openwa_logs():
+    log_path = os.path.join(os.path.dirname(__file__), "openwa", "openwa.log")
+    if os.path.exists(log_path):
+        with open(log_path, "r") as f:
+            return Response(content=f.read(), media_type="text/plain")
+    return {"error": "Log file not found"}
+
 @router.api_route("/{path:path}", methods=["GET", "POST", "PUT", "DELETE", "PATCH"])
+
 async def proxy_openwa(request: Request, path: str):
     # Forward to the exact path on OpenWA
     forward_path = f"/{path}"
