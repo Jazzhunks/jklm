@@ -1,6 +1,5 @@
 # 1. LOAD ENVIRONMENT VARIABLES FIRST
 import os
-from openwa_proxy import router as openwa_router, start_openwa, stop_openwa
 
 from dotenv import load_dotenv
 from pathlib import Path
@@ -443,14 +442,6 @@ async def send_super_admin_notification(title: str, body: str, target_path: str 
         print(f"Error sending FCM: {e}")
 
 app = FastAPI(title="Unacademy Offline Centre API")
-
-@app.on_event("startup")
-async def startup_event():
-    start_openwa()
-
-@app.on_event("shutdown")
-async def shutdown_event():
-    stop_openwa()
 
 api = APIRouter(prefix="/api")
 
@@ -4150,7 +4141,6 @@ async def wa_download_upload_template(_admin = Depends(require_admin)):
     )
 
 
-api.include_router(openwa_router, prefix="/openwa", tags=["OpenWA"])
 app.include_router(api)
 
 _default_allowed = [
