@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { Button } from "@/components/ui/button";
 import { X, Save, Printer, User, Key, Building2 } from "lucide-react";
 import { toast } from "sonner";
 import { api } from "@/lib/api";
@@ -116,9 +117,9 @@ export default function ProfileModal({ onClose }) {
               Update your account details and preferences.
             </p>
           </div>
-          <button onClick={onClose} className="p-2 hover:bg-muted rounded-full transition text-muted-foreground hover:text-foreground">
+          <Button onClick={onClose} className="p-2 hover:bg-muted rounded-full transition text-muted-foreground hover:text-foreground">
             <X size={20} />
-          </button>
+          </Button>
         </div>
 
         <div className="flex-1 overflow-y-auto p-4 sm:p-5 custom-scrollbar">
@@ -132,7 +133,7 @@ export default function ProfileModal({ onClose }) {
               <div className="flex items-center gap-4 mb-4">
                 <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center overflow-hidden border border-border shrink-0">
                   {form.photo ? (
-                    <img src={form.photo} alt="Avatar" className="w-full h-full object-cover" />
+                    <img loading="lazy" src={form.photo} alt="Avatar" className="w-full h-full object-cover" />
                   ) : (
                     <User size={24} className="text-muted-foreground" />
                   )}
@@ -161,9 +162,9 @@ export default function ProfileModal({ onClose }) {
                 <div className="flex gap-2">
                   <input type="text" placeholder="10-digit number" value={form.phone} onChange={e => { setForm({...form, phone: e.target.value}); setPhoneOtpSent(false); }} className={inputCls} />
                   {form.phone !== user?.phone && !phoneOtpSent && (
-                    <button type="button" onClick={handleSendPhoneOtp} className="px-3 py-2 bg-accent text-accent-foreground rounded-xl text-xs font-bold shrink-0 whitespace-nowrap">
+                    <Button type="button" onClick={handleSendPhoneOtp} className="px-3 py-2 bg-accent text-accent-foreground rounded-xl text-xs font-bold shrink-0 whitespace-nowrap">
                       Verify OTP
-                    </button>
+                    </Button>
                   )}
                 </div>
               </div>
@@ -210,7 +211,7 @@ export default function ProfileModal({ onClose }) {
               <div>
                 <label className={labelCls}>Default Receipt Size</label>
                 <div className="grid grid-cols-2 gap-3 mt-2">
-                  <button
+                  <Button
                     type="button"
                     onClick={() => setForm({...form, receipt_print_size: "A4"})}
                     className={`flex flex-col items-center justify-center p-3 rounded-xl border-2 transition-all ${
@@ -221,8 +222,8 @@ export default function ProfileModal({ onClose }) {
                   >
                     <span className="font-bold">A4 Size</span>
                     <span className="text-[10px] mt-1 opacity-80">Standard Laser/Inkjet</span>
-                  </button>
-                  <button
+                  </Button>
+                  <Button
                     type="button"
                     onClick={() => setForm({...form, receipt_print_size: "80mm"})}
                     className={`flex flex-col items-center justify-center p-3 rounded-xl border-2 transition-all ${
@@ -233,7 +234,7 @@ export default function ProfileModal({ onClose }) {
                   >
                     <span className="font-bold">80mm Thermal</span>
                     <span className="text-[10px] mt-1 opacity-80">POS Receipt Printer</span>
-                  </button>
+                  </Button>
                 </div>
               </div>
             </div>
@@ -241,10 +242,10 @@ export default function ProfileModal({ onClose }) {
         </div>
 
         <div className="p-4 sm:p-5 border-t border-border shrink-0 bg-muted/30 flex justify-end gap-3">
-          <button type="button" onClick={onClose} className="px-4 py-2 text-sm font-bold text-muted-foreground hover:text-foreground transition">
+          <Button type="button" onClick={onClose} className="px-4 py-2 text-sm font-bold text-muted-foreground hover:text-foreground transition">
             Cancel
-          </button>
-          <button
+          </Button>
+          <Button
             type="submit"
             form="profile-form"
             disabled={saving}
@@ -252,7 +253,7 @@ export default function ProfileModal({ onClose }) {
           >
             {saving ? <div className="w-4 h-4 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin" /> : <Save size={16} />}
             {saving ? "Saving..." : "Save Changes"}
-          </button>
+          </Button>
         </div>
       </div>
     </div>

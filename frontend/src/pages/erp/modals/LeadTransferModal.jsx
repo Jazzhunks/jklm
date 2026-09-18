@@ -1,4 +1,5 @@
 import { createPortal } from 'react-dom';
+import { Button } from "@/components/ui/button";
 import React, { useState } from "react";
 import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -44,8 +45,8 @@ export default function LeadTransferModal({ lead, branches, onClose }) {
         <textarea required value={form.notes} onChange={e => setForm({...form, notes: e.target.value})} className="w-full p-2 text-sm border border-border bg-card rounded min-h-[60px]" placeholder="Reason for transfer..." /></div>
         
         <div className="flex gap-2 justify-end pt-2">
-          <button type="button" onClick={onClose} className="px-3 py-1.5 text-sm text-muted-foreground hover:text-foreground">Cancel</button>
-          <button type="submit" disabled={transfer.isPending} className="px-3 py-1.5 text-sm bg-primary text-primary-foreground font-bold rounded hover:bg-primary/90">{transfer.isPending ? "Transferring..." : "Transfer Lead"}</button>
+          <Button type="button" onClick={onClose} className="px-3 py-1.5 text-sm text-muted-foreground hover:text-foreground">Cancel</Button>
+          <Button type="submit" disabled={transfer.isPending} className="px-3 py-1.5 text-sm bg-primary text-primary-foreground font-bold rounded hover:bg-primary/90">{transfer.isPending ? "Transferring..." : "Transfer Lead"}</Button>
         </div>
       </form>
     </div>

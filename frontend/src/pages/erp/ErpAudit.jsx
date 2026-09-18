@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Button } from "@/components/ui/button";
 import { erp, fmtDate } from "@/lib/erpApi";
 import { Search, ShieldAlert, X, Eye, FileText, Calendar, ShieldCheck } from "lucide-react";
 
@@ -91,13 +92,13 @@ export default function ErpAudit() {
                         {JSON.stringify(a.payload)}
                       </span>
                       {a.payload && (
-                        <button 
+                        <Button 
                           onClick={() => setSelectedPayload({ actor: a.actor_email, action: a.action, entity: a.entity, data: a.payload })}
                           className="p-1 text-accent hover:bg-accent/10 border border-transparent hover:border-accent/20 rounded-lg opacity-0 group-hover:opacity-100 transition duration-200 shrink-0"
                           title="Inspect Data State"
                         >
                           <Eye size={14} />
-                        </button>
+                        </Button>
                       )}
                     </div>
                   </td>
@@ -158,7 +159,7 @@ function PayloadInspectorModal({ target, onClose }) {
             </div>
             <h3 className="font-display text-2xl font-medium mt-1">Data State Transaction</h3>
           </div>
-          <button type="button" onClick={onClose} className="p-1 hover:bg-muted/50 rounded-lg border border-transparent hover:border-border transition"><X size={18}/></button>
+          <Button type="button" onClick={onClose} className="p-1 hover:bg-muted/50 rounded-lg border border-transparent hover:border-border transition"><X size={18}/></Button>
         </div>
 
         <div className="space-y-2 text-xs border border-border bg-background/10 p-4 rounded-xl font-mono shrink-0">

@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { Button } from "@/components/ui/button";
 import { useQueryClient, useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { erp } from "@/lib/erpApi";
@@ -69,30 +70,30 @@ export default function LeadActivityDrawer({ lead, onClose }) {
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <button onClick={onClose} className="p-2 hover:bg-muted rounded-full transition"><X size={18} /></button>
+            <Button onClick={onClose} className="p-2 hover:bg-muted rounded-full transition"><X size={18} /></Button>
           </div>
         </div>
         
         {/* Actions Bar */}
         <div className="px-4 py-2 bg-card border-b border-border flex gap-2 overflow-x-auto custom-scrollbar">
           {["new", "contacted", "follow_up"].includes(lead.status) && (
-            <button onClick={() => setProposeModal(true)} className="flex items-center gap-1.5 px-3 py-1.5 bg-fuchsia-500/10 text-fuchsia-500 border border-fuchsia-500/20 rounded-lg text-xs font-bold hover:bg-fuchsia-500/20 transition whitespace-nowrap">
+            <Button onClick={() => setProposeModal(true)} className="flex items-center gap-1.5 px-3 py-1.5 bg-fuchsia-500/10 text-fuchsia-500 border border-fuchsia-500/20 rounded-lg text-xs font-bold hover:bg-fuchsia-500/20 transition whitespace-nowrap">
               <Target size={14}/> Propose Fee
-            </button>
+            </Button>
           )}
           {lead.status === "pending_approval" && (isSuper(erpUser) || erpUser?.role === "center_manager") && (
-            <button onClick={() => setReviewModal(true)} className="flex items-center gap-1.5 px-3 py-1.5 bg-orange-500/10 text-orange-500 border border-orange-500/20 rounded-lg text-xs font-bold hover:bg-orange-500/20 transition whitespace-nowrap">
+            <Button onClick={() => setReviewModal(true)} className="flex items-center gap-1.5 px-3 py-1.5 bg-orange-500/10 text-orange-500 border border-orange-500/20 rounded-lg text-xs font-bold hover:bg-orange-500/20 transition whitespace-nowrap">
               <AlertCircle size={14}/> Review Proposal
-            </button>
+            </Button>
           )}
           {lead.status === "approved_for_accounts" && (isSuper(erpUser) || erpUser?.role === "center_manager" || erpUser?.role === "accountant") && (
-            <button onClick={() => setEnrollModal(true)} className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-600/10 text-emerald-600 border border-emerald-600/20 rounded-lg text-xs font-bold hover:bg-emerald-600/20 transition whitespace-nowrap">
+            <Button onClick={() => setEnrollModal(true)} className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-600/10 text-emerald-600 border border-emerald-600/20 rounded-lg text-xs font-bold hover:bg-emerald-600/20 transition whitespace-nowrap">
               <CheckCircle2 size={14}/> Process Admission
-            </button>
+            </Button>
           )}
-          <button onClick={() => setTransferModal(true)} className="flex items-center gap-1.5 px-3 py-1.5 bg-indigo-500/10 text-indigo-500 border border-indigo-500/20 rounded-lg text-xs font-bold hover:bg-indigo-500/20 transition whitespace-nowrap">
+          <Button onClick={() => setTransferModal(true)} className="flex items-center gap-1.5 px-3 py-1.5 bg-indigo-500/10 text-indigo-500 border border-indigo-500/20 rounded-lg text-xs font-bold hover:bg-indigo-500/20 transition whitespace-nowrap">
             <Replace size={14}/> Transfer Branch
-          </button>
+          </Button>
         </div>
 
         {/* Content (Timeline) */}
@@ -110,7 +111,7 @@ export default function LeadActivityDrawer({ lead, onClose }) {
                 const Icon = t.icon;
                 const active = noteType === t.id;
                 return (
-                  <button
+                  <Button
                     key={t.id}
                     onClick={() => setNoteType(t.id)}
                     className={`flex-1 py-1.5 flex items-center justify-center gap-1.5 text-xs font-semibold rounded-lg border transition ${
@@ -118,7 +119,7 @@ export default function LeadActivityDrawer({ lead, onClose }) {
                     }`}
                   >
                     <Icon size={14} /> {t.label}
-                  </button>
+                  </Button>
                 )
               })}
             </div>
@@ -137,13 +138,13 @@ export default function LeadActivityDrawer({ lead, onClose }) {
                 className="w-full bg-background border border-border/50 rounded-lg p-2 text-xs focus:ring-1 focus:ring-primary outline-none"
               />
             </div>
-            <button
+            <Button
               onClick={handleSave}
               disabled={isSubmitting}
               className="mt-3 w-full py-2 bg-primary text-primary-foreground text-sm font-bold rounded-lg hover:bg-primary/90 transition disabled:opacity-50"
             >
               {isSubmitting ? "Saving..." : "Save Activity"}
-            </button>
+            </Button>
           </div>
 
           {/* Timeline Feed */}

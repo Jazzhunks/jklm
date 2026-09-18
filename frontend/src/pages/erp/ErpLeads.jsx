@@ -1,4 +1,5 @@
 import { useState, useMemo, useEffect } from "react";
+import { Button } from "@/components/ui/button";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useOutletContext, useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
@@ -147,13 +148,13 @@ export default function ErpLeads() {
         </div>
 
         <div className="flex items-center gap-3">
-          <button 
+          <Button 
             onClick={() => setShowCreate(true)} 
             className="px-4 py-2 bg-primary text-primary-foreground rounded-xl text-xs uppercase tracking-wider font-bold flex items-center gap-2 hover:bg-primary/90 shadow-md transition" 
             data-testid="create-lead-btn"
           >
             <Plus size={14}/> Add Prospect
-          </button>
+          </Button>
         </div>
       </div>
 
@@ -187,48 +188,48 @@ export default function ErpLeads() {
                     <td className="px-5 py-3.5 text-xs text-muted-foreground truncate" title={l.remarks}>{l.remarks || "—"}</td>
                     <td className="px-5 py-3.5 text-right whitespace-nowrap pr-6">
                       <div className="flex items-center justify-end gap-1.5">
-                        <button
+                        <Button
                           onClick={() => openWhatsApp(l)}
                           title="WhatsApp Chat"
                           className="p-1.5 text-muted-foreground hover:text-emerald-500 rounded-lg transition"
                         >
                           <MessageSquare size={14} />
-                        </button>
+                        </Button>
                         {["new", "contacted", "follow_up"].includes(l.status) && (
-                          <button
+                          <Button
                             onClick={() => setProposeModalLead(l)}
                             title="Propose Admission"
                             className="p-1 text-muted-foreground hover:text-fuchsia-500 hover:bg-fuchsia-500/10 rounded transition"
                           >
                             <Target size={14} />
-                          </button>
+                          </Button>
                         )}
                         {l.status === "pending_approval" && (isSuper(erpUser) || erpUser?.role === "center_manager") && (
-                          <button
+                          <Button
                             onClick={() => setReviewModalLead(l)}
                             title="Review Proposed Fee"
                             className="p-1 text-muted-foreground hover:text-orange-500 hover:bg-orange-500/10 rounded transition"
                           >
                             <AlertCircle size={14} />
-                          </button>
+                          </Button>
                         )}
                         {l.status === "approved_for_accounts" && (isSuper(erpUser) || erpUser?.role === "center_manager" || erpUser?.role === "accountant") && (
-                          <button
+                          <Button
                             onClick={() => setEnrollModalLead(l)}
                             title="Process Admission"
                             className="p-1 text-muted-foreground hover:text-emerald-600 hover:bg-emerald-600/10 rounded transition"
                           >
                             <CheckCircle2 size={14} />
-                          </button>
+                          </Button>
                         )}
                         {isSuper(erpUser) && (
-                          <button
+                          <Button
                             onClick={() => setDeleteModal(l)}
                             title="Delete Lead"
                             className="p-1.5 text-muted-foreground hover:text-rose-500 rounded-lg transition"
                           >
                             <Trash2 size={14} />
-                          </button>
+                          </Button>
                         )}
                       </div>
                     </td>
@@ -251,23 +252,23 @@ export default function ErpLeads() {
               Showing <span className="font-semibold text-foreground">{items.length}</span> of <span className="font-semibold text-foreground">{totalCount}</span> total leads
             </div>
             <div className="flex items-center gap-2">
-              <button
+              <Button
                 onClick={() => setPage(p => Math.max(p - 1, 1))}
                 disabled={page <= 1 || isLoading}
                 className="p-1.5 rounded-lg border border-border hover:bg-muted disabled:opacity-40 transition"
               >
                 <ChevronLeft size={14} />
-              </button>
+              </Button>
               <span className="font-mono text-xs">
                 Page {page} of {totalPages}
               </span>
-              <button
+              <Button
                 onClick={() => setPage(p => Math.min(p + 1, totalPages))}
                 disabled={page >= totalPages || isLoading}
                 className="p-1.5 rounded-lg border border-border hover:bg-muted disabled:opacity-40 transition"
               >
                 <ChevronRight size={14} />
-              </button>
+              </Button>
             </div>
           </div>
         </div>
@@ -305,7 +306,7 @@ export default function ErpLeads() {
               Are you sure you want to delete lead <strong className="text-foreground">{deleteModal.name}</strong> ({deleteModal.phone})?
             </p>
             <div className="flex gap-2.5 pt-2">
-              <button
+              <Button
                 disabled={deleting}
                 onClick={async () => {
                   setDeleting(true);
@@ -323,14 +324,14 @@ export default function ErpLeads() {
                 className="flex-1 py-2.5 bg-rose-600 text-white rounded-xl text-xs uppercase tracking-wider font-bold hover:bg-rose-700 disabled:opacity-50 transition shadow-md flex items-center justify-center gap-1.5"
               >
                 <Trash2 size={13}/> {deleting ? "Purging..." : "Confirm Purge"}
-              </button>
-              <button
+              </Button>
+              <Button
                 disabled={deleting}
                 onClick={() => setDeleteModal(null)}
                 className="px-4 py-2.5 border border-border rounded-xl text-xs uppercase tracking-wider font-bold text-muted-foreground hover:text-foreground hover:bg-muted/50 transition"
               >
                 Cancel
-              </button>
+              </Button>
             </div>
           </div>
         </div>
@@ -396,9 +397,9 @@ function CreateLeadModal({ onClose, onCreated, defaultBranchId, branches }) {
             <h3 className="font-display text-lg font-bold text-foreground">Add Prospect Lead</h3>
             <p className="text-xs text-muted-foreground mt-0.5">Register new student inquiry into admissions funnel</p>
           </div>
-          <button onClick={onClose} className="text-muted-foreground hover:text-foreground">
+          <Button onClick={onClose} className="text-muted-foreground hover:text-foreground">
             <X size={18} />
-          </button>
+          </Button>
         </div>
 
         <form onSubmit={handleSubmit} className="p-5 space-y-4 overflow-y-auto custom-scrollbar flex-1">
@@ -516,20 +517,20 @@ function CreateLeadModal({ onClose, onCreated, defaultBranchId, branches }) {
           </div>
 
           <div className="pt-3 border-t border-border flex items-center justify-end gap-3">
-            <button
+            <Button
               type="button"
               onClick={onClose}
               className="px-4 py-2 text-xs font-bold text-muted-foreground hover:text-foreground transition"
             >
               Cancel
-            </button>
-            <button
+            </Button>
+            <Button
               type="submit"
               disabled={submitting}
               className="px-5 py-2 bg-primary text-primary-foreground rounded-xl text-xs font-bold uppercase tracking-wider hover:bg-primary/90 shadow-md transition disabled:opacity-50"
             >
               {submitting ? "Adding..." : "Add to Pipeline"}
-            </button>
+            </Button>
           </div>
         </form>
       </div>

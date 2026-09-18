@@ -2,6 +2,7 @@ package com.northend.admin.di
 
 import android.content.Context
 import com.northend.admin.data.local.TokenManager
+import com.northend.admin.data.local.room.WhatsAppDao
 import com.northend.admin.data.remote.AdminApiService
 import com.northend.admin.data.repository.AdminRepository
 import com.northend.admin.utils.Constants
@@ -65,8 +66,9 @@ object NetworkModule {
     @Singleton
     fun provideAdminRepository(
         apiService: AdminApiService,
-        tokenManager: TokenManager
-    ): AdminRepository = AdminRepository(apiService, tokenManager)
+        tokenManager: TokenManager,
+        whatsAppDao: WhatsAppDao
+    ): AdminRepository = AdminRepository(apiService, tokenManager, whatsAppDao)
 
     @Provides
     @Singleton

@@ -1,12 +1,18 @@
-with open('/Users/mudasirmushtaq/Documents/app/northend/android-admin/app/build.gradle.kts', 'r') as f:
-    code = f.read()
+with open("android-admin/app/build.gradle.kts", "r") as f:
+    text = f.read()
 
-code = code.replace(
-    'id("com.google.gms.google-services")',
-    'id("com.google.gms.google-services") version "4.4.1"'
-)
+# Insert ksp plugin
+text = text.replace('id("kotlin-kapt")', 'id("kotlin-kapt")\n    alias(libs.plugins.ksp)')
 
-with open('/Users/mudasirmushtaq/Documents/app/northend/android-admin/app/build.gradle.kts', 'w') as f:
-    f.write(code)
+# Insert Room dependencies
+deps = """
+    // Room Database
+    implementation(libs.room.runtime)
+    implementation(libs.room.ktx)
+    ksp(libs.room.compiler)
 
-print("App Gradle fixed")
+    // Core"""
+text = text.replace('    // Core', deps)
+
+with open("android-admin/app/build.gradle.kts", "w") as f:
+    f.write(text)

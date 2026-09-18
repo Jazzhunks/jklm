@@ -17,7 +17,6 @@ import kotlin.Any
 import kotlin.Int
 import kotlin.String
 import kotlin.Suppress
-import kotlin.Unit
 import kotlin.collections.Map
 import kotlin.collections.emptySet
 import kotlin.jvm.Volatile
@@ -42,10 +41,10 @@ public class AuditLogJsonAdapter(
   @Volatile
   private var constructorRef: Constructor<AuditLog>? = null
 
-  public override fun toString(): String = buildString(30) {
+  override fun toString(): String = buildString(30) {
       append("GeneratedJsonAdapter(").append("AuditLog").append(')') }
 
-  public override fun fromJson(reader: JsonReader): AuditLog {
+  override fun fromJson(reader: JsonReader): AuditLog {
     var id: String? = null
     var actorId: String? = null
     var actorEmail: String? = null
@@ -155,7 +154,7 @@ public class AuditLogJsonAdapter(
     }
   }
 
-  public override fun toJson(writer: JsonWriter, value_: AuditLog?): Unit {
+  override fun toJson(writer: JsonWriter, value_: AuditLog?) {
     if (value_ == null) {
       throw NullPointerException("value_ was null! Wrap in .nullSafe() to write nullable values.")
     }

@@ -1,9 +1,24 @@
-with open('/Users/mudasirmushtaq/Documents/app/northend/android-admin/app/src/main/java/com/northend/admin/ui/auth/LoginViewModel.kt', 'r') as f:
-    vm = f.read()
+with open("android-admin/app/src/main/java/com/northend/admin/ui/erp/WhatsAppViewModel.kt", "r") as f:
+    text = f.read()
 
-vm = vm.replace('is ResultWrapper.Success ->', 'is ResultWrapper.Success<*> ->')
+text = text.replace("fun clearThread()", "fun deselectThread()")
 
-with open('/Users/mudasirmushtaq/Documents/app/northend/android-admin/app/src/main/java/com/northend/admin/ui/auth/LoginViewModel.kt', 'w') as f:
-    f.write(vm)
+text = text.replace("fun sendMessage(threadId: String, content: String) {", """fun loadThreads() {
+        viewModelScope.launch {
+            repository.syncWhatsAppThreads()
+        }
+    }
+    
+    fun updateFcmToken(token: String) {
+        // Mock
+    }
 
-print("VM fixed")
+    fun sendMessage(content: String) {
+        val threadId = _uiState.value.currentThread?.id ?: return
+        viewModelScope.launch {
+            // Optimistic UI logic goes here later
+        }
+""")
+
+with open("android-admin/app/src/main/java/com/northend/admin/ui/erp/WhatsAppViewModel.kt", "w") as f:
+    f.write(text)

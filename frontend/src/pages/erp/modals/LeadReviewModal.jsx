@@ -1,4 +1,5 @@
 import { createPortal } from 'react-dom';
+import { Button } from "@/components/ui/button";
 import React, { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -36,9 +37,9 @@ export default function LeadReviewModal({ lead, onClose }) {
         <textarea value={notes} onChange={e => setNotes(e.target.value)} className="w-full p-2 text-sm border border-border bg-card rounded min-h-[60px]" placeholder="Add remarks for the counselor or accounts..." /></div>
         
         <div className="flex gap-2 justify-end pt-2">
-          <button onClick={onClose} className="px-3 py-1.5 text-sm text-muted-foreground hover:text-foreground">Cancel</button>
-          <button onClick={() => reject.mutate()} disabled={reject.isPending || approve.isPending} className="px-3 py-1.5 text-sm bg-rose-500/10 text-rose-500 font-bold rounded hover:bg-rose-500/20">{reject.isPending ? "..." : "Reject"}</button>
-          <button onClick={() => approve.mutate()} disabled={reject.isPending || approve.isPending} className="px-3 py-1.5 text-sm bg-emerald-500 text-white font-bold rounded hover:bg-emerald-600">{approve.isPending ? "..." : "Approve Fee"}</button>
+          <Button onClick={onClose} className="px-3 py-1.5 text-sm text-muted-foreground hover:text-foreground">Cancel</Button>
+          <Button onClick={() => reject.mutate()} disabled={reject.isPending || approve.isPending} className="px-3 py-1.5 text-sm bg-rose-500/10 text-rose-500 font-bold rounded hover:bg-rose-500/20">{reject.isPending ? "..." : "Reject"}</Button>
+          <Button onClick={() => approve.mutate()} disabled={reject.isPending || approve.isPending} className="px-3 py-1.5 text-sm bg-emerald-500 text-white font-bold rounded hover:bg-emerald-600">{approve.isPending ? "..." : "Approve Fee"}</Button>
         </div>
       </div>
     </div>

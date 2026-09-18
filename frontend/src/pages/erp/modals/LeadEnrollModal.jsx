@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { Button } from "@/components/ui/button";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { erp, STUDENT_CLASSES, STUDENT_COURSES, isSuper, getValidCoursesForClass } from "@/lib/erpApi";
@@ -109,8 +110,8 @@ export default function LeadEnrollModal({ lead, onClose }) {
         </div>
         
         <div className="flex gap-2 justify-end pt-2">
-          <button type="button" onClick={onClose} className="px-4 py-2 text-sm font-bold text-muted-foreground hover:text-foreground">Cancel</button>
-          <button type="submit" disabled={enroll.isPending} className="px-5 py-2 text-sm bg-primary text-primary-foreground font-bold uppercase tracking-wider rounded-lg hover:bg-primary/90">{enroll.isPending ? "Processing..." : "Process Admission & Convert Lead"}</button>
+          <Button type="button" onClick={onClose} className="px-4 py-2 text-sm font-bold text-muted-foreground hover:text-foreground">Cancel</Button>
+          <Button type="submit" disabled={enroll.isPending} className="px-5 py-2 text-sm bg-primary text-primary-foreground font-bold uppercase tracking-wider rounded-lg hover:bg-primary/90">{enroll.isPending ? "Processing..." : "Process Admission & Convert Lead"}</Button>
         </div>
       </form>
     </div>

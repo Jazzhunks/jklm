@@ -6,6 +6,14 @@ import logging
 import uuid
 from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional
+from pydantic import BaseModel
+
+class AdminDeviceIn(BaseModel):
+    device_id: str
+    platform: str
+    user_agent: str
+    notification_enabled: bool
+
 
 from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.responses import StreamingResponse
@@ -252,4 +260,20 @@ def build_notifications_router(require_admin_dep, db=None) -> APIRouter:
 
         return StreamingResponse(event_generator(), media_type="text/event-stream", headers={"Cache-Control": "no-cache", "Connection": "keep-alive", "X-Accel-Buffering": "no"})
 
+
+    @router.post("/admin/devices")
+    async def register_admin_device(payload: AdminDeviceIn):
+        if not _db:
+            return {"ok": False}
+        doc = payload.dict()
+        doc["updated_at"] = _now_iso()
+        await _db.admin_devices.update_one(
+            {"device_id": payload.device_id},
+            {"$set": doc},
+            upsert=True
+        )
+        return {"ok": True}
+
     return router
+
+

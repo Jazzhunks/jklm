@@ -1,4 +1,5 @@
 import { createPortal } from 'react-dom';
+import { Button } from "@/components/ui/button";
 import React, { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { erp, STUDENT_CLASSES, STUDENT_COURSES, getValidCoursesForClass } from "@/lib/erpApi";
@@ -50,7 +51,7 @@ export default function FeeMatrixConfigModal({ onClose }) {
             <h3 className="font-display font-medium text-xl">Global Fee Structure Matrix</h3>
             <p className="text-xs text-muted-foreground mt-1">Preset standard fees. These will auto-populate and lock during admissions.</p>
           </div>
-          <button onClick={onClose} className="text-muted-foreground hover:text-foreground transition"><X size={20}/></button>
+          <Button onClick={onClose} className="text-muted-foreground hover:text-foreground transition"><X size={20}/></Button>
         </div>
 
         {loading ? (
@@ -97,14 +98,14 @@ export default function FeeMatrixConfigModal({ onClose }) {
         )}
 
         <div className="flex justify-end gap-3 mt-6 pt-6 border-t border-border">
-          <button onClick={onClose} className="px-4 py-2 font-bold text-muted-foreground hover:text-foreground">Cancel</button>
-          <button 
+          <Button onClick={onClose} className="px-4 py-2 font-bold text-muted-foreground hover:text-foreground">Cancel</Button>
+          <Button 
             onClick={handleSave} 
             disabled={saving || loading}
             className="flex items-center gap-2 bg-primary text-primary-foreground px-5 py-2 rounded-xl font-bold uppercase tracking-wider text-xs hover:bg-primary/90 transition"
           >
             <Save size={14}/> {saving ? "Saving..." : "Save Configuration"}
-          </button>
+          </Button>
         </div>
       </div>
     </div>

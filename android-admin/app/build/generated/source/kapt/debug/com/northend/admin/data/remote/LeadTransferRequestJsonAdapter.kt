@@ -15,7 +15,6 @@ import java.lang.reflect.Constructor
 import kotlin.Int
 import kotlin.String
 import kotlin.Suppress
-import kotlin.Unit
 import kotlin.collections.emptySet
 import kotlin.jvm.Volatile
 import kotlin.text.buildString
@@ -34,10 +33,10 @@ public class LeadTransferRequestJsonAdapter(
   @Volatile
   private var constructorRef: Constructor<LeadTransferRequest>? = null
 
-  public override fun toString(): String = buildString(41) {
+  override fun toString(): String = buildString(41) {
       append("GeneratedJsonAdapter(").append("LeadTransferRequest").append(')') }
 
-  public override fun fromJson(reader: JsonReader): LeadTransferRequest {
+  override fun fromJson(reader: JsonReader): LeadTransferRequest {
     var branchId: String? = null
     var notes: String? = null
     var mask0 = -1
@@ -81,7 +80,7 @@ public class LeadTransferRequestJsonAdapter(
     }
   }
 
-  public override fun toJson(writer: JsonWriter, value_: LeadTransferRequest?): Unit {
+  override fun toJson(writer: JsonWriter, value_: LeadTransferRequest?) {
     if (value_ == null) {
       throw NullPointerException("value_ was null! Wrap in .nullSafe() to write nullable values.")
     }

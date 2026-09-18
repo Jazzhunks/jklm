@@ -13,7 +13,6 @@ import com.squareup.moshi.`internal`.Util
 import java.lang.NullPointerException
 import kotlin.String
 import kotlin.Suppress
-import kotlin.Unit
 import kotlin.collections.emptySet
 import kotlin.text.buildString
 
@@ -25,10 +24,10 @@ public class FCMTokenRequestJsonAdapter(
   private val stringAdapter: JsonAdapter<String> = moshi.adapter(String::class.java, emptySet(),
       "token")
 
-  public override fun toString(): String = buildString(37) {
+  override fun toString(): String = buildString(37) {
       append("GeneratedJsonAdapter(").append("FCMTokenRequest").append(')') }
 
-  public override fun fromJson(reader: JsonReader): FCMTokenRequest {
+  override fun fromJson(reader: JsonReader): FCMTokenRequest {
     var token: String? = null
     reader.beginObject()
     while (reader.hasNext()) {
@@ -48,7 +47,7 @@ public class FCMTokenRequestJsonAdapter(
     )
   }
 
-  public override fun toJson(writer: JsonWriter, value_: FCMTokenRequest?): Unit {
+  override fun toJson(writer: JsonWriter, value_: FCMTokenRequest?) {
     if (value_ == null) {
       throw NullPointerException("value_ was null! Wrap in .nullSafe() to write nullable values.")
     }

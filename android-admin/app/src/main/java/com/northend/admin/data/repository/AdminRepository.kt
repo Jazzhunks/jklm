@@ -26,7 +26,8 @@ import javax.inject.Singleton
 @Singleton
 class AdminRepository @Inject constructor(
     private val apiService: AdminApiService,
-    private val tokenManager: TokenManager
+    private val tokenManager: TokenManager,
+    private val whatsAppDao: com.northend.admin.data.local.room.WhatsAppDao
 ) {
 
     
@@ -165,6 +166,53 @@ class AdminRepository @Inject constructor(
             ResultWrapper.Success(apiCall())
         } catch (e: Exception) {
             ResultWrapper.Error(e.localizedMessage ?: "Unknown error")
+        }
+    }
+
+    // OFFLINE-FIRST WHATSAPP LOGIC
+    fun getLocalWhatsAppThreads() = whatsAppDao.getAllThreads()
+    
+    suspend fun syncWhatsAppThreads() {
+        try {
+            val response = apiService.listWhatsAppThreads()
+            if (response.isSuccessful && response.body() != null) {
+                val entities = response.body()!!.map {
+                    com.northend.admin.data.local.room.ThreadEntity(
+                        id = it.id,
+                        phone = it.phone,
+                        contactName = it.contactName,
+                        studentName = it.studentName,
+                        lastMessagePreview = it.lastMessagePreview,
+                        lastMessageAt = it.lastMessageAt,
+                        unreadCount = it.unreadCount
+                    )
+                }
+                whatsAppDao.insertThreads(entities)
+            }
+        } catch (e: Exception) {
+        }
+    }
+
+    fun getLocalWhatsAppMessages(threadId: String) = whatsAppDao.getMessagesForThread(threadId)
+
+    suspend fun syncWhatsAppMessages(threadId: String) {
+        try {
+            val response = apiService.getWhatsAppMessages(threadId)
+            if (response.isSuccessful && response.body() != null) {
+                val entities = response.body()!!.items.map {
+                    com.northend.admin.data.local.room.MessageEntity(
+                        id = it.id,
+                        threadId = threadId,
+                        direction = it.direction,
+                        kind = it.kind,
+                        text = it.text,
+                        status = it.status,
+                        timestamp = it.timestamp
+                    )
+                }
+                whatsAppDao.insertMessages(entities)
+            }
+        } catch (e: Exception) {
         }
     }
 }

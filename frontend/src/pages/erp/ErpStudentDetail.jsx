@@ -1,4 +1,5 @@
 import { useEffect, useState, useRef } from "react";
+import { Button } from "@/components/ui/button";
 import { useParams, useNavigate, useOutletContext } from "react-router-dom";
 import { toast } from "sonner";
 import { erp, isSuper, isFinance, fmtINR, fmtDate } from "@/lib/erpApi";
@@ -63,9 +64,9 @@ function PaymentEditModal({ payment, onClose, onUpdated }) {
               <div className="text-[10px] text-muted-foreground font-mono">{payment.receipt_no}</div>
             </div>
           </div>
-          <button onClick={onClose} className="p-2 hover:bg-muted rounded-full transition text-muted-foreground">
+          <Button onClick={onClose} className="p-2 hover:bg-muted rounded-full transition text-muted-foreground">
             <X size={18} />
-          </button>
+          </Button>
         </div>
         
         <form onSubmit={onSubmit} className="p-5 space-y-4 overflow-y-auto custom-scrollbar flex-1">
@@ -104,10 +105,10 @@ function PaymentEditModal({ payment, onClose, onUpdated }) {
         </form>
         
         <div className="p-4 border-t border-border bg-background/50 rounded-b-2xl flex gap-3 shrink-0">
-          <button type="button" onClick={onClose} disabled={busy} className="flex-1 px-4 py-2.5 border border-border rounded-xl text-xs uppercase font-bold text-muted-foreground hover:bg-muted transition">Cancel</button>
-          <button type="submit" onClick={onSubmit} disabled={busy} className="flex-1 px-4 py-2.5 bg-accent text-accent-foreground rounded-xl text-xs uppercase font-bold shadow-lg hover:brightness-110 transition disabled:opacity-50">
+          <Button type="button" onClick={onClose} disabled={busy} className="flex-1 px-4 py-2.5 border border-border rounded-xl text-xs uppercase font-bold text-muted-foreground hover:bg-muted transition">Cancel</Button>
+          <Button type="submit" onClick={onSubmit} disabled={busy} className="flex-1 px-4 py-2.5 bg-accent text-accent-foreground rounded-xl text-xs uppercase font-bold shadow-lg hover:brightness-110 transition disabled:opacity-50">
             {busy ? "Saving..." : "Save Changes"}
-          </button>
+          </Button>
         </div>
       </div>
     </div>
@@ -261,36 +262,36 @@ export default function ErpStudentDetail() {
     <div className="space-y-6 animate-fadeIn" data-testid="erp-student-detail">
       {/* Navigation Row */}
       <div className="flex items-center justify-between shrink-0 flex-wrap gap-2">
-        <button 
+        <Button 
           onClick={() => nav("/erp/students")} 
           className="inline-flex items-center gap-2 text-sm font-semibold text-muted-foreground hover:text-foreground transition-colors" 
           data-testid="back-to-students"
         >
           <ArrowLeft size={14}/> Back to directory
-        </button>
+        </Button>
         <div className="flex items-center gap-2 flex-wrap">
-          <button 
+          <Button 
             onClick={() => setShowEditProfile(true)} 
             className="inline-flex items-center gap-1.5 px-3 py-1.5 border border-border rounded-xl text-xs uppercase tracking-wider font-bold text-muted-foreground hover:text-foreground hover:bg-muted/50 transition"
           >
             <Edit3 size={13}/> Edit Profile
-          </button>
+          </Button>
           {s.luid && s.enrollment_number && (
-            <button 
+            <Button 
               onClick={queueIdCard} 
               className="inline-flex items-center gap-1.5 px-3 py-1.5 border border-border rounded-xl text-xs uppercase tracking-wider font-bold text-primary hover:bg-primary/10 transition"
             >
               <Printer size={13}/> ID Card
-            </button>
+            </Button>
           )}
           {isSuper(erpUser) && (
-            <button 
+            <Button 
               onClick={() => setDeleteModal({ type: "student", id: s.id, label: s.student_no || s.full_name })}
               className="inline-flex items-center gap-1.5 px-3 py-1.5 border border-rose-500/30 bg-rose-500/10 text-rose-500 rounded-xl text-xs uppercase tracking-wider font-bold hover:bg-rose-500/20 transition"
               data-testid="delete-student-btn"
             >
               <Trash2 size={13}/> Delete
-            </button>
+            </Button>
           )}
         </div>
       </div>
@@ -387,9 +388,9 @@ export default function ErpStudentDetail() {
           accent={stmt.pending > 0 ? "text-rose-600" : "text-emerald-600"} 
           testid="pending-amount"
           actionElement={stmt.pending > 0 ? (
-            <button onClick={notifyParentViaWhatsApp} className="text-[10px] font-bold uppercase tracking-wider text-emerald-600 underline block mt-1 hover:text-emerald-400">
+            <Button onClick={notifyParentViaWhatsApp} className="text-[10px] font-bold uppercase tracking-wider text-emerald-600 underline block mt-1 hover:text-emerald-400">
               Nudge via WhatsApp
-            </button>
+            </Button>
           ) : null}
         />
       </div>
@@ -401,13 +402,13 @@ export default function ErpStudentDetail() {
             <ClipboardList size={17} className="text-accent" /> Payment History
           </h3>
           {canRecordPayment && (
-            <button 
+            <Button 
               onClick={() => setShowPay(true)} 
               className="px-4 py-2 bg-primary text-primary-foreground rounded-xl text-xs uppercase tracking-wider font-bold flex items-center gap-2 hover:bg-primary/90 shadow transition shrink-0" 
               data-testid="record-payment-btn"
             >
               <Plus size={14}/> Record Payment
-            </button>
+            </Button>
           )}
         </div>
 
@@ -439,14 +440,14 @@ export default function ErpStudentDetail() {
                   <td className="px-5 py-3.5 font-mono text-right font-bold text-emerald-600">{fmtINR(p.amount)}</td>
                   <td className="px-5 py-3.5">
                     <div className="flex items-center justify-end gap-1.5">
-                      <button
+                      <Button
                         onClick={() => setSelectedReceipt(p)}
                         className="w-8 h-8 flex items-center justify-center text-accent bg-accent/10 border border-transparent hover:border-accent/20 hover:bg-accent/20 rounded-lg transition"
                         title="View Receipt"
                         data-testid={`receipt-modal-${p.id}`}
                       >
                         <Printer size={15}/>
-                      </button>
+                      </Button>
                       <a 
                         href={`/rec%2F${encodeURIComponent(p.receipt_no)}`} 
                         target="_blank" rel="noreferrer"
@@ -458,21 +459,21 @@ export default function ErpStudentDetail() {
                       </a>
                       {isSuper(erpUser) && (
                         <>
-                          <button
+                          <Button
                             onClick={() => setEditPayment(p)}
                             className="w-8 h-8 flex items-center justify-center text-amber-500 bg-amber-500/10 border border-transparent hover:border-amber-500/20 hover:bg-amber-500/20 rounded-lg transition"
                             title="Edit Transaction"
                           >
                             <Edit3 size={15}/>
-                          </button>
-                          <button
+                          </Button>
+                          <Button
                             onClick={() => setDeleteModal({ type: "payment", id: p.id, label: p.receipt_no })}
                             className="w-8 h-8 flex items-center justify-center text-rose-500 bg-rose-500/10 border border-transparent hover:border-rose-500/20 hover:bg-rose-500/20 rounded-lg transition"
                             title="Delete Transaction"
                             data-testid={`delete-payment-${p.id}`}
                           >
                             <Trash2 size={15}/>
-                          </button>
+                          </Button>
                         </>
                       )}
                     </div>
@@ -545,20 +546,20 @@ export default function ErpStudentDetail() {
               {deleteModal.type === "student" && " All records, payments, and attendance will be erased."}
             </p>
             <div className="flex gap-2.5 pt-1">
-              <button
+              <Button
                 disabled={deleting}
                 onClick={confirmDelete}
                 className="flex-1 py-2.5 bg-rose-600 text-white rounded-xl text-xs uppercase tracking-wider font-bold hover:bg-rose-700 disabled:opacity-50 transition shadow-md flex items-center justify-center gap-1.5"
               >
                 <Trash2 size={13}/> {deleting ? "Deleting..." : "Delete"}
-              </button>
-              <button
+              </Button>
+              <Button
                 disabled={deleting}
                 onClick={() => setDeleteModal(null)}
                 className="px-4 py-2.5 border border-border rounded-xl text-xs uppercase tracking-wider font-bold text-muted-foreground hover:text-foreground hover:bg-muted/50 transition"
               >
                 Cancel
-              </button>
+              </Button>
             </div>
           </div>
         </div>
@@ -668,7 +669,7 @@ function EditStudentProfileModal({ student, onClose, onUpdated, onPhotoSelect, e
             </div>
             <h3 className="font-display text-2xl font-medium mt-1">Edit Dossier State</h3>
           </div>
-          <button type="button" onClick={onClose} className="p-1 hover:bg-muted/50 rounded-lg border border-transparent hover:border-border transition"><X size={18}/></button>
+          <Button type="button" onClick={onClose} className="p-1 hover:bg-muted/50 rounded-lg border border-transparent hover:border-border transition"><X size={18}/></Button>
         </div>
 
         <div className="space-y-4 overflow-y-auto max-h-[60vh] px-1 custom-scrollbar">
@@ -861,10 +862,10 @@ function EditStudentProfileModal({ student, onClose, onUpdated, onPhotoSelect, e
         </div>
 
         <div className="flex gap-3 pt-2">
-          <button disabled={busy} type="submit" className="flex-1 py-3 bg-primary text-primary-foreground rounded-xl font-bold text-xs uppercase tracking-wider disabled:opacity-50 transition shadow-lg flex items-center justify-center gap-2">
+          <Button disabled={busy} type="submit" className="flex-1 py-3 bg-primary text-primary-foreground rounded-xl font-bold text-xs uppercase tracking-wider disabled:opacity-50 transition shadow-lg flex items-center justify-center gap-2">
             <Save size={14}/> {busy ? "Authorizing State Changes..." : "Authorize Dataset Mutation"}
-          </button>
-          <button type="button" onClick={onClose} className="px-4 py-3 border border-border rounded-xl text-xs uppercase tracking-wider font-bold text-muted-foreground hover:text-foreground hover:bg-muted/50 transition">Cancel</button>
+          </Button>
+          <Button type="button" onClick={onClose} className="px-4 py-3 border border-border rounded-xl text-xs uppercase tracking-wider font-bold text-muted-foreground hover:text-foreground hover:bg-muted/50 transition">Cancel</Button>
         </div>
       </form>
     </div>
@@ -955,10 +956,10 @@ function RecordPaymentModal({ studentId, pending, onClose, onCreated }) {
         </div>
 
         <div className="flex gap-3 pt-2">
-          <button disabled={busy} type="submit" className="flex-1 py-3 bg-primary text-primary-foreground rounded-xl font-bold text-xs uppercase tracking-wider disabled:opacity-50 transition shadow-lg flex items-center justify-center gap-2" data-testid="rp-submit">
+          <Button disabled={busy} type="submit" className="flex-1 py-3 bg-primary text-primary-foreground rounded-xl font-bold text-xs uppercase tracking-wider disabled:opacity-50 transition shadow-lg flex items-center justify-center gap-2" data-testid="rp-submit">
              Authorize Cash Intake State
-          </button>
-          <button type="button" onClick={onClose} className="px-4 py-3 border border-border rounded-xl text-xs uppercase tracking-wider font-bold text-muted-foreground hover:text-foreground hover:bg-muted/50 transition">Cancel</button>
+          </Button>
+          <Button type="button" onClick={onClose} className="px-4 py-3 border border-border rounded-xl text-xs uppercase tracking-wider font-bold text-muted-foreground hover:text-foreground hover:bg-muted/50 transition">Cancel</Button>
         </div>
       </form>
     </div>
@@ -1066,15 +1067,15 @@ function CropModal({ src, onClose, onConfirm }) {
           </ReactCrop>
         </div>
         <div className="flex flex-wrap gap-2 pt-1">
-          <button onClick={handleConfirm} className="flex-1 py-2.5 bg-primary text-primary-foreground rounded-xl font-bold text-xs uppercase tracking-wider hover:opacity-90 transition" data-testid="confirm-crop-btn">
+          <Button onClick={handleConfirm} className="flex-1 py-2.5 bg-primary text-primary-foreground rounded-xl font-bold text-xs uppercase tracking-wider hover:opacity-90 transition" data-testid="confirm-crop-btn">
             Confirm Crop & Save
-          </button>
-          <button onClick={handleUseOriginal} className="px-3 py-2.5 border border-border rounded-xl text-xs uppercase tracking-wider font-semibold text-muted-foreground hover:text-foreground hover:bg-muted/50 transition">
+          </Button>
+          <Button onClick={handleUseOriginal} className="px-3 py-2.5 border border-border rounded-xl text-xs uppercase tracking-wider font-semibold text-muted-foreground hover:text-foreground hover:bg-muted/50 transition">
             Use Full Image
-          </button>
-          <button onClick={onClose} className="px-3 py-2.5 border border-border rounded-xl text-xs uppercase tracking-wider font-bold text-muted-foreground hover:text-foreground hover:bg-muted/50 transition">
+          </Button>
+          <Button onClick={onClose} className="px-3 py-2.5 border border-border rounded-xl text-xs uppercase tracking-wider font-bold text-muted-foreground hover:text-foreground hover:bg-muted/50 transition">
             Cancel
-          </button>
+          </Button>
         </div>
       </div>
     </div>

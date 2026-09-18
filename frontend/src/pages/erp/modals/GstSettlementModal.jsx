@@ -1,4 +1,5 @@
 import { useState, useMemo } from "react";
+import { Button } from "@/components/ui/button";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { erp, fmtINR, fmtDate } from "@/lib/erpApi";
@@ -149,20 +150,20 @@ export default function GstSettlementModal({ onClose, defaultBranchId = "", bran
           </div>
 
           <div className="flex items-center gap-2.5">
-            <button
+            <Button
               onClick={() => refetch()}
               className="p-2 border border-border rounded-xl text-muted-foreground hover:text-foreground hover:bg-muted/40 transition"
               title="Refresh Tax Data"
             >
               <RefreshCw size={16} className={isFetching ? "animate-spin" : ""} />
-            </button>
-            <button
+            </Button>
+            <Button
               onClick={onClose}
               className="p-2 border border-border rounded-xl text-muted-foreground hover:text-foreground hover:bg-muted/40 transition"
               aria-label="Close"
             >
               <X size={18} />
-            </button>
+            </Button>
           </div>
         </div>
 
@@ -215,27 +216,27 @@ export default function GstSettlementModal({ onClose, defaultBranchId = "", bran
               <FileSpreadsheet size={15} /> Download GSTR-1 Excel
             </a>
             {!isPaid ? (
-              <button
+              <Button
                 onClick={handleOpenMarkPaid}
                 className="px-3.5 py-1.5 bg-primary text-primary-foreground rounded-xl text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 hover:bg-primary/90 transition shadow-sm"
                 data-testid="mark-gst-paid-btn"
               >
                 <ShieldCheck size={15} /> Mark Month as Paid
-              </button>
+              </Button>
             ) : (
               <div className="flex items-center gap-2">
-                <button
+                <Button
                   onClick={handleOpenMarkPaid}
                   className="px-3 py-1.5 border border-border text-foreground hover:bg-muted/50 rounded-xl text-xs font-bold uppercase tracking-wider transition"
                 >
                   Edit Challan
-                </button>
-                <button
+                </Button>
+                <Button
                   onClick={handleToggleUnpaid}
                   className="px-3 py-1.5 border border-rose-500/20 text-rose-500 hover:bg-rose-500/10 rounded-xl text-xs font-bold uppercase tracking-wider transition"
                 >
                   Revert to Unpaid
-                </button>
+                </Button>
               </div>
             )}
           </div>
@@ -284,12 +285,12 @@ export default function GstSettlementModal({ onClose, defaultBranchId = "", bran
             </div>
 
             {!isPaid && (
-              <button
+              <Button
                 onClick={handleOpenMarkPaid}
                 className="px-4 py-2 bg-amber-600 text-white rounded-xl text-xs font-bold uppercase tracking-wider hover:bg-amber-700 transition shadow-sm"
               >
                 Record Challan / CPIN
-              </button>
+              </Button>
             )}
           </div>
 
@@ -303,13 +304,13 @@ export default function GstSettlementModal({ onClose, defaultBranchId = "", bran
                     {isPaid ? "Update Challan Details" : "Record GST Remittance Challan"}
                   </h3>
                 </div>
-                <button 
+                <Button 
                   type="button" 
                   onClick={() => setShowMarkPaidForm(false)}
                   className="text-muted-foreground hover:text-foreground text-xs"
                 >
                   Cancel
-                </button>
+                </Button>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -371,20 +372,20 @@ export default function GstSettlementModal({ onClose, defaultBranchId = "", bran
               </div>
 
               <div className="flex justify-end gap-2 pt-2">
-                <button
+                <Button
                   type="button"
                   onClick={() => setShowMarkPaidForm(false)}
                   className="px-4 py-2 border border-border rounded-xl text-xs font-bold uppercase tracking-wider text-muted-foreground hover:bg-muted/40 transition"
                 >
                   Cancel
-                </button>
-                <button
+                </Button>
+                <Button
                   type="submit"
                   disabled={markPaidMutation.isLoading}
                   className="px-5 py-2 bg-primary text-primary-foreground rounded-xl text-xs font-bold uppercase tracking-wider hover:bg-primary/90 transition shadow-md disabled:opacity-50"
                 >
                   {markPaidMutation.isLoading ? "Saving..." : "Save Settlement"}
-                </button>
+                </Button>
               </div>
             </form>
           )}
@@ -569,12 +570,12 @@ export default function GstSettlementModal({ onClose, defaultBranchId = "", bran
             <span>State GST Jurisdiction: Jammu &amp; Kashmir (Code 01)</span>
           </div>
 
-          <button
+          <Button
             onClick={onClose}
             className="px-5 py-2 border border-border rounded-xl text-xs font-bold uppercase tracking-wider text-muted-foreground hover:text-foreground hover:bg-muted/40 transition"
           >
             Close
-          </button>
+          </Button>
         </div>
       </div>
     </div>

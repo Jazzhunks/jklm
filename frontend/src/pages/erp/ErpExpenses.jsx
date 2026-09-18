@@ -1,4 +1,5 @@
 import { useState, useMemo, useEffect } from "react";
+import { Button } from "@/components/ui/button";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useOutletContext, useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
@@ -145,17 +146,17 @@ export default function ErpExpenses() {
             target="_blank" 
             rel="noreferrer"
           >
-            <button className="px-3.5 py-2 border border-border rounded-xl text-xs uppercase tracking-wider font-bold text-muted-foreground hover:text-foreground hover:bg-muted/50 flex items-center gap-2 transition" data-testid="export-expenses-btn">
+            <Button className="px-3.5 py-2 border border-border rounded-xl text-xs uppercase tracking-wider font-bold text-muted-foreground hover:text-foreground hover:bg-muted/50 flex items-center gap-2 transition" data-testid="export-expenses-btn">
               <Download size={14}/> Export Excel
-            </button>
+            </Button>
           </a>
-          <button 
+          <Button 
             onClick={() => setShowCreate(true)} 
             className="px-4 py-2 bg-primary text-primary-foreground rounded-xl text-xs uppercase tracking-wider font-bold flex items-center gap-2 hover:bg-primary/90 shadow-md transition" 
             data-testid="create-expense-btn"
           >
             <Plus size={14}/> Record Expense
-          </button>
+          </Button>
         </div>
       </div>
 
@@ -219,7 +220,7 @@ export default function ErpExpenses() {
         {/* Status Pills */}
         <div className="flex items-center gap-1 bg-muted/40 p-1 rounded-xl border border-border overflow-x-auto custom-scrollbar">
           {STATUSES.map(s => (
-            <button
+            <Button
               key={s}
               onClick={() => { setStatusFilter(s); setPage(1); }}
               className={`px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider transition whitespace-nowrap ${
@@ -229,7 +230,7 @@ export default function ErpExpenses() {
               }`}
             >
               {s === "all" ? "All Statuses" : s}
-            </button>
+            </Button>
           ))}
         </div>
 
@@ -329,7 +330,7 @@ export default function ErpExpenses() {
                     <div className="flex gap-1.5 justify-end items-center">
                       {isManagerPlus(erpUser) && e.status === "pending" && (
                         <>
-                          <button 
+                          <Button 
                             disabled={busyRows.has(e.id)}
                             onClick={() => decide(e.id, "approve")} 
                             title="Approve & Settle" 
@@ -337,8 +338,8 @@ export default function ErpExpenses() {
                             data-testid={`approve-${e.id}`}
                           >
                             <Check size={14}/>
-                          </button>
-                          <button 
+                          </Button>
+                          <Button 
                             disabled={busyRows.has(e.id)}
                             onClick={() => decide(e.id, "reject")} 
                             title="Reject Outflow" 
@@ -346,18 +347,18 @@ export default function ErpExpenses() {
                             data-testid={`reject-${e.id}`}
                           >
                             <Ban size={14}/>
-                          </button>
+                          </Button>
                         </>
                       )}
                       {isSuper(erpUser) && (
-                        <button 
+                        <Button 
                           onClick={() => setDeleteModal(e)} 
                           title="Purge Expense Record" 
                           className="p-1.5 text-muted-foreground hover:text-rose-500 hover:bg-rose-500/10 border border-transparent hover:border-rose-500/20 rounded-lg transition" 
                           data-testid={`delete-expense-${e.id}`}
                         >
                           <Trash2 size={14}/>
-                        </button>
+                        </Button>
                       )}
                     </div>
                   </td>
@@ -380,23 +381,23 @@ export default function ErpExpenses() {
             Showing <span className="font-semibold text-foreground">{rawItems.length}</span> of <span className="font-semibold text-foreground">{totalCount}</span> total items
           </div>
           <div className="flex items-center gap-2">
-            <button
+            <Button
               onClick={() => setPage(p => Math.max(p - 1, 1))}
               disabled={page <= 1 || isLoading}
               className="p-1.5 rounded-lg border border-border hover:bg-muted disabled:opacity-40 transition"
             >
               <ChevronLeft size={14} />
-            </button>
+            </Button>
             <span className="font-mono text-xs">
               Page {page} of {totalPages}
             </span>
-            <button
+            <Button
               onClick={() => setPage(p => Math.min(p + 1, totalPages))}
               disabled={page >= totalPages || isLoading}
               className="p-1.5 rounded-lg border border-border hover:bg-muted disabled:opacity-40 transition"
             >
               <ChevronRight size={14} />
-            </button>
+            </Button>
           </div>
         </div>
       </div>
@@ -427,7 +428,7 @@ export default function ErpExpenses() {
               {deleteModal.vendor && <span> Vendor: <strong className="text-foreground">{deleteModal.vendor}</strong></span>}
             </p>
             <div className="flex gap-2.5 pt-2">
-              <button
+              <Button
                 disabled={deleting}
                 onClick={async () => {
                   setDeleting(true);
@@ -445,14 +446,14 @@ export default function ErpExpenses() {
                 className="flex-1 py-2.5 bg-rose-600 text-white rounded-xl text-xs uppercase tracking-wider font-bold hover:bg-rose-700 disabled:opacity-50 transition shadow-md flex items-center justify-center gap-1.5"
               >
                 <Trash2 size={13}/> {deleting ? "Purging..." : "Confirm Purge"}
-              </button>
-              <button
+              </Button>
+              <Button
                 disabled={deleting}
                 onClick={() => setDeleteModal(null)}
                 className="px-4 py-2.5 border border-border rounded-xl text-xs uppercase tracking-wider font-bold text-muted-foreground hover:text-foreground hover:bg-muted/50 transition"
               >
                 Cancel
-              </button>
+              </Button>
             </div>
           </div>
         </div>
@@ -539,9 +540,9 @@ function CreateExpenseModal({ onClose, onSuccess, branchId, branches, isSuper })
             <h3 className="font-display text-lg font-bold text-foreground">Record Center Outflow</h3>
             <p className="text-xs text-muted-foreground mt-0.5">Submit branch expenditure for approval and ledger entry</p>
           </div>
-          <button onClick={onClose} className="text-muted-foreground hover:text-foreground">
+          <Button onClick={onClose} className="text-muted-foreground hover:text-foreground">
             <X size={18} />
-          </button>
+          </Button>
         </div>
 
         <form onSubmit={handleSubmit} className="p-5 space-y-4 overflow-y-auto custom-scrollbar flex-1">
@@ -646,20 +647,20 @@ function CreateExpenseModal({ onClose, onSuccess, branchId, branches, isSuper })
           </div>
 
           <div className="pt-3 border-t border-border flex items-center justify-end gap-3">
-            <button
+            <Button
               type="button"
               onClick={onClose}
               className="px-4 py-2 text-xs font-bold text-muted-foreground hover:text-foreground transition"
             >
               Cancel
-            </button>
-            <button
+            </Button>
+            <Button
               type="submit"
               disabled={submitting}
               className="px-5 py-2 bg-primary text-primary-foreground rounded-xl text-xs font-bold uppercase tracking-wider hover:bg-primary/90 shadow-md transition disabled:opacity-50"
             >
               {submitting ? "Submitting..." : "Submit Expense"}
-            </button>
+            </Button>
           </div>
         </form>
       </div>

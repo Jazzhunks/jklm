@@ -1,10 +1,10 @@
 {
     "logs": [
         {
-            "outputFile": "com.northend.admin.app-mergeDebugResources-62:/values-v16/values-v16.xml",
+            "outputFile": "com.northend.admin.app-mergeDebugResources-74:/values-v16/values-v16.xml",
             "map": [
                 {
-                    "source": "/Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/13e2ec15ebe540ba74041043159a28e3/transformed/core-1.12.0/res/values-v16/values-v16.xml",
+                    "source": "/Users/mudasirmushtaq/.gradle/caches/8.14.5/transforms/cc0f195888073e75a75065785bb47439/transformed/core-1.12.0/res/values-v16/values-v16.xml",
                     "from": {
                         "startLines": "2",
                         "startColumns": "4",

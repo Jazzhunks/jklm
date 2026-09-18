@@ -1,4 +1,5 @@
 import { useEffect, useState, useCallback, useRef } from "react";
+import { Button } from "@/components/ui/button";
 import { useOutletContext } from "react-router-dom";
 import { toast } from "sonner";
 import { erp, isSuper, isManagerPlus, fmtDate, extractItems } from "@/lib/erpApi";
@@ -233,12 +234,12 @@ export default function ErpAttendance() {
         {/* OPERATION CONTROL PACKET LAYOUT */}
         <div className="flex items-center gap-3">
           <a href={buildExcelExportUrl()} target="_blank" rel="noreferrer" className="block">
-            <button 
+            <Button 
               disabled={!branchId}
               className="px-4 py-2.5 bg-primary border border-border text-primary-foreground font-bold text-xs uppercase tracking-wider rounded-xl hover:bg-primary/90 disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-2 transition"
             >
               <FileDown size={14} className="text-emerald-600" /> Export Today's Excel
-            </button>
+            </Button>
           </a>
 
           <div className={`px-3 py-1.5 border rounded-xl text-xs font-mono font-bold tracking-wider flex items-center gap-2 transition ${
@@ -262,14 +263,14 @@ export default function ErpAttendance() {
             <Terminal size={13} className="text-accent" /> Manual Entry Keypad Emulator
           </label>
           <div className="flex gap-2 mb-3">
-            <button
+            <Button
               onClick={scanning ? stopScanner : startScanner}
               className={`px-3 py-1.5 border rounded-xl text-xs font-bold transition flex-1 ${
                 scanning ? "bg-rose-500/10 text-rose-600 border-rose-500/20" : "bg-emerald-500/10 text-emerald-600 border-emerald-500/20"
               }`}
             >
               {scanning ? "Stop Camera Scanner" : "Start Camera Scanner"}
-            </button>
+            </Button>
           </div>
           <div className={scanning ? "mb-4 rounded-xl overflow-hidden border border-border bg-black" : "hidden"}>
             <div id="qr-reader-attendance" className="w-full"></div>
@@ -283,13 +284,13 @@ export default function ErpAttendance() {
               placeholder={branchId ? "Scan badge barcode or type Enrollment Number (e.g. NES-SRI-0001)..." : "Select an operational branch first..."}
               className="flex-1 px-3 py-2 border border-border bg-background/80 font-mono text-sm uppercase rounded-xl text-foreground focus:outline-none focus:border-accent transition disabled:opacity-50"
             />
-            <button 
+            <Button 
               type="submit"
               disabled={processingScan || !scanInput.trim() || !branchId}
               className="px-4 py-2 bg-accent text-accent-foreground font-bold text-xs uppercase tracking-wider rounded-xl hover:opacity-90 disabled:opacity-40 transition shrink-0"
             >
               {processingScan ? "Checking..." : "Submit Scan"}
-            </button>
+            </Button>
           </form>
         </div>
 
@@ -335,12 +336,12 @@ export default function ErpAttendance() {
               </div>
             </div>
           </div>
-          <button 
+          <Button 
             onClick={() => setLastScanned(null)} 
             className="text-muted-foreground hover:text-foreground p-1.5 rounded-lg hover:bg-muted/50 transition"
           >
             <X size={16} />
-          </button>
+          </Button>
         </div>
       )}
 
@@ -430,20 +431,20 @@ export default function ErpAttendance() {
                       <div className="text-[10px] text-muted-foreground/60 font-mono mt-0.5">{st.student_no}</div>
                     </div>
                     <div className="flex gap-1 shrink-0">
-                      <button
+                      <Button
                         disabled={busyOverrides.has(st.id)}
                         onClick={() => handleManualOverrideTrigger(st.id, st.full_name, "present")}
                         className="px-2 py-1 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/20 text-emerald-600 rounded-md text-[10px] font-bold uppercase tracking-wider transition disabled:opacity-30"
                       >
                         Present
-                      </button>
-                      <button
+                      </Button>
+                      <Button
                         disabled={busyOverrides.has(st.id)}
                         onClick={() => handleManualOverrideTrigger(st.id, st.full_name, "late")}
                         className="px-2 py-1 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/20 text-amber-400 rounded-md text-[10px] font-bold uppercase tracking-wider transition disabled:opacity-30"
                       >
                         Late
-                      </button>
+                      </Button>
                     </div>
                   </div>
                 ))

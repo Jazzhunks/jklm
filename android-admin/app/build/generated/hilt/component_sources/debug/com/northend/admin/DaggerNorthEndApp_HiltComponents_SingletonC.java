@@ -7,8 +7,13 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.SavedStateHandle;
 import androidx.lifecycle.ViewModel;
 import com.northend.admin.data.local.TokenManager;
+import com.northend.admin.data.local.room.WhatsAppDao;
+import com.northend.admin.data.local.room.WhatsAppDatabase;
 import com.northend.admin.data.remote.AdminApiService;
 import com.northend.admin.data.repository.AdminRepository;
+import com.northend.admin.di.DatabaseModule;
+import com.northend.admin.di.DatabaseModule_ProvideWhatsAppDaoFactory;
+import com.northend.admin.di.DatabaseModule_ProvideWhatsAppDatabaseFactory;
 import com.northend.admin.di.NetworkModule;
 import com.northend.admin.di.NetworkModule_ProvideAdminApiServiceFactory;
 import com.northend.admin.di.NetworkModule_ProvideAdminRepositoryFactory;
@@ -98,6 +103,15 @@ public final class DaggerNorthEndApp_HiltComponents_SingletonC {
 
     public Builder applicationContextModule(ApplicationContextModule applicationContextModule) {
       this.applicationContextModule = Preconditions.checkNotNull(applicationContextModule);
+      return this;
+    }
+
+    /**
+     * @deprecated This module is declared, but an instance is not used in the component. This method is a no-op. For more, see https://dagger.dev/unused-modules.
+     */
+    @Deprecated
+    public Builder databaseModule(DatabaseModule databaseModule) {
+      Preconditions.checkNotNull(databaseModule);
       return this;
     }
 
@@ -401,7 +415,7 @@ public final class DaggerNorthEndApp_HiltComponents_SingletonC {
     }
 
     @Override
-    public void injectMainActivity(MainActivity arg0) {
+    public void injectMainActivity(MainActivity mainActivity) {
     }
 
     @Override
@@ -639,6 +653,10 @@ public final class DaggerNorthEndApp_HiltComponents_SingletonC {
 
     private Provider<Retrofit> provideRetrofitProvider;
 
+    private Provider<WhatsAppDatabase> provideWhatsAppDatabaseProvider;
+
+    private Provider<WhatsAppDao> provideWhatsAppDaoProvider;
+
     private Provider<AdminRepository> provideAdminRepositoryProvider;
 
     private SingletonCImpl(ApplicationContextModule applicationContextModuleParam) {
@@ -655,6 +673,8 @@ public final class DaggerNorthEndApp_HiltComponents_SingletonC {
       this.provideMoshiProvider = DoubleCheck.provider(new SwitchingProvider<Moshi>(singletonCImpl, 4));
       this.provideRetrofitProvider = DoubleCheck.provider(new SwitchingProvider<Retrofit>(singletonCImpl, 1));
       DelegateFactory.setDelegate(provideAdminApiServiceProvider, DoubleCheck.provider(new SwitchingProvider<AdminApiService>(singletonCImpl, 0)));
+      this.provideWhatsAppDatabaseProvider = DoubleCheck.provider(new SwitchingProvider<WhatsAppDatabase>(singletonCImpl, 7));
+      this.provideWhatsAppDaoProvider = DoubleCheck.provider(new SwitchingProvider<WhatsAppDao>(singletonCImpl, 6));
       this.provideAdminRepositoryProvider = DoubleCheck.provider(new SwitchingProvider<AdminRepository>(singletonCImpl, 5));
     }
 
@@ -707,7 +727,13 @@ public final class DaggerNorthEndApp_HiltComponents_SingletonC {
           return (T) NetworkModule_ProvideMoshiFactory.provideMoshi();
 
           case 5: // com.northend.admin.data.repository.AdminRepository 
-          return (T) NetworkModule_ProvideAdminRepositoryFactory.provideAdminRepository(singletonCImpl.provideAdminApiServiceProvider.get(), singletonCImpl.provideTokenManagerProvider.get());
+          return (T) NetworkModule_ProvideAdminRepositoryFactory.provideAdminRepository(singletonCImpl.provideAdminApiServiceProvider.get(), singletonCImpl.provideTokenManagerProvider.get(), singletonCImpl.provideWhatsAppDaoProvider.get());
+
+          case 6: // com.northend.admin.data.local.room.WhatsAppDao 
+          return (T) DatabaseModule_ProvideWhatsAppDaoFactory.provideWhatsAppDao(singletonCImpl.provideWhatsAppDatabaseProvider.get());
+
+          case 7: // com.northend.admin.data.local.room.WhatsAppDatabase 
+          return (T) DatabaseModule_ProvideWhatsAppDatabaseFactory.provideWhatsAppDatabase(ApplicationContextModule_ProvideContextFactory.provideContext(singletonCImpl.applicationContextModule));
 
           default: throw new AssertionError(id);
         }

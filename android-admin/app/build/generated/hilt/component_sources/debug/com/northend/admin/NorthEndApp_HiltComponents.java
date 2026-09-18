@@ -1,5 +1,6 @@
 package com.northend.admin;
 
+import com.northend.admin.di.DatabaseModule;
 import com.northend.admin.di.NetworkModule;
 import com.northend.admin.ui.MainActivity_GeneratedInjector;
 import com.northend.admin.ui.auth.LoginViewModel_HiltModules;
@@ -138,6 +139,7 @@ public final class NorthEndApp_HiltComponents {
   @Component(
       modules = {
           ApplicationContextModule.class,
+          DatabaseModule.class,
           HiltWrapper_FragmentGetContextFix_FragmentGetContextFixModule.class,
           NetworkModule.class,
           ActivityRetainedCBuilderModule.class,

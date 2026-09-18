@@ -7,16 +7,24 @@ animator fragment_fade_exit
 animator fragment_open_enter
 animator fragment_open_exit
 attr action
+attr activityAction
+attr activityName
 attr alpha
+attr alwaysExpand
+attr animationBackgroundColor
 attr argType
 attr buttonSize
 attr circleCrop
+attr clearTop
 attr colorScheme
 attr data
 attr dataPattern
 attr destination
 attr enterAnim
 attr exitAnim
+attr finishPrimaryWithPlaceholder
+attr finishPrimaryWithSecondary
+attr finishSecondaryWithPrimary
 attr font
 attr fontProviderAuthority
 attr fontProviderCerts
@@ -37,17 +45,30 @@ attr mimeType
 attr navGraph
 attr nestedScrollViewStyle
 attr nullable
+attr placeholderActivityName
 attr popEnterAnim
 attr popExitAnim
 attr popUpTo
 attr popUpToInclusive
 attr popUpToSaveState
+attr primaryActivityName
 attr queryPatterns
 attr restoreState
 attr route
 attr scopeUris
+attr secondaryActivityAction
+attr secondaryActivityName
 attr shortcutMatchRequired
+attr splitLayoutDirection
+attr splitMaxAspectRatioInLandscape
+attr splitMaxAspectRatioInPortrait
+attr splitMinHeightDp
+attr splitMinSmallestWidthDp
+attr splitMinWidthDp
+attr splitRatio
 attr startDestination
+attr stickyPlaceholder
+attr tag
 attr targetPackage
 attr ttcIndex
 attr uri
@@ -173,12 +194,18 @@ id action_divider
 id action_image
 id action_text
 id actions
+id adjacent
 id adjust_height
 id adjust_width
+id always
+id alwaysAllow
+id alwaysDisallow
 id androidx_compose_ui_view_composition_context
+id androidx_window_activity_scope
 id async
 id auto
 id blocking
+id bottomToTop
 id chronometer
 id coil_request_manager
 id compose_view_saveable_id_tag
@@ -188,6 +215,7 @@ id dialog_button
 id edit_text_id
 id forever
 id fragment_container_view_tag
+id hide_graphics_layer_in_inspector_tag
 id hide_ime_id
 id hide_in_inspector_tag
 id icon
@@ -200,7 +228,10 @@ id italic
 id light
 id line1
 id line3
+id locale
+id ltr
 id nav_controller_view_tag
+id never
 id none
 id normal
 id notification_background
@@ -210,6 +241,7 @@ id pooling_container_listener_holder_tag
 id report_drawn
 id right_icon
 id right_side
+id rtl
 id special_effects_controller_view_tag
 id standard
 id tag_accessibility_actions
@@ -229,6 +261,7 @@ id text
 id text2
 id time
 id title
+id topToBottom
 id view_tree_lifecycle_owner
 id view_tree_on_back_pressed_dispatcher_owner
 id view_tree_saved_state_registry_owner
@@ -331,14 +364,15 @@ string indeterminate
 string m3c_bottom_sheet_pane_title
 string navigation_menu
 string not_selected
-string off
-string on
 string project_id
 string range_end
 string range_start
 string search_bar_search
 string selected
 string snackbar_dismiss
+string state_empty
+string state_off
+string state_on
 string status_bar_notification_info_overflow
 string suggestions_available
 string switch_role
@@ -356,6 +390,8 @@ string time_picker_minute_suffix
 string time_picker_minute_text_field
 string time_picker_period_toggle_description
 string time_picker_pm
+string tooltip_description
+string tooltip_label
 string tooltip_long_press_label
 string tooltip_pane_description
 style DialogWindowTheme
@@ -369,7 +405,9 @@ style TextAppearance_Compat_Notification_Title
 style Theme_NorthEndAdmin
 style Widget_Compat_NotificationActionContainer
 style Widget_Compat_NotificationActionText
+styleable ActivityFilter activityAction activityName
 styleable ActivityNavigator android_name action data dataPattern targetPackage
+styleable ActivityRule alwaysExpand tag
 styleable AnimatedStateListDrawableCompat android_dither android_visible android_variablePadding android_constantSize android_enterFadeDuration android_exitFadeDuration
 styleable AnimatedStateListDrawableItem android_id android_drawable
 styleable AnimatedStateListDrawableTransition android_drawable android_toId android_fromId android_reversible
@@ -390,6 +428,9 @@ styleable NavHost navGraph
 styleable NavInclude graph
 styleable Navigator android_label android_id route
 styleable SignInButton buttonSize colorScheme scopeUris
+styleable SplitPairFilter primaryActivityName secondaryActivityAction secondaryActivityName
+styleable SplitPairRule animationBackgroundColor clearTop finishPrimaryWithSecondary finishSecondaryWithPrimary splitLayoutDirection splitMaxAspectRatioInLandscape splitMaxAspectRatioInPortrait splitMinHeightDp splitMinSmallestWidthDp splitMinWidthDp splitRatio tag
+styleable SplitPlaceholderRule animationBackgroundColor finishPrimaryWithPlaceholder placeholderActivityName splitLayoutDirection splitMaxAspectRatioInLandscape splitMaxAspectRatioInPortrait splitMinHeightDp splitMinSmallestWidthDp splitMinWidthDp splitRatio stickyPlaceholder tag
 styleable StateListDrawable android_dither android_visible android_variablePadding android_constantSize android_enterFadeDuration android_exitFadeDuration
 styleable StateListDrawableItem android_drawable
 xml backup_rules

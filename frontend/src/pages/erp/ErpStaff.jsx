@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Button } from "@/components/ui/button";
 import { useOutletContext } from "react-router-dom";
 import { toast } from "sonner";
 import { erp, isSuper, fmtDate, extractItems } from "@/lib/erpApi";
@@ -75,13 +76,13 @@ export default function ErpStaff() {
             {filteredItems.length} active enterprise execution profiles mapped in directory view.
           </p>
         </div>
-        <button 
+        <Button 
           onClick={() => setShowCreate(true)} 
           className="px-4 py-2.5 bg-primary text-primary-foreground rounded-xl text-xs uppercase tracking-wider font-bold flex items-center gap-2 hover:bg-primary/90 shadow-lg transition" 
           data-testid="create-staff-btn"
         >
           <Plus size={14}/> Add Staff Member
-        </button>
+        </Button>
       </div>
 
       {/* Navigation Parameter Tracks */}
@@ -139,17 +140,17 @@ export default function ErpStaff() {
                   <td className="px-5 py-4 text-xs text-muted-foreground font-mono whitespace-nowrap">{fmtDate(s.created_at)}</td>
                   <td className="px-5 py-4 text-right whitespace-nowrap pr-6">
                     <div className="flex justify-end gap-2">
-                      <button 
+                      <Button 
                         onClick={() => setEditingStaff(s)}
                         disabled={s.active === false}
                         title="Edit Profile Configuration"
                         className="p-1.5 text-accent border border-transparent hover:bg-muted/50 hover:border-border rounded-lg transition duration-150 disabled:opacity-30"
                       >
                         <Edit3 size={14}/>
-                      </button>
+                      </Button>
                       
                       {s.active !== false ? (
-                        <button 
+                        <Button 
                           disabled={busyRows.has(s.id)}
                           onClick={() => toggleDeactivate(s.id, s.name)} 
                           title="Revoke Permissions" 
@@ -157,7 +158,7 @@ export default function ErpStaff() {
                           data-testid={`deactivate-${s.id}`}
                         >
                           <UserX size={14}/>
-                        </button>
+                        </Button>
                       ) : (
                         <span className="text-[10px] font-bold font-mono tracking-wider text-rose-500 bg-rose-500/5 px-2 py-0.5 border border-rose-500/10 rounded-md select-none">Inactive</span>
                       )}
@@ -236,7 +237,7 @@ function CreateStaffModal({ erpUser, branches, onClose, onCreated }) {
             </div>
             <h3 className="font-display text-2xl font-medium mt-1">Add Team Member</h3>
           </div>
-          <button type="button" onClick={onClose} className="p-1 hover:bg-muted/50 rounded-lg border border-transparent hover:border-border transition"><X size={18}/></button>
+          <Button type="button" onClick={onClose} className="p-1 hover:bg-muted/50 rounded-lg border border-transparent hover:border-border transition"><X size={18}/></Button>
         </div>
 
         <div className="space-y-4">
@@ -288,10 +289,10 @@ function CreateStaffModal({ erpUser, branches, onClose, onCreated }) {
         </div>
 
         <div className="flex gap-3 pt-2">
-          <button disabled={busy} type="submit" className="flex-1 py-3 bg-primary text-primary-foreground rounded-xl font-bold text-xs uppercase tracking-wider disabled:opacity-50 transition shadow-lg flex items-center justify-center" data-testid="cs-submit">
+          <Button disabled={busy} type="submit" className="flex-1 py-3 bg-primary text-primary-foreground rounded-xl font-bold text-xs uppercase tracking-wider disabled:opacity-50 transition shadow-lg flex items-center justify-center" data-testid="cs-submit">
             {busy ? "Authorizing Personnel Parameters…" : "Deploy Staff Access Instance"}
-          </button>
-          <button type="button" onClick={onClose} className="px-4 py-3 border border-border rounded-xl text-xs uppercase tracking-wider font-bold text-muted-foreground hover:text-foreground hover:bg-muted/50 transition">Cancel</button>
+          </Button>
+          <Button type="button" onClick={onClose} className="px-4 py-3 border border-border rounded-xl text-xs uppercase tracking-wider font-bold text-muted-foreground hover:text-foreground hover:bg-muted/50 transition">Cancel</Button>
         </div>
       </form>
     </div>
@@ -343,7 +344,7 @@ function UpdateStaffModal({ erpUser, branches, staffMember, onClose, onUpdated }
             <h3 className="font-display text-2xl font-medium mt-1">Edit Staff Profile</h3>
             <p className="text-xs text-muted-foreground mt-0.5 font-mono">{staffMember.email}</p>
           </div>
-          <button type="button" onClick={onClose} className="p-1 hover:bg-muted/50 rounded-lg border border-transparent hover:border-border transition"><X size={18}/></button>
+          <Button type="button" onClick={onClose} className="p-1 hover:bg-muted/50 rounded-lg border border-transparent hover:border-border transition"><X size={18}/></Button>
         </div>
 
         <div className="space-y-4">
@@ -389,10 +390,10 @@ function UpdateStaffModal({ erpUser, branches, staffMember, onClose, onUpdated }
         </div>
 
         <div className="flex gap-3 pt-2">
-          <button disabled={busy} type="submit" className="flex-1 py-3 bg-accent text-accent-foreground rounded-xl font-bold text-xs uppercase tracking-wider disabled:opacity-50 transition shadow-lg flex items-center justify-center">
+          <Button disabled={busy} type="submit" className="flex-1 py-3 bg-accent text-accent-foreground rounded-xl font-bold text-xs uppercase tracking-wider disabled:opacity-50 transition shadow-lg flex items-center justify-center">
             <Save size={14} className="mr-1.5"/> {busy ? "Synchronizing Records..." : "Commit Update Changes"}
-          </button>
-          <button type="button" onClick={onClose} className="px-4 py-3 border border-border rounded-xl text-xs uppercase tracking-wider font-bold text-muted-foreground hover:text-foreground hover:bg-muted/50 transition">Cancel</button>
+          </Button>
+          <Button type="button" onClick={onClose} className="px-4 py-3 border border-border rounded-xl text-xs uppercase tracking-wider font-bold text-muted-foreground hover:text-foreground hover:bg-muted/50 transition">Cancel</Button>
         </div>
       </form>
     </div>

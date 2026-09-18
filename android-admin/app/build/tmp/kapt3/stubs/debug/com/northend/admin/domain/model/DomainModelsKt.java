@@ -1,5 +1,20 @@
 package com.northend.admin.domain.model;
 
+import com.northend.admin.data.remote.AuditLog;
+import com.northend.admin.data.remote.Branch;
+import com.northend.admin.data.remote.MetaResponse;
+import com.northend.admin.data.remote.User;
+import com.northend.admin.data.remote.models.AttendanceLog;
+import com.northend.admin.data.remote.models.BranchRow;
+import com.northend.admin.data.remote.models.CounsellorRow;
+import com.northend.admin.data.remote.models.DashboardBranchResponse;
+import com.northend.admin.data.remote.models.DashboardSuperResponse;
+import com.northend.admin.data.remote.models.Expense;
+import com.northend.admin.data.remote.models.Lead;
+import com.northend.admin.data.remote.models.LeadInteraction;
+import com.northend.admin.data.remote.models.Payment;
+import com.northend.admin.data.remote.models.Student;
+
 @kotlin.Metadata(mv = {1, 9, 0}, k = 2, xi = 48, d1 = {"\u0000V\n\u0000\n\u0002\u0018\u0002\n\u0000\n\u0002\u0018\u0002\n\u0000\n\u0002\u0018\u0002\n\u0000\n\u0002\u0018\u0002\n\u0000\n\u0002\u0018\u0002\n\u0000\n\u0002\u0018\u0002\n\u0000\n\u0002\u0018\u0002\n\u0000\n\u0002\u0018\u0002\n\u0000\n\u0002\u0018\u0002\n\u0000\n\u0002\u0018\u0002\n\u0000\n\u0002\u0018\u0002\n\u0000\n\u0002\u0018\u0002\n\u0000\n\u0002\u0018\u0002\n\u0000\n\u0002\u0018\u0002\n\u0000*\n\u0010\u0000\"\u00020\u00012\u00020\u0001*\n\u0010\u0002\"\u00020\u00032\u00020\u0003*\n\u0010\u0004\"\u00020\u00052\u00020\u0005*\n\u0010\u0006\"\u00020\u00072\u00020\u0007*\n\u0010\b\"\u00020\t2\u00020\t*\n\u0010\n\"\u00020\u000b2\u00020\u000b*\n\u0010\f\"\u00020\r2\u00020\r*\n\u0010\u000e\"\u00020\u000f2\u00020\u000f*\n\u0010\u0010\"\u00020\u00112\u00020\u0011*\n\u0010\u0012\"\u00020\u00132\u00020\u0013*\n\u0010\u0014\"\u00020\u00152\u00020\u0015*\n\u0010\u0016\"\u00020\u00172\u00020\u0017*\n\u0010\u0018\"\u00020\u00192\u00020\u0019*\n\u0010\u001a\"\u00020\u001b2\u00020\u001b\u00a8\u0006\u001c"}, d2 = {"AttendanceLog", "Lcom/northend/admin/data/remote/models/AttendanceLog;", "AuditLog", "Lcom/northend/admin/data/remote/AuditLog;", "Branch", "Lcom/northend/admin/data/remote/Branch;", "BranchRow", "Lcom/northend/admin/data/remote/models/BranchRow;", "CounsellorRow", "Lcom/northend/admin/data/remote/models/CounsellorRow;", "DashboardBranchResponse", "Lcom/northend/admin/data/remote/models/DashboardBranchResponse;", "DashboardSuperResponse", "Lcom/northend/admin/data/remote/models/DashboardSuperResponse;", "Expense", "Lcom/northend/admin/data/remote/models/Expense;", "Lead", "Lcom/northend/admin/data/remote/models/Lead;", "LeadInteraction", "Lcom/northend/admin/data/remote/models/LeadInteraction;", "MetaResponse", "Lcom/northend/admin/data/remote/MetaResponse;", "Payment", "Lcom/northend/admin/data/remote/models/Payment;", "Student", "Lcom/northend/admin/data/remote/models/Student;", "User", "Lcom/northend/admin/data/remote/User;", "app_debug"})
 public final class DomainModelsKt {
 }

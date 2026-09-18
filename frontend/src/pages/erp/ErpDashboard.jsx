@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Button } from "@/components/ui/button";
 import { useOutletContext, Link } from "react-router-dom";
 import { erp, isSuper, isFinance, isManagerPlus, fmtINR, fmtDate, extractItems, STUDENT_CLASSES, STUDENT_COURSES, getValidCoursesForClass } from "@/lib/erpApi";
 import { formatError, api, API_BASE } from "@/lib/api";
@@ -115,36 +116,36 @@ export default function ErpDashboard() {
 
         {/* Command Quick Actions Bar */}
         <div className="flex flex-wrap items-center gap-2 sm:gap-3 w-full md:w-auto">
-          <button onClick={() => setActiveModal("duelist")} className="inline-flex items-center gap-1.5 px-3 py-2 sm:px-4 sm:py-2 rounded-full bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 text-xs font-bold uppercase tracking-wider transition border border-amber-500/20 shadow-md whitespace-nowrap">
+          <Button onClick={() => setActiveModal("duelist")} className="inline-flex items-center gap-1.5 px-3 py-2 sm:px-4 sm:py-2 rounded-full bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 text-xs font-bold uppercase tracking-wider transition border border-amber-500/20 shadow-md whitespace-nowrap">
             <Clock size={14} /> <span className="whitespace-nowrap">Today's Dues</span>
-          </button>
+          </Button>
           {erpUser.role !== "counsellor" && (
-            <button onClick={() => setActiveModal("admission")} className="inline-flex items-center gap-1.5 px-3 py-2 sm:px-4 sm:py-2 rounded-full bg-primary text-primary-foreground text-xs font-bold uppercase tracking-wider hover:bg-primary/90 transition shadow-lg whitespace-nowrap">
+            <Button onClick={() => setActiveModal("admission")} className="inline-flex items-center gap-1.5 px-3 py-2 sm:px-4 sm:py-2 rounded-full bg-primary text-primary-foreground text-xs font-bold uppercase tracking-wider hover:bg-primary/90 transition shadow-lg whitespace-nowrap">
               <Plus size={14} /> <span className="whitespace-nowrap">New Admission</span>
-            </button>
+            </Button>
           )}
           {isSuper(erpUser) && (
-            <button onClick={() => setShowFeeMatrix(true)} className="inline-flex items-center gap-1.5 px-3 py-2 sm:px-4 sm:py-2 rounded-full bg-accent/10 hover:bg-accent/20 text-accent text-xs font-bold uppercase tracking-wider transition border border-accent/20 shadow-md whitespace-nowrap">
+            <Button onClick={() => setShowFeeMatrix(true)} className="inline-flex items-center gap-1.5 px-3 py-2 sm:px-4 sm:py-2 rounded-full bg-accent/10 hover:bg-accent/20 text-accent text-xs font-bold uppercase tracking-wider transition border border-accent/20 shadow-md whitespace-nowrap">
               <span className="whitespace-nowrap">Fee Matrix</span>
-            </button>
+            </Button>
           )}
           {canSeeFinance && (
-            <button onClick={() => setActiveModal("expense")} className="inline-flex items-center gap-1.5 px-3 py-2 sm:px-4 sm:py-2 rounded-full bg-muted/50 hover:bg-muted/80 text-foreground text-xs font-bold uppercase tracking-wider transition whitespace-nowrap">
+            <Button onClick={() => setActiveModal("expense")} className="inline-flex items-center gap-1.5 px-3 py-2 sm:px-4 sm:py-2 rounded-full bg-muted/50 hover:bg-muted/80 text-foreground text-xs font-bold uppercase tracking-wider transition whitespace-nowrap">
               <Wallet size={14} /> <span className="whitespace-nowrap">Add Expense</span>
-            </button>
+            </Button>
           )}
-          <button onClick={() => setActiveModal("students")} className="inline-flex items-center gap-1.5 px-3 py-2 sm:px-4 sm:py-2 rounded-full bg-muted/50 hover:bg-muted/50 text-muted-foreground hover:text-foreground text-xs font-bold uppercase tracking-wider transition border border-border whitespace-nowrap">
+          <Button onClick={() => setActiveModal("students")} className="inline-flex items-center gap-1.5 px-3 py-2 sm:px-4 sm:py-2 rounded-full bg-muted/50 hover:bg-muted/50 text-muted-foreground hover:text-foreground text-xs font-bold uppercase tracking-wider transition border border-border whitespace-nowrap">
             <Users size={14} /> <span className="whitespace-nowrap">Records</span>
-          </button>
+          </Button>
           {canSeeFinance && (
-            <button onClick={() => setActiveModal("cashbook")} className="inline-flex items-center gap-1.5 px-3 py-2 sm:px-4 sm:py-2 rounded-full bg-muted/50 hover:bg-muted/50 text-muted-foreground hover:text-foreground text-xs font-bold uppercase tracking-wider transition border border-border whitespace-nowrap">
+            <Button onClick={() => setActiveModal("cashbook")} className="inline-flex items-center gap-1.5 px-3 py-2 sm:px-4 sm:py-2 rounded-full bg-muted/50 hover:bg-muted/50 text-muted-foreground hover:text-foreground text-xs font-bold uppercase tracking-wider transition border border-border whitespace-nowrap">
               <IndianRupee size={14} /> <span className="whitespace-nowrap">Cashbook</span>
-            </button>
+            </Button>
           )}
           {canSeeFinance && (
-            <button onClick={() => setActiveModal("outflow")} className="inline-flex items-center gap-1.5 px-3 py-2 sm:px-4 sm:py-2 rounded-full bg-muted/50 hover:bg-muted/50 text-muted-foreground hover:text-foreground text-xs font-bold uppercase tracking-wider transition border border-border whitespace-nowrap">
+            <Button onClick={() => setActiveModal("outflow")} className="inline-flex items-center gap-1.5 px-3 py-2 sm:px-4 sm:py-2 rounded-full bg-muted/50 hover:bg-muted/50 text-muted-foreground hover:text-foreground text-xs font-bold uppercase tracking-wider transition border border-border whitespace-nowrap">
               <Layers size={14} /> <span className="whitespace-nowrap">Outflow</span>
-            </button>
+            </Button>
           )}
         </div>
       </div>
@@ -258,7 +259,7 @@ function TodayDueListModal({ erpUser, onClose }) {
               <h2 className="font-display text-3xl font-light tracking-tight mt-1">Due Tracking Register</h2>
               <p className="text-muted-foreground text-sm mt-1">Live algorithmic compilation matching isolated backend statement states.</p>
             </div>
-            <button onClick={onClose} className="p-2 border border-border rounded-xl hover:bg-muted/50 transition"><X size={16}/></button>
+            <Button onClick={onClose} className="p-2 border border-border rounded-xl hover:bg-muted/50 transition"><X size={16}/></Button>
           </div>
 
           <div className="relative w-full shrink-0">
@@ -304,12 +305,12 @@ function TodayDueListModal({ erpUser, onClose }) {
                         </div>
                       </td>
                       <td className="px-5 py-4 text-right">
-                        <button 
+                        <Button 
                           onClick={() => triggeringWhatsAppNudge(s)} 
                           className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-500/10 text-emerald-600 hover:bg-emerald-500/20 text-xs font-bold transition duration-300 border border-emerald-500/10 shadow-sm"
                         >
                           <MessageSquare size={13}/> Nudge
-                        </button>
+                        </Button>
                       </td>
                     </tr>
                   ))}
@@ -347,7 +348,7 @@ function SuperView({ d }) {
         <div className="lg:col-span-2 glass-elevated rounded-2xl p-6 border border-border">
           <div className="flex justify-between items-center mb-6">
             <h3 className="font-display font-medium text-lg">Financial Overview (All Branches)</h3>
-            <button className="text-xs font-bold bg-muted hover:bg-muted/80 text-foreground px-3 py-1.5 rounded-lg transition border border-border">Download Report</button>
+            <Button className="text-xs font-bold bg-muted hover:bg-muted/80 text-foreground px-3 py-1.5 rounded-lg transition border border-border">Download Report</Button>
           </div>
           <div className="h-[300px] w-full min-w-0" style={{ minWidth: 0, minHeight: 300 }}>
             <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
@@ -374,8 +375,8 @@ function SuperView({ d }) {
         <div className="px-6 py-5 border-b border-border flex items-center justify-between">
           <h3 className="font-display font-medium text-lg">Branch Metrics Summary</h3>
           <div className="flex gap-2">
-            <button className="text-[10px] uppercase tracking-wider font-bold bg-primary/10 text-primary px-3 py-1.5 rounded-md transition border border-primary/20">All Time</button>
-            <button className="text-[10px] uppercase tracking-wider font-bold bg-muted text-muted-foreground hover:bg-muted/80 px-3 py-1.5 rounded-md transition">This Month</button>
+            <Button className="text-[10px] uppercase tracking-wider font-bold bg-primary/10 text-primary px-3 py-1.5 rounded-md transition border border-primary/20">All Time</Button>
+            <Button className="text-[10px] uppercase tracking-wider font-bold bg-muted text-muted-foreground hover:bg-muted/80 px-3 py-1.5 rounded-md transition">This Month</Button>
           </div>
           <FileText size={18} className="text-muted-foreground" />
         </div>
@@ -550,7 +551,7 @@ function CashbookViewModal({ erpUser, onClose }) {
               <a href={`${API_BASE}/erp/exports/payments.xlsx`} target="_blank" rel="noreferrer" className="p-2 border border-border rounded-xl hover:bg-muted/50 transition">
                 <Download size={16}/>
               </a>
-              <button onClick={onClose} className="p-2 border border-border rounded-xl hover:bg-muted/50 transition"><X size={16}/></button>
+              <Button onClick={onClose} className="p-2 border border-border rounded-xl hover:bg-muted/50 transition"><X size={16}/></Button>
             </div>
           </div>
 
@@ -630,7 +631,7 @@ function StudentsViewModal({ erpUser, onClose }) {
             <a href={`${API_BASE}/erp/exports/students.xlsx`} target="_blank" rel="noreferrer" className="p-2 border border-border rounded-xl hover:bg-muted/50 transition">
               <Download size={16}/>
             </a>
-            <button onClick={onClose} className="p-2 border border-border rounded-xl hover:bg-muted/50 transition"><X size={16}/></button>
+            <Button onClick={onClose} className="p-2 border border-border rounded-xl hover:bg-muted/50 transition"><X size={16}/></Button>
           </div>
         </div>
 
@@ -729,7 +730,7 @@ function ExpensesViewModal({ erpUser, onClose, refreshRoot }) {
               <a href={`${API_BASE}/erp/exports/expenses.xlsx`} target="_blank" rel="noreferrer" className="p-2 border border-border rounded-xl hover:bg-muted/50 transition">
                 <Download size={16}/>
               </a>
-              <button onClick={onClose} className="p-2 border border-border rounded-xl hover:bg-muted/50 transition"><X size={16}/></button>
+              <Button onClick={onClose} className="p-2 border border-border rounded-xl hover:bg-muted/50 transition"><X size={16}/></Button>
             </div>
           </div>
 
@@ -778,8 +779,8 @@ function ExpensesViewModal({ erpUser, onClose, refreshRoot }) {
                       <td className="px-4 py-3.5 text-right whitespace-nowrap">
                         {isManagerPlus(erpUser) && e.status === "pending" && (
                           <div className="flex gap-1.5 justify-end">
-                            <button onClick={() => handleDecision(e.id, "approve")} className="p-1 text-emerald-600 hover:bg-emerald-500/10 border border-emerald-500/0 hover:border-emerald-500/20 rounded-lg transition duration-200"><Check size={14}/></button>
-                            <button onClick={() => handleDecision(e.id, "reject")} className="p-1 text-rose-600 hover:bg-rose-500/10 border border-rose-500/0 hover:border-rose-500/20 rounded-lg transition duration-200"><Ban size={14}/></button>
+                            <Button onClick={() => handleDecision(e.id, "approve")} className="p-1 text-emerald-600 hover:bg-emerald-500/10 border border-emerald-500/0 hover:border-emerald-500/20 rounded-lg transition duration-200"><Check size={14}/></Button>
+                            <Button onClick={() => handleDecision(e.id, "reject")} className="p-1 text-rose-600 hover:bg-rose-500/10 border border-rose-500/0 hover:border-rose-500/20 rounded-lg transition duration-200"><Ban size={14}/></Button>
                           </div>
                         )}
                       </td>
@@ -938,7 +939,7 @@ function CreateStudentModal({ erpUser, onClose, onCreated }) {
             <div className="text-xs uppercase tracking-[0.2em] font-bold text-accent">Admission Interface Layer</div>
             <h3 className="font-display text-2xl font-medium mt-1">Enroll New Student</h3>
           </div>
-          <button type="button" onClick={onClose} className="p-1 hover:bg-muted/50 rounded-lg"><X size={18}/></button>
+          <Button type="button" onClick={onClose} className="p-1 hover:bg-muted/50 rounded-lg"><X size={18}/></Button>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -1075,7 +1076,7 @@ function CreateStudentModal({ erpUser, onClose, onCreated }) {
           <textarea value={form.notes} onChange={e => setForm({...form, notes: e.target.value})} placeholder="Any feedback or questions..." rows={2} className={inputCls} />
         </div>
 
-        <button disabled={busy} type="submit" className="w-full py-3 bg-primary text-primary-foreground rounded-xl font-bold uppercase tracking-wider text-xs disabled:opacity-50 transition shadow-lg">{busy ? "Committing Entry Parameters…" : "Submit Admission"}</button>
+        <Button disabled={busy} type="submit" className="w-full py-3 bg-primary text-primary-foreground rounded-xl font-bold uppercase tracking-wider text-xs disabled:opacity-50 transition shadow-lg">{busy ? "Committing Entry Parameters…" : "Submit Admission"}</Button>
       </form>
     </div>
   );
@@ -1109,7 +1110,7 @@ function CreateExpenseModal({ erpUser, onClose, onCreated }) {
             <div className="text-xs uppercase tracking-[0.2em] font-bold text-accent">Auditing &amp; Balances</div>
             <h3 className="font-display text-2xl font-medium mt-1">Record Cost Outflow</h3>
           </div>
-          <button type="button" onClick={onClose} className="p-1 hover:bg-muted/50 rounded-lg"><X size={18}/></button>
+          <Button type="button" onClick={onClose} className="p-1 hover:bg-muted/50 rounded-lg"><X size={18}/></Button>
         </div>
 
         {isSuper(erpUser) && (
@@ -1133,7 +1134,7 @@ function CreateExpenseModal({ erpUser, onClose, onCreated }) {
           <InputCard label="Recipient Vendor / Party" v={form.vendor} on={v => setForm({...form, vendor: v})} />
           <InputCard label="Transaction Date *" type="date" v={form.expense_date} on={v => setForm({...form, expense_date: v})} req />
         </div>
-        <button disabled={busy} type="submit" className="w-full py-3 bg-primary text-primary-foreground rounded-xl font-bold uppercase tracking-wider text-xs transition shadow-lg">{busy ? "Writing Matrix State…" : "Commit Cost Outflow Statement"}</button>
+        <Button disabled={busy} type="submit" className="w-full py-3 bg-primary text-primary-foreground rounded-xl font-bold uppercase tracking-wider text-xs transition shadow-lg">{busy ? "Writing Matrix State…" : "Commit Cost Outflow Statement"}</Button>
       </form>
     </div>
   );

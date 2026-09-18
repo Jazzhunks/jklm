@@ -1,28 +1,27 @@
-with open("android-admin/gradle/libs.versions.toml", 'r') as f:
+import re
+
+with open('android-admin/gradle/libs.versions.toml', 'r') as f:
     lines = f.readlines()
 
 new_lines = []
-in_plugins = False
 for line in lines:
-    if line.strip() == 'detekt = "1.23.4"':
+    if line.strip() == 'room = "2.6.1"' or line.strip() == 'ksp = "1.9.22-1.0.17"' or line.strip() == '[libraries]' or line.strip() == 'room-runtime = { group = "androidx.room", name = "room-runtime", version.ref = "room" }' or line.strip() == 'room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "room" }' or line.strip() == 'room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = "room" }' or line.strip() == '[plugins]' or line.strip() == 'ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }':
         continue
-    if line.strip() == '[plugins]' and in_plugins:
-        continue
-    if line.strip() == 'detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }':
-        continue
-    if line.strip() == '[plugins]':
-        in_plugins = True
     new_lines.append(line)
 
-with open("android-admin/gradle/libs.versions.toml", 'w') as f:
-    f.writelines(new_lines)
-    
-# manually insert properly
-with open("android-admin/gradle/libs.versions.toml", 'r') as f:
-    content = f.read()
+out = ""
+for line in new_lines:
+    if line.strip() == "[libraries]":
+        out += 'room = "2.6.1"\n'
+        out += 'ksp = "1.9.22-1.0.17"\n\n'
+    out += line
+    if line.strip() == "[libraries]":
+        out += 'room-runtime = { group = "androidx.room", name = "room-runtime", version.ref = "room" }\n'
+        out += 'room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "room" }\n'
+        out += 'room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = "room" }\n'
+    if line.strip() == "[plugins]":
+        out += 'ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }\n'
 
-content = content.replace('[versions]', '[versions]\ndetekt = "1.23.4"')
-content = content.replace('[plugins]', '[plugins]\ndetekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }')
+with open('android-admin/gradle/libs.versions.toml', 'w') as f:
+    f.write(out)
 
-with open("android-admin/gradle/libs.versions.toml", 'w') as f:
-    f.write(content)

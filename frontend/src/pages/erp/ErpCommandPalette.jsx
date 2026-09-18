@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { erp } from "@/lib/erpApi";
 import { 
@@ -141,9 +142,9 @@ export default function ErpCommandPalette({ isOpen, onClose, onAction, erpUser }
             data-testid="command-palette-input"
           />
           {query && (
-            <button onClick={() => setQuery("")} className="text-muted-foreground hover:text-foreground">
+            <Button onClick={() => setQuery("")} className="text-muted-foreground hover:text-foreground">
               <X size={16} />
-            </button>
+            </Button>
           )}
           <kbd className="hidden sm:inline-flex items-center gap-1 px-2 py-0.5 text-[10px] font-mono font-semibold text-muted-foreground bg-muted rounded border border-border">
             ESC

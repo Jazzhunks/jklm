@@ -435,7 +435,7 @@ function MessageBubble({ m }) {
         
         {img && (
           <div className="mb-2">
-            <img src={img.link} alt={img.caption || "Image attachment"} className="rounded-xl max-h-60 w-full object-cover" />
+            <img loading="lazy" src={img.link} alt={img.caption || "Image attachment"} className="rounded-xl max-h-60 w-full object-cover" />
           </div>
         )}
 

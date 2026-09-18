@@ -1,4 +1,5 @@
 import { useEffect, useState, useCallback } from "react";
+import { Button } from "@/components/ui/button";
 import { useOutletContext } from "react-router-dom";
 import { toast } from "sonner";
 import { erp, isSuper, extractItems } from "@/lib/erpApi";
@@ -122,13 +123,13 @@ export default function ErpIdCards() {
         </div>
         <div className="flex items-center gap-3">
           {selectedIds.size > 0 && (
-            <button onClick={clearSelection} className="px-3 py-2 border border-border rounded-xl text-xs uppercase tracking-wider font-bold text-muted-foreground hover:text-foreground transition bg-background/30">
+            <Button onClick={clearSelection} className="px-3 py-2 border border-border rounded-xl text-xs uppercase tracking-wider font-bold text-muted-foreground hover:text-foreground transition bg-background/30">
               Clear Choice ({selectedIds.size})
-            </button>
+            </Button>
           )}
-          <button onClick={handleGenerateAndPrint} disabled={generating || selectedIds.size === 0} className="px-4 py-2.5 bg-primary text-primary-foreground rounded-xl text-xs uppercase tracking-wider font-bold flex items-center gap-2 hover:bg-primary/90 shadow-lg transition disabled:opacity-50">
+          <Button onClick={handleGenerateAndPrint} disabled={generating || selectedIds.size === 0} className="px-4 py-2.5 bg-primary text-primary-foreground rounded-xl text-xs uppercase tracking-wider font-bold flex items-center gap-2 hover:bg-primary/90 shadow-lg transition disabled:opacity-50">
             <Printer size={14}/> {generating ? "Generating..." : "Generate & Download ID Cards"}
-          </button>
+          </Button>
         </div>
       </div>
 

@@ -15,7 +15,6 @@ import java.lang.reflect.Constructor
 import kotlin.Int
 import kotlin.String
 import kotlin.Suppress
-import kotlin.Unit
 import kotlin.collections.emptySet
 import kotlin.jvm.Volatile
 import kotlin.text.buildString
@@ -31,10 +30,10 @@ public class PhotoResponseJsonAdapter(
   @Volatile
   private var constructorRef: Constructor<PhotoResponse>? = null
 
-  public override fun toString(): String = buildString(35) {
+  override fun toString(): String = buildString(35) {
       append("GeneratedJsonAdapter(").append("PhotoResponse").append(')') }
 
-  public override fun fromJson(reader: JsonReader): PhotoResponse {
+  override fun fromJson(reader: JsonReader): PhotoResponse {
     var photoUrl: String? = null
     var mask0 = -1
     reader.beginObject()
@@ -73,7 +72,7 @@ public class PhotoResponseJsonAdapter(
     }
   }
 
-  public override fun toJson(writer: JsonWriter, value_: PhotoResponse?): Unit {
+  override fun toJson(writer: JsonWriter, value_: PhotoResponse?) {
     if (value_ == null) {
       throw NullPointerException("value_ was null! Wrap in .nullSafe() to write nullable values.")
     }

@@ -28,7 +28,7 @@ export function usePushNotifications() {
         localStorage.getItem("nw_device_id") || crypto.randomUUID();
       localStorage.setItem("nw_device_id", deviceId);
 
-      await api.post("/api/admin/devices", {
+      await api.post("/admin/devices", {
         device_id: deviceId,
         platform: "web",
         user_agent: navigator.userAgent,

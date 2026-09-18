@@ -14,7 +14,6 @@ import com.squareup.moshi.`internal`.Util
 import java.lang.NullPointerException
 import kotlin.String
 import kotlin.Suppress
-import kotlin.Unit
 import kotlin.collections.List
 import kotlin.collections.emptySet
 import kotlin.text.buildString
@@ -28,10 +27,10 @@ public class WhatsAppMessagesResponseJsonAdapter(
       moshi.adapter(Types.newParameterizedType(List::class.java, WhatsAppMessage::class.java),
       emptySet(), "items")
 
-  public override fun toString(): String = buildString(46) {
+  override fun toString(): String = buildString(46) {
       append("GeneratedJsonAdapter(").append("WhatsAppMessagesResponse").append(')') }
 
-  public override fun fromJson(reader: JsonReader): WhatsAppMessagesResponse {
+  override fun fromJson(reader: JsonReader): WhatsAppMessagesResponse {
     var items: List<WhatsAppMessage>? = null
     reader.beginObject()
     while (reader.hasNext()) {
@@ -51,7 +50,7 @@ public class WhatsAppMessagesResponseJsonAdapter(
     )
   }
 
-  public override fun toJson(writer: JsonWriter, value_: WhatsAppMessagesResponse?): Unit {
+  override fun toJson(writer: JsonWriter, value_: WhatsAppMessagesResponse?) {
     if (value_ == null) {
       throw NullPointerException("value_ was null! Wrap in .nullSafe() to write nullable values.")
     }

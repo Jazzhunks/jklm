@@ -50,7 +50,7 @@ function Navbar() {
     >
       <div className="max-w-7xl mx-auto flex items-center justify-between h-12">
         <Link to="/" className="flex items-center gap-3 group shrink-0" data-testid="logo-link">
-          <img src="/logo.svg" alt="Unacademy Kashmir" className="h-6 w-auto object-contain" />
+          <img loading="lazy" src="/logo.svg" alt="Unacademy Kashmir" className="h-6 w-auto object-contain" />
         </Link>
 
         {/* Desktop Navigation Link Track */}

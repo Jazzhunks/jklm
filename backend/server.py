@@ -816,6 +816,13 @@ async def register(payload: RegisterIn, response: Response, background: Backgrou
         raise HTTPException(400, "Email already registered")
     if payload.phone and await db.users.find_one({"phone": payload.phone.strip()}):
         raise HTTPException(400, "Phone number already registered")
+        
+    if payload.phone:
+        otp_record = await db.otps.find_one({"phone": payload.phone.strip(), "action": "register", "verified": True})
+        if not otp_record:
+            raise HTTPException(400, "Phone number not verified via OTP")
+        await db.otps.delete_one({"_id": otp_record["_id"]})
+
     user_id = new_id()
     role = "school" if payload.school_name else "student"
     doc = {
@@ -898,7 +905,7 @@ async def send_otp(payload: SendOtpIn):
         expires_at = datetime.utcnow() + timedelta(minutes=5)
         await db.otps.update_one(
             {"phone": phone, "action": payload.action},
-            {"$set": {"code": code, "expires_at": expires_at}},
+            {"$set": {"code": code, "expires_at": expires_at, "attempts": 0}},
             upsert=True
         )
     
@@ -916,8 +923,16 @@ async def verify_otp(payload: VerifyOtpIn, response: Response):
     
     if not record:
         raise HTTPException(400, "OTP not found for this number/action")
+        
+    attempts = record.get("attempts", 0)
+    if attempts >= 5:
+        await db.otps.delete_one({"_id": record["_id"]})
+        raise HTTPException(429, "Too many failed attempts. Please request a new OTP.")
+        
     if record["code"] != payload.code:
+        await db.otps.update_one({"_id": record["_id"]}, {"$inc": {"attempts": 1}})
         raise HTTPException(400, f"OTP mismatch (expected {record['code']}, got {payload.code})")
+        
     if record["expires_at"] < datetime.utcnow():
         raise HTTPException(400, "OTP has expired")
         
@@ -937,8 +952,7 @@ async def verify_otp(payload: VerifyOtpIn, response: Response):
             raise HTTPException(500, f"Login processing failed: {repr(e)}")
         
     elif payload.action == "register":
-        # Just return ok, meaning frontend can proceed with creating account
-        await db.otps.delete_one({"_id": record["_id"]})
+        await db.otps.update_one({"_id": record["_id"]}, {"$set": {"verified": True}})
         return {"ok": True}
         
     return {"ok": True}
@@ -952,8 +966,16 @@ async def reset_password(payload: ResetPasswordIn):
     
     if not record:
         raise HTTPException(400, "OTP not found for this number/action")
+        
+    attempts = record.get("attempts", 0)
+    if attempts >= 5:
+        await db.otps.delete_one({"_id": record["_id"]})
+        raise HTTPException(429, "Too many failed attempts. Please request a new OTP.")
+        
     if record["code"] != payload.code:
+        await db.otps.update_one({"_id": record["_id"]}, {"$inc": {"attempts": 1}})
         raise HTTPException(400, f"OTP mismatch (expected {record['code']}, got {payload.code})")
+        
     if record["expires_at"] < datetime.utcnow():
         raise HTTPException(400, "OTP has expired")
         

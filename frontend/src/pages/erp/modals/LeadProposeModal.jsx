@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { Button } from "@/components/ui/button";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { erp, STUDENT_CLASSES, STUDENT_COURSES, getValidCoursesForClass } from "@/lib/erpApi";
@@ -65,8 +66,8 @@ export default function LeadProposeModal({ lead, onClose }) {
         <textarea value={form.notes} onChange={e => setForm({...form, notes: e.target.value})} className="w-full p-2 text-sm border border-border bg-card rounded min-h-[60px]" /></div>
         
         <div className="flex gap-2 justify-end pt-2">
-          <button type="button" onClick={onClose} className="px-3 py-1.5 text-sm text-muted-foreground hover:text-foreground">Cancel</button>
-          <button type="submit" disabled={propose.isPending} className="px-3 py-1.5 text-sm bg-primary text-primary-foreground font-bold rounded hover:bg-primary/90">{propose.isPending ? "Submitting..." : "Submit Proposal"}</button>
+          <Button type="button" onClick={onClose} className="px-3 py-1.5 text-sm text-muted-foreground hover:text-foreground">Cancel</Button>
+          <Button type="submit" disabled={propose.isPending} className="px-3 py-1.5 text-sm bg-primary text-primary-foreground font-bold rounded hover:bg-primary/90">{propose.isPending ? "Submitting..." : "Submit Proposal"}</Button>
         </div>
       </form>
     </div>

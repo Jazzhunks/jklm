@@ -3,6 +3,7 @@ import { useEffect } from 'react';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { queryClient } from './queryClient';
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { Loader2 } from "lucide-react";
 import { Toaster } from "sonner";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { useOneSignal } from "@/hooks/useOneSignal";
@@ -95,7 +96,7 @@ export default function App() {
         <ScrollToTop />
         <OneSignalBridge />
         <Toaster position="top-right" richColors />
-        <Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="text-muted-foreground">Loading…</div></div>}>
+        <Suspense fallback={<div className="flex items-center justify-center min-h-screen"><Loader2 className="w-8 h-8 animate-spin text-muted-foreground/50" /></div>}>
           <Routes>
             <Route path="/examiner" element={<Examiner />} />
             

@@ -1,4 +1,5 @@
 import { createPortal } from 'react-dom';
+import { Button } from "@/components/ui/button";
 import { useState, useRef } from "react";
 import { API_BASE, formatError } from "@/lib/api";
 import { fmtINR, fmtDate } from "@/lib/erpApi";
@@ -111,14 +112,14 @@ export default function ReceiptModal({ payment, student, onClose }) {
           </div>
 
           <div className="flex items-center gap-2">
-            <button 
+            <Button 
               onClick={handleBrowserPrint}
               className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-primary text-primary-foreground rounded-xl text-xs uppercase tracking-wider font-bold shadow hover:opacity-90 transition"
               title="Direct Print (Thermal or A4)"
               data-testid="receipt-print-btn"
             >
               <Printer size={14} /> Print
-            </button>
+            </Button>
             <a 
               href={pdfDownloadUrl}
               target="_blank"
@@ -128,20 +129,20 @@ export default function ReceiptModal({ payment, student, onClose }) {
             >
               <Download size={14} /> PDF
             </a>
-            <button 
+            <Button 
               onClick={handleShareWhatsApp}
               className="inline-flex items-center gap-1.5 px-3 py-1.5 border border-emerald-500/20 bg-emerald-500/10 text-emerald-600 rounded-xl text-xs uppercase tracking-wider font-bold hover:bg-emerald-500/20 transition"
               title="Share receipt via WhatsApp"
               data-testid="receipt-whatsapp-btn"
             >
               <Share2 size={14} /> WhatsApp
-            </button>
-            <button 
+            </Button>
+            <Button 
               onClick={onClose} 
               className="p-1.5 rounded-xl border border-transparent hover:border-border hover:bg-muted/50 text-muted-foreground hover:text-foreground transition ml-1"
             >
               <X size={18} />
-            </button>
+            </Button>
           </div>
         </div>
 
@@ -149,7 +150,7 @@ export default function ReceiptModal({ payment, student, onClose }) {
         <div className="px-6 py-3 border-b border-border bg-muted/40 flex flex-wrap items-center justify-between gap-3 shrink-0">
           <div className="flex items-center gap-1.5 text-xs">
             <span className="font-bold text-muted-foreground uppercase tracking-wider mr-1">Output Media:</span>
-            <button
+            <Button
               onClick={() => setFormat("a4")}
               className={`px-3 py-1.5 rounded-lg font-bold text-xs uppercase tracking-wider transition ${
                 format === "a4" 
@@ -159,8 +160,8 @@ export default function ReceiptModal({ payment, student, onClose }) {
               data-testid="format-a4-btn"
             >
               📄 A4 Standard (Sheet)
-            </button>
-            <button
+            </Button>
+            <Button
               onClick={() => setFormat("thermal-80")}
               className={`px-3 py-1.5 rounded-lg font-bold text-xs uppercase tracking-wider transition ${
                 format === "thermal-80" 
@@ -170,8 +171,8 @@ export default function ReceiptModal({ payment, student, onClose }) {
               data-testid="format-thermal-80-btn"
             >
               🧾 Thermal POS 80mm (3")
-            </button>
-            <button
+            </Button>
+            <Button
               onClick={() => setFormat("thermal-58")}
               className={`px-3 py-1.5 rounded-lg font-bold text-xs uppercase tracking-wider transition ${
                 format === "thermal-58" 
@@ -181,13 +182,13 @@ export default function ReceiptModal({ payment, student, onClose }) {
               data-testid="format-thermal-58-btn"
             >
               🧾 Thermal POS 58mm (2")
-            </button>
+            </Button>
           </div>
 
           <div className="flex items-center gap-2 text-xs text-muted-foreground">
-            <button onClick={handleCopyLink} className="inline-flex items-center gap-1 hover:text-foreground font-mono">
+            <Button onClick={handleCopyLink} className="inline-flex items-center gap-1 hover:text-foreground font-mono">
               <Copy size={12}/> Copy Link
-            </button>
+            </Button>
             <span>•</span>
             <span className="font-mono">{format === "a4" ? "Tax Invoice (210×297mm)" : format === "thermal-80" ? "Continuous Roll (80mm)" : "Mini Roll (58mm)"}</span>
           </div>
@@ -398,19 +399,19 @@ export default function ReceiptModal({ payment, student, onClose }) {
           </div>
 
           <div className="flex gap-2">
-            <button
+            <Button
               onClick={handleBrowserPrint}
               className="px-4 py-2 bg-primary text-primary-foreground rounded-xl font-bold text-xs uppercase tracking-wider hover:opacity-90 transition flex items-center gap-1.5 shadow"
             >
               <Printer size={13} /> Print on {format === "a4" ? "A4" : format === "thermal-80" ? "80mm POS" : "58mm POS"}
-            </button>
-            <button
+            </Button>
+            <Button
               type="button"
               onClick={onClose}
               className="px-4 py-2 border border-border rounded-xl text-xs uppercase tracking-wider font-bold text-muted-foreground hover:text-foreground hover:bg-muted/50 transition"
             >
               Close
-            </button>
+            </Button>
           </div>
         </div>
       </div>

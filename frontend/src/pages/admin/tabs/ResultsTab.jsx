@@ -91,7 +91,7 @@ export default function ResultsTab({ innerSearch }) {
           {results.map((r) => (
             <div key={r.id} className="glass border border-border p-4 rounded-2xl flex gap-4 transition-all hover:bg-muted/50 bg-background/30 group relative overflow-hidden">
               <div className="h-16 w-16 shrink-0 rounded-xl bg-muted/50 border border-border overflow-hidden">
-                {r.photo_url ? <img src={r.photo_url} alt={r.student_name} className="w-full h-full object-cover" loading="lazy" /> : <div className="w-full h-full flex items-center justify-center text-xs font-bold text-muted-foreground bg-background">{r.student_name.slice(0, 2).toUpperCase()}</div>}
+                {r.photo_url ? <img loading="lazy" src={r.photo_url} alt={r.student_name} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center text-xs font-bold text-muted-foreground bg-background">{r.student_name.slice(0, 2).toUpperCase()}</div>}
               </div>
               <div className="min-w-0 flex-1">
                 <div className="font-bold text-foreground text-base truncate pr-14">{r.student_name}</div>

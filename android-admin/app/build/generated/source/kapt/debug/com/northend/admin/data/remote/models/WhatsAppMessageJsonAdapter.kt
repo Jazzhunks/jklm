@@ -15,7 +15,6 @@ import java.lang.reflect.Constructor
 import kotlin.Int
 import kotlin.String
 import kotlin.Suppress
-import kotlin.Unit
 import kotlin.collections.emptySet
 import kotlin.jvm.Volatile
 import kotlin.text.buildString
@@ -35,10 +34,10 @@ public class WhatsAppMessageJsonAdapter(
   @Volatile
   private var constructorRef: Constructor<WhatsAppMessage>? = null
 
-  public override fun toString(): String = buildString(37) {
+  override fun toString(): String = buildString(37) {
       append("GeneratedJsonAdapter(").append("WhatsAppMessage").append(')') }
 
-  public override fun fromJson(reader: JsonReader): WhatsAppMessage {
+  override fun fromJson(reader: JsonReader): WhatsAppMessage {
     var id: String? = null
     var threadId: String? = null
     var direction: String? = null
@@ -110,7 +109,7 @@ public class WhatsAppMessageJsonAdapter(
     }
   }
 
-  public override fun toJson(writer: JsonWriter, value_: WhatsAppMessage?): Unit {
+  override fun toJson(writer: JsonWriter, value_: WhatsAppMessage?) {
     if (value_ == null) {
       throw NullPointerException("value_ was null! Wrap in .nullSafe() to write nullable values.")
     }

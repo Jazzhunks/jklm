@@ -1,4 +1,5 @@
 import { createPortal } from 'react-dom';
+import { Button } from "@/components/ui/button";
 import { useState, useMemo, useEffect } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useOutletContext, useSearchParams } from "react-router-dom";
@@ -66,9 +67,9 @@ function PaymentEditModal({ payment, onClose }) {
               <div className="text-[10px] text-muted-foreground font-mono">{payment.receipt_no}</div>
             </div>
           </div>
-          <button onClick={onClose} className="p-2 hover:bg-muted rounded-full transition text-muted-foreground">
+          <Button onClick={onClose} className="p-2 hover:bg-muted rounded-full transition text-muted-foreground">
             <X size={18} />
-          </button>
+          </Button>
         </div>
         
         <form onSubmit={onSubmit} className="p-5 space-y-4 overflow-y-auto custom-scrollbar flex-1">
@@ -107,10 +108,10 @@ function PaymentEditModal({ payment, onClose }) {
         </form>
         
         <div className="p-4 border-t border-border bg-background/50 rounded-b-2xl flex gap-3 shrink-0">
-          <button type="button" onClick={onClose} disabled={busy} className="flex-1 px-4 py-2.5 border border-border rounded-xl text-xs uppercase font-bold text-muted-foreground hover:bg-muted transition">Cancel</button>
-          <button type="submit" onClick={onSubmit} disabled={busy} className="flex-1 px-4 py-2.5 bg-accent text-accent-foreground rounded-xl text-xs uppercase font-bold shadow-lg hover:brightness-110 transition disabled:opacity-50">
+          <Button type="button" onClick={onClose} disabled={busy} className="flex-1 px-4 py-2.5 border border-border rounded-xl text-xs uppercase font-bold text-muted-foreground hover:bg-muted transition">Cancel</Button>
+          <Button type="submit" onClick={onSubmit} disabled={busy} className="flex-1 px-4 py-2.5 bg-accent text-accent-foreground rounded-xl text-xs uppercase font-bold shadow-lg hover:brightness-110 transition disabled:opacity-50">
             {busy ? "Saving..." : "Save Changes"}
-          </button>
+          </Button>
         </div>
       </div>
     </div>
@@ -159,7 +160,7 @@ function TreasuryTransferModal({ branchId, onClose, onUpdated }) {
             </div>
             <h2 className="font-display font-semibold text-foreground text-sm uppercase tracking-wider">Treasury Transfer</h2>
           </div>
-          <button onClick={onClose} className="p-2 hover:bg-muted rounded-full transition text-muted-foreground"><X size={18} /></button>
+          <Button onClick={onClose} className="p-2 hover:bg-muted rounded-full transition text-muted-foreground"><X size={18} /></Button>
         </div>
         <form onSubmit={onSubmit} className="p-5 space-y-4 overflow-y-auto custom-scrollbar">
           <div>
@@ -189,9 +190,9 @@ function TreasuryTransferModal({ branchId, onClose, onUpdated }) {
             <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-1 block">Notes (Optional)</label>
             <input type="text" value={form.notes} onChange={e => setForm({...form, notes: e.target.value})} className="w-full px-3 py-2 bg-background border border-border rounded-xl text-sm focus:border-accent outline-none" />
           </div>
-          <button type="submit" disabled={busy} className="w-full py-3 bg-primary text-primary-foreground rounded-xl font-bold text-xs uppercase tracking-wider disabled:opacity-50">
+          <Button type="submit" disabled={busy} className="w-full py-3 bg-primary text-primary-foreground rounded-xl font-bold text-xs uppercase tracking-wider disabled:opacity-50">
             {busy ? "Processing..." : "Commit Transfer"}
-          </button>
+          </Button>
         </form>
       </div>
     </div>
@@ -239,9 +240,9 @@ function TreasuryView({ branchId }) {
       
       {/* Transfer Action */}
       <div className="flex justify-end">
-        <button onClick={() => setShowModal(true)} className="px-5 py-2.5 bg-accent text-accent-foreground rounded-xl text-xs uppercase tracking-wider font-bold shadow-md hover:brightness-110 flex items-center gap-2">
+        <Button onClick={() => setShowModal(true)} className="px-5 py-2.5 bg-accent text-accent-foreground rounded-xl text-xs uppercase tracking-wider font-bold shadow-md hover:brightness-110 flex items-center gap-2">
           <Plus size={14}/> Record Treasury Transfer
-        </button>
+        </Button>
       </div>
       
       {/* Transfer History Table */}
@@ -388,30 +389,30 @@ export default function ErpPayments() {
         </div>
 
         <div className="flex items-center gap-3">
-          <button 
+          <Button 
             onClick={() => setShowGstModal(true)} 
             className="px-3.5 py-2 bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400 border border-indigo-500/30 rounded-xl text-xs uppercase tracking-wider font-bold flex items-center gap-2 transition shadow-sm" 
             data-testid="monthly-gst-modal-btn"
           >
             <Landmark size={14}/> Monthly GST Portal
-          </button>
+          </Button>
           <a 
             href={`${API_BASE}/erp/exports/payments.xlsx${branchId ? `?branch_id=${encodeURIComponent(branchId)}` : ''}`} 
             target="_blank" 
             rel="noreferrer"
           >
-            <button className="px-3.5 py-2 border border-border rounded-xl text-xs uppercase tracking-wider font-bold text-muted-foreground hover:text-foreground hover:bg-muted/50 flex items-center gap-2 transition" data-testid="export-payments-btn">
+            <Button className="px-3.5 py-2 border border-border rounded-xl text-xs uppercase tracking-wider font-bold text-muted-foreground hover:text-foreground hover:bg-muted/50 flex items-center gap-2 transition" data-testid="export-payments-btn">
               <Download size={14}/> Export Excel
-            </button>
+            </Button>
           </a>
           {erpUser.role !== "counsellor" && (
-            <button 
+            <Button 
               onClick={() => setShowCreate(true)} 
               className="px-4 py-2 bg-primary text-primary-foreground rounded-xl text-xs uppercase tracking-wider font-bold flex items-center gap-2 hover:bg-primary/90 shadow-md transition" 
               data-testid="create-payment-btn"
             >
               <Plus size={14}/> Record Payment
-            </button>
+            </Button>
           )}
         </div>
       </div>
@@ -419,8 +420,8 @@ export default function ErpPayments() {
       
       {/* Tabs */}
       <div className="flex border-b border-border mb-2 mt-4">
-        <button onClick={() => setActiveTab("ledger")} className={`px-5 py-3 text-sm font-bold uppercase tracking-wider border-b-2 transition ${activeTab === "ledger" ? "border-primary text-primary" : "border-transparent text-muted-foreground hover:text-foreground"}`}>Student Payments</button>
-        <button onClick={() => setActiveTab("treasury")} className={`px-5 py-3 text-sm font-bold uppercase tracking-wider border-b-2 transition ${activeTab === "treasury" ? "border-primary text-primary" : "border-transparent text-muted-foreground hover:text-foreground"}`}>Treasury & Banking</button>
+        <Button onClick={() => setActiveTab("ledger")} className={`px-5 py-3 text-sm font-bold uppercase tracking-wider border-b-2 transition ${activeTab === "ledger" ? "border-primary text-primary" : "border-transparent text-muted-foreground hover:text-foreground"}`}>Student Payments</Button>
+        <Button onClick={() => setActiveTab("treasury")} className={`px-5 py-3 text-sm font-bold uppercase tracking-wider border-b-2 transition ${activeTab === "treasury" ? "border-primary text-primary" : "border-transparent text-muted-foreground hover:text-foreground"}`}>Treasury & Banking</Button>
       </div>
 
       {activeTab === 'ledger' && (
@@ -486,7 +487,7 @@ export default function ErpPayments() {
         {/* Payment Mode Pills */}
         <div className="flex items-center gap-1 bg-muted/40 p-1 rounded-xl border border-border overflow-x-auto custom-scrollbar">
           {MODES.map(m => (
-            <button
+            <Button
               key={m}
               onClick={() => { setSelectedMode(m); setPage(1); }}
               className={`px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider transition whitespace-nowrap ${
@@ -496,7 +497,7 @@ export default function ErpPayments() {
               }`}
             >
               {m}
-            </button>
+            </Button>
           ))}
         </div>
 
@@ -595,25 +596,25 @@ export default function ErpPayments() {
             Showing <span className="font-semibold text-foreground">{rawItems.length}</span> of <span className="font-semibold text-foreground">{totalCount}</span> total receipts
           </div>
           <div className="flex items-center gap-2">
-            <button
+            <Button
               onClick={() => setPage(p => Math.max(p - 1, 1))}
               disabled={page <= 1 || isLoading}
               className="p-1.5 rounded-lg border border-border hover:bg-muted disabled:opacity-40 transition"
               data-testid="prev-page"
             >
               <ChevronLeft size={14} />
-            </button>
+            </Button>
             <span className="font-mono text-xs">
               Page {page} of {totalPages}
             </span>
-            <button
+            <Button
               onClick={() => setPage(p => Math.min(p + 1, totalPages))}
               disabled={page >= totalPages || isLoading}
               className="p-1.5 rounded-lg border border-border hover:bg-muted disabled:opacity-40 transition"
               data-testid="next-page"
             >
               <ChevronRight size={14} />
-            </button>
+            </Button>
           </div>
         </div>
       </div>
@@ -660,7 +661,7 @@ export default function ErpPayments() {
               Are you sure you want to delete payment receipt <strong className="text-foreground font-mono">{deleteModal.receipt_no}</strong> for amount <strong className="text-emerald-500 font-mono">{fmtINR(deleteModal.amount)}</strong>?
             </p>
             <div className="flex gap-2.5 pt-2">
-              <button
+              <Button
                 disabled={deleting}
                 onClick={async () => {
                   setDeleting(true);
@@ -678,14 +679,14 @@ export default function ErpPayments() {
                 className="flex-1 py-2.5 bg-rose-600 text-white rounded-xl text-xs uppercase tracking-wider font-bold hover:bg-rose-700 disabled:opacity-50 transition shadow-md flex items-center justify-center gap-1.5"
               >
                 <Trash2 size={13}/> {deleting ? "Purging..." : "Confirm Purge"}
-              </button>
-              <button
+              </Button>
+              <Button
                 disabled={deleting}
                 onClick={() => setDeleteModal(null)}
                 className="px-4 py-2.5 border border-border rounded-xl text-xs uppercase tracking-wider font-bold text-muted-foreground hover:text-foreground hover:bg-muted/50 transition"
               >
                 Cancel
-              </button>
+              </Button>
             </div>
           </div>
         </div>
@@ -788,9 +789,9 @@ function CreatePaymentModal({ onClose, onSuccess, defaultBranchId, branches }) {
             <h3 className="font-display text-lg font-bold text-foreground">Record Fee Collection</h3>
             <p className="text-xs text-muted-foreground mt-0.5">Generate official tax receipt and credit student account</p>
           </div>
-          <button onClick={onClose} className="text-muted-foreground hover:text-foreground">
+          <Button onClick={onClose} className="text-muted-foreground hover:text-foreground">
             <X size={18} />
-          </button>
+          </Button>
         </div>
 
         <form onSubmit={handleSubmit} className="p-5 space-y-4 overflow-y-auto custom-scrollbar flex-1">
@@ -805,13 +806,13 @@ function CreatePaymentModal({ onClose, onSuccess, defaultBranchId, branches }) {
                   <div className="font-bold text-xs text-foreground">{selectedStudent.full_name}</div>
                   <div className="text-[11px] text-muted-foreground font-mono">{selectedStudent.student_no} • {selectedStudent.contact_phone}</div>
                 </div>
-                <button 
+                <Button 
                   type="button" 
                   onClick={() => { setSelectedStudent(null); setStudentQuery(""); }}
                   className="text-xs text-primary hover:underline font-medium"
                 >
                   Change
-                </button>
+                </Button>
               </div>
             ) : (
               <div className="relative">
@@ -932,20 +933,20 @@ function CreatePaymentModal({ onClose, onSuccess, defaultBranchId, branches }) {
 
           {/* Action Buttons */}
           <div className="pt-3 border-t border-border flex items-center justify-end gap-3">
-            <button
+            <Button
               type="button"
               onClick={onClose}
               className="px-4 py-2 text-xs font-bold text-muted-foreground hover:text-foreground transition"
             >
               Cancel
-            </button>
-            <button
+            </Button>
+            <Button
               type="submit"
               disabled={submitting}
               className="px-5 py-2 bg-primary text-primary-foreground rounded-xl text-xs font-bold uppercase tracking-wider hover:bg-primary/90 shadow-md transition disabled:opacity-50"
             >
               {submitting ? "Processing..." : "Generate Receipt"}
-            </button>
+            </Button>
           </div>
         </form>
       </div>

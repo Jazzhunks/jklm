@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { erp } from "@/lib/erpApi";
 import { formatError } from "@/lib/api";
@@ -81,13 +82,13 @@ export default function ErpBranches() {
                   <Phone size={13} className="opacity-60 shrink-0" /> {b.phone}
                 </p>
               </div>
-              <button 
+              <Button 
                 onClick={() => openEditModal(b)} 
                 className="text-xs uppercase tracking-wider font-bold text-accent hover:text-accent/80 transition-colors bg-accent/5 hover:bg-accent/10 border border-accent/10 px-3 py-1.5 rounded-xl" 
                 data-testid={`edit-branch-${b.id}`}
               >
                 Configure
-              </button>
+              </Button>
             </div>
 
             {/* Financial & ID Metadata Grid Segment */}
@@ -130,13 +131,13 @@ export default function ErpBranches() {
                 </div>
                 <h3 className="font-display text-2xl font-medium mt-1">Branch Parameters</h3>
               </div>
-              <button 
+              <Button 
                 type="button" 
                 onClick={() => setEditing(null)} 
                 className="p-1 hover:bg-muted/50 rounded-lg border border-transparent hover:border-border transition"
               >
                 <X size={18}/>
-              </button>
+              </Button>
             </div>
 
             <div className="space-y-4">
@@ -198,7 +199,7 @@ export default function ErpBranches() {
 
 
             <div className="flex gap-3 pt-2">
-              <button 
+              <Button 
                 disabled={busy} 
                 type="submit" 
                 className="flex-1 py-3 bg-primary text-primary-foreground rounded-xl font-bold text-xs uppercase tracking-wider disabled:opacity-50 flex items-center justify-center gap-2 shadow-lg transition" 
@@ -206,14 +207,14 @@ export default function ErpBranches() {
               >
                 <Save size={14}/>
                 {busy ? "Writing Records…" : "Authorize Changes"}
-              </button>
-              <button 
+              </Button>
+              <Button 
                 type="button" 
                 onClick={() => setEditing(null)} 
                 className="px-4 py-3 border border-border rounded-xl text-xs uppercase tracking-wider font-bold text-muted-foreground hover:text-foreground hover:bg-muted/50 transition"
               >
                 Cancel
-              </button>
+              </Button>
             </div>
           </form>
         </div>

@@ -17,7 +17,6 @@ import kotlin.Any
 import kotlin.Int
 import kotlin.String
 import kotlin.Suppress
-import kotlin.Unit
 import kotlin.collections.Map
 import kotlin.collections.emptySet
 import kotlin.jvm.Volatile
@@ -38,10 +37,10 @@ public class LookupResponseJsonAdapter(
   @Volatile
   private var constructorRef: Constructor<LookupResponse>? = null
 
-  public override fun toString(): String = buildString(36) {
+  override fun toString(): String = buildString(36) {
       append("GeneratedJsonAdapter(").append("LookupResponse").append(')') }
 
-  public override fun fromJson(reader: JsonReader): LookupResponse {
+  override fun fromJson(reader: JsonReader): LookupResponse {
     var type: String? = null
     var data_: Map<String, Any>? = null
     var mask0 = -1
@@ -85,7 +84,7 @@ public class LookupResponseJsonAdapter(
     }
   }
 
-  public override fun toJson(writer: JsonWriter, value_: LookupResponse?): Unit {
+  override fun toJson(writer: JsonWriter, value_: LookupResponse?) {
     if (value_ == null) {
       throw NullPointerException("value_ was null! Wrap in .nullSafe() to write nullable values.")
     }

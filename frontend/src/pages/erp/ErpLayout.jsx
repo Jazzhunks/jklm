@@ -1,4 +1,5 @@
 import { useEffect, useState, useMemo } from "react";
+import { Button } from "@/components/ui/button";
 import { Outlet, NavLink, useNavigate, useLocation, Navigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { erp, isSuper, isManagerPlus, isERPUser } from "@/lib/erpApi";
@@ -118,7 +119,7 @@ export default function ErpLayout() {
           <div className="text-xs uppercase tracking-widest font-bold text-primary mb-2">Access Denied</div>
           <h2 className="font-display text-2xl font-bold mb-3 text-foreground">ERP Staff Portal Only</h2>
           <p className="text-sm text-muted-foreground mb-6">Your logged in account does not have active ERP staff clearance.</p>
-          <button onClick={() => { logout(); nav("/login?next=/erp"); }} className="clay-btn-primary" data-testid="erp-relogin-btn">Switch Account</button>
+          <Button onClick={() => { logout(); nav("/login?next=/erp"); }} className="clay-btn-primary" data-testid="erp-relogin-btn">Switch Account</Button>
         </div>
       </div>
     );
@@ -224,7 +225,7 @@ export default function ErpLayout() {
 
         {/* Bottom Bar with Quick Search Trigger & Signout */}
         <div className="p-3 border-t border-border shrink-0 bg-muted/30 space-y-1.5">
-          <button
+          <Button
             onClick={() => setPaletteOpen(true)}
             className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium text-muted-foreground bg-background border border-border hover:text-foreground hover:border-accent/40 transition"
           >
@@ -232,20 +233,20 @@ export default function ErpLayout() {
               <Search size={14} /> Quick Search
             </span>
             <kbd className="text-[10px] font-mono bg-muted px-1.5 py-0.5 rounded border border-border">⌘K</kbd>
-          </button>
-          <button 
+          </Button>
+          <Button 
             onClick={() => { setProfileModalOpen(true); setOpen(false); }}
             className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold text-muted-foreground hover:text-primary hover:bg-primary/10 transition duration-150"
           >
             <UserCog size={16} className="shrink-0"/> <span>Profile & Settings</span>
-          </button>
-          <button 
+          </Button>
+          <Button 
             onClick={async () => { await logout(); nav("/login"); }}
             data-testid="erp-logout-btn"
             className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold text-muted-foreground hover:text-rose-600 hover:bg-rose-500/10 transition duration-150"
           >
             <LogOut size={16} className="shrink-0"/> <span>Sign out</span>
-          </button>
+          </Button>
         </div>
       </aside>
 
@@ -255,14 +256,14 @@ export default function ErpLayout() {
         <header className="flex items-center justify-between px-4 py-2.5 sm:px-6 bg-card border-b border-border sticky top-0 z-20 shrink-0 print:hidden">
           {/* Left: Mobile Toggle & Breadcrumbs */}
           <div className="flex items-center gap-3 min-w-0">
-            <button 
+            <Button 
               onClick={() => setOpen(o => !o)} 
               aria-label="menu" 
               className="lg:hidden text-foreground p-1.5 hover:bg-muted/50 rounded-lg transition shrink-0" 
               data-testid="erp-menu-toggle"
             >
               {open ? <X size={20}/> : <Menu size={20}/>}
-            </button>
+            </Button>
             <nav className="flex items-center gap-1.5 text-xs text-muted-foreground overflow-hidden whitespace-nowrap">
               {breadcrumbs.map((crumb, i) => (
                 <span key={crumb.to} className="flex items-center gap-1.5">
@@ -298,7 +299,7 @@ export default function ErpLayout() {
             )}
 
             {/* Quick Search Button (Desktop) */}
-            <button
+            <Button
               onClick={() => setPaletteOpen(true)}
               className="hidden md:flex items-center gap-2 px-3 py-1.5 bg-muted/40 hover:bg-muted/80 border border-border rounded-xl text-xs text-muted-foreground hover:text-foreground transition"
               data-testid="global-search-trigger"
@@ -306,7 +307,7 @@ export default function ErpLayout() {
               <Search size={13} />
               <span>Search...</span>
               <kbd className="text-[10px] font-mono bg-card px-1.5 py-0.5 rounded border border-border">⌘K</kbd>
-            </button>
+            </Button>
 
             {/* Live Clock (Desktop) */}
             <div className="hidden xl:flex items-center gap-1.5 text-xs text-muted-foreground font-mono bg-muted/30 px-2.5 py-1 rounded-xl border border-border/50">
@@ -316,14 +317,14 @@ export default function ErpLayout() {
 
             {/* Fast Quick Actions */}
             {erpUser.role !== "counsellor" && (
-              <button
+              <Button
                 onClick={() => nav("/erp/students?action=new")}
                 className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-primary text-primary-foreground text-xs font-bold hover:bg-primary/90 shadow-sm transition"
                 data-testid="header-new-admission-btn"
               >
                 <Plus size={13} />
                 <span className="hidden sm:inline">Admission</span>
-              </button>
+              </Button>
             )}
           </div>
         </header>

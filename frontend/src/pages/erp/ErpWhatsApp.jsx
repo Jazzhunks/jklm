@@ -291,7 +291,7 @@ export default function ErpWhatsApp() {
           const Icon = tab.icon;
           const isActive = activeTab === tab.id;
           return (
-            <button
+            <Button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
               className={`flex items-center gap-2 px-4 py-2.5 rounded-t-xl text-sm font-medium transition-all cursor-pointer ${
@@ -301,7 +301,7 @@ export default function ErpWhatsApp() {
               }`}
             >
               <Icon size={16} /> {tab.label}
-            </button>
+            </Button>
           );
         })}
       </div>

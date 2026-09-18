@@ -52,7 +52,7 @@ export default function GalleryForm({ onSubmit, onUpdate, editingId, galleryCate
             {currentMediaType === "video" ? (
               <video src={previewMediaUrl} controls className="max-h-40 rounded-xl" />
             ) : (
-              <img src={previewMediaUrl} alt="Preview" className="max-h-40 rounded-xl object-cover" />
+              <img loading="lazy" src={previewMediaUrl} alt="Preview" className="max-h-40 rounded-xl object-cover" />
             )}
             <button type="button" onClick={onMediaUrlClear} className="absolute -top-2 -right-2 p-1 bg-rose-500 text-white rounded-full shadow-lg cursor-pointer">
               <X size={14} />

@@ -118,7 +118,7 @@ export default function GalleryTab({ innerSearch }) {
                         ) : item.media_type === "text" ? (
                           <p className="text-xs text-muted-foreground p-3 line-clamp-4 whitespace-pre-wrap">{item.description || item.title}</p>
                         ) : item.media_url ? (
-                          <img src={item.media_url} alt={item.title} className="w-full h-full object-cover" />
+                          <img loading="lazy" src={item.media_url} alt={item.title} className="w-full h-full object-cover" />
                         ) : (
                           <Image size={32} className="text-muted-foreground/40" />
                         )}

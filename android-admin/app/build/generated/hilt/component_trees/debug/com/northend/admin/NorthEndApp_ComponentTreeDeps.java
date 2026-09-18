@@ -18,6 +18,7 @@ import dagger.hilt.processor.internal.definecomponent.codegen._dagger_hilt_andro
 import dagger.hilt.processor.internal.definecomponent.codegen._dagger_hilt_android_internal_builders_ViewWithFragmentComponentBuilder;
 import dagger.hilt.processor.internal.definecomponent.codegen._dagger_hilt_components_SingletonComponent;
 import hilt_aggregated_deps._com_northend_admin_NorthEndApp_GeneratedInjector;
+import hilt_aggregated_deps._com_northend_admin_di_DatabaseModule;
 import hilt_aggregated_deps._com_northend_admin_di_NetworkModule;
 import hilt_aggregated_deps._com_northend_admin_ui_MainActivity_GeneratedInjector;
 import hilt_aggregated_deps._com_northend_admin_ui_auth_LoginViewModel_HiltModules_BindsModule;
@@ -84,6 +85,7 @@ import hilt_aggregated_deps._dagger_hilt_android_internal_modules_HiltWrapper_Ac
     },
     aggregatedDeps = {
         _com_northend_admin_NorthEndApp_GeneratedInjector.class,
+        _com_northend_admin_di_DatabaseModule.class,
         _com_northend_admin_di_NetworkModule.class,
         _com_northend_admin_ui_MainActivity_GeneratedInjector.class,
         _com_northend_admin_ui_auth_LoginViewModel_HiltModules_BindsModule.class,
