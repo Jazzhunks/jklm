@@ -194,10 +194,17 @@ export default function Login() {
         return;
       }
       setPhone(phone);
-      const user = await otpLogin(phone, otpCode);
-      toast.success(`Welcome back, ${user.name}!`);
-      const target = searchParams.get("redirect") || "/erp";
-      nav(ALLOWED_REDIRECTS.has(target) ? target : "/erp");
+      setBusy(true);
+      try {
+        const user = await otpLogin(phone, otpCode);
+        toast.success(`Welcome back, ${user.name}!`);
+        const target = searchParams.get("redirect") || "/erp";
+        nav(ALLOWED_REDIRECTS.has(target) ? target : "/erp");
+      } catch (err) {
+        setInlineError(formatError(err));
+      } finally {
+        setBusy(false);
+      }
       return;
     }
 
