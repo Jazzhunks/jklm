@@ -75,7 +75,7 @@ from routers import auth, courses, scholarships, enrollments, jobs, schools, att
 from core.database import db, client
 from core.security import *
 from core.utils import *
-from core.seed import seed
+from core.seed import _run_initial_seed as seed
 
 app = FastAPI(title="Unacademy Offline Centre API")
 # ---------- App wiring ----------

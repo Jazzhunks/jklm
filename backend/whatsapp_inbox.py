@@ -15,7 +15,7 @@ import os
 import hmac
 import json
 
-from server import send_super_admin_notification
+from core.database import send_super_admin_notification
 
 import uuid
 import hashlib

@@ -28,7 +28,7 @@ async def _log_automated_message_to_inbox(
     linked_title: str = None,
     linked_name: str = None
 ):
-    from server import db 
+    from core.database import db 
 
     wa_id = clean_phone
     ts = now_iso()

@@ -100,7 +100,7 @@ export default function ReceiptModal({ payment, student, onClose }) {
 
       <div 
         onClick={e => e.stopPropagation()} 
-        className="bg-background border border-border rounded-2xl max-w-4xl w-full max-h-[92vh] flex flex-col shadow-2xl overflow-hidden"
+        className="bg-background/95 backdrop-blur-xl border border-border/40 rounded-3xl shadow-[0_20px_60px_-15px_rgba(0,0,0,0.1)] max-w-4xl w-full max-h-[92vh] flex flex-col shadow-2xl overflow-hidden"
       >
         {/* Header Bar */}
         <div className="px-6 py-4 border-b border-border flex items-center justify-between bg-muted/20 shrink-0">

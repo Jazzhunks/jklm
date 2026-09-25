@@ -5,6 +5,7 @@ import { erp, isSuper, isFinance, isManagerPlus, fmtINR, fmtDate, extractItems, 
 import { formatError, api, API_BASE } from "@/lib/api";
 import FeeMatrixConfigModal from "./modals/FeeMatrixConfigModal";
 import { toast } from "sonner";
+import { motion } from "framer-motion";
 import { 
   TrendingUp, TrendingDown, Users, AlertCircle, Building2, 
   Plus, IndianRupee, FileText, ArrowUpRight, ArrowDownRight, Wallet, 
@@ -21,24 +22,25 @@ const CHART_COLORS = ['#38bdf8', '#34d399', '#fbbf24', '#fb7185', '#a78bfa', '#f
 
 // --- SHARED UI COMPONENT BLOCKS ---
 const Stat = ({ label, value, icon: Icon, accent, testid }) => (
-  <div className="bg-card rounded-2xl p-6 relative overflow-hidden group border border-border shadow-sm hover:shadow-md transition-shadow" data-testid={testid}>
+  <motion.div 
+    whileHover={{ y: -4, scale: 1.01 }}
+    transition={{ type: "spring", stiffness: 300 }}
+    className="bg-card rounded-2xl p-6 relative overflow-hidden group border border-border shadow-[0_2px_10px_rgba(0,0,0,0.02)] hover:shadow-[0_8px_30px_rgba(0,0,0,0.06)]" data-testid={testid}
+  >
     <div className="flex items-center justify-between mb-4 relative z-10">
-      <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-muted/40 group-hover:bg-accent/10 transition-colors">
-        {Icon && <Icon size={22} className={accent || "text-muted-foreground"}/>}
+      <div className="flex items-center justify-center w-12 h-12 rounded-2xl bg-muted/30 group-hover:bg-muted/60 transition-colors backdrop-blur-sm border border-border/50">
+        {Icon && <Icon size={20} className={accent || "text-muted-foreground"} strokeWidth={1.5} />}
       </div>
-      
+      <div className="h-8 w-8 rounded-full bg-gradient-to-br from-transparent to-muted/20 opacity-0 group-hover:opacity-100 transition-opacity absolute -right-2 -top-2" />
     </div>
     <div className="relative z-10">
-      <div className={`font-display text-3xl font-black tracking-tight ${accent || "text-foreground"}`}>
+      <div className={`font-display text-4xl font-black tracking-tighter ${accent || "text-foreground"}`}>
         {value}
       </div>
-      <div className="text-xs font-semibold text-muted-foreground mt-1 uppercase tracking-wider">{label}</div>
+      <div className="text-[11px] font-bold text-muted-foreground mt-1.5 uppercase tracking-[0.15em]">{label}</div>
     </div>
-    {/* Decorative Wave */}
-    <svg className="absolute bottom-0 left-0 w-full h-12 opacity-[0.02] text-foreground" viewBox="0 0 1440 320">
-      <path fill="currentColor" fillOpacity="1" d="M0,192L48,197.3C96,203,192,213,288,229.3C384,245,480,267,576,250.7C672,235,768,181,864,181.3C960,181,1056,235,1152,234.7C1248,235,1344,181,1392,154.7L1440,128L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path>
-    </svg>
-  </div>
+    <div className="absolute inset-0 bg-gradient-to-br from-transparent to-muted/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+  </motion.div>
 );
 
 const CustomTooltip = ({ active, payload, label }) => {
@@ -101,10 +103,10 @@ export default function ErpDashboard() {
     <div className="p-1 sm:p-6 space-y-8 relative">
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
         <div className="w-full md:w-auto">
-          <div className="text-xs uppercase tracking-[0.2em] font-bold text-accent">
+          <div className="text-[10px] uppercase tracking-[0.15em] font-bold text-accent flex items-center gap-1.5">
             {isSuper(erpUser) ? "Operations Console" : "Centre Console"}
           </div>
-          <h1 className="font-display text-2xl sm:text-4xl lg:text-5xl font-light tracking-tight mt-2 break-words">
+          <h1 className="text-3xl sm:text-4xl lg:text-[40px] font-bold tracking-tight text-foreground mt-1 break-words">
             {isSuper(erpUser) ? "Network Overview" : data.branch?.name}
           </h1>
           <p className="text-muted-foreground mt-2 text-sm max-w-xl leading-relaxed">
@@ -116,34 +118,34 @@ export default function ErpDashboard() {
 
         {/* Command Quick Actions Bar */}
         <div className="flex flex-wrap items-center gap-2 sm:gap-3 w-full md:w-auto">
-          <Button onClick={() => setActiveModal("duelist")} className="inline-flex items-center gap-1.5 px-3 py-2 sm:px-4 sm:py-2 rounded-full bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 text-xs font-bold uppercase tracking-wider transition border border-amber-500/20 shadow-md whitespace-nowrap">
+          <Button onClick={() => setActiveModal("duelist")} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-500/10 hover:bg-amber-500/20 text-amber-600 text-xs font-medium transition-all duration-200 border border-amber-500/20 shadow-sm active:scale-[0.98] whitespace-nowrap">
             <Clock size={14} /> <span className="whitespace-nowrap">Today's Dues</span>
           </Button>
           {erpUser.role !== "counsellor" && (
-            <Button onClick={() => setActiveModal("admission")} className="inline-flex items-center gap-1.5 px-3 py-2 sm:px-4 sm:py-2 rounded-full bg-primary text-primary-foreground text-xs font-bold uppercase tracking-wider hover:bg-primary/90 transition shadow-lg whitespace-nowrap">
+            <Button onClick={() => setActiveModal("admission")} className="inline-flex items-center justify-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-primary text-primary-foreground text-[12px] font-medium transition-all duration-200 border border-primary/20 shadow-sm hover:bg-primary/90 hover:shadow-md active:scale-[0.98]">
               <Plus size={14} /> <span className="whitespace-nowrap">New Admission</span>
             </Button>
           )}
           {isSuper(erpUser) && (
-            <Button onClick={() => setShowFeeMatrix(true)} className="inline-flex items-center gap-1.5 px-3 py-2 sm:px-4 sm:py-2 rounded-full bg-accent/10 hover:bg-accent/20 text-accent text-xs font-bold uppercase tracking-wider transition border border-accent/20 shadow-md whitespace-nowrap">
+            <Button onClick={() => setShowFeeMatrix(true)} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 text-xs font-medium transition-all duration-200 border border-emerald-500/20 shadow-sm active:scale-[0.98] whitespace-nowrap">
               <span className="whitespace-nowrap">Fee Matrix</span>
             </Button>
           )}
           {canSeeFinance && (
-            <Button onClick={() => setActiveModal("expense")} className="inline-flex items-center gap-1.5 px-3 py-2 sm:px-4 sm:py-2 rounded-full bg-muted/50 hover:bg-muted/80 text-foreground text-xs font-bold uppercase tracking-wider transition whitespace-nowrap">
+            <Button onClick={() => setActiveModal("expense")} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-background hover:bg-muted/50 text-foreground text-xs font-medium transition-all duration-200 border border-border/60 shadow-sm active:scale-[0.98] whitespace-nowrap">
               <Wallet size={14} /> <span className="whitespace-nowrap">Add Expense</span>
             </Button>
           )}
-          <Button onClick={() => setActiveModal("students")} className="inline-flex items-center gap-1.5 px-3 py-2 sm:px-4 sm:py-2 rounded-full bg-muted/50 hover:bg-muted/50 text-muted-foreground hover:text-foreground text-xs font-bold uppercase tracking-wider transition border border-border whitespace-nowrap">
+          <Button onClick={() => setActiveModal("students")} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-background hover:bg-muted/50 text-muted-foreground hover:text-foreground text-xs font-medium transition-all duration-200 border border-border/60 shadow-sm active:scale-[0.98] whitespace-nowrap">
             <Users size={14} /> <span className="whitespace-nowrap">Records</span>
           </Button>
           {canSeeFinance && (
-            <Button onClick={() => setActiveModal("cashbook")} className="inline-flex items-center gap-1.5 px-3 py-2 sm:px-4 sm:py-2 rounded-full bg-muted/50 hover:bg-muted/50 text-muted-foreground hover:text-foreground text-xs font-bold uppercase tracking-wider transition border border-border whitespace-nowrap">
+            <Button onClick={() => setActiveModal("cashbook")} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-background hover:bg-muted/50 text-muted-foreground hover:text-foreground text-xs font-medium transition-all duration-200 border border-border/60 shadow-sm active:scale-[0.98] whitespace-nowrap">
               <IndianRupee size={14} /> <span className="whitespace-nowrap">Cashbook</span>
             </Button>
           )}
           {canSeeFinance && (
-            <Button onClick={() => setActiveModal("outflow")} className="inline-flex items-center gap-1.5 px-3 py-2 sm:px-4 sm:py-2 rounded-full bg-muted/50 hover:bg-muted/50 text-muted-foreground hover:text-foreground text-xs font-bold uppercase tracking-wider transition border border-border whitespace-nowrap">
+            <Button onClick={() => setActiveModal("outflow")} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-background hover:bg-muted/50 text-muted-foreground hover:text-foreground text-xs font-medium transition-all duration-200 border border-border/60 shadow-sm active:scale-[0.98] whitespace-nowrap">
               <Layers size={14} /> <span className="whitespace-nowrap">Outflow</span>
             </Button>
           )}
@@ -543,7 +545,7 @@ function CashbookViewModal({ erpUser, onClose }) {
         <div className="space-y-6">
           <div className="flex justify-between items-start">
             <div>
-              <div className="text-xs uppercase tracking-[0.2em] font-bold text-accent">Realtime Cashbook Log</div>
+              <div className="text-[10px] uppercase tracking-[0.15em] font-bold text-accent flex items-center gap-1.5">Realtime Cashbook Log</div>
               <h2 className="font-display text-3xl font-light tracking-tight mt-1">Fee Collections</h2>
               <p className="text-muted-foreground text-sm mt-1">{items.length} records • Aggregate total {fmtINR(total)}</p>
             </div>
@@ -623,7 +625,7 @@ function StudentsViewModal({ erpUser, onClose }) {
       <div onClick={e => e.stopPropagation()} className="bg-background border-l border-border w-full max-w-5xl h-full p-6 flex flex-col gap-6 overflow-y-auto shadow-2xl">
         <div className="flex justify-between items-start">
           <div>
-            <div className="text-xs uppercase tracking-[0.2em] font-bold text-accent">Active Operational Database</div>
+            <div className="text-[10px] uppercase tracking-[0.15em] font-bold text-accent flex items-center gap-1.5">Active Operational Database</div>
             <h2 className="font-display text-3xl font-light tracking-tight mt-1">Student Directory</h2>
             <p className="text-muted-foreground text-sm mt-1">{items.length} records active under framework execution roles.</p>
           </div>
@@ -720,7 +722,7 @@ function ExpensesViewModal({ erpUser, onClose, refreshRoot }) {
           {/* Header Section (Pinned) */}
           <div className="flex justify-between items-start shrink-0">
             <div>
-              <div className="text-xs uppercase tracking-[0.2em] font-bold text-accent">Outflow Reporting Matrix</div>
+              <div className="text-[10px] uppercase tracking-[0.15em] font-bold text-accent flex items-center gap-1.5">Outflow Reporting Matrix</div>
               <h2 className="font-display text-3xl font-light tracking-tight mt-1">Expense Sheets</h2>
               <p className="text-muted-foreground text-sm mt-1">
                 {items.length} entries registered • Total approved execution: <span className="text-rose-600 font-bold">{fmtINR(total)}</span>
@@ -929,14 +931,14 @@ function CreateStudentModal({ erpUser, onClose, onCreated }) {
   };
 
   const inputCls = "w-full px-3 py-2 border border-border bg-background/50 rounded-xl text-sm focus:outline-none focus:border-accent font-mono text-foreground placeholder:text-muted-foreground/50";
-  const labelCls = "text-xs uppercase tracking-wider font-bold text-muted-foreground mb-1 block";
+  const labelCls = "text-[10px] uppercase tracking-[0.15em] font-bold text-muted-foreground mb-1.5 block ml-1";
 
   return (
     <div className="fixed inset-0 bg-black/20 z-50 grid place-items-center p-4 backdrop-blur-sm overflow-y-auto animate-fadeIn" onClick={onClose}>
       <form onClick={e => e.stopPropagation()} onSubmit={executeSubmit} className="bg-background border border-border rounded-2xl max-w-2xl w-full p-6 space-y-5 my-8 shadow-2xl">
         <div className="flex justify-between items-start">
           <div>
-            <div className="text-xs uppercase tracking-[0.2em] font-bold text-accent">Admission Interface Layer</div>
+            <div className="text-[10px] uppercase tracking-[0.15em] font-bold text-accent flex items-center gap-1.5">Admission Interface Layer</div>
             <h3 className="font-display text-2xl font-medium mt-1">Enroll New Student</h3>
           </div>
           <Button type="button" onClick={onClose} className="p-1 hover:bg-muted/50 rounded-lg"><X size={18}/></Button>
@@ -1076,7 +1078,7 @@ function CreateStudentModal({ erpUser, onClose, onCreated }) {
           <textarea value={form.notes} onChange={e => setForm({...form, notes: e.target.value})} placeholder="Any feedback or questions..." rows={2} className={inputCls} />
         </div>
 
-        <Button disabled={busy} type="submit" className="w-full py-3 bg-primary text-primary-foreground rounded-xl font-bold uppercase tracking-wider text-xs disabled:opacity-50 transition shadow-lg">{busy ? "Committing Entry Parameters…" : "Submit Admission"}</Button>
+        <Button disabled={busy} type="submit" className="w-full w-full py-2.5 mt-2 rounded-xl bg-primary text-primary-foreground text-[13px] font-medium transition-all duration-200 border border-primary/20 shadow-sm hover:bg-primary/90 hover:shadow-md active:scale-[0.98] disabled:opacity-50">{busy ? "Committing Entry Parameters…" : "Submit Admission"}</Button>
       </form>
     </div>
   );
@@ -1103,11 +1105,11 @@ function CreateExpenseModal({ erpUser, onClose, onCreated }) {
   };
 
   return (
-    <div className="fixed inset-0 bg-black/20 z-50 grid place-items-center p-4 backdrop-blur-sm animate-fadeIn" onClick={onClose}>
-      <form onClick={e => e.stopPropagation()} onSubmit={executeSubmit} className="bg-background border border-border rounded-2xl max-w-md w-full p-6 space-y-4 shadow-2xl">
+    <div className="fixed inset-0 bg-zinc-950/20 z-50 grid place-items-center p-4 sm:p-6 backdrop-blur-md animate-fadeIn transition-all" onClick={onClose}>
+      <form onClick={e => e.stopPropagation()} onSubmit={executeSubmit} className="bg-background/95 backdrop-blur-xl border border-border/40 rounded-3xl max-w-md w-full p-6 sm:p-8 space-y-5 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.1)]">
         <div className="flex justify-between items-start">
           <div>
-            <div className="text-xs uppercase tracking-[0.2em] font-bold text-accent">Auditing &amp; Balances</div>
+            <div className="text-[10px] uppercase tracking-[0.15em] font-bold text-accent flex items-center gap-1.5">Auditing &amp; Balances</div>
             <h3 className="font-display text-2xl font-medium mt-1">Record Cost Outflow</h3>
           </div>
           <Button type="button" onClick={onClose} className="p-1 hover:bg-muted/50 rounded-lg"><X size={18}/></Button>
@@ -1134,7 +1136,7 @@ function CreateExpenseModal({ erpUser, onClose, onCreated }) {
           <InputCard label="Recipient Vendor / Party" v={form.vendor} on={v => setForm({...form, vendor: v})} />
           <InputCard label="Transaction Date *" type="date" v={form.expense_date} on={v => setForm({...form, expense_date: v})} req />
         </div>
-        <Button disabled={busy} type="submit" className="w-full py-3 bg-primary text-primary-foreground rounded-xl font-bold uppercase tracking-wider text-xs transition shadow-lg">{busy ? "Writing Matrix State…" : "Commit Cost Outflow Statement"}</Button>
+        <Button disabled={busy} type="submit" className="w-full w-full py-2.5 mt-2 rounded-xl bg-primary text-primary-foreground text-[13px] font-medium transition-all duration-200 border border-primary/20 shadow-sm hover:bg-primary/90 hover:shadow-md active:scale-[0.98]">{busy ? "Writing Matrix State…" : "Commit Cost Outflow Statement"}</Button>
       </form>
     </div>
   );
@@ -1153,7 +1155,7 @@ function InputCard({ label, v, on, type = "text", req, placeholder }) {
   return (
     <div>
       <label className="text-xs uppercase tracking-wider font-bold text-muted-foreground mb-1 block">{label}{req && " *"}</label>
-      <input type={type} value={v} required={req} placeholder={placeholder} onChange={e => on(e.target.value)} className="w-full px-3 py-2 border border-border bg-background/50 rounded-xl text-sm focus:outline-none focus:border-accent font-mono text-foreground placeholder:text-muted-foreground/50" />
+      <input type={type} value={v} required={req} placeholder={placeholder} onChange={e => on(e.target.value)} className="w-full px-4 py-2.5 border border-border/40 bg-muted/10 hover:bg-muted/20 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-accent/20 focus:border-accent/40 font-mono text-foreground placeholder:text-muted-foreground/40 transition-all" />
     </div>
   );
 }
@@ -1162,7 +1164,7 @@ function SelectCard({ label, v, on, opts, req, disabled }) {
   return (
     <div>
       <label className="text-xs uppercase tracking-wider font-bold text-muted-foreground mb-1 block">{label}{req && " *"}</label>
-      <select value={v} onChange={e => on(e.target.value)} required={req} disabled={disabled} className="w-full px-3 py-2 border border-border bg-background/50 rounded-xl text-sm focus:outline-none focus:border-accent disabled:opacity-50">
+      <select value={v} onChange={e => on(e.target.value)} required={req} disabled={disabled} className="w-full px-4 py-2.5 border border-border/40 bg-muted/10 hover:bg-muted/20 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-accent/20 focus:border-accent/40 disabled:opacity-50 transition-all appearance-none cursor-pointer">
         {req && <option value="">— Select Option Layer —</option>}
         {opts.map(o => <option key={o.v} value={o.v}>{o.l}</option>)}
       </select>

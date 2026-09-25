@@ -6,7 +6,7 @@ from pdf_client import admit_card_pdf
 log = logging.getLogger("whatsapp_notifier")
 
 async def broadcast_scholarship_details(scholarship_id: str, job_id: str = None):
-    from server import db 
+    from core.database import db 
     
     """Fetches campaign details, generates PDFs, and sends notification to all applicants."""
     campaign = await db.scholarships.find_one({"id": scholarship_id}, {"_id": 0})

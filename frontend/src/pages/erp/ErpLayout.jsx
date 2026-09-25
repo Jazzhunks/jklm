@@ -212,10 +212,10 @@ export default function ErpLayout() {
               end={item.exact}
               onClick={() => setOpen(false)}
               data-testid={`erp-nav-${item.label.toLowerCase().replace(/\s+/g, '-')}`}
-              className={({ isActive }) => `flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-bold transition-all duration-150 ${
+              className={({ isActive }) => `flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 ${
                 isActive
-                  ? "bg-primary text-primary-foreground shadow-sm font-bold"
-                  : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                  ? "bg-primary/10 text-primary font-bold shadow-sm"
+                  : "text-muted-foreground hover:text-foreground hover:bg-muted/50 group"
               }`}
             >
               <item.icon size={16} className="shrink-0" /> <span className="truncate">{item.label}</span>
@@ -251,9 +251,9 @@ export default function ErpLayout() {
       </aside>
 
       {/* Main Content Area */}
-      <div className="flex-1 flex flex-col h-full min-w-0 relative overflow-hidden print:overflow-visible print:h-auto">
+      <div className="flex-1 flex flex-col h-full min-w-0 relative overflow-hidden print:overflow-visible print:h-auto bg-background z-10">
         {/* Modern Enterprise Header Bar */}
-        <header className="flex items-center justify-between px-4 py-2.5 sm:px-6 bg-card border-b border-border sticky top-0 z-20 shrink-0 print:hidden">
+        <header className="flex items-center justify-between h-16 sm:h-20 px-6 sm:px-8 bg-background/80 backdrop-blur-md border-b border-border sticky top-0 z-30 shrink-0 print:hidden">
           {/* Left: Mobile Toggle & Breadcrumbs */}
           <div className="flex items-center gap-3 min-w-0">
             <Button 

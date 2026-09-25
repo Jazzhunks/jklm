@@ -120,17 +120,17 @@ export default function ErpCommandPalette({ isOpen, onClose, onAction, erpUser }
 
   return (
     <div 
-      className="fixed inset-0 z-50 flex items-start justify-center pt-16 sm:pt-24 px-4 bg-black/60 backdrop-blur-sm animate-fadeIn"
+      className="fixed inset-0 z-50 flex items-start justify-center pt-16 sm:pt-24 px-4 bg-zinc-950/20 backdrop-blur-md animate-fadeIn transition-all"
       onClick={onClose}
       data-testid="erp-command-palette-backdrop"
     >
       <div 
-        className="w-full max-w-2xl bg-card border border-border shadow-2xl rounded-2xl overflow-hidden flex flex-col max-h-[75vh]"
+        className="w-full max-w-2xl bg-background/95 backdrop-blur-xl border border-border/40 shadow-[0_30px_80px_-15px_rgba(0,0,0,0.15)] rounded-3xl overflow-hidden flex flex-col max-h-[75vh] ring-1 ring-border/5"
         onClick={e => e.stopPropagation()}
         data-testid="erp-command-palette"
       >
         {/* Search Input Bar */}
-        <div className="flex items-center px-4 py-3.5 border-b border-border bg-muted/20 gap-3">
+        <div className="flex items-center px-5 py-4 border-b border-border/40 bg-transparent gap-3 relative">
           <Search size={18} className="text-primary shrink-0 animate-pulse" />
           <input
             ref={inputRef}
@@ -138,7 +138,7 @@ export default function ErpCommandPalette({ isOpen, onClose, onAction, erpUser }
             value={query}
             onChange={e => { setQuery(e.target.value); setSelectedIndex(0); }}
             placeholder="Type a command, page, or search student by name/ID..."
-            className="w-full bg-transparent text-foreground text-sm placeholder:text-muted-foreground focus:outline-none"
+            className="w-full bg-transparent text-foreground text-base placeholder:text-muted-foreground/50 focus:outline-none font-medium"
             data-testid="command-palette-input"
           />
           {query && (

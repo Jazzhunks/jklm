@@ -371,7 +371,7 @@ async def wa_download_upload_template(_admin = Depends(require_admin)):
     )
 
 
-app.include_router(api)
+
 
 _default_allowed = [
     "http://localhost:3000",
@@ -394,104 +394,3 @@ if _frontend_url:
 
 _allowed_origins = list(set([origin.rstrip("/") for origin in _default_allowed if origin]))
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=_allowed_origins,
-    allow_origin_regex=r"^https?://([a-zA-Z0-9-]+\.)*(preview\.emergentagent\.com|emergent\.host|emergentagent\.com|northendedu\.com)(:\d+)?$",
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
-logging.basicConfig(level=logging.INFO)
-
-@app.get("/health")
-async def health():
-    return {"status": "ok"}
-
-@app.get("/")
-async def root():
-    return {"status": "ok", "service": "Unacademy Offline Centre API"}
-
-async def _run_boot_tasks():
-    try:
-        await seed()
-    except Exception as e:
-        logging.error(f"seed() failed: {e}")
-    try:
-        await erp_seed(db, hash_password)
-    except Exception as e:
-        logging.error(f"erp_seed() failed: {e}")
-    try:
-        await init_storage()
-    except Exception as e:
-        logging.error(f"init_storage() failed: {e}")
-    try:
-        await _backfill_slugs()
-    except Exception as e:
-        logging.error(f"_backfill_slugs() failed: {e}")
-    logging.info("Unacademy Offline Centre backend ready.")
-
-
-async def _backfill_slugs():
-    for coll in ("courses", "scholarships"):
-        cursor = db[coll].find({"$or": [{"slug": {"$exists": False}}, {"slug": None}, {"slug": ""}]}, {"id": 1, "title": 1})
-        async for doc in cursor:
-            slug = await unique_slug(coll, doc.get("title") or "item", exclude_id=doc.get("id"))
-            await db[coll].update_one({"id": doc["id"]}, {"$set": {"slug": slug}})
-    # Backfill centers
-    cursor = db.centers.find({"$or": [{"slug": {"$exists": False}}, {"slug": None}, {"slug": ""}]}, {"id": 1, "name": 1})
-    async for doc in cursor:
-        slug = await unique_slug("centers", doc.get("name") or "center", exclude_id=doc.get("id"))
-        await db.centers.update_one({"id": doc["id"]}, {"$set": {"slug": slug}})
-    # Backfill carnivals
-    cursor = db.wath_carnivals.find({"$or": [{"slug": {"$exists": False}}, {"slug": None}, {"slug": ""}]}, {"id": 1, "title": 1, "name": 1})
-    async for doc in cursor:
-        title = doc.get("title") or doc.get("name") or "carnival"
-        slug = await unique_slug("wath_carnivals", title, exclude_id=doc.get("id"))
-        await db.wath_carnivals.update_one({"id": doc["id"]}, {"$set": {"slug": slug}})
-
-
-async def _schedule_daily_summary():
-    """Send carnival daily booking summary at 8:00 AM server time, with catch-up for missed days."""
-    while True:
-        now = datetime.now(timezone.utc)
-        today = now.strftime("%Y-%m-%d")
-        target = now.replace(hour=8, minute=0, second=0, microsecond=0)
-        missed_today = False
-        if now >= target:
-            cfg = await db.system_meta.find_one({"key": "wath_page_config"}, {"_id": 0})
-            active_carnival_id = (cfg or {}).get("active_carnival_id")
-            if active_carnival_id:
-                marker_key = f"carnival_daily_summary:{active_carnival_id}:{today}"
-                marker = await db.system_meta.find_one({"key": marker_key}, {"_id": 0})
-                if not marker:
-                    missed_today = True
-            target = target + timedelta(days=1)
-        try:
-            await asyncio.sleep(max(0, (target - now).total_seconds()))
-        except Exception:
-            return
-        if missed_today:
-            try:
-                await _send_carnival_daily_summary(force=True)
-            except Exception as e:
-                logging.error("Catch-up daily carnival summary send failed: %s", e)
-        try:
-            await _send_carnival_daily_summary()
-        except Exception as e:
-            logging.error("Daily carnival summary task failed: %s", e)
-        try:
-            await asyncio.sleep(24 * 60 * 60)
-        except Exception:
-            return
-
-@app.on_event("startup")
-async def on_start():
-    asyncio.create_task(_run_boot_tasks())
-    asyncio.create_task(_schedule_daily_summary())
-
-@app.on_event("shutdown")
-async def on_stop():
-    await storage_aclose()
-    client.close()

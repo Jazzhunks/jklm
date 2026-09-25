@@ -192,7 +192,7 @@ def parse_excel_contacts(file_bytes: bytes) -> ExcelParseResult:
 async def get_internal_recipients(target_group: str, branch_id: Optional[str]) -> List[Dict[str, Any]]:
     recipients: List[Dict[str, Any]] = []
     try:
-        from server import db
+        from core.database import db
     except Exception:
         return recipients
 
@@ -389,7 +389,7 @@ async def send_broadcast_template(
 
 async def run_broadcast_job(campaign_id: str, job_id: str):
     try:
-        from server import db
+        from core.database import db
     except Exception:
         logger.error("Cannot import db from server module")
         return
@@ -543,7 +543,7 @@ async def broadcast_analytics_stream(campaign_id: str, request: Request):
     async def event_generator():
         client_queue: asyncio.Queue = asyncio.Queue(maxsize=200)
         try:
-            from server import db
+            from core.database import db
         except Exception:
             yield "data: {\"error\": \"db unavailable\"}\n\n"
             return
@@ -635,7 +635,7 @@ def get_message_cost(country_code: str, category: str) -> float:
 
 async def calculate_campaign_cost(campaign_id: str, country_code: str = "IN") -> Dict[str, Any]:
     try:
-        from server import db
+        from core.database import db
     except Exception:
         return {"total_cost": 0.0, "by_category": {}}
 

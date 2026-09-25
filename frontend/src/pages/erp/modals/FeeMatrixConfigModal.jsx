@@ -45,7 +45,7 @@ export default function FeeMatrixConfigModal({ onClose }) {
 
   return createPortal(
     <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 backdrop-blur-sm overflow-y-auto" onClick={onClose}>
-      <div onClick={e => e.stopPropagation()} className="bg-background border border-border rounded-2xl w-full max-w-4xl p-6 shadow-2xl my-8">
+      <div onClick={e => e.stopPropagation()} className="bg-background/95 backdrop-blur-xl border border-border/40 rounded-3xl shadow-[0_20px_60px_-15px_rgba(0,0,0,0.1)] w-full max-w-4xl p-6 shadow-2xl my-8">
         <div className="flex justify-between items-center mb-6">
           <div>
             <h3 className="font-display font-medium text-xl">Global Fee Structure Matrix</h3>
