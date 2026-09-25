@@ -8,7 +8,7 @@ import CourseCard3D from "@/components/CourseCard3D";
 import { CTAPrimary, CTAGhost, Eyebrow, Reveal } from "@/components/Cinematic";
 import { AnimatedCounter } from "@/components/Metrics";
 import { api } from "@/lib/api";
-import { isReactSnap } from "@/utils/isBot";
+
 import { Helmet } from "react-helmet-async";
 import {
   Star, Sparkle, Trophy, GraduationCap, Lightning, Compass,
@@ -19,7 +19,7 @@ const EASE = [0.16, 1, 0.3, 1];
 
 export default function Home() {
   const isMobile = useIsMobile();
-  const isBot = isReactSnap(); 
+  const isBot = navigator.userAgent === 'ReactSnap'; 
   
   const [courses, setCourses] = useState([]);
   const [stats, setStats] = useState({ students_trained: 1323, selections: 100, educators: 100, centers: 5 });

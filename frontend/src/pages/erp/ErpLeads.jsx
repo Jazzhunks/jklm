@@ -237,8 +237,12 @@ export default function ErpLeads() {
                 ))}
                 {items.length === 0 && (
                   <tr>
-                    <td colSpan="6" className="px-5 py-16 text-center text-muted-foreground italic text-sm">
-                      {isLoading ? "Retrieving prospect pipeline..." : "No leads located matching criteria."}
+                    <td colSpan="6" className="p-4">
+                      {isLoading ? (
+                        <div className="py-12 text-center text-muted-foreground">Retrieving prospect pipeline...</div>
+                      ) : (
+                        <EmptyState title="No leads found" description="There are no leads matching your current criteria." />
+                      )}
                     </td>
                   </tr>
                 )}

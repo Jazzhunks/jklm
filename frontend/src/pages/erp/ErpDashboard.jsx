@@ -353,10 +353,10 @@ function SuperView({ d }) {
           <div className="h-[300px] w-full min-w-0" style={{ minWidth: 0, minHeight: 300 }}>
             <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
               <BarChart data={d.branches || []} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
+                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
                 <XAxis dataKey="branch_name" stroke="#888" fontSize={12} tickLine={false} axisLine={false} />
                 <YAxis stroke="#888" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(v) => `₹${v/1000}k`} />
-                <RechartsTooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(255,255,255,0.02)' }} />
+                <RechartsTooltip content={<CustomTooltip />} cursor={{ fill: 'hsl(var(--muted))' }} />
                 <Legend iconType="circle" wrapperStyle={{ fontSize: '12px', paddingTop: '10px' }}/>
                 <Bar dataKey="revenue" name="Revenue" fill="#34d399" radius={[4, 4, 0, 0]} maxBarSize={50} />
                 <Bar dataKey="expense" name="Expense" fill="#fb7185" radius={[4, 4, 0, 0]} maxBarSize={50} />
@@ -464,10 +464,10 @@ function BranchView({ d, canSeeFinance }) {
             <div className="h-[280px] w-full min-w-0 mt-4" style={{ minWidth: 0, minHeight: 280 }}>
               <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
                 <BarChart data={d.counsellor_performance} layout="vertical" margin={{ top: 0, right: 10, left: 20, bottom: 0 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" horizontal={false} />
+                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" horizontal={false} />
                   <XAxis type="number" stroke="#888" fontSize={12} tickLine={false} axisLine={false} />
                   <YAxis dataKey="name" type="category" stroke="#888" fontSize={12} tickLine={false} axisLine={false} />
-                  <RechartsTooltip cursor={{ fill: 'rgba(255,255,255,0.02)' }} contentStyle={{backgroundColor: '#111', borderColor: '#333', borderRadius: '8px'}}/>
+                  <RechartsTooltip cursor={{ fill: 'hsl(var(--muted))' }} contentStyle={{backgroundColor: '#111', borderColor: '#333', borderRadius: '8px'}}/>
                   <Legend iconType="circle" wrapperStyle={{ fontSize: '12px', paddingTop: '10px' }}/>
                   <Bar dataKey="leads" name="Total Leads" fill="#38bdf8" radius={[0, 4, 4, 0]} barSize={16} />
                   <Bar dataKey="converted" name="Converted" fill="#34d399" radius={[0, 4, 4, 0]} barSize={16} />

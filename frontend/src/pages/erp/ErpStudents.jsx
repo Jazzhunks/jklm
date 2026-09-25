@@ -304,8 +304,12 @@ export default function ErpStudents() {
               })}
               {items.length === 0 && (
                 <tr>
-                  <td colSpan="7" className="px-5 py-16 text-center text-muted-foreground italic text-sm">
-                    {isLoading ? "Retrieving student records..." : "No student profiles found matching your filters."}
+                  <td colSpan="7" className="p-4">
+                    {isLoading ? (
+                      <div className="py-12 text-center text-muted-foreground">Retrieving student records...</div>
+                    ) : (
+                      <EmptyState title="No students found" description="There are no student records matching your current filters." />
+                    )}
                   </td>
                 </tr>
               )}

@@ -1,19 +1,11 @@
-import { useState, useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api";
 
 export function useWathPage() {
-  const [pageState, setPageState] = useState(null);
-  const [loading, setLoading] = useState(true);
-
-  const load = (silent = false) => {
-    if (!silent) setLoading(true);
-    api.get("/wath/page")
-      .then(r => setPageState(r.data || null))
-      .catch(() => { if (!silent) setPageState(null); })
-      .finally(() => { if (!silent) setLoading(false); });
-  };
-  
-  useEffect(() => { load(); }, []);
-
-  return { pageState, loading, load };
+  const { data, isLoading, refetch } = useQuery({
+    queryKey: ["wathPage"],
+    queryFn: () => api.get("/wath/page").then(r => r.data || null)
+  });
+  // ponytail: standard react-query replaces hand-rolled state
+  return { pageState: data, loading: isLoading, load: refetch };
 }
