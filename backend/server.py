@@ -71,6 +71,7 @@ from notifications import (
 from onesignal_client import notify_admins, notify_students, send_onesignal_notification
 
 
+from models.schemas import unique_slug
 from routers import auth, courses, scholarships, enrollments, jobs, schools, attendance, content, whatsapp
 from core.database import db, client
 from core.security import *
