@@ -365,7 +365,7 @@ async def get_current_user(request: Request) -> dict:
         raise HTTPException(401, "Invalid token")
 
 async def require_admin(user: dict = Depends(get_current_user)) -> dict:
-    if user.get("role") not in ("admin", "super_admin", "center_manager", "accountant", "counsellor"):
+    if user.get("role") not in ("admin", "super_admin", "super admin", "superadmin", "center_manager", "accountant", "counsellor"):
         raise HTTPException(403, "Admin access required")
     return user
 

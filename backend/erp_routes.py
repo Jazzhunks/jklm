@@ -25,7 +25,7 @@ from notifications import (
 )
 
 # -- Constants
-ROLES_ALL = {"super_admin", "center_manager", "accountant", "counsellor", "attendance"}
+ROLES_ALL = {"super_admin", "super admin", "superadmin", "center_manager", "accountant", "counsellor", "attendance"}
 ROLES_BRANCH = {"center_manager", "accountant", "counsellor", "attendance"}
 EXPENSE_CATEGORIES = ["Salary", "Rent", "Electricity", "Internet", "Marketing", "Maintenance", "Miscellaneous"]
 PAYMENT_MODES = ["cash", "upi", "online", "cheque", "card"]
@@ -267,7 +267,7 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
     # ---- Role guards
     async def require_erp(user: dict = Depends(get_current_user)) -> dict:
         role = user.get("role")
-        if role == "admin":
+        if role in {"admin", "super admin", "superadmin", "super_admin"}:
             user["role"] = "super_admin"
             role = "super_admin"
         if role not in ROLES_ALL:
@@ -280,18 +280,18 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
         return user
 
     async def require_manager_plus(user: dict = Depends(require_erp)) -> dict:
-        if user["role"] not in {"super_admin", "center_manager"}:
+        if user["role"] not in {"super_admin", "super admin", "superadmin", "center_manager"}:
             raise HTTPException(403, "Access Denied: Manager or executive clearance required.")
         return user
 
     async def require_finance(user: dict = Depends(require_erp)) -> dict:
         """Allow super_admin, center_manager, and accountant to access financial/GST routes."""
-        if user["role"] not in {"super_admin", "center_manager", "accountant"}:
+        if user["role"] not in {"super_admin", "super admin", "superadmin", "center_manager", "accountant"}:
             raise HTTPException(403, "Access Denied: Finance clearance required.")
         return user
 
     def can_view_branch(user: dict, branch_id: str) -> bool:
-        if user["role"] in {"super_admin", "admin"}:
+        if user["role"] in {"super_admin", "super admin", "superadmin", "admin"}:
             return True
         return branch_id == "all" or user.get("branch_id") == branch_id
 
@@ -525,7 +525,7 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
     @erp.get("/alerts")
     async def get_alerts(user: dict = Depends(require_erp)):
         alerts = []
-        if user["role"] in {"super_admin", "admin", "center_manager"}:
+        if user["role"] in {"super_admin", "super admin", "superadmin", "admin", "center_manager"}:
             query = {"status": "pending_approval"}
             if user["role"] != "super_admin":
                 query["branch_id"] = {"$in": ["all", user.get("branch_id")]}
@@ -1089,13 +1089,13 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
     # ===== EXPENSES =====
     @erp.post("/expenses")
     async def create_expense(payload: ExpenseCreate, user: dict = Depends(require_erp)):
-        if user["role"] not in {"super_admin", "center_manager", "accountant"}:
+        if user["role"] not in {"super_admin", "super admin", "superadmin", "center_manager", "accountant"}:
             raise HTTPException(403, "Not allowed")
         if user["role"] != "super_admin" and payload.branch_id != user.get("branch_id"):
             raise HTTPException(403, "Cross-branch denied")
         if not await db.centers.find_one({"id": payload.branch_id}):
             raise HTTPException(400, "Branch not found")
-        auto_approved = user["role"] in {"super_admin", "center_manager"}
+        auto_approved = user["role"] in {"super_admin", "super admin", "superadmin", "center_manager"}
         doc = payload.model_dump()
         doc.update({
             "id": new_id(),
@@ -1198,7 +1198,7 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
     # ===== LEADS =====
     @erp.post("/leads")
     async def create_lead(payload: LeadCreate, user: dict = Depends(require_erp)):
-        if user["role"] not in {"super_admin", "center_manager", "counsellor"}:
+        if user["role"] not in {"super_admin", "super admin", "superadmin", "center_manager", "counsellor"}:
             raise HTTPException(403, "Not allowed")
         if user["role"] != "super_admin" and payload.branch_id != user.get("branch_id"):
             raise HTTPException(403, "Cross-branch denied")
@@ -1348,7 +1348,7 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
         l = await db.erp_leads.find_one({"id": lead_id}, {"_id": 0})
         if not l:
             raise HTTPException(404, "Lead not found")
-        if user["role"] not in {"super_admin", "admin"} and l.get("branch_id") not in {"all", user.get("branch_id")}:
+        if user["role"] not in {"super_admin", "super admin", "superadmin", "admin"} and l.get("branch_id") not in {"all", user.get("branch_id")}:
             raise HTTPException(403, "Cross-branch denied")
         await db.erp_leads.delete_one({"id": lead_id})
         await audit(user, "delete", "lead", lead_id, l.get("branch_id"), {"student_name": l.get("name")})
@@ -1358,11 +1358,11 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
     
     @erp.post("/leads/{lead_id}/interactions")
     async def add_lead_interaction(lead_id: str, payload: LeadInteraction, user: dict = Depends(require_erp)):
-        if user["role"] not in {"super_admin", "center_manager", "counsellor"}:
+        if user["role"] not in {"super_admin", "super admin", "superadmin", "center_manager", "counsellor"}:
             raise HTTPException(403, "Not allowed")
         lead = await db.erp_leads.find_one({"id": lead_id}, {"_id": 0})
         if not lead: raise HTTPException(404, "Lead not found")
-        if user["role"] not in {"super_admin", "admin"} and lead.get("branch_id") not in {"all", user.get("branch_id")}:
+        if user["role"] not in {"super_admin", "super admin", "superadmin", "admin"} and lead.get("branch_id") not in {"all", user.get("branch_id")}:
             raise HTTPException(403, "Cross-branch denied")
         interaction = {
             "id": new_id(), "type": payload.type, "notes": payload.notes,
@@ -1408,7 +1408,7 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
 
     @erp.post("/leads/{lead_id}/approve")
     async def approve_lead(lead_id: str, payload: LeadApproveRequest, user: dict = Depends(require_erp)):
-        if user["role"] not in {"super_admin", "center_manager"}:
+        if user["role"] not in {"super_admin", "super admin", "superadmin", "center_manager"}:
             raise HTTPException(403, "Only managers can approve fees")
         lead = await db.erp_leads.find_one({"id": lead_id})
         if not lead: raise HTTPException(404, "Lead not found")
@@ -1426,7 +1426,7 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
 
     @erp.post("/leads/{lead_id}/reject")
     async def reject_lead(lead_id: str, payload: LeadApproveRequest, user: dict = Depends(require_erp)):
-        if user["role"] not in {"super_admin", "center_manager"}:
+        if user["role"] not in {"super_admin", "super admin", "superadmin", "center_manager"}:
             raise HTTPException(403, "Only managers can reject fees")
         lead = await db.erp_leads.find_one({"id": lead_id})
         if not lead: raise HTTPException(404, "Lead not found")
@@ -1444,7 +1444,7 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
 
     @erp.post("/leads/{lead_id}/enroll")
     async def enroll_lead(lead_id: str, payload: LeadEnrollRequest, user: dict = Depends(require_erp)):
-        if user["role"] not in {"super_admin", "center_manager", "accountant"}:
+        if user["role"] not in {"super_admin", "super admin", "superadmin", "center_manager", "accountant"}:
             raise HTTPException(403, "Only Accounts/Managers can process final admission")
         lead = await db.erp_leads.find_one({"id": lead_id})
         if not lead: raise HTTPException(404, "Lead not found")
@@ -1510,7 +1510,7 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
     
     @erp.post("/leads/{lead_id}/transfer")
     async def transfer_lead(lead_id: str, payload: LeadTransferRequest, user: dict = Depends(require_erp)):
-        if user["role"] not in {"super_admin", "center_manager", "counsellor"}:
+        if user["role"] not in {"super_admin", "super admin", "superadmin", "center_manager", "counsellor"}:
             raise HTTPException(403, "Not allowed")
         lead = await db.erp_leads.find_one({"id": lead_id})
         if not lead: raise HTTPException(404, "Lead not found")

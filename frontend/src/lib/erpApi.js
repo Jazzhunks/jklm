@@ -129,7 +129,7 @@ export const erp = {
 // ROLE-BASED ACCESS CONTROL (RBAC) SYSTEM HELPERS
 // ============================================================================
 
-export const isSuper = (user) => user?.role === "super_admin" || user?.role === "admin";
+export const isSuper = (user) => user?.role === "super_admin" || user?.role === "super admin" || user?.role === "superadmin" || user?.role === "admin";
 export const isManagerPlus = (user) => isSuper(user) || user?.role === "center_manager";
 export const isFinance = (user) => isManagerPlus(user) || user?.role === "accountant";
 export const canSeeStaff = isManagerPlus;
@@ -137,7 +137,7 @@ export const canSeeStaff = isManagerPlus;
 // Grants accountants explicit permission privileges to write and manage student records
 export const canManageStudents = (user) => isSuper(user) || user?.role === "center_manager" || user?.role === "accountant";
 
-const ERP_ROLES = new Set(["super_admin", "admin", "center_manager", "accountant", "counsellor", "attendance"]);
+const ERP_ROLES = new Set(["super_admin", "super admin", "superadmin", "admin", "center_manager", "accountant", "counsellor", "attendance"]);
 export const isERPUser = (user) => ERP_ROLES.has(user?.role);
 
 // ============================================================================
