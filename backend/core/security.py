@@ -4,6 +4,7 @@ import bcrypt
 from datetime import datetime, timezone, timedelta
 from fastapi import HTTPException, Depends, Request, Response
 from core.database import db
+from typing import Optional
 
 _rate_limit_store: dict[str, list[float]] = {}
 _failed_login_store: dict[str, list[float]] = {}
