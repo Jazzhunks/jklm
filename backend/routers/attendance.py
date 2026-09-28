@@ -1,11 +1,10 @@
-from fastapi import APIRouter, HTTPException, Depends, Request, Response, BackgroundTasks, UploadFile, File, Form, Query
-from typing import Optional, List, Dict, Any
-import os, io, json, re, asyncio, uuid
-from datetime import datetime, timezone, timedelta
-from models.schemas import *
+import asyncio
+
 from core.database import db
 from core.security import *
 from core.utils import *
+from fastapi import APIRouter, Depends, HTTPException, Query
+from models.schemas import *
 
 router = APIRouter()
 
@@ -29,7 +28,7 @@ async def attendance_campaign(token: str = Query(...)):
     }
 
 @router.get("/attendance/applications")
-async def attendance_applications(token: str = Query(...), venue: Optional[str] = None):
+async def attendance_applications(token: str = Query(...), venue: str | None = None):
     camp = await _campaign_by_token(token)
     q = {"scholarship_id": camp["id"]}
     if venue: q["venue"] = _sanitize_venue(venue)

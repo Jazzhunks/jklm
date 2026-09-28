@@ -83,198 +83,61 @@ def _validate_school_campaign(doc: Dict[str, Any]):
             if not slot.get("from_time") or not slot.get("to_time"):
                 raise HTTPException(400, f"time_slots[{idx}] must have from_time and to_time")
 
-async def _run_maybe_async(func, *args, **kwargs):
-    """Run either an async or synchronous client function safely."""
-    if inspect.iscoroutinefunction(func):
-        return await func(*args, **kwargs)
-    return await asyncio.to_thread(func, *args, **kwargs)
+import inspect, asyncio, logging, httpx
+
+def _safe_sync(f, *a, **k):
+    try: asyncio.run((f(*a, **k) if inspect.iscoroutinefunction(f) else asyncio.to_thread(f, *a, **k)))
+    except Exception: pass
+
+_safe_send_whatsapp_admit_card = lambda *a, **k: _safe_sync(send_whatsapp_admit_card, *a, **k)
+_safe_send_whatsapp_wath_carnival = lambda *a, **k: _safe_sync(send_whatsapp_wath_carnival, *a, **k)
 
 
-def _safe_send_whatsapp_admit_card(*args, **kwargs) -> None:
-    """Sync wrapper for FastAPI BackgroundTasks for standard admit cards."""
+
+async def _send_openwa(gid, text, extra=None):
+    u, k, s = (os.getenv(x) for x in ("OPENWA_URL", "OPENWA_API_MASTER_KEY", "OPENWA_SESSION_ID"))
+    if not all([u, k, s, gid]): return
+    api = f"{u.rstrip('/')}/api/sessions/{s}/messages/send-text"
     try:
-        asyncio.run(_run_maybe_async(send_whatsapp_admit_card, *args, **kwargs))
-    except Exception as e:
-        logging.error(f"Background WhatsApp task failed: {e}")
+        async with httpx.AsyncClient(timeout=15) as c:
+            await c.post(api, json={"chatId": gid, "text": text}, headers={"X-API-Key": k})
+            if extra: await c.post(api, json={"chatId": extra, "text": text}, headers={"X-API-Key": k})
+    except Exception: pass
 
-def _safe_send_whatsapp_wath_carnival(*args, **kwargs) -> None:
-    """Sync wrapper for FastAPI BackgroundTasks for WATH Carnival WhatsApp messages."""
-    try:
-        asyncio.run(_run_maybe_async(send_whatsapp_wath_carnival, *args, **kwargs))
-    except Exception as e:
-        logging.error(f"Background WATH Carnival WhatsApp task failed: {e}")
+async def _send_registration_group_notification(doc: dict):
+    await _send_openwa(os.getenv("OPENWA_REGISTRATION_GROUP_ID"), f"🆕 *New Registration*\n\n*Name:* {doc.get('name', 'User')}\n*Email:* {doc.get('email', '')}\n*Phone:* {doc.get('phone', '')}\n*Role:* {doc.get('role', 'student')}")
 
+async def _send_carnival_booking_notification(b: dict):
+    v = (b.get("venue") or "").strip().lower()
+    c = __import__('json').loads(os.getenv("OPENWA_VENUE_CONTACTS", "{}")).get(v)
+    extra = (c if "@" in c else f"{c}@c.us") if c else None
+    await _send_openwa(os.getenv("OPENWA_REGISTRATION_GROUP_ID") or os.getenv("OPENWA_CARNIVAL_GROUP_ID"), f"🎪 *New Carnival Slot Booking*\n\n*Venue:* {b.get('venue', '—')}\n*Name:* {b.get('name', '—')}\n*Mobile Number:* {b.get('phone', '—')}\n*Date:* {b.get('chosen_date', '—')}\n*Time:* {b.get('chosen_slot_time', '—')}\n*Class:* {b.get('standard', '—')}", extra)
 
-async def _send_registration_group_notification(user_doc: dict) -> None:
-    """Send a new-registration notification to the configured OpenWA group."""
-    openwa_url = os.getenv("OPENWA_URL")
-    api_key = os.getenv("OPENWA_API_MASTER_KEY")
-    session_id = os.getenv("OPENWA_SESSION_ID")
-    group_id = os.getenv("OPENWA_REGISTRATION_GROUP_ID")
-    if not all([openwa_url, api_key, session_id, group_id]):
-        logging.warning("OpenWA group notification skipped: missing OPENWA_URL/OPENWA_API_MASTER_KEY/OPENWA_SESSION_ID/OPENWA_REGISTRATION_GROUP_ID")
-        return
-
-    name = user_doc.get("name", "User")
-    email = user_doc.get("email", "")
-    phone = user_doc.get("phone", "")
-    role = user_doc.get("role", "student")
-    text = (
-        "🆕 *New Registration*\n\n"
-        f"*Name:* {name}\n"
-        f"*Email:* {email}\n"
-        f"*Phone:* {phone}\n"
-        f"*Role:* {role}"
-    )
-    payload = {
-        "chatId": group_id,
-        "text": text,
-    }
-    url = f"{openwa_url.rstrip('/')}/api/sessions/{session_id}/messages/send-text"
-    try:
-        async with httpx.AsyncClient(timeout=15) as client:
-            resp = await client.post(url, json=payload, headers={"X-API-Key": api_key})
-            resp.raise_for_status()
-            logging.info("Sent registration notification to OpenWA group %s", group_id)
-    except Exception as e:
-        logging.error("Failed to send registration group notification: %s", e)
-
-
-async def _send_carnival_booking_notification(booking: dict) -> None:
-    """Send a new carnival slot booking notification to the configured OpenWA group and venue contact."""
-    openwa_url = os.getenv("OPENWA_URL")
-    api_key = os.getenv("OPENWA_API_MASTER_KEY")
-    session_id = os.getenv("OPENWA_SESSION_ID")
-    group_id = os.getenv("OPENWA_REGISTRATION_GROUP_ID") or os.getenv("OPENWA_CARNIVAL_GROUP_ID")
-    if not all([openwa_url, api_key, session_id, group_id]):
-        logging.warning("OpenWA carnival notification skipped: missing OPENWA_URL/OPENWA_API_MASTER_KEY/OPENWA_SESSION_ID/OPENWA_REGISTRATION_GROUP_ID")
-        return
-
-    text = (
-        "🎪 *New Carnival Slot Booking*\n\n"
-        f"*Venue:* {booking.get('venue', '—')}\n"
-        f"*Name:* {booking.get('name', '—')}\n"
-        f"*Mobile Number:* {booking.get('phone', '—')}\n"
-        f"*Date:* {booking.get('chosen_date', '—')}\n"
-        f"*Time:* {booking.get('chosen_slot_time', '—')}\n"
-        f"*Class:* {booking.get('standard', '—')}"
-    )
-    payload = {
-        "chatId": group_id,
-        "text": text,
-    }
-    url = f"{openwa_url.rstrip('/')}/api/sessions/{session_id}/messages/send-text"
-    try:
-        async with httpx.AsyncClient(timeout=15) as client:
-            resp = await client.post(url, json=payload, headers={"X-API-Key": api_key})
-            resp.raise_for_status()
-            logging.info("Sent carnival booking notification to OpenWA group %s", group_id)
-    except Exception as e:
-        logging.error("Failed to send carnival booking group notification: %s", e)
-
-    venue = (booking.get("venue") or "").strip().lower()
-    venue_contacts_raw = os.getenv("OPENWA_VENUE_CONTACTS", "{}")
-    try:
-        import json
-        venue_contacts = json.loads(venue_contacts_raw)
-    except Exception:
-        venue_contacts = {}
-    venue_contact = venue_contacts.get(venue)
-    if not venue_contact:
-        return
-    venue_chat_id = venue_contact if "@" in venue_contact else f"{venue_contact}@c.us"
-    venue_payload = {
-        "chatId": venue_chat_id,
-        "text": text,
-    }
-    try:
-        async with httpx.AsyncClient(timeout=15) as client:
-            resp = await client.post(url, json=venue_payload, headers={"X-API-Key": api_key})
-            resp.raise_for_status()
-            logging.info("Sent carnival booking notification to venue contact %s", venue_chat_id)
-    except Exception as e:
-        logging.error("Failed to send carnival booking venue notification: %s", e)
-
-
-async def _send_carnival_daily_summary(force: bool = False) -> None:
-    """Send a daily 8 AM summary of today's carnival bookings grouped by venue and class."""
-    openwa_url = os.getenv("OPENWA_URL")
-    api_key = os.getenv("OPENWA_API_MASTER_KEY")
-    session_id = os.getenv("OPENWA_SESSION_ID")
-    group_id = os.getenv("OPENWA_REGISTRATION_GROUP_ID") or os.getenv("OPENWA_CARNIVAL_GROUP_ID")
-    if not all([openwa_url, api_key, session_id, group_id]):
-        logging.warning("OpenWA daily summary skipped: missing OPENWA_URL/OPENWA_API_MASTER_KEY/OPENWA_SESSION_ID/OPENWA_REGISTRATION_GROUP_ID")
-        return
-
+async def _send_carnival_daily_summary(force: bool = False):
+    gid = os.getenv("OPENWA_REGISTRATION_GROUP_ID") or os.getenv("OPENWA_CARNIVAL_GROUP_ID")
+    if not gid: return
     today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
     cfg = await db.system_meta.find_one({"key": "wath_page_config"}, {"_id": 0})
-    active_carnival_id = (cfg or {}).get("active_carnival_id")
-    if not active_carnival_id:
-        logging.info("No active carnival configured; skipping daily summary")
-        return
-
-    marker_key = f"carnival_daily_summary:{active_carnival_id}:{today}"
-    marker = await db.system_meta.find_one({"key": marker_key}, {"_id": 0})
-    if not force and marker:
-        logging.info("Daily summary already sent for %s; skipping", today)
-        return
-
-    cursor = db.scholarship_applications.find(
-        {"carnival_id": active_carnival_id, "chosen_date": today},
-        {"_id": 0, "venue": 1, "standard": 1, "name": 1, "phone": 1, "chosen_slot_time": 1},
-    ).sort("created_at", 1).to_list(1000)
-
-    rows = await cursor
-    if not rows:
-        logging.info("No carnival bookings for today %s; skipping daily summary", today)
-        return
-
-    venues: Dict[str, Any] = {}
-    for row in rows:
-        venue = (row.get("venue") or "—").strip()
-        standard = (row.get("standard") or "—").strip()
-        name = (row.get("name") or "—").strip()
-        phone = (row.get("phone") or "—").strip()
-        time = (row.get("chosen_slot_time") or "—").strip()
-        venues.setdefault(venue, {}).setdefault(standard, []).append({
-            "name": name,
-            "phone": phone,
-            "time": time,
-        })
-
+    cid = (cfg or {}).get("active_carnival_id")
+    if not cid: return
+    mkey = f"carnival_daily_summary:{cid}:{today}"
+    if not force and await db.system_meta.find_one({"key": mkey}, {"_id": 0}): return
+    rows = await db.scholarship_applications.find({"carnival_id": cid, "chosen_date": today}, {"_id": 0, "venue": 1, "standard": 1, "name": 1, "phone": 1, "chosen_slot_time": 1}).to_list(1000)
+    if not rows: return
+    v_dict = {}
+    for r in rows:
+        v_dict.setdefault((r.get("venue") or "—").strip(), {}).setdefault((r.get("standard") or "—").strip(), []).append(f"{r.get('name', '—')} -- {r.get('phone', '—')} -- {r.get('chosen_slot_time', '—')}")
     lines = [f"📋 *Today's Slot Bookings* ({today})\n"]
-    for venue, classes in venues.items():
-        lines.append(f"🏢 *Venue:* {venue}")
-        for standard, entries in classes.items():
-            if not entries:
-                continue
-            lines.append(f"\n*Class {standard}*")
-            for entry in entries:
-                lines.append(f"{entry['name']} -- {entry['phone']} -- {entry['time']}")
+    for v, classes in v_dict.items():
+        lines.append(f"🏢 *Venue:* {v}")
+        for s, entries in classes.items():
+            lines.append(f"\n*Class {s}*\n" + "\n".join(entries))
         lines.append("")
+    await _send_openwa(gid, "\n".join(lines).strip())
+    await db.system_meta.update_one({"key": mkey}, {"$set": {"sent_at": datetime.now(timezone.utc).isoformat()}}, upsert=True)
 
-    text = "\n".join(lines).strip()
-    payload = {
-        "chatId": group_id,
-        "text": text,
-    }
-    url = f"{openwa_url.rstrip('/')}/api/sessions/{session_id}/messages/send-text"
-    try:
-        async with httpx.AsyncClient(timeout=15) as client:
-            resp = await client.post(url, json=payload, headers={"X-API-Key": api_key})
-            resp.raise_for_status()
-            await db.system_meta.update_one({"key": marker_key}, {"$set": {"sent_at": datetime.now(timezone.utc).isoformat()}}, upsert=True)
-            logging.info("Sent carnival daily summary to OpenWA group %s", group_id)
-    except Exception as e:
-        logging.error("Failed to send carnival daily summary: %s", e)
+_safe_send_carnival_daily_summary = lambda f=False: _safe_sync(_send_carnival_daily_summary, f)
 
-
-def _safe_send_carnival_daily_summary(force: bool = False) -> None:
-    """Sync wrapper for FastAPI BackgroundTasks for OpenWA daily carnival summary."""
-    try:
-        asyncio.run(_send_carnival_daily_summary(force=force))
-    except Exception as e:
-        logging.error("Background OpenWA carnival daily summary failed: %s", e)
 
 
 def export_excel(rows: list, sheet_name: str, filename: str):
@@ -298,84 +161,42 @@ def export_excel(rows: list, sheet_name: str, filename: str):
         headers={"Content-Disposition": f'attachment; filename="{filename}"'}
     )
 
-JWT_ALGORITHM = "HS256"
+def jwt_secret():
+    if not (s := os.getenv("JWT_SECRET")): raise RuntimeError("No JWT_SECRET")
+    return s
 
-def jwt_secret() -> str:
-    secret = os.getenv("JWT_SECRET")
-    if not secret:
-        raise RuntimeError("JWT_SECRET is not configured on the server")
-    return secret
-
-def hash_password(p: str) -> str:
-    return bcrypt.hashpw(p.encode(), bcrypt.gensalt()).decode()
-
-def verify_password(p: str, h: str) -> bool:
-    try:
-        return bcrypt.checkpw(p.encode(), h.encode())
-    except Exception:
-        return False
+hash_password = lambda p: bcrypt.hashpw(p.encode(), bcrypt.gensalt()).decode()
+verify_password = lambda p, h: bcrypt.checkpw(p.encode(), h.encode())
 
 def create_access_token(uid: str, email: str, role: str) -> str:
-    return jwt.encode(
-        {"sub": uid, "email": email, "role": role,
-         "exp": datetime.now(timezone.utc) + timedelta(minutes=60),
-         "type": "access"},
-        jwt_secret(), algorithm=JWT_ALGORITHM
-    )
+    return jwt.encode({"sub": uid, "email": email, "role": role, "exp": datetime.now(timezone.utc) + timedelta(minutes=60), "type": "access"}, jwt_secret(), algorithm="HS256")
 
 def create_refresh_token(uid: str, role: str = "student") -> str:
-    ttl = timedelta(days=30) if role == "admin" else timedelta(days=7)
-    return jwt.encode(
-        {"sub": uid, "exp": datetime.now(timezone.utc) + ttl,
-         "type": "refresh"},
-        jwt_secret(), algorithm=JWT_ALGORITHM
-    )
+    return jwt.encode({"sub": uid, "exp": datetime.now(timezone.utc) + timedelta(days=30 if role == "admin" else 7), "type": "refresh"}, jwt_secret(), algorithm="HS256")
 
 def set_auth_cookies(response: Response, access: str, refresh: str, refresh_max_age: int = 604800):
-    cookie_samesite = os.environ.get("COOKIE_SAMESITE", "none").lower()
-    cookie_secure = os.environ.get("COOKIE_SECURE", "true").lower() in ("true", "1", "yes")
-    if cookie_samesite == "none":
-        cookie_secure = True
-    response.set_cookie("access_token", access, httponly=True, secure=cookie_secure, samesite=cookie_samesite, max_age=3600, path="/")
-    response.set_cookie("refresh_token", refresh, httponly=True, secure=cookie_secure, samesite=cookie_samesite, max_age=refresh_max_age, path="/")
+    cs = os.environ.get("COOKIE_SAMESITE", "none").lower()
+    sec = True if cs == "none" else os.environ.get("COOKIE_SECURE", "true").lower() in ("true", "1", "yes")
+    for k, v, a in [("access_token", access, 3600), ("refresh_token", refresh, refresh_max_age)]:
+        response.set_cookie(k, v, httponly=True, secure=sec, samesite=cs, max_age=a, path="/")
 
 async def get_current_user(request: Request) -> dict:
-    token = request.cookies.get("access_token")
-    if not token:
-        ah = request.headers.get("Authorization", "")
-        if ah.startswith("Bearer "):
-            token = ah[7:]
-    
-    if not token:
-        token = request.query_params.get("token")
-
-    if not token:
-        raise HTTPException(401, "Not authenticated")
+    token = request.cookies.get("access_token") or (request.headers.get("Authorization", "")[7:] if request.headers.get("Authorization", "").startswith("Bearer ") else request.query_params.get("token"))
+    if not token: raise HTTPException(401, "Not authenticated")
     try:
-        payload = jwt.decode(token, jwt_secret(), algorithms=[JWT_ALGORITHM])
-        if payload.get("type") != "access":
-            raise HTTPException(401, "Invalid token type")
-        user = await db.users.find_one({"id": payload["sub"]}, {"_id": 0, "password_hash": 0})
-        if not user:
-            raise HTTPException(401, "User not found")
-        return user
-    except jwt.ExpiredSignatureError:
-        raise HTTPException(401, "Token expired")
-    except jwt.InvalidTokenError:
-        raise HTTPException(401, "Invalid token")
+        p = jwt.decode(token, jwt_secret(), algorithms=["HS256"])
+        if p.get("type") != "access": raise HTTPException(401, "Invalid token type")
+        if not (u := await db.users.find_one({"id": p["sub"]}, {"_id": 0, "password_hash": 0})): raise HTTPException(401, "User not found")
+        return u
+    except Exception as e: raise HTTPException(401, str(e))
 
-async def require_admin(user: dict = Depends(get_current_user)) -> dict:
-    if user.get("role") not in ("admin", "super_admin", "super admin", "superadmin", "center_manager", "accountant", "counsellor"):
-        raise HTTPException(403, "Admin access required")
-    return user
+def _req_role(roles):
+    async def _check(u: dict = Depends(get_current_user)):
+        if u.get("role") not in roles: raise HTTPException(403, "Access denied")
+        return u
+    return _check
 
-async def require_super_admin(user: dict = Depends(get_current_user)) -> dict:
-    if user.get("role") not in ("admin", "super_admin"):
-        raise HTTPException(403, "Super admin access required")
-    return user
-
-async def require_school(user: dict = Depends(get_current_user)) -> dict:
-    if user.get("role") != "school":
-        raise HTTPException(403, "School access required")
-    return user
+require_admin = _req_role(("admin", "super_admin", "super admin", "superadmin", "center_manager", "accountant", "counsellor"))
+require_super_admin = _req_role(("admin", "super_admin"))
+require_school = _req_role(("school",))
 

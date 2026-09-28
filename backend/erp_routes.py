@@ -6,14 +6,12 @@ import uuid
 import asyncio
 import openpyxl
 from datetime import datetime, timezone, timedelta
-from typing import List, Optional, Literal, Dict, Any
-
-from fastapi import APIRouter, Request, Depends, HTTPException, Query, Response, BackgroundTasks, UploadFile, File
+from typing import List, Literal, Dict, Any
+from fastapi import APIRouter, Request, Depends, HTTPException, Query, Response, UploadFile, File
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 from core.database import send_super_admin_notification
 from pydantic import BaseModel, EmailStr, Field
-
 from erp_pdf import fee_receipt_pdf, fee_receipt_thermal_pdf
 from storage_client import put_object, get_object, APP_NAME
 from notifications import (
@@ -23,163 +21,144 @@ from notifications import (
     emit_lead_created,
     emit_gst_filed,
 )
-
-# -- Constants
 ROLES_ALL = {"super_admin", "super admin", "superadmin", "center_manager", "accountant", "counsellor", "attendance"}
 ROLES_BRANCH = {"center_manager", "accountant", "counsellor", "attendance"}
 EXPENSE_CATEGORIES = ["Salary", "Rent", "Electricity", "Internet", "Marketing", "Maintenance", "Miscellaneous"]
 PAYMENT_MODES = ["cash", "upi", "online", "cheque", "card"]
 LEAD_STATUSES = ["new", "contacted", "follow_up", "converted", "lost"]
-
 CGST_RATE = 9.0
 SGST_RATE = 9.0
-
 # Broadcasters Memory Matrix Mapping Layer
 branch_broadcast_queues: Dict[str, List[asyncio.Queue]] = {}
-
 def now_iso():
     return datetime.now(timezone.utc).isoformat()
-
 def new_id():
     return str(uuid.uuid4())
-
-# ====== PYDANTIC COMPLIANCE VALIDATORS ======
 class StaffCreate(BaseModel):
     name: str
     email: EmailStr
     password: str
     role: Literal["center_manager", "accountant", "counsellor", "attendance"]
     branch_id: str
-    phone: Optional[str] = None
-
+    phone: str | None = None
 class StaffUpdate(BaseModel):
-    name: Optional[str] = None
-    role: Optional[Literal["center_manager", "accountant", "counsellor", "attendance"]] = None
-    branch_id: Optional[str] = None
-    phone: Optional[str] = None
-    active: Optional[bool] = None
-    new_password: Optional[str] = None
-
+    name: str | None = None
+    role: Literal["center_manager", "accountant", "counsellor", "attendance"] | None = None
+    branch_id: str | None = None
+    phone: str | None = None
+    active: bool | None = None
+    new_password: str | None = None
 class BranchUpdate(BaseModel):
-    name: Optional[str] = None
-    code: Optional[str] = None
-    city: Optional[str] = None
-    address: Optional[str] = None
-    phone: Optional[str] = None
-    gstin: Optional[str] = None
-    signatory_name: Optional[str] = None
-    state_code: Optional[str] = None
-    manager_user_id: Optional[str] = None
-
+    name: str | None = None
+    code: str | None = None
+    city: str | None = None
+    address: str | None = None
+    phone: str | None = None
+    gstin: str | None = None
+    signatory_name: str | None = None
+    state_code: str | None = None
+    manager_user_id: str | None = None
 class StudentCreate(BaseModel):
     full_name: str
-    gender: Optional[str] = None
-    dob: Optional[str] = None
-    address: Optional[str] = None
+    gender: str | None = None
+    dob: str | None = None
+    address: str | None = None
     contact_phone: str
-    contact_email: Optional[EmailStr] = None
-    emergency_phone: Optional[str] = None
-    parent_name: Optional[str] = None
-    parent_phone: Optional[str] = None
-    parent_email: Optional[EmailStr] = None
-    current_class: Optional[str] = None
-    school_institute: Optional[str] = None
-    board: Optional[str] = None
-    category: Optional[str] = None
+    contact_email: EmailStr | None = None
+    emergency_phone: str | None = None
+    parent_name: str | None = None
+    parent_phone: str | None = None
+    parent_email: EmailStr | None = None
+    current_class: str | None = None
+    school_institute: str | None = None
+    board: str | None = None
+    category: str | None = None
     course_id: str
-    batch: Optional[str] = None
-    batch_timing: Optional[str] = None
-    course_duration: Optional[str] = None
+    batch: str | None = None
+    batch_timing: str | None = None
+    course_duration: str | None = None
     branch_id: str
-    counsellor_id: Optional[str] = None
-    admission_date: Optional[str] = None
+    counsellor_id: str | None = None
+    admission_date: str | None = None
     total_fee: float
     scholarship_percent: float = 0.0
     discount: float = 0.0
-    luid: Optional[str] = None
-    enrollment_number: Optional[str] = None
-    notes: Optional[str] = None
+    luid: str | None = None
+    enrollment_number: str | None = None
+    notes: str | None = None
     documents: List[dict] = Field(default_factory=list)
-    photo_url: Optional[str] = None
-    public_user_id: Optional[str] = None
-    school_institute: Optional[str] = None
-    board: Optional[str] = None
-    category: Optional[str] = None
-    emergency_phone: Optional[str] = None
-    additional_discount_by: Optional[str] = None
-
+    photo_url: str | None = None
+    public_user_id: str | None = None
+    school_institute: str | None = None
+    board: str | None = None
+    category: str | None = None
+    emergency_phone: str | None = None
+    additional_discount_by: str | None = None
 class StudentUpdate(BaseModel):
-    full_name: Optional[str] = None
-    student_no: Optional[str] = None
-    course_id: Optional[str] = None
-    branch_id: Optional[str] = None
-    admission_date: Optional[str] = None
-    gender: Optional[str] = None
-    dob: Optional[str] = None
-    school_institute: Optional[str] = None
-    board: Optional[str] = None
-    category: Optional[str] = None
-    parent_name: Optional[str] = None
-    parent_phone: Optional[str] = None
-    parent_email: Optional[EmailStr] = None
-    emergency_phone: Optional[str] = None
-    contact_phone: Optional[str] = None
-    contact_email: Optional[EmailStr] = None
-    address: Optional[str] = None
-    photo_url: Optional[str] = None
-    luid: Optional[str] = None
-    enrollment_number: Optional[str] = None
-    batch: Optional[str] = None
-    counsellor_id: Optional[str] = None
-    scholarship_percent: Optional[float] = None
-    discount: Optional[float] = None
-    total_fee: Optional[float] = None
-    documents: Optional[List[dict]] = None
-    notes: Optional[str] = None
-    status: Optional[Literal["active", "inactive", "alumni", "temporary"]] = None
-    additional_discount_by: Optional[str] = None
-
-
+    full_name: str | None = None
+    student_no: str | None = None
+    course_id: str | None = None
+    branch_id: str | None = None
+    admission_date: str | None = None
+    gender: str | None = None
+    dob: str | None = None
+    school_institute: str | None = None
+    board: str | None = None
+    category: str | None = None
+    parent_name: str | None = None
+    parent_phone: str | None = None
+    parent_email: EmailStr | None = None
+    emergency_phone: str | None = None
+    contact_phone: str | None = None
+    contact_email: EmailStr | None = None
+    address: str | None = None
+    photo_url: str | None = None
+    luid: str | None = None
+    enrollment_number: str | None = None
+    batch: str | None = None
+    counsellor_id: str | None = None
+    scholarship_percent: float | None = None
+    discount: float | None = None
+    total_fee: float | None = None
+    documents: List[dict | None] = None
+    notes: str | None = None
+    status: Literal["active", "inactive", "alumni", "temporary"] | None = None
+    additional_discount_by: str | None = None
 class PaymentCreate(BaseModel):
     student_id: str
     amount: float
     mode: Literal["cash", "upi", "online", "cheque", "card"]
-    next_due_date: Optional[str] = None
-    notes: Optional[str] = None
-    transaction_ref: Optional[str] = None
+    next_due_date: str | None = None
+    notes: str | None = None
+    transaction_ref: str | None = None
     apply_gst: bool = True
-
 class PaymentUpdate(BaseModel):
-    amount: Optional[float] = None
-    mode: Optional[Literal["cash", "upi", "online", "cheque", "card"]] = None
-    paid_at: Optional[str] = None
-    transaction_ref: Optional[str] = None
-    notes: Optional[str] = None
-    apply_gst: Optional[bool] = None
-
+    amount: float | None = None
+    mode: Literal["cash", "upi", "online", "cheque", "card"] | None = None
+    paid_at: str | None = None
+    transaction_ref: str | None = None
+    notes: str | None = None
+    apply_gst: bool | None = None
 class ExpenseCreate(BaseModel):
     branch_id: str
     category: Literal["Salary", "Rent", "Electricity", "Internet", "Marketing", "Maintenance", "Miscellaneous"]
     amount: float
     description: str
-    vendor: Optional[str] = None
-    bill_url: Optional[str] = None
-    expense_date: Optional[str] = None
-    payment_mode: Optional[Literal["cash", "online", "cheque", "card"]] = "online"
-
+    vendor: str | None = None
+    bill_url: str | None = None
+    expense_date: str | None = None
+    payment_mode: Literal["cash", "online", "cheque", "card"] | None = "online"
 class ExpenseDecision(BaseModel):
     decision: Literal["approve", "reject"]
-    note: Optional[str] = None
-
+    note: str | None = None
 class GstMarkPaidIn(BaseModel):
     month: str
-    branch_id: Optional[str] = None
+    branch_id: str | None = None
     status: Literal["PAID", "UNPAID"] = "PAID"
-    challan_no: Optional[str] = None
-    paid_date: Optional[str] = None
-    payment_mode: Optional[str] = "Net Banking"
-    notes: Optional[str] = None
-
+    challan_no: str | None = None
+    paid_date: str | None = None
+    payment_mode: str | None = "Net Banking"
+    notes: str | None = None
 class TreasuryTransfer(BaseModel):
     direction: Literal["cash_to_bank", "bank_to_cash"]
     amount: float
@@ -187,84 +166,68 @@ class TreasuryTransfer(BaseModel):
     branch_id: str
     deposited_by_name: str
     bank_txn_id: str
-    notes: Optional[str] = None
-
-    branch_id: Optional[str] = None
-
+    notes: str | None = None
+    branch_id: str | None = None
 class LeadCreate(BaseModel):
     name: str
     phone: str
-    present_class: Optional[str] = None
-    moving_to_class: Optional[str] = None
-    address: Optional[str] = None
-    remarks: Optional[str] = None
+    present_class: str | None = None
+    moving_to_class: str | None = None
+    address: str | None = None
+    remarks: str | None = None
     branch_id: str
-    counsellor_id: Optional[str] = None
-    source: Optional[str] = "Manual"
-    campaign: Optional[str] = None
-    temperature: Optional[Literal["hot", "warm", "cold"]] = "warm"
-
+    counsellor_id: str | None = None
+    source: str | None = "Manual"
+    campaign: str | None = None
+    temperature: Literal["hot", "warm", "cold"] | None = "warm"
 class LeadUpdate(BaseModel):
-    status: Optional[Literal["new", "contacted", "follow_up", "converted", "lost"]] = None
-    present_class: Optional[str] = None
-    moving_to_class: Optional[str] = None
-    address: Optional[str] = None
-    remarks: Optional[str] = None
-    counsellor_id: Optional[str] = None
-    next_followup_at: Optional[str] = None
-    temperature: Optional[Literal["hot", "warm", "cold"]] = None
-    source: Optional[str] = None
-
+    status: Literal["new", "contacted", "follow_up", "converted", "lost"] | None = None
+    present_class: str | None = None
+    moving_to_class: str | None = None
+    address: str | None = None
+    remarks: str | None = None
+    counsellor_id: str | None = None
+    next_followup_at: str | None = None
+    temperature: Literal["hot", "warm", "cold"] | None = None
+    source: str | None = None
 class LeadTransferRequest(BaseModel):
     branch_id: str
-    notes: Optional[str] = None
-
+    notes: str | None = None
 class LeadInteraction(BaseModel):
     type: Literal["call", "whatsapp", "email", "note", "status_change"]
     notes: str
-    contacted_at: Optional[str] = None
-    next_followup_at: Optional[str] = None
-
+    contacted_at: str | None = None
+    next_followup_at: str | None = None
 class LeadProposeRequest(BaseModel):
     proposed_fee: float
     moving_to_class: str
-    batch_name: Optional[str] = None
-    notes: Optional[str] = None
-
+    batch_name: str | None = None
+    notes: str | None = None
 class LeadApproveRequest(BaseModel):
-    notes: Optional[str] = None
-
+    notes: str | None = None
 class LeadEnrollRequest(BaseModel):
     full_name: str
     contact_phone: str
     current_class: str
-    course: Optional[str] = None
-    batch: Optional[str] = None
+    course: str | None = None
+    batch: str | None = None
     parent_name: str
     parent_phone: str
-    parent_email: Optional[str] = None
-    address: Optional[str] = None
+    parent_email: str | None = None
+    address: str | None = None
     total_fee: float
     deposit_amount: float
     payment_mode: str
-    payment_reference: Optional[str] = None
-
-
+    payment_reference: str | None = None
 class AttendanceScanRequest(BaseModel):
     student_no: str
-    device_signature: Optional[str] = "TER-GATE-01"
-
+    device_signature: str | None = "TER-GATE-01"
 class AttendanceOverrideRequest(BaseModel):
     student_id: str
     status: Literal["present", "late"]
-
-# ====== FACTORY MODULE INFRASTRUCTURE ======
 def build_erp_router(db, get_current_user, hash_password, verify_password, require_admin):
-
     # Hard isolation: Dropping implicit parent route dependencies prevents public endpoint pollution
     erp = APIRouter(prefix="/erp", tags=["erp"], dependencies=[])
-
-    # ---- Role guards
     async def require_erp(user: dict = Depends(get_current_user)) -> dict:
         role = user.get("role")
         if role in {"admin", "super admin", "superadmin", "super_admin"}:
@@ -273,29 +236,24 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
         if role not in ROLES_ALL:
             raise HTTPException(403, "Access Denied: ERP authorization permissions required.")
         return user
-
     async def require_super(user: dict = Depends(require_erp)) -> dict:
         if user["role"] != "super_admin":
             raise HTTPException(403, "Access Denied: Super admin clearance required.")
         return user
-
     async def require_manager_plus(user: dict = Depends(require_erp)) -> dict:
         if user["role"] not in {"super_admin", "super admin", "superadmin", "center_manager"}:
             raise HTTPException(403, "Access Denied: Manager or executive clearance required.")
         return user
-
     async def require_finance(user: dict = Depends(require_erp)) -> dict:
         """Allow super_admin, center_manager, and accountant to access financial/GST routes."""
         if user["role"] not in {"super_admin", "super admin", "superadmin", "center_manager", "accountant"}:
             raise HTTPException(403, "Access Denied: Finance clearance required.")
         return user
-
     def can_view_branch(user: dict, branch_id: str) -> bool:
         if user["role"] in {"super_admin", "super admin", "superadmin", "admin"}:
             return True
         return branch_id == "all" or user.get("branch_id") == branch_id
-
-    def scope_branch_filter(user: dict, branch_id_param: Optional[str] = None) -> dict:
+    def scope_branch_filter(user: dict, branch_id_param: str | None = None) -> dict:
         if user["role"] == "super_admin":
             return {"branch_id": branch_id_param} if branch_id_param and branch_id_param != "all" else {}
         if not user.get("branch_id"):
@@ -303,9 +261,7 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
         if branch_id_param and branch_id_param not in (user["branch_id"], "all"):
             raise HTTPException(403, "Access Denied: Cross-branch query parameter operations rejected.")
         return {"branch_id": {"$in": [user["branch_id"], "all"]}}
-
-    # ---- Audit logger
-    async def audit(user: dict, action: str, entity: str, entity_id: str, branch_id: Optional[str] = None, payload: Optional[dict] = None):
+    async def audit(user: dict, action: str, entity: str, entity_id: str, branch_id: str | None = None, payload: dict | None = None):
         try:
             await db.erp_audit.insert_one({
                 "id": new_id(),
@@ -322,7 +278,6 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
         except Exception as e:
             import logging
             logging.error(f"Error: {e}")
-
     async def broadcast_attendance_event(branch_id: str, event_payload: dict):
         if branch_id in branch_broadcast_queues:
             disconnected_queues = []
@@ -333,7 +288,6 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
                     disconnected_queues.append(q)
             for dq in disconnected_queues:
                 branch_broadcast_queues[branch_id].remove(dq)
-
     async def gen_receipt_no(branch_id: str) -> str:
         b = await db.centers.find_one({"id": branch_id}, {"_id": 0})
         prefix = "NES"
@@ -349,7 +303,6 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
         seq = (result or {}).get("seq", 1)
         ymd = datetime.now(timezone.utc).strftime("%y%m")
         return f"{prefix}/{ymd}/{seq:05d}"
-
     KNOWN_BRANCH_CODES = {
         "parraypora": "PP",
         "parray pora": "PP",
@@ -365,7 +318,6 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
         "srinagar": "SRI",
         "baramulla": "BAR",
     }
-
     async def gen_student_no(branch_id: str) -> str:
         b = await db.centers.find_one({"$or": [{"id": branch_id}, {"name": branch_id}]}, {"_id": 0}) or {}
         code = (b.get("code") or "").strip().upper()
@@ -387,7 +339,6 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
             # Persist code to center doc so it's permanently stored
             if b.get("id"):
                 await db.centers.update_one({"id": b["id"]}, {"$set": {"code": code}})
-
         # Counter sequence per branch
         counter_branch = b.get("id") or branch_id
         from pymongo import ReturnDocument
@@ -399,17 +350,12 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
         )
         seq = (result or {}).get("seq", 1)
         return f"{code}{seq:05d}"
-
-
-    # ===== ME =====
     @erp.get("/me")
     async def erp_me(user: dict = Depends(require_erp)):
         branch = None
         if user.get("branch_id"):
             branch = await db.centers.find_one({"id": user["branch_id"]}, {"_id": 0})
         return {**user, "branch": branch}
-
-    # ===== AUTOMATED QR ATTENDANCE LOGIC MODULES =====
     @erp.post("/erpattendance/scan")
     async def handle_attendance_scan(payload: AttendanceScanRequest, user: dict = Depends(require_erp)):
         """Parses active raw structural card scanner token text validations asynchronously."""
@@ -421,7 +367,6 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
             
         if not can_view_branch(user, student["branch_id"]):
             raise HTTPException(403, "Terminal hardware mapping authorization scope fault")
-
         min_bound_time = (current_time - timedelta(hours=12)).isoformat()
         double_check = await db.erp_attendance.find_one({
             "student_id": student["id"],
@@ -429,7 +374,6 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
         })
         if double_check:
             raise HTTPException(422, "Student credential matrix entry sequence has already logged verification for this block loop context")
-
         calculated_status = "present"
         target_start_hour = 9 
         grace_period_threshold_minutes = 15
@@ -440,7 +384,6 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
         minutes_deviation = (local_adjusted_time - gate_opening_time).total_seconds() / 60.0
         if minutes_deviation > grace_period_threshold_minutes:
             calculated_status = "late"
-
         log_entry = {
             "id": new_id(),
             "student_id": student["id"],
@@ -456,12 +399,9 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
         
         await db.erp_attendance.insert_one(log_entry)
         log_entry.pop("_id", None)
-
         asyncio.create_task(broadcast_attendance_event(student["branch_id"], log_entry))
         asyncio.create_task(audit(user, "scan_verification", "attendance", log_entry["id"], student["branch_id"], {"status": calculated_status}))
-
         return log_entry
-
     @erp.post("/erpattendance/override")
     async def handle_manual_override(payload: AttendanceOverrideRequest, user: dict = Depends(require_manager_plus)):
         """Injects artificial administrative records cleanly bypassing physical scanners."""
@@ -471,7 +411,6 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
             
         if not can_view_branch(user, student["branch_id"]):
             raise HTTPException(403, "Cross-branch asset operational violation tracking logs intercept")
-
         log_entry = {
             "id": new_id(),
             "student_id": student["id"],
@@ -484,26 +423,21 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
             "device_signature": "CONSOLE_OVERRIDE_DESK",
             "scanned_at": now_iso()
         }
-
         await db.erp_attendance.insert_one(log_entry)
         log_entry.pop("_id", None)
-
         asyncio.create_task(broadcast_attendance_event(student["branch_id"], log_entry))
         asyncio.create_task(audit(user, "manual_override", "attendance", log_entry["id"], student["branch_id"]))
         
         return log_entry
-
     @erp.get("/erpattendance")
-    async def list_attendance_logs(branch_id: Optional[str] = None, user: dict = Depends(require_erp)):
+    async def list_attendance_logs(branch_id: str | None = None, user: dict = Depends(require_erp)):
         f = scope_branch_filter(user, branch_id)
         items = await db.erp_attendance.find(f, {"_id": 0}).sort("scanned_at", -1).to_list(1000)
         return items
-
     @erp.get("/erpattendance/stream/{branch_id}")
     async def live_attendance_sse_stream(branch_id: str, user: dict = Depends(require_erp)):
         if not can_view_branch(user, branch_id):
             raise HTTPException(403, "Stream intercept mapping rejection access token parameter error")
-
         async def event_generator_loop():
             client_queue = asyncio.Queue()
             branch_broadcast_queues.setdefault(branch_id, []).append(client_queue)
@@ -518,9 +452,7 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
             finally:
                 if branch_id in branch_broadcast_queues and client_queue in branch_broadcast_queues[branch_id]:
                     branch_broadcast_queues[branch_id].remove(client_queue)
-
         return StreamingResponse(event_generator_loop(), media_type="text/event-stream")
-
     
     @erp.get("/alerts")
     async def get_alerts(user: dict = Depends(require_erp)):
@@ -556,14 +488,11 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
                 
         alerts.sort(key=lambda x: x["timestamp"] or "", reverse=True)
         return {"alerts": alerts[:30]}
-
-    # ===== BRANCHES =====
     @erp.get("/branches")
     async def list_branches(user: dict = Depends(require_erp)):
         # Everyone can see branches (e.g. for Lead Transfer)
         items = await db.centers.find({}, {"_id": 0, "name": 1, "id": 1, "prefix": 1}).to_list(200)
         return items
-
     @erp.patch("/branches/{branch_id}")
     async def update_branch(branch_id: str, payload: BranchUpdate, user: dict = Depends(require_super)):
         patch = {k: v for k, v in payload.dict(exclude_unset=True).items() if v is not None}
@@ -572,10 +501,8 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
         await db.centers.update_one({"id": branch_id}, {"$set": patch})
         await audit(user, "update", "branch", branch_id, branch_id, patch)
         return await db.centers.find_one({"id": branch_id}, {"_id": 0})
-
-    # ===== STAFF =====
     @erp.get("/staff")
-    async def list_staff(branch_id: Optional[str] = None, user: dict = Depends(require_manager_plus)):
+    async def list_staff(branch_id: str | None = None, user: dict = Depends(require_manager_plus)):
         f: dict = {"role": {"$in": list(ROLES_BRANCH)}, "is_deleted": {"$ne": True}}
         if user["role"] == "super_admin":
             if branch_id:
@@ -584,7 +511,6 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
             f["branch_id"] = user["branch_id"]
         items = await db.users.find(f, {"_id": 0, "password_hash": 0}).to_list(500)
         return items
-
     @erp.post("/staff")
     async def create_staff(payload: StaffCreate, user: dict = Depends(require_manager_plus)):
         if user["role"] != "super_admin" and payload.branch_id != user.get("branch_id"):
@@ -612,7 +538,6 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
             await db.centers.update_one({"id": payload.branch_id}, {"$set": {"manager_user_id": doc["id"]}})
         await audit(user, "create", "staff", doc["id"], payload.branch_id, {"role": payload.role})
         return doc
-
     @erp.patch("/staff/{staff_id}")
     async def update_staff(staff_id: str, payload: StaffUpdate, user: dict = Depends(require_manager_plus)):
         target = await db.users.find_one({"id": staff_id}, {"_id": 0, "password_hash": 0})
@@ -630,7 +555,6 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
             await db.users.update_one({"id": staff_id}, {"$set": patch})
         await audit(user, "update", "staff", staff_id, target.get("branch_id"), {"fields": list(patch.keys())})
         return await db.users.find_one({"id": staff_id}, {"_id": 0, "password_hash": 0})
-
     @erp.delete("/staff/{staff_id}")
     async def deactivate_staff(staff_id: str, user: dict = Depends(require_manager_plus)):
         target = await db.users.find_one({"id": staff_id}, {"_id": 0})
@@ -641,20 +565,18 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
         await db.users.update_one({"id": staff_id}, {"$set": {"active": False}})
         await audit(user, "deactivate", "staff", staff_id, target.get("branch_id"))
         return {"ok": True}
-
-    # ===== STUDENTS =====
     @erp.get("/students")
     async def list_students(
-        branch_id: Optional[str] = None,
-        q: Optional[str] = None,
-        search: Optional[str] = None,
-        batch: Optional[str] = None,
-        status: Optional[str] = None,
-        course_id: Optional[str] = None,
-        counsellor_id: Optional[str] = None,
+        branch_id: str | None = None,
+        q: str | None = None,
+        search: str | None = None,
+        batch: str | None = None,
+        status: str | None = None,
+        course_id: str | None = None,
+        counsellor_id: str | None = None,
         include_temporary: bool = False,
-        skip: Optional[int] = Query(None, ge=0),
-        limit: Optional[int] = Query(None, ge=1, le=500),
+        skip: int | None = Query(None, ge=0),
+        limit: int | None = Query(None, ge=1, le=500),
         user: dict = Depends(require_erp),
     ):
         f = scope_branch_filter(user, branch_id)
@@ -691,7 +613,6 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
         
         items = await db.erp_students.find(f, {"_id": 0}).sort("created_at", -1).to_list(1000)
         return items
-
     @erp.get("/students/lookup")
     async def lookup_student_data(phone: str, user: dict = Depends(require_erp)):
         phone = phone.strip()
@@ -714,7 +635,6 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
             return {"type": "scholarship", "data": scholarship}
             
         return {"type": "none"}
-
     @erp.post("/students")
     async def create_student(payload: StudentCreate, user: dict = Depends(require_erp)):
         if user["role"] == "counsellor":
@@ -728,7 +648,6 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
             raise HTTPException(400, "A student with this mobile number already exists.")
         if payload.contact_email and await db.erp_students.find_one({"contact_email": payload.contact_email, "status": {"$ne": "deleted"}}):
             raise HTTPException(400, "A student with this email already exists.")
-
         student_no = await gen_student_no(payload.branch_id)
         try:
             doc = payload.model_dump(exclude_none=True)
@@ -774,7 +693,6 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
         except Exception:
             pass
         return doc
-
     @erp.get("/students/{student_id}")
     async def get_student(student_id: str, user: dict = Depends(require_erp)):
         s = await db.erp_students.find_one({"$or": [{"id": student_id}, {"student_no": student_id}]}, {"_id": 0})
@@ -785,7 +703,6 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
         if user["role"] == "counsellor" and s.get("counsellor_id") != user["id"]:
             raise HTTPException(403, "Not your student")
         return s
-
     @erp.patch("/students/{student_id}")
     async def update_student(student_id: str, payload: StudentUpdate, user: dict = Depends(require_erp)):
         s = await db.erp_students.find_one({"$or": [{"id": student_id}, {"student_no": student_id}]}, {"_id": 0})
@@ -804,12 +721,10 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
             patch.pop("total_fee", None)
             patch.pop("scholarship_percent", None)
             patch.pop("discount", None)
-
         if patch:
             await db.erp_students.update_one({"id": real_id}, {"$set": patch})
         await audit(user, "update", "student", real_id, s.get("branch_id"), {"fields": list(patch.keys())})
         return await db.erp_students.find_one({"id": real_id}, {"_id": 0})
-
     @erp.delete("/students/{student_id}")
     async def delete_student(student_id: str, user: dict = Depends(require_super)):
         s = await db.erp_students.find_one({"$or": [{"id": student_id}, {"student_no": student_id}]}, {"_id": 0})
@@ -822,10 +737,6 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
         await db.erp_attendance.delete_many({"student_id": real_id})
         await audit(user, "delete", "student", real_id, s.get("branch_id"), {"student_no": s.get("student_no"), "full_name": s.get("full_name")})
         return {"ok": True, "deleted_id": real_id, "student_no": s.get("student_no")}
-
-
-
-    # ===== FEE MATRIX (GLOBAL SETTINGS) =====
     @erp.get("/fee-matrix")
     async def get_fee_matrix(user: dict = Depends(require_erp)):
         doc = await db.erp_settings.find_one({"id": "fee_matrix"}, {"_id": 0})
@@ -843,8 +754,6 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
         )
         return {"ok": True, "matrix": matrix}
         
-    # ===== PAYMENTS / RECEIPTS =====
-
     @erp.post("/payments")
     async def create_payment(payload: PaymentCreate, user: dict = Depends(require_erp)):
         if user["role"] == "counsellor":
@@ -902,17 +811,16 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
         except Exception:
             pass
         return doc
-
     @erp.get("/payments")
     async def list_payments(
-        student_id: Optional[str] = None,
-        branch_id: Optional[str] = None,
-        mode: Optional[str] = None,
-        search: Optional[str] = None,
-        from_date: Optional[str] = None,
-        to_date: Optional[str] = None,
-        skip: Optional[int] = Query(None, ge=0),
-        limit: Optional[int] = Query(None, ge=1, le=500),
+        student_id: str | None = None,
+        branch_id: str | None = None,
+        mode: str | None = None,
+        search: str | None = None,
+        from_date: str | None = None,
+        to_date: str | None = None,
+        skip: int | None = Query(None, ge=0),
+        limit: int | None = Query(None, ge=1, le=500),
         user: dict = Depends(require_erp),
     ):
         f = scope_branch_filter(user, branch_id)
@@ -934,7 +842,6 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
                 {"collected_by_name": {"$regex": search, "$options": "i"}},
                 {"transaction_ref": {"$regex": search, "$options": "i"}},
             ]
-
         if skip is not None or limit is not None:
             sk = skip or 0
             lim = limit or 25
@@ -942,10 +849,8 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
             items = await db.erp_payments.find(f, {"_id": 0}).sort("paid_at", -1).skip(sk).limit(lim).to_list(lim)
             pages = max((total + lim - 1) // lim, 1)
             return {"items": items, "total": total, "page": (sk // lim) + 1, "pages": pages}
-
         items = await db.erp_payments.find(f, {"_id": 0}).sort("paid_at", -1).to_list(1000)
         return items
-
     @erp.get("/students/{student_id}/statement")
     async def student_statement(student_id: str, user: dict = Depends(require_erp)):
         s = await db.erp_students.find_one({"$or": [{"id": student_id}, {"student_no": student_id}]}, {"_id": 0})
@@ -972,13 +877,12 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
             "pending": max(net_fee - total_paid, 0),
             "payments": payments,
         }
-
     @erp.get("/receipts/{receipt_no:path}")
     async def download_receipt(
         receipt_no: str,
         request: Request,
-        format: Optional[str] = Query("a4"),
-        width_mm: Optional[int] = Query(80)
+        format: str | None = Query("a4"),
+        width_mm: int | None = Query(80)
     ):
         # Attempt to get user silently for audit purposes
         user = None
@@ -1010,7 +914,6 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
         prev_paid = sum(x["amount"] for x in prev)
         scholarship_amt = float(s.get("total_fee", 0)) * float(s.get("scholarship_percent", 0)) / 100.0
         net_fee = max(float(s.get("total_fee", 0)) - scholarship_amt - float(s.get("discount", 0)), 0)
-
         is_thermal = (format or "").lower() == "thermal"
         if is_thermal:
             pdf_bytes = fee_receipt_thermal_pdf(p, s, b, c.get("title", "—"), prev_paid, net_fee, width_mm=width_mm or 80)
@@ -1018,7 +921,6 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
         else:
             pdf_bytes = fee_receipt_pdf(p, s, b, c.get("title", "—"), prev_paid, net_fee)
             fmt_tag = "a4"
-
         if user:
             await audit(user, "download", "receipt", p["id"], p["branch_id"], {"format": fmt_tag})
         safe_no = (p.get("receipt_no") or "receipt").replace("/", "-")
@@ -1027,7 +929,6 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
             media_type="application/pdf",
             headers={"Content-Disposition": f'attachment; filename="receipt-{safe_no}-{fmt_tag}.pdf"'},
         )
-
     @erp.delete("/payments/{payment_id}")
     async def delete_payment(payment_id: str, user: dict = Depends(require_super)):
         p = await db.erp_payments.find_one({"id": payment_id}, {"_id": 0})
@@ -1036,7 +937,6 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
         await db.erp_payments.delete_one({"id": payment_id})
         await audit(user, "delete", "payment", payment_id, p.get("branch_id"), {"receipt_no": p.get("receipt_no"), "amount": p.get("amount")})
         return {"ok": True, "deleted_id": payment_id, "receipt_no": p.get("receipt_no")}
-
     @erp.patch("/payments/{payment_id}")
     async def update_payment(payment_id: str, payload: PaymentUpdate, user: dict = Depends(require_super)):
         p = await db.erp_payments.find_one({"id": payment_id}, {"_id": 0})
@@ -1072,21 +972,14 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
             update_doc["sgst"] = sgst
             update_doc["cgst_rate"] = CGST_RATE if apply_gst else 0
             update_doc["sgst_rate"] = SGST_RATE if apply_gst else 0
-
         if not update_doc:
             return p
-
         update_doc["updated_at"] = now_iso()
         await db.erp_payments.update_one({"id": payment_id}, {"$set": update_doc})
         
         updated_p = await db.erp_payments.find_one({"id": payment_id}, {"_id": 0})
         await audit(user, "update", "payment", payment_id, p.get("branch_id"), {"receipt_no": p.get("receipt_no")})
         return updated_p
-
-
-
-
-    # ===== EXPENSES =====
     @erp.post("/expenses")
     async def create_expense(payload: ExpenseCreate, user: dict = Depends(require_erp)):
         if user["role"] not in {"super_admin", "super admin", "superadmin", "center_manager", "accountant"}:
@@ -1111,17 +1004,16 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
         await db.erp_expenses.insert_one(doc); doc.pop("_id", None)
         await audit(user, "create", "expense", doc["id"], payload.branch_id, {"amount": payload.amount, "category": payload.category})
         return doc
-
     @erp.get("/expenses")
     async def list_expenses(
-        branch_id: Optional[str] = None,
-        category: Optional[str] = None,
-        status: Optional[str] = None,
-        search: Optional[str] = None,
-        from_date: Optional[str] = None,
-        to_date: Optional[str] = None,
-        skip: Optional[int] = Query(None, ge=0),
-        limit: Optional[int] = Query(None, ge=1, le=500),
+        branch_id: str | None = None,
+        category: str | None = None,
+        status: str | None = None,
+        search: str | None = None,
+        from_date: str | None = None,
+        to_date: str | None = None,
+        skip: int | None = Query(None, ge=0),
+        limit: int | None = Query(None, ge=1, le=500),
         user: dict = Depends(require_erp),
     ):
         if user["role"] == "counsellor":
@@ -1145,7 +1037,6 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
                 {"category": {"$regex": search, "$options": "i"}},
                 {"recorded_by_name": {"$regex": search, "$options": "i"}},
             ]
-
         if skip is not None or limit is not None:
             sk = skip or 0
             lim = limit or 25
@@ -1153,10 +1044,8 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
             items = await db.erp_expenses.find(f, {"_id": 0}).sort("expense_date", -1).skip(sk).limit(lim).to_list(lim)
             pages = max((total + lim - 1) // lim, 1)
             return {"items": items, "total": total, "page": (sk // lim) + 1, "pages": pages}
-
         items = await db.erp_expenses.find(f, {"_id": 0}).sort("expense_date", -1).to_list(1000)
         return items
-
     @erp.post("/expenses/{expense_id}/decision")
     async def decide_expense(expense_id: str, payload: ExpenseDecision, user: dict = Depends(require_manager_plus)):
         e = await db.erp_expenses.find_one({"id": expense_id}, {"_id": 0})
@@ -1184,7 +1073,6 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
         except Exception:
             pass
         return await db.erp_expenses.find_one({"id": expense_id}, {"_id": 0})
-
     @erp.delete("/expenses/{expense_id}")
     async def delete_expense(expense_id: str, user: dict = Depends(require_super)):
         e = await db.erp_expenses.find_one({"id": expense_id}, {"_id": 0})
@@ -1193,9 +1081,6 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
         await db.erp_expenses.delete_one({"id": expense_id})
         await audit(user, "delete", "expense", expense_id, e.get("branch_id"), {"amount": e.get("amount"), "category": e.get("category")})
         return {"ok": True, "deleted_id": expense_id}
-
-
-    # ===== LEADS =====
     @erp.post("/leads")
     async def create_lead(payload: LeadCreate, user: dict = Depends(require_erp)):
         if user["role"] not in {"super_admin", "super admin", "superadmin", "center_manager", "counsellor"}:
@@ -1235,14 +1120,13 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
         except Exception:
             pass
         return doc
-
     @erp.get("/leads")
     async def list_leads(
-        branch_id: Optional[str] = None, 
-        status: Optional[str] = None, 
-        search: Optional[str] = Query(None),
-        skip: Optional[int] = Query(None, ge=0),
-        limit: Optional[int] = Query(None, ge=1, le=500),
+        branch_id: str | None = None, 
+        status: str | None = None, 
+        search: str | None = Query(None),
+        skip: int | None = Query(None, ge=0),
+        limit: int | None = Query(None, ge=1, le=500),
         user: dict = Depends(require_erp)
     ):
         f = scope_branch_filter(user, branch_id)
@@ -1267,10 +1151,8 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
             items = await db.erp_leads.find(f, {"_id": 0}).sort("created_at", -1).skip(sk).limit(lim).to_list(lim)
             pages = max((total + lim - 1) // lim, 1)
             return {"items": items, "total": total, "page": (sk // lim) + 1, "pages": pages}
-
         items = await db.erp_leads.find(f, {"_id": 0}).sort("created_at", -1).to_list(1000)
         return items
-
     @erp.patch("/leads/{lead_id}")
     async def update_lead(lead_id: str, payload: LeadUpdate, user: dict = Depends(require_erp)):
         l = await db.erp_leads.find_one({"id": lead_id}, {"_id": 0})
@@ -1280,9 +1162,7 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
             raise HTTPException(403, "Cross-branch denied")
         if user["role"] == "counsellor" and l.get("counsellor_id") != user["id"]:
             raise HTTPException(403, "Not your lead")
-
         patch = {k: v for k, v in payload.dict(exclude_unset=True).items() if v is not None}
-
         # Auto-enroll lead to student list when marked as 'converted'
         converted_student = None
         if patch.get("status") == "converted" and l.get("status") != "converted":
@@ -1297,7 +1177,6 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
                 course = await db.courses.find_one({"category": moving_to_class}) or await db.courses.find_one({})
                 course_id = course["id"] if course else "default"
                 total_fee = float(course.get("fee", 50000)) if course else 50000.0
-
                 student_no = await gen_student_no(l["branch_id"])
                 student_doc = {
                     "id": new_id(),
@@ -1333,16 +1212,13 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
             else:
                 patch["converted_student_id"] = existing_student["id"]
                 patch["converted_at"] = now_iso()
-
         if patch:
             await db.erp_leads.update_one({"id": lead_id}, {"$set": patch})
         await audit(user, "update", "lead", lead_id, l["branch_id"], patch)
-
         updated_lead = await db.erp_leads.find_one({"id": lead_id}, {"_id": 0})
         if converted_student:
             updated_lead["converted_student"] = converted_student
         return updated_lead
-
     @erp.delete("/leads/{lead_id}")
     async def delete_lead(lead_id: str, user: dict = Depends(require_manager_plus)):
         l = await db.erp_leads.find_one({"id": lead_id}, {"_id": 0})
@@ -1353,8 +1229,6 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
         await db.erp_leads.delete_one({"id": lead_id})
         await audit(user, "delete", "lead", lead_id, l.get("branch_id"), {"student_name": l.get("name")})
         return {"ok": True, "deleted_id": lead_id}
-
-
     
     @erp.post("/leads/{lead_id}/interactions")
     async def add_lead_interaction(lead_id: str, payload: LeadInteraction, user: dict = Depends(require_erp)):
@@ -1379,7 +1253,6 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
             
         await db.erp_leads.update_one({"id": lead_id}, {"$push": {"interactions": interaction}, "$set": update_set})
         return {"ok": True, "interaction": interaction}
-
     @erp.post("/leads/{lead_id}/propose")
     async def propose_lead(lead_id: str, payload: LeadProposeRequest, user: dict = Depends(require_erp)):
         lead = await db.erp_leads.find_one({"id": lead_id})
@@ -1405,7 +1278,6 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
             target_path="/erp"
         )
         return {"ok": True}
-
     @erp.post("/leads/{lead_id}/approve")
     async def approve_lead(lead_id: str, payload: LeadApproveRequest, user: dict = Depends(require_erp)):
         if user["role"] not in {"super_admin", "super admin", "superadmin", "center_manager"}:
@@ -1423,7 +1295,6 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
             "updated_at": now_iso()
         }, "$push": {"interactions": interaction}})
         return {"ok": True}
-
     @erp.post("/leads/{lead_id}/reject")
     async def reject_lead(lead_id: str, payload: LeadApproveRequest, user: dict = Depends(require_erp)):
         if user["role"] not in {"super_admin", "super admin", "superadmin", "center_manager"}:
@@ -1441,7 +1312,6 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
             "updated_at": now_iso()
         }, "$push": {"interactions": interaction}})
         return {"ok": True}
-
     @erp.post("/leads/{lead_id}/enroll")
     async def enroll_lead(lead_id: str, payload: LeadEnrollRequest, user: dict = Depends(require_erp)):
         if user["role"] not in {"super_admin", "super admin", "superadmin", "center_manager", "accountant"}:
@@ -1505,8 +1375,6 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
         }, "$push": {"interactions": interaction}})
         
         return {"ok": True, "student_id": student_id}
-
-
     
     @erp.post("/leads/{lead_id}/transfer")
     async def transfer_lead(lead_id: str, payload: LeadTransferRequest, user: dict = Depends(require_erp)):
@@ -1529,8 +1397,6 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
             "updated_at": now_iso()
         }, "$push": {"interactions": interaction}})
         return {"ok": True}
-
-    # ===== DASHBOARDS =====
     @erp.get("/dashboard/super")
     async def super_dashboard(user: dict = Depends(require_super)):
         branches = await db.centers.find({}, {"_id": 0}).to_list(100)
@@ -1572,7 +1438,6 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
             "branches": rows,
             "leads": all_leads,
         }
-
     @erp.get("/dashboard/branch/{branch_id}")
     async def branch_dashboard(branch_id: str, user: dict = Depends(require_erp)):
         if not can_view_branch(user, branch_id):
@@ -1621,26 +1486,20 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
             "counsellor_performance": counsellor_rows,
             "recent_payments": sorted(payments, key=lambda x: x.get("paid_at", ""), reverse=True)[:10],
         }
-
-    # ===== GST TAXATION & MONTHLY SETTLEMENTS =====
     @erp.get("/gst/monthly")
-    async def get_monthly_gst(month: Optional[str] = None, branch_id: Optional[str] = None, user: dict = Depends(require_finance)):
+    async def get_monthly_gst(month: str | None = None, branch_id: str | None = None, user: dict = Depends(require_finance)):
         target_month = month or datetime.now(timezone.utc).strftime("%Y-%m")
         f = scope_branch_filter(user, branch_id)
         f["paid_at"] = {"$regex": f"^{target_month}"}
-
         payments = await db.erp_payments.find(f, {"_id": 0}).sort("paid_at", 1).to_list(10000)
-
         total_gross = 0.0
         total_taxable = 0.0
         total_cgst = 0.0
         total_sgst = 0.0
         gst_exempt_gross = 0.0
-
         mode_breakdown = {}
         for m in PAYMENT_MODES:
             mode_breakdown[m] = {"gross": 0.0, "taxable": 0.0, "cgst": 0.0, "sgst": 0.0, "count": 0}
-
         enriched_payments = []
         for p in payments:
             amt = float(p.get("amount") or 0.0)
@@ -1648,15 +1507,12 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
             cgst = float(p.get("cgst") or 0.0)
             sgst = float(p.get("sgst") or 0.0)
             mode = (p.get("mode") or "cash").lower()
-
             total_gross += amt
             total_taxable += base
             total_cgst += cgst
             total_sgst += sgst
-
             if cgst == 0.0 and sgst == 0.0:
                 gst_exempt_gross += amt
-
             if mode not in mode_breakdown:
                 mode_breakdown[mode] = {"gross": 0.0, "taxable": 0.0, "cgst": 0.0, "sgst": 0.0, "count": 0}
             mode_breakdown[mode]["gross"] += amt
@@ -1664,7 +1520,6 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
             mode_breakdown[mode]["cgst"] += cgst
             mode_breakdown[mode]["sgst"] += sgst
             mode_breakdown[mode]["count"] += 1
-
             enriched_payments.append({
                 "id": p.get("id"),
                 "receipt_no": p.get("receipt_no"),
@@ -1681,13 +1536,11 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
                 "mode": mode,
                 "collected_by_name": p.get("collected_by_name", ""),
             })
-
         total_gross = round(total_gross, 2)
         total_taxable = round(total_taxable, 2)
         total_cgst = round(total_cgst, 2)
         total_sgst = round(total_sgst, 2)
         total_gst = round(total_cgst + total_sgst, 2)
-
         # Check filing status for this month
         filing_filter = {"month": target_month}
         if branch_id:
@@ -1698,7 +1551,6 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
         filing = await db.erp_gst_filings.find_one(filing_filter, {"_id": 0})
         if not filing and branch_id:
             filing = await db.erp_gst_filings.find_one({"month": target_month, "branch_id": "all"}, {"_id": 0})
-
         status_info = {
             "status": filing.get("status", "UNPAID") if filing else "UNPAID",
             "challan_no": filing.get("challan_no") if filing else None,
@@ -1708,7 +1560,6 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
             "marked_by_name": filing.get("marked_by_name") if filing else None,
             "marked_at": filing.get("updated_at") or filing.get("created_at") if filing else None,
         }
-
         return {
             "month": target_month,
             "branch_id": branch_id or "all",
@@ -1725,7 +1576,6 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
             "filing": status_info,
             "items": enriched_payments,
         }
-
     @erp.post("/gst/mark-paid")
     async def mark_gst_paid(payload: GstMarkPaidIn, user: dict = Depends(require_finance)):
         branch_key = payload.branch_id or "all"
@@ -1761,26 +1611,21 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
         except Exception:
             pass
         return {"ok": True, "filing": record}
-
     @erp.get("/exports/gst.xlsx")
-    async def export_gst_xlsx(month: Optional[str] = None, branch_id: Optional[str] = None, user: dict = Depends(require_finance)):
+    async def export_gst_xlsx(month: str | None = None, branch_id: str | None = None, user: dict = Depends(require_finance)):
         target_month = month or datetime.now(timezone.utc).strftime("%Y-%m")
         f = scope_branch_filter(user, branch_id)
         f["paid_at"] = {"$regex": f"^{target_month}"}
-
         payments = await db.erp_payments.find(f, {"_id": 0}).sort("paid_at", 1).to_list(10000)
-
         # Retrieve filing record
         filing_key = {"month": target_month, "branch_id": branch_id or "all"}
         filing = await db.erp_gst_filings.find_one(filing_key, {"_id": 0})
         status_tag = filing.get("status", "UNPAID") if filing else "UNPAID"
         challan_tag = filing.get("challan_no", "—") if filing else "—"
-
         wb = openpyxl.Workbook()
         
         from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
         from openpyxl.utils import get_column_letter
-
         navy_fill = PatternFill(start_color="1E293B", end_color="1E293B", fill_type="solid")
         header_fill = PatternFill(start_color="334155", end_color="334155", fill_type="solid")
         total_fill = PatternFill(start_color="E2E8F0", end_color="E2E8F0", fill_type="solid")
@@ -1801,11 +1646,9 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
             left=Side(style='thin', color='CBD5E1'),
             right=Side(style='thin', color='CBD5E1')
         )
-
         ws = wb.active
         ws.title = f"GST {target_month}"
         ws.views.sheetView[0].showGridLines = True
-
         # Header Title Block
         ws.merge_cells("A1:M1")
         top_cell = ws["A1"]
@@ -1814,7 +1657,6 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
         top_cell.fill = navy_fill
         top_cell.alignment = Alignment(horizontal="center", vertical="center")
         ws.row_dimensions[1].height = 32
-
         ws.merge_cells("A2:M2")
         sub_cell = ws["A2"]
         sub_cell.value = f"GSTIN: 01AABCN1234F1Z5 · Tax Period: {target_month} · SAC Code: 9992 (Educational Services) · Filing Status: {status_tag} · Challan/CIN: {challan_tag}"
@@ -1822,10 +1664,8 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
         sub_cell.fill = navy_fill
         sub_cell.alignment = Alignment(horizontal="center", vertical="center")
         ws.row_dimensions[2].height = 20
-
         # Empty row
         ws.append([])
-
         # Table Column Headers
         headers = [
             "Sl", "Receipt No", "Date", "Roll Number", "Student Name", "Branch", 
@@ -1833,24 +1673,20 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
         ]
         ws.append(headers)
         ws.row_dimensions[4].height = 24
-
         for col_idx in range(1, len(headers) + 1):
             c = ws.cell(row=4, column=col_idx)
             c.fill = header_fill
             c.font = white_bold
             c.alignment = Alignment(horizontal="center" if col_idx in (1, 3, 7, 8) else "left" if col_idx in (2, 4, 5, 6) else "right", vertical="center")
             c.border = thin_border
-
         # Insert Data Rows
         r_start = 5
         cur_row = r_start
-
         for i, p in enumerate(payments, start=1):
             amt = float(p.get("amount") or 0.0)
             base = float(p.get("base_amount") or 0.0)
             cgst = float(p.get("cgst") or 0.0)
             sgst = float(p.get("sgst") or 0.0)
-
             row_data = [
                 i,
                 p.get("receipt_no", ""),
@@ -1868,7 +1704,6 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
             ]
             ws.append(row_data)
             ws.row_dimensions[cur_row].height = 18
-
             for col_idx in range(1, len(row_data) + 1):
                 cell = ws.cell(row=cur_row, column=col_idx)
                 cell.font = regular_font
@@ -1880,9 +1715,7 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
                     cell.number_format = '#,##0.00'
                 else:
                     cell.alignment = Alignment(horizontal="left", vertical="center")
-
             cur_row += 1
-
         # Summary / Totals Row
         tot_row_idx = cur_row
         ws.cell(row=tot_row_idx, column=1).value = ""
@@ -1899,7 +1732,6 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
             ws.cell(row=tot_row_idx, column=11).value = 0.0
             ws.cell(row=tot_row_idx, column=12).value = 0.0
             ws.cell(row=tot_row_idx, column=13).value = 0.0
-
         for col_idx in range(1, len(headers) + 1):
             c = ws.cell(row=tot_row_idx, column=col_idx)
             c.font = bold_font
@@ -1908,7 +1740,6 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
             if col_idx in (9, 10, 11, 12, 13):
                 c.number_format = '#,##0.00'
                 c.alignment = Alignment(horizontal="right", vertical="center")
-
         # Auto-fit column widths
         for col in ws.columns:
             max_len = 0
@@ -1920,7 +1751,6 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
                 if len(v_str) > max_len:
                     max_len = len(v_str)
             ws.column_dimensions[col_letter].width = max(max_len + 3, 11)
-
         buf = io.BytesIO()
         wb.save(buf)
         buf.seek(0)
@@ -1929,10 +1759,8 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
             media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
             headers={"Content-Disposition": f'attachment; filename="GST-Report-{target_month}.xlsx"'},
         )
-
-    # ===== EXPORTS =====
     @erp.get("/exports/payments.xlsx")
-    async def export_payments_xlsx(branch_id: Optional[str] = None, user: dict = Depends(require_erp)):
+    async def export_payments_xlsx(branch_id: str | None = None, user: dict = Depends(require_erp)):
         if user["role"] == "counsellor":
             raise HTTPException(403, "Not allowed")
         f = scope_branch_filter(user, branch_id)
@@ -1944,9 +1772,8 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
         buf = io.BytesIO(); wb.save(buf); buf.seek(0)
         return StreamingResponse(buf, media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
                                  headers={"Content-Disposition": 'attachment; filename="payments.xlsx"'})
-
     @erp.get("/exports/expenses.xlsx")
-    async def export_expenses_xlsx(branch_id: Optional[str] = None, user: dict = Depends(require_erp)):
+    async def export_expenses_xlsx(branch_id: str | None = None, user: dict = Depends(require_erp)):
         if user["role"] == "counsellor":
             raise HTTPException(403, "Not allowed")
         f = scope_branch_filter(user, branch_id)
@@ -1958,9 +1785,8 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
         buf = io.BytesIO(); wb.save(buf); buf.seek(0)
         return StreamingResponse(buf, media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
                                  headers={"Content-Disposition": 'attachment; filename="expenses.xlsx"'})
-
     @erp.get("/exports/students.xlsx")
-    async def export_students_xlsx(branch_id: Optional[str] = None, user: dict = Depends(require_erp)):
+    async def export_students_xlsx(branch_id: str | None = None, user: dict = Depends(require_erp)):
         if user["role"] == "counsellor":
             raise HTTPException(403, "Not allowed")
         f = scope_branch_filter(user, branch_id)
@@ -1972,12 +1798,9 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
         buf = io.BytesIO(); wb.save(buf); buf.seek(0)
         return StreamingResponse(buf, media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
                                  headers={"Content-Disposition": 'attachment; filename="students.xlsx"'})
-
-    # ============================================================================
     # COMPREHENSIVE DAILY ATTENDANCE EXCEL EXPORTER ENDPOINT
-    # ============================================================================
     @erp.get("/erpattendance/exports/attendance_today.xlsx")
-    async def export_todays_attendance_matrix(branch_id: Optional[str] = None, user: dict = Depends(require_erp)):
+    async def export_todays_attendance_matrix(branch_id: str | None = None, user: dict = Depends(require_erp)):
         if user["role"] == "counsellor":
             raise HTTPException(403, "Access Denied: Administrative permission clearance required.")
             
@@ -1996,7 +1819,6 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
         
         students_cursor = db.erp_students.find({}, {"id": 1, "course_id": 1, "contact_phone": 1, "parent_phone": 1})
         all_students = {s["id"]: s for s in await students_cursor.to_list(10000)}
-
         # Construct structural memory grid mapped under [Course_Title][Batch_Tag] matrices
         grouped_workbook_data = {}
         for entry in raw_attendance_logs:
@@ -2008,7 +1830,6 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
             batch_tag = "UNASSIGNED_BATCH" if not raw_batch else str(raw_batch).replace("/", "-").upper()
             
             grouped_workbook_data.setdefault(course_title, {}).setdefault(batch_tag, []).append(entry)
-
         # Initialize raw workbook compiler container
         wb = openpyxl.Workbook()
         
@@ -2058,7 +1879,6 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
                 wb.remove(wb["Sheet"])
             elif "Sheet" in wb.sheetnames:
                 wb["Sheet"].title = "Empty Roster Summary"
-
         buf = io.BytesIO()
         wb.save(buf)
         buf.seek(0)
@@ -2070,16 +1890,12 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
             media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
             headers={"Content-Disposition": f'attachment; filename="attendance_report_{today_start_date}.xlsx"'}
         )
-
-    # ===== AUDIT LOG (super_admin) =====
     @erp.get("/audit")
-    async def audit_log(branch_id: Optional[str] = None, limit: int = 200, user: dict = Depends(require_super)):
+    async def audit_log(branch_id: str | None = None, limit: int = 200, user: dict = Depends(require_super)):
         f = {"branch_id": branch_id} if branch_id else {}
         items = await db.erp_audit.find(f, {"_id": 0}).sort("created_at", -1).to_list(min(limit, 1000))
         return items
-
     
-    # ===== TREASURY & BANKING =====
     @erp.post("/treasury/transfers")
     async def create_treasury_transfer(payload: TreasuryTransfer, user: dict = Depends(require_finance)):
         if not can_view_branch(user, payload.branch_id):
@@ -2102,35 +1918,29 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
         doc.pop("_id", None)
         await audit(user, "create", "treasury_transfer", doc["id"], payload.branch_id, {"direction": payload.direction, "amount": payload.amount})
         return doc
-
     @erp.get("/treasury/transfers")
-    async def list_treasury_transfers(branch_id: Optional[str] = None, user: dict = Depends(require_finance)):
+    async def list_treasury_transfers(branch_id: str | None = None, user: dict = Depends(require_finance)):
         f = scope_branch_filter(user, branch_id)
         items = await db.erp_treasury_transfers.find(f, {"_id": 0}).sort("transfer_date", -1).to_list(1000)
         return items
-
     @erp.get("/treasury/summary")
-    async def get_treasury_summary(branch_id: Optional[str] = None, user: dict = Depends(require_finance)):
+    async def get_treasury_summary(branch_id: str | None = None, user: dict = Depends(require_finance)):
         f = scope_branch_filter(user, branch_id)
         
         # Load all payments and tally in Python to avoid type mismatch issues with MongoDB $sum
         all_payments = await db.erp_payments.find(f, {"_id": 0, "mode": 1, "amount": 1}).to_list(100000)
         cash_in = sum(float(p.get("amount") or 0) for p in all_payments if str(p.get("mode", "")).lower() == "cash")
         bank_in = sum(float(p.get("amount") or 0) for p in all_payments if str(p.get("mode", "")).lower() != "cash")
-
         # Load all expenses and tally
         all_expenses = await db.erp_expenses.find(f, {"_id": 0, "payment_mode": 1, "amount": 1}).to_list(100000)
         cash_out = sum(float(e.get("amount") or 0) for e in all_expenses if str(e.get("payment_mode", "")).lower() == "cash")
         bank_out = sum(float(e.get("amount") or 0) for e in all_expenses if str(e.get("payment_mode", "")).lower() != "cash")
-
         # Transfers
         transfers = await db.erp_treasury_transfers.find(f, {"_id": 0}).to_list(10000)
         c2b = sum(float(t.get("amount") or 0) for t in transfers if t["direction"] == "cash_to_bank")
         b2c = sum(float(t.get("amount") or 0) for t in transfers if t["direction"] == "bank_to_cash")
-
         net_cash = cash_in - cash_out - c2b + b2c
         net_bank = bank_in - bank_out + c2b - b2c
-
         return {
             "cash_in": cash_in,
             "cash_out": cash_out,
@@ -2141,8 +1951,6 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
             "net_cash_balance": net_cash,
             "net_bank_balance": net_bank
         }
-
-    # ===== META =====
     @erp.get("/meta")
     async def meta(user: dict = Depends(require_erp)):
         return {
@@ -2153,8 +1961,6 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
             "sgst_rate": SGST_RATE,
             "roles": list(ROLES_ALL),
         }
-
-    # ===== STUDENT PHOTO UPLOAD =====
     @erp.post("/students/{student_id}/photo")
     async def upload_student_photo(student_id: str, file: UploadFile = File(...), user: dict = Depends(require_erp)):
         s = await db.erp_students.find_one({"$or": [{"id": student_id}, {"student_no": student_id}]}, {"_id": 0})
@@ -2165,7 +1971,6 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
             raise HTTPException(403, "Cross-branch denied")
         if user["role"] == "counsellor":
             raise HTTPException(403, "Counsellors cannot update student photos")
-
         # Flexible content-type and extension parsing
         raw_ctype = (file.content_type or "").lower().split(";")[0].strip()
         fn = (file.filename or "").lower()
@@ -2178,20 +1983,16 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
             ctype = raw_ctype
         else:
             ctype = "image/png"
-
         data = await file.read()
         if len(data) == 0:
             raise HTTPException(400, "Empty file")
         if len(data) > 5 * 1024 * 1024:
             raise HTTPException(413, "Image must be under 5 MB")
-
         ext = {"image/jpeg": "jpg", "image/jpg": "jpg", "image/png": "png", "image/webp": "webp"}.get(ctype, "png")
         file_id = new_id()
         path = f"{APP_NAME}/uploads/student-photos/{file_id}.{ext}"
-
         import base64
         photo_url = None
-
         # Only attempt remote/file storage if cloud key is configured
         emergent_key = os.environ.get("EMERGENT_LLM_KEY", "")
         if emergent_key:
@@ -2210,19 +2011,16 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
                 photo_url = f"/api/files/{file_id}"
             except Exception:
                 photo_url = None  # Fall through to base64
-
         # Base64 fallback — always used when no cloud key, or on any storage failure
         if not photo_url:
             b64_str = base64.b64encode(data).decode("ascii")
             photo_url = f"data:{ctype};base64,{b64_str}"
-
         await db.erp_students.update_one({"id": real_id}, {"$set": {"photo_url": photo_url}})
         try:
             await audit(user, "update", "student_photo", real_id, s.get("branch_id"), {"url_type": "file" if photo_url.startswith("/api/") else "data_url"})
         except Exception:
             pass  # Audit failure should never block the upload response
         return {"photo_url": photo_url}
-
     @erp.get("/students/{student_id}/photo")
     async def get_student_photo(student_id: str, user: dict = Depends(require_erp)):
         """Serve student photo — handles both base64 data URIs and /api/files/ references."""
@@ -2234,11 +2032,9 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
             raise HTTPException(404, "Student not found")
         if not can_view_branch(user, s.get("branch_id", "")):
             raise HTTPException(403, "Cross-branch denied")
-
         photo_url = s.get("photo_url")
         if not photo_url:
             raise HTTPException(404, "No photo on file")
-
         # Case 1: base64 data URI stored directly — decode and serve
         if photo_url.startswith("data:"):
             try:
@@ -2250,7 +2046,6 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
                                 headers={"Cache-Control": "max-age=86400, private"})
             except Exception as e:
                 raise HTTPException(500, f"Photo decode error: {e}")
-
         # Case 2: /api/files/{file_id} — resolve from DB and serve via storage
         if photo_url.startswith("/api/files/"):
             file_id = photo_url.split("/")[-1]
@@ -2264,16 +2059,11 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
                                          "Content-Disposition": f'inline; filename="photo-{student_id}"'})
             except Exception as e:
                 raise HTTPException(404, f"Photo retrieval failed: {e}")
-
         # Case 3: external URL — redirect
         from fastapi.responses import RedirectResponse
         return RedirectResponse(url=photo_url, status_code=302)
-
-
-    # ===== TEMP STUDENTS =====
-
     @erp.get("/temp-students/check")
-    async def check_temp_student(phone: str, branch_id: Optional[str] = None, user: dict = Depends(require_erp)):
+    async def check_temp_student(phone: str, branch_id: str | None = None, user: dict = Depends(require_erp)):
         f = {"status": "temporary", "contact_phone": phone}
         if user["role"] != "super_admin":
             f["branch_id"] = user.get("branch_id")
@@ -2288,9 +2078,8 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
             "student": s,
             "lead": lead,
         }
-
     @erp.get("/temp-students")
-    async def list_temp_students(branch_id: Optional[str] = None, user: dict = Depends(require_erp)):
+    async def list_temp_students(branch_id: str | None = None, user: dict = Depends(require_erp)):
         f = {"status": "temporary"}
         if user["role"] != "super_admin":
             f["branch_id"] = user.get("branch_id")
@@ -2298,7 +2087,6 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
             f["branch_id"] = branch_id
         items = await db.erp_students.find(f, {"_id": 0}).sort("created_at", -1).to_list(1000)
         return items
-
     @erp.post("/temp-students/{student_id}/merge")
     async def merge_temp_student(student_id: str, user: dict = Depends(require_erp)):
         s = await db.erp_students.find_one({"id": student_id, "status": "temporary"}, {"_id": 0})
@@ -2312,7 +2100,6 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
             await db.erp_leads.update_one({"id": lead["id"]}, {"$set": {"status": "converted"}})
         await audit(user, "merge_temp_student", "student", student_id, s["branch_id"], {"student_no": s.get("student_no")})
         return {"ok": True, "message": "Temporary student merged into active roster"}
-
     @erp.post("/temp-students/{student_id}/nullify")
     async def nullify_temp_student(student_id: str, user: dict = Depends(require_erp)):
         s = await db.erp_students.find_one({"id": student_id, "status": "temporary"}, {"_id": 0})
@@ -2326,8 +2113,6 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
             await db.erp_leads.update_one({"id": lead["id"]}, {"$set": {"status": "lost"}})
         await audit(user, "nullify_temp_student", "student", student_id, s["branch_id"], {"student_no": s.get("student_no")})
         return {"ok": True, "message": "Temporary student record nullified"}
-
-    # ===== ID CARD QUEUE =====
     @erp.post("/students/{student_id}/queue-id-card")
     async def queue_id_card(student_id: str, user: dict = Depends(require_erp)):
         s = await db.erp_students.find_one({"id": student_id}, {"_id": 0})
@@ -2341,7 +2126,6 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
             raise HTTPException(400, "Enrollment Number is required before ID card generation")
         await db.erp_students.update_one({"id": student_id}, {"$set": {"id_card_queued": True}})
         return {"ok": True, "message": "Student queued for ID card generation"}
-
     @erp.get("/id-cards/queue")
     async def get_id_card_queue(user: dict = Depends(require_erp)):
         f = {}
@@ -2349,7 +2133,6 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
             f["branch_id"] = user.get("branch_id")
         items = await db.erp_students.find({**f, "id_card_queued": True}, {"_id": 0}).sort("created_at", -1).to_list(1000)
         return items
-
     @erp.post("/id-cards/clear-queue")
     async def clear_id_card_queue(payload: Dict[str, Any], user: dict = Depends(require_erp)):
         student_ids = payload.get("student_ids", [])
@@ -2360,7 +2143,6 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
             f["branch_id"] = user.get("branch_id")
         await db.erp_students.update_many({"id": {"$in": student_ids}, **f}, {"$set": {"id_card_queued": False}})
         return {"ok": True}
-
     @erp.get("/students/{student_id}/id-card")
     async def download_student_id_card(student_id: str, user: dict = Depends(require_erp)):
         s = await db.erp_students.find_one({"id": student_id}, {"_id": 0})
@@ -2387,7 +2169,6 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
             raise HTTPException(500, f"ID card generation failed: {e}")
         filename = f"id-card-{s.get('enrollment_number') or s['student_no']}.pdf"
         return StreamingResponse(io.BytesIO(pdf_bytes), media_type="application/pdf", headers={"Content-Disposition": f'attachment; filename="{filename}"'})
-
     @erp.get("/students/by-enrollment/{enrollment_number}")
     async def get_student_by_enrollment(enrollment_number: str, user: dict = Depends(require_erp)):
         s = await db.erp_students.find_one({"enrollment_number": enrollment_number}, {"_id": 0})
@@ -2396,7 +2177,6 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
         if not can_view_branch(user, s["branch_id"]):
             raise HTTPException(403, "Cross-branch denied")
         return s
-
     
     @erp.post("/id-cards/bulk-download")
     async def download_bulk_id_cards(payload: Dict[str, Any], user: dict = Depends(require_erp)):
@@ -2449,7 +2229,6 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
         filename = "bulk-id-cards.pdf"
         from fastapi.responses import StreamingResponse
         return StreamingResponse(io.BytesIO(pdf_bytes), media_type="application/pdf", headers={"Content-Disposition": f'attachment; filename="{filename}"'})
-
     @erp.get("/id-cards/scan/{enrollment_number}")
     async def scan_id_card(enrollment_number: str):
         s = await db.erp_students.find_one({"enrollment_number": enrollment_number}, {"_id": 0})
@@ -2465,7 +2244,6 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
         }
         token = jose_jwt.encode(payload, os.environ.get("JWT_SECRET", "change-me-jwt-secret"), algorithm="HS256")
         return {"token": token, "student_id": s["id"], "enrollment_number": enrollment_number}
-
     @erp.get("/public/student-profile/{enrollment_number}")
     async def public_student_profile(enrollment_number: str, request: Request):
         token = request.query_params.get("token")
@@ -2495,11 +2273,7 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
             "course_title": course.get("title"),
             "admission_date": s.get("admission_date"),
         }
-
     return erp
-
-
-# ====== ERP seed (idempotent): ensures indexes ======
 async def erp_seed(db, hash_password):
     await db.erp_students.create_index("student_no", unique=True, sparse=True)
     await db.erp_students.create_index([("branch_id", 1), ("created_at", -1)])

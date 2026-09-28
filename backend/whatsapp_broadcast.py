@@ -18,18 +18,11 @@ logger = logging.getLogger("whatsapp_broadcast")
 
 VERSION = os.environ.get("GRAPH_API_VERSION", "v20.0")
 
-
-# ============================================================================
-# Helpers
-# ============================================================================
-
 def now_iso() -> str:
     return datetime.now(timezone.utc).isoformat()
 
-
 def new_id() -> str:
     return str(uuid.uuid4())
-
 
 def clean_phone(phone: Any) -> Optional[str]:
     if phone is None:
@@ -41,11 +34,6 @@ def clean_phone(phone: Any) -> Optional[str]:
     if len(digits) >= 10:
         return digits
     return None
-
-
-# ============================================================================
-# Meta template helpers
-# ============================================================================
 
 async def fetch_approved_templates(token: str, waba_id: str) -> List[Dict[str, Any]]:
     url = f"https://graph.facebook.com/{VERSION}/{waba_id}/message_templates?limit=100"
@@ -64,7 +52,6 @@ async def fetch_approved_templates(token: str, waba_id: str) -> List[Dict[str, A
         for t in (data.get("data") or [])
         if (t.get("status") or "").upper() == "APPROVED"
     ]
-
 
 def parse_template_variables(components: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     variables: List[Dict[str, Any]] = []
@@ -87,11 +74,6 @@ def parse_template_variables(components: List[Dict[str, Any]]) -> List[Dict[str,
     out.sort(key=lambda x: int(x["index"]))
     return out
 
-
-# ============================================================================
-# Excel / CSV parsing
-# ============================================================================
-
 class ExcelParseResult(BaseModel):
     contacts: List[Dict[str, Any]]
     warnings: List[str]
@@ -99,20 +81,16 @@ class ExcelParseResult(BaseModel):
     skipped_duplicates: int
     skipped_invalid: int
 
-
 def _normalize_header(h: str) -> str:
     return str(h or "").strip().lower().replace(" ", "_").replace("-", "_")
-
 
 def _looks_like_phone_column(h: str) -> bool:
     h = _normalize_header(h)
     return h in {"phone", "mobile", "contact", "phone_number", "mobile_number", "whatsapp", "wa_id"}
 
-
 def _looks_like_name_column(h: str) -> bool:
     h = _normalize_header(h)
     return h in {"name", "full_name", "customer_name", "contact_name", "recipient_name"}
-
 
 def parse_excel_contacts(file_bytes: bytes) -> ExcelParseResult:
     try:
@@ -184,11 +162,6 @@ def parse_excel_contacts(file_bytes: bytes) -> ExcelParseResult:
         skipped_invalid=skipped_invalid,
     )
 
-
-# ============================================================================
-# Internal CRM recipients
-# ============================================================================
-
 async def get_internal_recipients(target_group: str, branch_id: Optional[str]) -> List[Dict[str, Any]]:
     recipients: List[Dict[str, Any]] = []
     try:
@@ -249,22 +222,13 @@ async def get_internal_recipients(target_group: str, branch_id: Optional[str]) -
             unique.append(r)
     return unique
 
-
-# ============================================================================
-# Variable resolution
-# ============================================================================
-
 def resolve_variables(
     contact: Dict[str, Any],
     template_vars: List[Dict[str, Any]],
     defaults: Dict[str, str],
     variable_mappings: Optional[Dict[str, str]] = None,
 ) -> List[Dict[str, Any]]:
-    """
-    Resolve template variables for a contact.
-
-    variable_mappings: {"1": "name"} means template {{1}} should be filled from contact.variables["name"].
-    """
+    
     resolved = []
     contact_vars = contact.get("variables", {})
     for var in template_vars:
@@ -280,20 +244,8 @@ def resolve_variables(
         resolved.append({"type": "text", "text": str(value)})
     return resolved
 
-
-# ============================================================================
-# Single message send
-# ============================================================================
-
-# ============================================================================
-# Component builder (header / body / media) — required so templates with an
-# IMAGE/DOCUMENT/VIDEO header or a TEXT header with variables don't get
-# rejected by Meta with a parameter-mismatch error.
-# ============================================================================
-
 def _count_vars(text: str) -> int:
     return len(set(re.findall(r"\{\{(\d+)\}\}", text or "")))
-
 
 def build_message_components(
     template_components: List[Dict[str, Any]],
@@ -301,9 +253,7 @@ def build_message_components(
     header_media_url: Optional[str] = None,
     header_text_params: Optional[List[Dict[str, Any]]] = None,
 ) -> Tuple[Optional[List[Dict[str, Any]]], Optional[str]]:
-    """Build the WhatsApp `template.components` array from the approved template
-    structure. Returns (components, error). Only includes a component when it
-    actually needs parameters, otherwise Meta rejects the message."""
+    
     components: List[Dict[str, Any]] = []
 
     for comp in template_components or []:
@@ -333,7 +283,6 @@ def build_message_components(
         components.append({"type": "body", "parameters": (body_params or [])[:body_var_count]})
 
     return components, None
-
 
 async def send_broadcast_template(
     wa_id: str,
@@ -382,11 +331,6 @@ async def send_broadcast_template(
     wa_msg_id = (result.get("messages") or [{}])[0].get("id")
     return {"ok": True, "status": "accepted", "wa_message_id": wa_msg_id}
 
-
-# ============================================================================
-# Background broadcast worker
-# ============================================================================
-
 async def run_broadcast_job(campaign_id: str, job_id: str):
     try:
         from core.database import db
@@ -423,8 +367,6 @@ async def run_broadcast_job(campaign_id: str, job_id: str):
     phone_id = os.environ.get("WHATSAPP_PHONE_NUMBER_ID", "")
 
     template_vars = parse_template_variables(template_components)
-
-    # Load recipients
     internal_recipients = await get_internal_recipients(target_group, branch_id)
 
     external_recipients: List[Dict[str, Any]] = []
@@ -527,17 +469,11 @@ async def run_broadcast_job(campaign_id: str, job_id: str):
         {"$set": {"status": "completed", "completed_at": now_iso(), "total_recipients": total}},
     )
 
-
 def _extract_category(components: List[Dict[str, Any]]) -> Optional[str]:
     for comp in components or []:
         if comp.get("type") == "BODY":
             return "service"
     return "marketing"
-
-
-# ============================================================================
-# SSE streaming
-# ============================================================================
 
 async def broadcast_analytics_stream(campaign_id: str, request: Request):
     async def event_generator():
@@ -547,9 +483,6 @@ async def broadcast_analytics_stream(campaign_id: str, request: Request):
         except Exception:
             yield "data: {\"error\": \"db unavailable\"}\n\n"
             return
-
-        # In a production system, you'd maintain a global queue registry.
-        # For this implementation, we poll the bulk job and yield updates.
         last_processed = -1
         last_status = ""
         try:
@@ -561,7 +494,6 @@ async def broadcast_analytics_stream(campaign_id: str, request: Request):
                     camp = await db.wa_campaigns.find_one({"id": campaign_id}, {"_id": 0})
                     job_id = camp.get("external_contact_job_id") if camp else None
                     if not job_id:
-                        # Try to find latest bulk job for campaign
                         bulk = await db.bulk_jobs.find_one(
                             {"type": "whatsapp_broadcast", "$or": [{"campaign_id": campaign_id}]},
                             {"_id": 0},
@@ -592,11 +524,6 @@ async def broadcast_analytics_stream(campaign_id: str, request: Request):
 
     return event_generator()
 
-
-# ============================================================================
-# Cost tracking
-# ============================================================================
-
 WA_PRICING = {
     "IN": {
         "marketing": 0.0084,
@@ -625,13 +552,11 @@ DEFAULT_COUNTRY_PRICING = {
     "authentication": 0.0,
 }
 
-
 def get_message_cost(country_code: str, category: str) -> float:
     cc = (country_code or "IN").upper()
     pricing = WA_PRICING.get(cc, DEFAULT_COUNTRY_PRICING)
     cat = (category or "marketing").lower()
     return pricing.get(cat, 0.01)
-
 
 async def calculate_campaign_cost(campaign_id: str, country_code: str = "IN") -> Dict[str, Any]:
     try:

@@ -3,7 +3,6 @@ import io
 import re
 import logging
 import qrcode
-import httpx
 from datetime import datetime, timezone, timedelta
 from reportlab.lib.pagesizes import A5, A4
 from reportlab.lib.colors import HexColor

@@ -35,20 +35,14 @@ async def _run_initial_seed():
          ["Local Faculty Panel"],
          ["JKBOSE-pattern test series", "One-on-one revision plans", "Affordable monthly fee plans"]),
     ]
-    for t, cat, dur, fee, desc, feat, img, syl, fac, features in courses_data:
-        await db.courses.insert_one({
-            "id": new_id(), "title": t, "category": cat, "duration": dur, "fee": fee,
-            "description": desc, "syllabus": syl, "faculty": fac, "features": features,
-            "scholarship_available": True, "featured": feat, "image_url": img, "created_at": now_iso(),
-        })
+    await db.courses.insert_many([{"id": new_id(), "title": t, "category": cat, "duration": dur, "fee": fee, "description": desc, "syllabus": syl, "faculty": fac, "features": f, "scholarship_available": True, "featured": feat, "image_url": img, "created_at": now_iso()} for t, cat, dur, fee, desc, feat, img, syl, fac, f in courses_data])
 
     notices = [
         ("New 2026 NEET Batch Launch", "Admissions open for the new NEET 2026 batch starting March 1.", "Admissions", True),
         ("Scholarship Test 2026", "Unacademy Offline Scholarship Test on Feb 28 — up to 100% fee waiver.", "Scholarship", True),
         ("Foundation Olympiad Workshop", "Free 3-day Olympiad workshop for Class 8–10 students.", "Workshop", False),
     ]
-    for t, c, cat, p in notices:
-        await db.notices.insert_one({"id": new_id(), "title": t, "content": c, "category": cat, "pinned": p, "created_at": now_iso()})
+    await db.notices.insert_many([{"id": new_id(), "title": t, "content": c, "category": cat, "pinned": p, "created_at": now_iso()} for t, c, cat, p in notices])
 
     results_data = [
         ("Aamir Hussain", "NEET 2025", "AIR 412", 2025, "NEET", "Cracked NEET in first attempt with guidance."),
@@ -58,19 +52,14 @@ async def _run_initial_seed():
         ("Bilal Ahmad", "JEE Main 2025", "99.1 percentile", 2025, "IIT-JEE", "Best teaching ecosystem in Kashmir, hands down."),
         ("Iqra Jan", "NEET 2025", "AIR 1903", 2025, "NEET", "Made the impossible feel routine."),
     ]
-    for n, e, r, y, c, q in results_data:
-        await db.results.insert_one({
-            "id": new_id(), "student_name": n, "exam": e, "rank": r, "year": y, "course": c,
-            "photo_url": None, "quote": q, "created_at": now_iso()
-        })
+    await db.results.insert_many([{"id": new_id(), "student_name": n, "exam": e, "rank": r, "year": y, "course": c, "photo_url": None, "quote": q, "created_at": now_iso()} for n, e, r, y, c, q in results_data])
 
     ts = [
         ("Insha Rather", "Parent", "Transformed my daughter's preparation. The faculty truly cares."),
         ("Rayaan Khan", "NEET Aspirant", "Best decision was joining in Srinagar. Mock tests were spot on."),
         ("Mehak Lone", "JEE Aspirant", "Doubt clearing happens in real time — feels like national coaching."),
     ]
-    for n, role, q in ts:
-        await db.testimonials.insert_one({"id": new_id(), "name": n, "role": role, "quote": q, "created_at": now_iso()})
+    await db.testimonials.insert_many([{"id": new_id(), "name": n, "role": role, "quote": q, "created_at": now_iso()} for n, role, q in ts])
 
     jobs = [
         ("Physics Faculty (NEET/JEE)", "Academics", "Srinagar", "Full-time", "Senior physics educator for NEET/JEE batches.", ["M.Sc/Ph.D Physics", "3+ years coaching experience"], True),
@@ -79,8 +68,7 @@ async def _run_initial_seed():
         ("BDM (Business Dev. Manager)", "Business", "Srinagar", "Full-time", "Drive admissions and outreach across Kashmir.", ["MBA preferred", "5+ years in EdTech"], True),
         ("DTP Operator", "Production", "Srinagar", "Full-time", "Design study material and notices.", ["CorelDraw / InDesign expertise"], True),
     ]
-    for t, d, l, ty, desc, req, a in jobs:
-        await db.jobs.insert_one({"id": new_id(), "title": t, "department": d, "location": l, "type": ty, "description": desc, "requirements": req, "active": a, "created_at": now_iso()})
+    await db.jobs.insert_many([{"id": new_id(), "title": t, "department": d, "location": l, "type": ty, "description": desc, "requirements": req, "active": a, "created_at": now_iso()} for t, d, l, ty, desc, req, a in jobs])
 
     await db.scholarships.insert_one({
         "id": "1ed94009-d949-4504-b291-68e3571a5a44", "title": "Unacademy Offline Centre Scholarship Test 2026",

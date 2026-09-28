@@ -1,3 +1,7 @@
+import re, uuid
+from datetime import datetime, timezone
+from core.database import db
+
 from pydantic import BaseModel, Field, EmailStr
 from typing import Optional, List, Literal, Dict, Any
 

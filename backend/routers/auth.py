@@ -1,27 +1,33 @@
-from fastapi import APIRouter, HTTPException, Depends, Request, Response, BackgroundTasks, UploadFile, File, Form, Query
-from typing import Optional, List, Dict, Any
-import os, io, json, re, asyncio, uuid
-from datetime import datetime, timezone, timedelta
-from models.schemas import *
+import asyncio
+import os
+import re
+from datetime import datetime, timedelta
+
 from core.database import db
 from core.security import *
 from core.utils import *
+from fastapi import (
+    APIRouter,
+    BackgroundTasks,
+    Depends,
+    HTTPException,
+    Request,
+    Response,
+)
+from models.schemas import *
 
 router = APIRouter()
 
 # ---------- Auth Routes ----------
-def _safe_send_registration_group_notification(user_doc: dict) -> None:
-    """Sync wrapper for FastAPI BackgroundTasks for OpenWA registration group notifications."""
+async def _safe_send_registration_group_notification(user_doc: dict) -> None:
     try:
-        asyncio.run(_send_registration_group_notification(user_doc))
+        await _send_registration_group_notification(user_doc)
     except Exception as e:
         logging.error("Background OpenWA registration notification failed: %s", e)
 
-
-def _safe_send_carnival_booking_notification(booking: dict) -> None:
-    """Sync wrapper for FastAPI BackgroundTasks for OpenWA carnival booking group notifications."""
+async def _safe_send_carnival_booking_notification(booking: dict) -> None:
     try:
-        asyncio.run(_send_carnival_booking_notification(booking))
+        await _send_carnival_booking_notification(booking)
     except Exception as e:
         logging.error("Background OpenWA carnival booking notification failed: %s", e)
 
@@ -76,8 +82,6 @@ async def register(payload: RegisterIn, response: Response, background: Backgrou
         body=f"{payload.name} ({payload.phone or email}) just registered.", 
         target_path="/admin/students"
     )
-    
-    return {"user": doc, "access_token": access}
     
     return {"user": doc, "access_token": access}
 
@@ -189,7 +193,7 @@ async def verify_otp(payload: VerifyOtpIn, response: Response):
             doc = dict(user); doc.pop("_id", None); doc.pop("password_hash", None)
             return {"user": doc, "access_token": access, "refresh_token": refresh}
         except Exception as e:
-            raise HTTPException(500, f"Login processing failed: {repr(e)}")
+            raise HTTPException(500, f"Login processing failed: {e!r}")
         
     elif payload.action == "register":
         await db.otps.update_one({"_id": record["_id"]}, {"$set": {"verified": True}})
@@ -270,12 +274,12 @@ async def login_page():
 
 
 class ProfileUpdate(BaseModel):
-    name: Optional[str] = None
-    password: Optional[str] = None
-    receipt_print_size: Optional[str] = None
-    phone: Optional[str] = None
-    photo: Optional[str] = None
-    otp_code: Optional[str] = None
+    name: str | None = None
+    password: str | None = None
+    receipt_print_size: str | None = None
+    phone: str | None = None
+    photo: str | None = None
+    otp_code: str | None = None
 
 @router.patch("/auth/profile")
 async def update_profile(payload: ProfileUpdate, user: dict = Depends(get_current_user)):

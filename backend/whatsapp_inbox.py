@@ -1,14 +1,3 @@
-"""WhatsApp Cloud API inbox — webhook receiver + outbound send + admin API.
-
-Endpoints (all mounted on the shared /api APIRouter):
-    GET  /api/webhooks/whatsapp     — Meta verify handshake
-    POST /api/webhooks/whatsapp     — inbound messages + status updates
-    GET  /api/whatsapp/threads      — list conversations (super_admin only)
-    GET  /api/whatsapp/threads/{id}/messages
-    PATCH /api/whatsapp/threads/{id}/read
-    POST /api/whatsapp/threads/{id}/messages     — send text / template / media
-    GET  /api/whatsapp/templates    — list message templates
-"""
 from __future__ import annotations
 
 import os
@@ -32,20 +21,16 @@ logger = logging.getLogger("whatsapp")
 
 VERSION = os.environ.get("GRAPH_API_VERSION", "v20.0")
 
-
 class SendMessageIn(BaseModel):
     kind: str = Field(pattern="^(text|template|image|document|audio|video|interactive)$")
     text: Optional[str] = None
-    # template
     template_name: Optional[str] = None
     template_language: str = "en_US"
     template_components: List[Dict[str, Any]] = []
-    # media
     media_url: Optional[str] = None
     media_id: Optional[str] = None
     caption: Optional[str] = None
     filename: Optional[str] = None
-    # interactive
     interactive_type: Optional[str] = "button" # "button" or "list"
     interactive_buttons: List[Dict[str, str]] = [] # [{"id": "btn1", "title": "Option 1"}]
     interactive_header: Optional[str] = None
@@ -67,17 +52,13 @@ class BroadcastCampaignIn(BaseModel):
     target_group: str = "all" # "leads", "students", "all"
     branch_id: Optional[str] = None
 
-
 def _cfg(key: str) -> str:
     v = os.environ.get(key, "").strip()
     return v
 
-
 def build_whatsapp_router(db, require_super_admin_dep, on_inbound=None) -> APIRouter:
-    """Attach the WhatsApp routes to an APIRouter mounted at /api."""
+    
     router = APIRouter()
-
-    # ---------- helpers ----------
     def now_iso() -> str:
         return datetime.now(timezone.utc).isoformat()
 
@@ -103,7 +84,6 @@ def build_whatsapp_router(db, require_super_admin_dep, on_inbound=None) -> APIRo
             await db.wa_contacts.update_one({"wa_id": wa_id}, {"$set": patch})
             existing.update(patch)
             existing.pop("_id", None)
-            # Auto-link to any scholarship applicant with matching phone
             applicant = await db.scholarship_applications.find_one(
                 {"phone": wa_id}, {"_id": 0, "application_no": 1, "scholarship_title": 1, "name": 1}
             )
@@ -189,7 +169,6 @@ def build_whatsapp_router(db, require_super_admin_dep, on_inbound=None) -> APIRo
         wa_msg_id = msg.get("id")
         if not wa_msg_id:
             return
-        # Idempotency: skip if already stored
         if await db.wa_messages.find_one({"wa_message_id": wa_msg_id}):
             return
 
@@ -243,14 +222,11 @@ def build_whatsapp_router(db, require_super_admin_dep, on_inbound=None) -> APIRo
         cur = _STATUS_ORDER.get(existing.get("status", ""), 0)
         nxt = _STATUS_ORDER.get(new_status, 0)
         if nxt < cur and new_status != "failed":
-            # Do not regress e.g. read -> delivered
             return
         patch = {"status": new_status}
         if status.get("errors"):
             patch["status_error"] = status["errors"]
         await db.wa_messages.update_one({"wa_message_id": wa_id}, {"$set": patch})
-
-    # ---------- Webhook ----------
     @router.get("/webhooks/whatsapp")
     async def verify_webhook(
         hub_mode: Optional[str] = Query(None, alias="hub.mode"),
@@ -265,7 +241,6 @@ def build_whatsapp_router(db, require_super_admin_dep, on_inbound=None) -> APIRo
     @router.post("/webhooks/whatsapp")
     async def whatsapp_webhook(request: Request):
         raw = await request.body()
-        # Only enforce signature check when the secret is configured (skipped for dev)
         if _cfg("WHATSAPP_APP_SECRET"):
             _verify_signature(raw, request.headers.get("x-hub-signature-256"))
         try:
@@ -287,8 +262,6 @@ def build_whatsapp_router(db, require_super_admin_dep, on_inbound=None) -> APIRo
                     except Exception as e:
                         logger.exception(f"persist_status failed: {e}")
         return {"ok": True}
-
-    # ---------- Admin (Super Admin) API ----------
     @router.get("/whatsapp/threads")
     async def list_threads(
         limit: int = Query(50, ge=1, le=200),
@@ -323,8 +296,6 @@ def build_whatsapp_router(db, require_super_admin_dep, on_inbound=None) -> APIRo
     async def mark_read(thread_id: str, _user=Depends(require_super_admin_dep)):
         await db.wa_threads.update_one({"id": thread_id}, {"$set": {"unread_count": 0}})
         return {"ok": True}
-
-    # ---------- Send ----------
     @router.post("/whatsapp/threads/{thread_id}/messages")
     async def send_message(thread_id: str, req: SendMessageIn, _user=Depends(require_super_admin_dep)):
         thread = await db.wa_threads.find_one({"id": thread_id}, {"_id": 0})
@@ -430,8 +401,6 @@ def build_whatsapp_router(db, require_super_admin_dep, on_inbound=None) -> APIRo
         )
         doc.pop("_id", None)
         return doc
-
-    # ---------- Templates ----------
     @router.get("/whatsapp/templates")
     async def list_templates(_user=Depends(require_super_admin_dep)):
         token = _cfg("WHATSAPP_ACCESS_TOKEN")
@@ -451,7 +420,6 @@ def build_whatsapp_router(db, require_super_admin_dep, on_inbound=None) -> APIRo
                 err = {"raw": resp.text}
             raise HTTPException(resp.status_code, err)
         data = resp.json()
-        # Filter to APPROVED templates only, keep essentials
         approved = [
             {"name": t.get("name"), "language": t.get("language"), "category": t.get("category"), "components": t.get("components")}
             for t in (data.get("data") or [])
@@ -520,8 +488,6 @@ def build_whatsapp_router(db, require_super_admin_dep, on_inbound=None) -> APIRo
             students = await db.erp_students.find(f, {"_id": 0, "contact_phone": 1, "full_name": 1}).to_list(5000)
             for s in students:
                 recipients.append({"phone": s.get("contact_phone"), "name": s.get("full_name", "Student")})
-
-        # Deduplicate recipients by clean phone
         seen_phones = set()
         clean_recipients = []
         for r in recipients:

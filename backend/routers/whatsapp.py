@@ -1,11 +1,23 @@
-from fastapi import APIRouter, HTTPException, Depends, Request, Response, BackgroundTasks, UploadFile, File, Form, Query
-from typing import Optional, List, Dict, Any
-import os, io, json, re, asyncio, uuid
-from datetime import datetime, timezone, timedelta
-from models.schemas import *
+import io
+import os
+from datetime import datetime, timedelta
+from typing import Any
+
 from core.database import db
 from core.security import *
 from core.utils import *
+from fastapi import (
+    APIRouter,
+    BackgroundTasks,
+    Depends,
+    File,
+    Form,
+    HTTPException,
+    Query,
+    Request,
+    UploadFile,
+)
+from models.schemas import *
 
 router = APIRouter()
 
@@ -28,7 +40,7 @@ async def wa_list_templates(_admin = Depends(require_admin)):
 
 
 @router.post("/whatsapp/templates/parse")
-async def wa_parse_template(payload: Dict[str, Any], _admin = Depends(require_admin)):
+async def wa_parse_template(payload: dict[str, Any], _admin = Depends(require_admin)):
     template_name = payload.get("template_name", "")
     template_components = payload.get("template_components") or []
     if not template_name and not template_components:
@@ -51,7 +63,7 @@ async def wa_parse_template(payload: Dict[str, Any], _admin = Depends(require_ad
 @router.post("/whatsapp/upload-contacts")
 async def wa_upload_contacts(
     file: UploadFile = File(...),
-    campaign_id: Optional[str] = Form(None),
+    campaign_id: str | None = Form(None),
     _admin = Depends(require_admin),
 ):
     if not file.filename.endswith((".xlsx", ".xls", ".csv")):
@@ -76,7 +88,7 @@ async def wa_upload_contacts(
         "processed": len(result.contacts),
         "success": len(result.contacts),
         "errors": result.skipped_invalid + result.skipped_duplicates,
-        "recent_logs": result.warnings[-15:] + [f"Parsed {len(result.contacts)} contacts, {result.skipped_duplicates} duplicates skipped, {result.skipped_invalid} invalid rows"],
+        "recent_logs": [*result.warnings[-15:], f"Parsed {len(result.contacts)} contacts, {result.skipped_duplicates} duplicates skipped, {result.skipped_invalid} invalid rows"],
         "created_at": now_iso(),
     })
 
@@ -99,7 +111,7 @@ async def wa_upload_contacts(
 
 
 @router.post("/whatsapp/campaigns")
-async def wa_create_campaign(payload: Dict[str, Any], _admin = Depends(require_admin)):
+async def wa_create_campaign(payload: dict[str, Any], _admin = Depends(require_admin)):
     template_name = payload.get("template_name", "")
     template_language = payload.get("template_language", "en_US")
     template_components = payload.get("template_components") or []
@@ -178,8 +190,7 @@ async def wa_send_campaign(campaign_id: str, background: BackgroundTasks, _admin
 
 @router.get("/whatsapp/campaigns")
 async def wa_list_campaigns(_admin = Depends(require_admin)):
-    campaigns = await db.wa_campaigns.find({}, {"_id": 0}).sort("created_at", -1).to_list(100)
-    return campaigns
+    return await db.wa_campaigns.find({}, {"_id": 0}).sort("created_at", -1).to_list(100)
 
 
 @router.get("/whatsapp/campaigns/{campaign_id}")
@@ -205,7 +216,7 @@ async def wa_campaign_analytics(campaign_id: str, _admin = Depends(require_admin
     messages = await cursor
 
     total = len(messages)
-    by_status: Dict[str, int] = {}
+    by_status: dict[str, int] = {}
     for m in messages:
         s = m.get("status", "unknown")
         by_status[s] = by_status.get(s, 0) + 1
@@ -240,8 +251,8 @@ async def wa_analytics_stream(campaign_id: str, request: Request, _admin = Depen
 
 
 @router.get("/whatsapp/costs")
-async def wa_cost_report(month: Optional[str] = Query(None), _admin = Depends(require_admin)):
-    query: Dict[str, Any] = {}
+async def wa_cost_report(month: str | None = Query(None), _admin = Depends(require_admin)):
+    query: dict[str, Any] = {}
     if month:
         try:
             start = datetime.fromisoformat(f"{month}-01T00:00:00+00:00")
@@ -252,7 +263,7 @@ async def wa_cost_report(month: Optional[str] = Query(None), _admin = Depends(re
     cursor = db.wa_broadcast_analytics.find(query, {"_id": 0}).to_list(None)
     messages = await cursor
     total = sum(get_message_cost("IN", m.get("pricing_category") or "marketing") for m in messages)
-    by_category: Dict[str, float] = {}
+    by_category: dict[str, float] = {}
     for m in messages:
         cat = (m.get("pricing_category") or "marketing").lower()
         by_category[cat] = by_category.get(cat, 0.0) + get_message_cost("IN", cat)
@@ -269,16 +280,15 @@ async def wa_cost_report(month: Optional[str] = Query(None), _admin = Depends(re
 # ============================================================================
 
 @router.get("/whatsapp/quick-replies")
-async def wa_list_quick_replies(category: Optional[str] = None, _admin = Depends(require_admin)):
-    q: Dict[str, Any] = {}
+async def wa_list_quick_replies(category: str | None = None, _admin = Depends(require_admin)):
+    q: dict[str, Any] = {}
     if category:
         q["category"] = category
-    items = await db.wa_quick_replies.find(q, {"_id": 0}).sort("created_at", -1).to_list(200)
-    return items
+    return await db.wa_quick_replies.find(q, {"_id": 0}).sort("created_at", -1).to_list(200)
 
 
 @router.post("/whatsapp/quick-replies")
-async def wa_create_quick_reply(payload: Dict[str, Any], _admin = Depends(require_admin)):
+async def wa_create_quick_reply(payload: dict[str, Any], _admin = Depends(require_admin)):
     doc = {
         "id": new_id(),
         "shortcut": payload.get("shortcut", ""),
@@ -293,7 +303,7 @@ async def wa_create_quick_reply(payload: Dict[str, Any], _admin = Depends(requir
 
 
 @router.put("/whatsapp/quick-replies/{qr_id}")
-async def wa_update_quick_reply(qr_id: str, payload: Dict[str, Any], _admin = Depends(require_admin)):
+async def wa_update_quick_reply(qr_id: str, payload: dict[str, Any], _admin = Depends(require_admin)):
     await db.wa_quick_replies.update_one({"id": qr_id}, {"$set": payload})
     doc = await db.wa_quick_replies.find_one({"id": qr_id}, {"_id": 0})
     return doc or {}
@@ -310,7 +320,7 @@ async def wa_delete_quick_reply(qr_id: str, _admin = Depends(require_admin)):
 # ============================================================================
 
 @router.post("/whatsapp/templates/{template_name}/preview")
-async def wa_preview_template(template_name: str, payload: Dict[str, Any], _admin = Depends(require_admin)):
+async def wa_preview_template(template_name: str, payload: dict[str, Any], _admin = Depends(require_admin)):
     token = os.environ.get("WHATSAPP_ACCESS_TOKEN", "")
     phone_id = os.environ.get("WHATSAPP_PHONE_NUMBER_ID", "")
     if not token or not phone_id:
@@ -392,5 +402,5 @@ _frontend_url = os.environ.get("FRONTEND_URL", "")
 if _frontend_url:
     _default_allowed.append(_frontend_url.strip())
 
-_allowed_origins = list(set([origin.rstrip("/") for origin in _default_allowed if origin]))
+_allowed_origins = list({origin.rstrip("/") for origin in _default_allowed if origin})
 

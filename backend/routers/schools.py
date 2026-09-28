@@ -1,17 +1,27 @@
-from fastapi import APIRouter, HTTPException, Depends, Request, Response, BackgroundTasks, UploadFile, File, Form, Query
-from typing import Optional, List, Dict, Any
-import os, io, json, re, asyncio, uuid
-from datetime import datetime, timezone, timedelta
-from models.schemas import *
+import io
+from datetime import datetime, timezone
+from typing import Any
+
 from core.database import db
 from core.security import *
 from core.utils import *
+from fastapi import (
+    APIRouter,
+    Depends,
+    File,
+    Form,
+    HTTPException,
+    Query,
+    Response,
+    UploadFile,
+)
+from models.schemas import *
 
 router = APIRouter()
 
 # ---------- School helpers ----------
 
-def _parse_school_excel(file_bytes: bytes) -> List[dict]:
+def _parse_school_excel(file_bytes: bytes) -> list[dict]:
     wb = openpyxl.load_workbook(io.BytesIO(file_bytes))
     ws = wb.active
     headers = [str((c.value or "").strip()).lower() for c in ws[1]]
@@ -202,11 +212,11 @@ async def school_my_visits(school: dict = Depends(require_school)):
 
 @router.get("/admin/school-visits")
 async def admin_list_school_visits(
-    status: Optional[str] = Query(None),
-    date: Optional[str] = Query(None),
+    status: str | None = Query(None),
+    date: str | None = Query(None),
     _admin = Depends(require_admin),
 ):
-    q: Dict[str, Any] = {}
+    q: dict[str, Any] = {}
     if status:
         q["status"] = status
     if date:
@@ -219,10 +229,10 @@ async def admin_list_school_visits(
 @router.put("/admin/school-visits/{visit_id}")
 async def admin_update_school_visit(
     visit_id: str,
-    payload: Dict[str, Any],
+    payload: dict[str, Any],
     _admin = Depends(require_admin),
 ):
-    visit = await _get_school_visit_or_404(visit_id)
+    await _get_school_visit_or_404(visit_id)
     allowed_statuses = {"pending", "approved", "rejected"}
     update_fields = {}
     if "status" in payload:
@@ -234,8 +244,7 @@ async def admin_update_school_visit(
     if not update_fields:
         raise HTTPException(400, "No updatable fields provided")
     await db.school_visits.update_one({"id": visit_id}, {"$set": update_fields})
-    updated = await _get_school_visit_or_404(visit_id)
-    return updated
+    return await _get_school_visit_or_404(visit_id)
 
 @router.get("/admin/school-visits/availability")
 async def admin_school_visit_availability(date: str = Query(...), _admin = Depends(require_admin)):
@@ -272,15 +281,14 @@ async def school_upload_template(school: dict = Depends(require_school)):
 
 @router.get("/admin/school-applications")
 async def admin_list_school_applications(
-    scholarship_id: Optional[str] = Query(None),
-    school_id: Optional[str] = Query(None),
+    scholarship_id: str | None = Query(None),
+    school_id: str | None = Query(None),
     _admin = Depends(require_admin),
 ):
-    q: Dict[str, Any] = {"source": "school"}
+    q: dict[str, Any] = {"source": "school"}
     if scholarship_id:
         q["scholarship_id"] = scholarship_id
     if school_id:
         q["school_id"] = school_id
-    rows = await db.scholarship_applications.find(q, {"_id": 0}).sort("created_at", -1).to_list(None)
-    return rows
+    return await db.scholarship_applications.find(q, {"_id": 0}).sort("created_at", -1).to_list(None)
 
