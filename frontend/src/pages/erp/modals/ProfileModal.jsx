@@ -101,23 +101,23 @@ export default function ProfileModal({ onClose }) {
     }
   };
 
-  const inputCls = "w-full px-3 py-2 bg-background border border-border rounded-xl text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all";
-  const labelCls = "block text-xs font-bold text-muted-foreground uppercase tracking-wider mb-1.5 ml-1";
+  const inputCls = "w-full bg-slate-50 dark:bg-black border border-slate-200 dark:border-white/[0.08] rounded-[10px] text-[13px] text-slate-600 dark:text-zinc-400 focus:border-teal-600/50 px-3 py-2";
+  const labelCls = "block text-xs font-bold text-slate-500 dark:text-zinc-400 uppercase tracking-wider mb-1.5 ml-1";
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 bg-background/80 backdrop-blur-sm animate-in fade-in duration-200">
-      <div className="w-full max-w-md bg-card border border-border shadow-2xl rounded-2xl flex flex-col max-h-full animate-in zoom-in-95 duration-200">
-        <div className="flex items-center justify-between p-4 sm:p-5 border-b border-border shrink-0">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 bg-slate-50 dark:bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
+      <div className="bg-white dark:bg-[#111] border border-slate-200 dark:border-white/[0.08] shadow-2xl rounded-[1.5rem] overflow-hidden w-full max-w-md flex flex-col max-h-full animate-in zoom-in-95 duration-200">
+        <div className="flex items-center justify-between p-4 sm:p-5 border-b border-slate-200 dark:border-white/[0.08] shrink-0">
           <div>
-            <h2 className="text-lg font-bold text-foreground flex items-center gap-2">
-              <User size={18} className="text-primary"/>
+            <h2 className="text-lg font-bold text-slate-900 dark:text-zinc-100 flex items-center gap-2">
+              <User size={18} className="text-teal-800 dark:text-teal-300"/>
               Profile & Settings
             </h2>
-            <p className="text-xs text-muted-foreground mt-1">
+            <p className="text-xs text-slate-500 dark:text-zinc-400 mt-1">
               Update your account details and preferences.
             </p>
           </div>
-          <Button onClick={onClose} className="p-2 hover:bg-muted rounded-full transition text-muted-foreground hover:text-foreground">
+          <Button onClick={onClose} className="p-2 hover:bg-slate-200/50 dark:bg-white/[0.04] rounded-full transition text-slate-500 dark:text-zinc-400 hover:text-slate-800 dark:text-zinc-200">
             <X size={20} />
           </Button>
         </div>
@@ -126,21 +126,21 @@ export default function ProfileModal({ onClose }) {
           <form id="profile-form" onSubmit={handleSubmit} className="space-y-5">
             {/* Account Settings */}
             <div className="space-y-4">
-              <div className="flex items-center gap-2 text-sm font-bold text-foreground pb-2 border-b border-border/50">
-                <User size={16} className="text-muted-foreground" /> Account Details
+              <div className="flex items-center gap-2 text-sm font-bold text-slate-800 dark:text-zinc-200 pb-2 border-b border-slate-200 dark:border-white/[0.08]/50">
+                <User size={16} className="text-slate-500 dark:text-zinc-400" /> Account Details
               </div>
               
               <div className="flex items-center gap-4 mb-4">
-                <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center overflow-hidden border border-border shrink-0">
+                <div className="w-16 h-16 rounded-full bg-slate-200/50 dark:bg-white/[0.04] flex items-center justify-center overflow-hidden border border-slate-200 dark:border-white/[0.08] shrink-0">
                   {form.photo ? (
                     <img loading="lazy" src={form.photo} alt="Avatar" className="w-full h-full object-cover" />
                   ) : (
-                    <User size={24} className="text-muted-foreground" />
+                    <User size={24} className="text-slate-500 dark:text-zinc-400" />
                   )}
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-foreground mb-1">Profile Photo</label>
-                  <label className="text-xs bg-muted hover:bg-muted/80 px-3 py-1.5 rounded-lg cursor-pointer transition inline-block">
+                  <label className="block text-xs font-bold text-slate-800 dark:text-zinc-200 mb-1">Profile Photo</label>
+                  <label className="text-xs bg-slate-200/50 dark:bg-white/[0.04] hover:bg-slate-200/50 dark:bg-white/[0.04]/80 px-3 py-1.5 rounded-lg cursor-pointer transition inline-block">
                     {uploadingPhoto ? "Uploading..." : "Change Photo"}
                     <input type="file" accept="image/*" className="hidden" onChange={handlePhotoUpload} disabled={uploadingPhoto} />
                   </label>
@@ -149,18 +149,18 @@ export default function ProfileModal({ onClose }) {
 
               <div>
                 <label className={labelCls}>Full Name</label>
-                <input type="text" required value={form.name} onChange={e => setForm({...form, name: e.target.value})} className={inputCls} />
+                <input className="bg-slate-50 dark:bg-black border border-slate-200 dark:border-white/[0.08] rounded-[10px] text-[13px] text-slate-600 dark:text-zinc-400 focus:border-teal-600/50 px-3 py-2" type="text" required value={form.name} onChange={e => setForm({...form, name: e.target.value})} className={inputCls} />
               </div>
 
               <div>
                 <label className={labelCls}>Email / Username (Read-Only)</label>
-                <input type="email" readOnly disabled value={user?.email || ""} className={`${inputCls} opacity-60 cursor-not-allowed`} />
+                <input className="bg-slate-50 dark:bg-black border border-slate-200 dark:border-white/[0.08] rounded-[10px] text-[13px] text-slate-600 dark:text-zinc-400 focus:border-teal-600/50 px-3 py-2" type="email" readOnly disabled value={user?.email || ""} className={`${inputCls} opacity-60 cursor-not-allowed`} />
               </div>
 
               <div>
                 <label className={labelCls}>Mobile Number</label>
                 <div className="flex gap-2">
-                  <input type="text" placeholder="10-digit number" value={form.phone} onChange={e => { setForm({...form, phone: e.target.value}); setPhoneOtpSent(false); }} className={inputCls} />
+                  <input className="bg-slate-50 dark:bg-black border border-slate-200 dark:border-white/[0.08] rounded-[10px] text-[13px] text-slate-600 dark:text-zinc-400 focus:border-teal-600/50 px-3 py-2" type="text" placeholder="10-digit number" value={form.phone} onChange={e => { setForm({...form, phone: e.target.value}); setPhoneOtpSent(false); }} className={inputCls} />
                   {form.phone !== user?.phone && !phoneOtpSent && (
                     <Button type="button" onClick={handleSendPhoneOtp} className="px-3 py-2 bg-accent text-accent-foreground rounded-xl text-xs font-bold shrink-0 whitespace-nowrap">
                       Verify OTP
@@ -172,8 +172,8 @@ export default function ProfileModal({ onClose }) {
               {phoneOtpSent && (
                 <div className="animate-in fade-in slide-in-from-top-2 p-3 bg-accent/10 border border-accent/20 rounded-xl mt-2">
                   <label className={labelCls}>Enter 6-Digit OTP</label>
-                  <input type="text" placeholder="------" value={form.otp_code} onChange={e => setForm({...form, otp_code: e.target.value.replace(/\\D/g, '').slice(0,6)})} className={`${inputCls} font-mono tracking-widest`} maxLength={6} required />
-                  <p className="text-[10px] text-muted-foreground mt-1">OTP sent to {form.phone} on WhatsApp.</p>
+                  <input className="bg-slate-50 dark:bg-black border border-slate-200 dark:border-white/[0.08] rounded-[10px] text-[13px] text-slate-600 dark:text-zinc-400 focus:border-teal-600/50 px-3 py-2" type="text" placeholder="------" value={form.otp_code} onChange={e => setForm({...form, otp_code: e.target.value.replace(/\\D/g, '').slice(0,6)})} className={`${inputCls} font-mono tracking-widest`} maxLength={6} required />
+                  <p className="text-[10px] text-slate-500 dark:text-zinc-400 mt-1">OTP sent to {form.phone} on WhatsApp.</p>
                 </div>
               )}
 
@@ -204,8 +204,8 @@ export default function ProfileModal({ onClose }) {
 
             {/* Printer Settings */}
             <div className="space-y-4 pt-2">
-              <div className="flex items-center gap-2 text-sm font-bold text-foreground pb-2 border-b border-border/50">
-                <Printer size={16} className="text-muted-foreground" /> Printing Preferences
+              <div className="flex items-center gap-2 text-sm font-bold text-slate-800 dark:text-zinc-200 pb-2 border-b border-slate-200 dark:border-white/[0.08]/50">
+                <Printer size={16} className="text-slate-500 dark:text-zinc-400" /> Printing Preferences
               </div>
               
               <div>
@@ -216,8 +216,8 @@ export default function ProfileModal({ onClose }) {
                     onClick={() => setForm({...form, receipt_print_size: "A4"})}
                     className={`flex flex-col items-center justify-center p-3 rounded-xl border-2 transition-all ${
                       form.receipt_print_size === "A4" 
-                        ? "border-primary bg-primary/10 text-primary" 
-                        : "border-border bg-card text-muted-foreground hover:border-muted-foreground/50"
+                        ? "border-teal-600 bg-teal-600/10 text-teal-800 dark:text-teal-300" 
+                        : "border-slate-200 dark:border-white/[0.08] bg-white dark:bg-[#111] text-slate-500 dark:text-zinc-400 hover:border-muted-foreground/50"
                     }`}
                   >
                     <span className="font-bold">A4 Size</span>
@@ -228,8 +228,8 @@ export default function ProfileModal({ onClose }) {
                     onClick={() => setForm({...form, receipt_print_size: "80mm"})}
                     className={`flex flex-col items-center justify-center p-3 rounded-xl border-2 transition-all ${
                       form.receipt_print_size === "80mm" 
-                        ? "border-primary bg-primary/10 text-primary" 
-                        : "border-border bg-card text-muted-foreground hover:border-muted-foreground/50"
+                        ? "border-teal-600 bg-teal-600/10 text-teal-800 dark:text-teal-300" 
+                        : "border-slate-200 dark:border-white/[0.08] bg-white dark:bg-[#111] text-slate-500 dark:text-zinc-400 hover:border-muted-foreground/50"
                     }`}
                   >
                     <span className="font-bold">80mm Thermal</span>
@@ -241,15 +241,15 @@ export default function ProfileModal({ onClose }) {
           </form>
         </div>
 
-        <div className="p-4 sm:p-5 border-t border-border shrink-0 bg-muted/30 flex justify-end gap-3">
-          <Button type="button" onClick={onClose} className="px-4 py-2 text-sm font-bold text-muted-foreground hover:text-foreground transition">
+        <div className="p-4 sm:p-5 border-t border-slate-200 dark:border-white/[0.08] shrink-0 bg-slate-200/50 dark:bg-white/[0.04]/30 flex justify-end gap-3">
+          <Button type="button" onClick={onClose} className="bg-transparent rounded-full border border-slate-200 dark:border-white/10 text-slate-500 dark:text-zinc-400 hover:border-slate-300 dark:border-white/20 hover:text-slate-800 dark:text-zinc-200 hover:bg-slate-200/50 dark:bg-white/[0.04] px-4 py-2 text-[11px] font-semibold tracking-[0.06em] uppercase transition-all duration-300 w-full">
             Cancel
           </Button>
           <Button
             type="submit"
             form="profile-form"
             disabled={saving}
-            className="inline-flex items-center gap-2 px-5 py-2 rounded-xl bg-primary text-primary-foreground text-sm font-bold hover:bg-primary/90 transition shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+            className="bg-teal-600 text-white rounded-full px-5 py-2 text-[11px] font-semibold tracking-[0.04em] uppercase shadow-[0_0_0_1px_rgba(13,148,136,0.5),0_4px_16px_rgba(13,148,136,0.25)] hover:bg-teal-700 active:scale-[0.97] transition-all duration-300 w-full inline-flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {saving ? <div className="w-4 h-4 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin" /> : <Save size={16} />}
             {saving ? "Saving..." : "Save Changes"}

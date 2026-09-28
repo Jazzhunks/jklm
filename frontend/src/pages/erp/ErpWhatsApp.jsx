@@ -207,6 +207,7 @@ export default function ErpWhatsApp() {
   };
 
   const handleDeleteQR = async (id) => {
+    if (!window.confirm("Are you sure you want to delete this Quick Reply?")) return;
     await waAPI.deleteQuickReply(id);
     setQuickReplies((prev) => prev.filter((q) => q.id !== id));
     toast.success("Deleted");
@@ -274,19 +275,16 @@ export default function ErpWhatsApp() {
   }, [selectedTemplateData]);
 
   return (
-    <div className="space-y-6 animate-fadeIn">
+    <div className="space-y-6 animate-fadeIn bg-slate-50 dark:bg-black">
       <div className="flex items-center justify-between gap-2">
         <div>
-          <h2 className="font-display text-2xl sm:text-3xl font-light tracking-tight text-foreground">
-            WhatsApp <span className="text-accent font-medium italic">Broadcast.</span>
-          </h2>
-          <p className="text-xs text-muted-foreground mt-1">
-            Design, deploy, and monitor template-driven broadcasts across CRM and external lists.
-          </p>
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-semibold tracking-[0.2em] uppercase bg-teal-600/10 text-teal-600 border border-teal-600/25 mb-3">Communications</div>
+          <h1 className="text-[30px] font-bold tracking-[-0.02em] text-slate-900 dark:text-zinc-100">WhatsApp Broadcast</h1>
+          <p className="text-[13px] text-slate-400 dark:text-zinc-600 mt-1.5">Design, deploy, and monitor template-driven broadcasts across CRM and external lists.</p>
         </div>
       </div>
 
-      <div className="flex flex-wrap gap-2 border-b border-border">
+      <div className="flex flex-wrap gap-2 border-b border-slate-200 dark:border-white/[0.08]">
         {TABS.map((tab) => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.id;
@@ -296,8 +294,8 @@ export default function ErpWhatsApp() {
               onClick={() => setActiveTab(tab.id)}
               className={`flex items-center gap-2 px-4 py-2.5 rounded-t-xl text-sm font-medium transition-all cursor-pointer ${
                 isActive
-                  ? "bg-accent text-accent-foreground border-b-2 border-accent"
-                  : "text-muted-foreground hover:text-foreground hover:bg-muted/40"
+                  ? "bg-teal-600 text-white border-b-2 border-accent"
+                  : "bg-transparent text-slate-500 dark:text-zinc-400 hover:text-slate-800 dark:text-zinc-200 hover:bg-slate-200/50 dark:bg-white/[0.04]/40"
               }`}
             >
               <Icon size={16} /> {tab.label}
@@ -309,27 +307,27 @@ export default function ErpWhatsApp() {
       {activeTab === "campaigns" && (
         <div className="space-y-4 animate-fadeIn">
           <div className="flex justify-between items-center gap-2">
-            <h3 className="font-display font-medium text-lg text-foreground">Active Campaigns</h3>
-            <Button size="sm" onClick={() => setActiveTab("new")} className="rounded-xl text-xs font-bold cursor-pointer">
+            <h3 className="font-display font-medium text-lg text-slate-800 dark:text-zinc-200">Active Campaigns</h3>
+            <Button size="sm" onClick={() => setActiveTab("new")} className="bg-teal-600 text-white rounded-full px-5 py-2 text-[11px] font-semibold tracking-[0.04em] uppercase shadow-[0_0_0_1px_rgba(13,148,136,0.5),0_4px_16px_rgba(13,148,136,0.25)] hover:bg-teal-700 active:scale-[0.97] transition-all duration-300 inline-flex items-center gap-2 cursor-pointer">
               <Plus size={14} className="mr-1.5" /> New Campaign
             </Button>
           </div>
           {campaigns.length === 0 ? (
-            <Card className="p-8 text-center text-muted-foreground rounded-2xl border border-border">
+            <Card className="bg-white dark:bg-[#111] p-8 text-center text-slate-500 dark:text-zinc-400 rounded-2xl border border-slate-200 dark:border-white/[0.08]">
               No campaigns yet. Create your first broadcast to get started.
             </Card>
           ) : (
             <div className="space-y-3">
               {campaigns.map((c) => (
-                <Card key={c.id} className="p-4 rounded-2xl border border-border bg-background/40">
+                <Card key={c.id} className="p-4 rounded-2xl border border-slate-200 dark:border-white/[0.08] bg-slate-50 dark:bg-black/40">
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                     <div className="min-w-0">
-                      <div className="font-bold text-foreground text-sm sm:text-base truncate">{c.name || c.template_name}</div>
-                      <div className="text-xs text-muted-foreground mt-0.5">
+                      <div className="font-bold text-slate-800 dark:text-zinc-200 text-sm sm:text-base truncate">{c.name || c.template_name}</div>
+                      <div className="text-xs text-slate-500 dark:text-zinc-400 mt-0.5">
                         Template: <span className="font-mono">{c.template_name}</span> · Status:{" "}
                         <span className="uppercase tracking-wider font-bold">{c.status}</span>
                       </div>
-                      <div className="text-xs text-muted-foreground mt-0.5">
+                      <div className="text-xs text-slate-500 dark:text-zinc-400 mt-0.5">
                         Target: {c.target_group} {c.branch_id ? `· Branch: ${c.branch_id}` : ""}
                       </div>
                     </div>
@@ -338,7 +336,7 @@ export default function ErpWhatsApp() {
                         size="sm"
                         variant="outline"
                         onClick={() => handleViewAnalytics(c.id)}
-                        className="rounded-xl text-xs cursor-pointer"
+                        className="bg-transparent rounded-full border border-slate-200 dark:border-white/10 text-slate-500 dark:text-zinc-400 hover:border-slate-300 dark:border-white/20 hover:text-slate-800 dark:text-zinc-200 hover:bg-slate-200/50 dark:bg-white/[0.04] px-4 py-2 text-[11px] font-semibold tracking-[0.06em] uppercase transition-all duration-300 inline-flex items-center gap-2 cursor-pointer"
                       >
                         <BarChart3 size={14} className="mr-1.5" /> Analytics
                       </Button>
@@ -362,8 +360,8 @@ export default function ErpWhatsApp() {
       )}
 
       {activeTab === "new" && (
-        <div className="space-y-6 animate-fadeIn">
-          <Card className="p-5 rounded-2xl border border-border bg-background/30 space-y-5">
+        <div className="space-y-6 animate-fadeIn bg-slate-50 dark:bg-black">
+          <Card className="p-5 rounded-2xl border border-slate-200 dark:border-white/[0.08] bg-slate-50 dark:bg-black/30 space-y-5">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-1">
                 <Label className="text-xs uppercase tracking-wider font-bold">Campaign Name</Label>
@@ -371,13 +369,13 @@ export default function ErpWhatsApp() {
                   value={form.name}
                   onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
                   placeholder="e.g. October Lead Blast"
-                  className="rounded-xl"
+                  className="bg-white dark:bg-[#111] border border-slate-200 dark:border-white/[0.08] rounded-[10px] text-[13px] text-slate-600 dark:text-zinc-400 px-3 py-2 focus:outline-none focus:border-teal-600/50"
                 />
               </div>
               <div className="space-y-1">
                 <Label className="text-xs uppercase tracking-wider font-bold">Template</Label>
                 <Select value={form.template_name} onValueChange={handleTemplateChange}>
-                  <SelectTrigger className="rounded-xl">
+                  <SelectTrigger className="bg-white dark:bg-[#111] border border-slate-200 dark:border-white/[0.08] rounded-[10px] text-[13px] text-slate-600 dark:text-zinc-400 px-3 py-2 focus:outline-none focus:border-teal-600/50">
                     <SelectValue placeholder="Select approved template" />
                   </SelectTrigger>
                   <SelectContent>
@@ -395,7 +393,7 @@ export default function ErpWhatsApp() {
                   value={form.target_group}
                   onValueChange={(val) => setForm((f) => ({ ...f, target_group: val }))}
                 >
-                  <SelectTrigger className="rounded-xl">
+                  <SelectTrigger className="bg-white dark:bg-[#111] border border-slate-200 dark:border-white/[0.08] rounded-[10px] text-[13px] text-slate-600 dark:text-zinc-400 px-3 py-2 focus:outline-none focus:border-teal-600/50">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -411,17 +409,17 @@ export default function ErpWhatsApp() {
                   value={form.branch_id}
                   onChange={(e) => setForm((f) => ({ ...f, branch_id: e.target.value }))}
                   placeholder="Branch ID"
-                  className="rounded-xl"
+                  className="bg-white dark:bg-[#111] border border-slate-200 dark:border-white/[0.08] rounded-[10px] text-[13px] text-slate-600 dark:text-zinc-400 px-3 py-2 focus:outline-none focus:border-teal-600/50"
                 />
               </div>
             </div>
 
             {form.target_group === "external" && (
-              <div className="space-y-3 p-4 rounded-2xl border border-dashed border-border bg-muted/20">
-                <div className="flex items-center gap-2 text-sm font-bold text-foreground">
+              <div className="space-y-3 p-4 rounded-2xl border border-dashed border-slate-200 dark:border-white/[0.08] bg-slate-200/50 dark:bg-white/[0.04]/20">
+                <div className="flex items-center gap-2 text-sm font-bold text-slate-800 dark:text-zinc-200">
                   <Upload size={16} /> External Contact Upload
                 </div>
-                <p className="text-xs text-muted-foreground">
+                <p className="text-xs text-slate-500 dark:text-zinc-400">
                   Upload an Excel/CSV file with at least a phone column. Duplicates within the file will be
                   skipped with a warning. Numbers already in the database will still receive this broadcast.
                 </p>
@@ -434,7 +432,7 @@ export default function ErpWhatsApp() {
                       if (file) handleFileUpload(file);
                     }}
                     disabled={uploadingContacts}
-                    className="block text-sm file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-accent file:text-accent-foreground hover:file:bg-accent/90"
+                    className="block text-sm file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-teal-600 file:text-white hover:file:bg-teal-600/90"
                   />
                   <Button
                     size="sm"
@@ -453,13 +451,13 @@ export default function ErpWhatsApp() {
                         toast.error("Failed to download template");
                       }
                     }}
-                    className="rounded-xl text-xs cursor-pointer"
+                    className="bg-transparent rounded-full border border-slate-200 dark:border-white/10 text-slate-500 dark:text-zinc-400 hover:border-slate-300 dark:border-white/20 hover:text-slate-800 dark:text-zinc-200 hover:bg-slate-200/50 dark:bg-white/[0.04] px-4 py-2 text-[11px] font-semibold tracking-[0.06em] uppercase transition-all duration-300 inline-flex items-center gap-2 cursor-pointer"
                   >
                     <FileSpreadsheet size={14} className="mr-1.5" /> Download Template
                   </Button>
                 </div>
                 {uploadResult && (
-                  <div className="text-xs text-muted-foreground space-y-1">
+                  <div className="text-xs text-slate-500 dark:text-zinc-400 space-y-1">
                     <div>Imported: {uploadResult.contacts_imported} contacts</div>
                     {uploadResult.warnings?.length > 0 && (
                       <div className="text-amber-600">Warnings: {uploadResult.warnings.length}</div>
@@ -470,8 +468,8 @@ export default function ErpWhatsApp() {
             )}
 
             {selectedTemplateData && (
-              <div className="space-y-3 p-4 rounded-2xl border border-border bg-background/20">
-                <div className="flex items-center gap-2 text-sm font-bold text-foreground">
+              <div className="space-y-3 p-4 rounded-2xl border border-slate-200 dark:border-white/[0.08] bg-slate-50 dark:bg-black/20">
+                <div className="flex items-center gap-2 text-sm font-bold text-slate-800 dark:text-zinc-200">
                   <Template size={16} /> Variable Mapping
                 </div>
                 <TemplateMapper
@@ -490,7 +488,7 @@ export default function ErpWhatsApp() {
               <Button
                 onClick={handleCreateCampaign}
                 disabled={loading}
-                className="rounded-xl text-xs font-bold cursor-pointer"
+                className="bg-teal-600 text-white rounded-full px-5 py-2 text-[11px] font-semibold tracking-[0.04em] uppercase shadow-[0_0_0_1px_rgba(13,148,136,0.5),0_4px_16px_rgba(13,148,136,0.25)] hover:bg-teal-700 active:scale-[0.97] transition-all duration-300 inline-flex items-center gap-2 cursor-pointer"
               >
                 {loading ? <Loader2 className="animate-spin mr-2" size={14} /> : <Plus size={14} className="mr-2" />}
                 Create Campaign
@@ -502,43 +500,43 @@ export default function ErpWhatsApp() {
 
       {activeTab === "quick-replies" && (
         <div className="space-y-4 animate-fadeIn">
-          <Card className="p-5 rounded-2xl border border-border bg-background/30 space-y-4">
+          <Card className="p-5 rounded-2xl border border-slate-200 dark:border-white/[0.08] bg-slate-50 dark:bg-black/30 space-y-4">
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <Input
                 value={qrForm.shortcut}
                 onChange={(e) => setQrForm((f) => ({ ...f, shortcut: e.target.value }))}
                 placeholder="Shortcut / label"
-                className="rounded-xl"
+                className="bg-white dark:bg-[#111] border border-slate-200 dark:border-white/[0.08] rounded-[10px] text-[13px] text-slate-600 dark:text-zinc-400 px-3 py-2 focus:outline-none focus:border-teal-600/50"
               />
               <Input
                 value={qrForm.text}
                 onChange={(e) => setQrForm((f) => ({ ...f, text: e.target.value }))}
                 placeholder="Reply text"
-                className="rounded-xl"
+                className="bg-white dark:bg-[#111] border border-slate-200 dark:border-white/[0.08] rounded-[10px] text-[13px] text-slate-600 dark:text-zinc-400 px-3 py-2 focus:outline-none focus:border-teal-600/50"
               />
               <Input
                 value={qrForm.category}
                 onChange={(e) => setQrForm((f) => ({ ...f, category: e.target.value }))}
                 placeholder="Category"
-                className="rounded-xl"
+                className="bg-white dark:bg-[#111] border border-slate-200 dark:border-white/[0.08] rounded-[10px] text-[13px] text-slate-600 dark:text-zinc-400 px-3 py-2 focus:outline-none focus:border-teal-600/50"
               />
             </div>
-            <Button onClick={handleCreateQR} disabled={qrLoading} className="rounded-xl text-xs font-bold cursor-pointer">
+            <Button onClick={handleCreateQR} disabled={qrLoading} className="bg-teal-600 text-white rounded-full px-5 py-2 text-[11px] font-semibold tracking-[0.04em] uppercase shadow-[0_0_0_1px_rgba(13,148,136,0.5),0_4px_16px_rgba(13,148,136,0.25)] hover:bg-teal-700 active:scale-[0.97] transition-all duration-300 inline-flex items-center gap-2 cursor-pointer">
               {qrLoading ? "Saving..." : "Save Quick Reply"}
             </Button>
           </Card>
           <div className="space-y-2">
             {quickReplies.map((q) => (
-              <Card key={q.id} className="p-3 rounded-2xl border border-border bg-background/40 flex items-start justify-between gap-3">
+              <Card key={q.id} className="p-3 rounded-2xl border border-slate-200 dark:border-white/[0.08] bg-slate-50 dark:bg-black/40 flex items-start justify-between gap-3">
                 <div className="min-w-0">
-                  <div className="text-sm font-bold text-foreground">{q.shortcut || q.category}</div>
-                  <div className="text-xs text-muted-foreground mt-0.5">{q.text}</div>
+                  <div className="text-sm font-bold text-slate-800 dark:text-zinc-200">{q.shortcut || q.category}</div>
+                  <div className="text-xs text-slate-500 dark:text-zinc-400 mt-0.5">{q.text}</div>
                 </div>
                 <Button
                   size="sm"
                   variant="ghost"
                   onClick={() => handleDeleteQR(q.id)}
-                  className="rounded-xl text-xs text-rose-600 cursor-pointer"
+                  className="bg-transparent rounded-full border border-slate-200 dark:border-white/10 text-rose-500 hover:border-slate-300 dark:border-white/20 hover:text-rose-800 dark:text-rose-400 hover:bg-slate-200/50 dark:bg-white/[0.04] px-4 py-2 text-[11px] font-semibold tracking-[0.06em] uppercase transition-all duration-300 inline-flex items-center gap-2 cursor-pointer"
                 >
                   Delete
                 </Button>
@@ -551,7 +549,7 @@ export default function ErpWhatsApp() {
       {activeTab === "monitor" && (
         <div className="space-y-4 animate-fadeIn">
           {!monitorJobId ? (
-            <Card className="p-8 text-center text-muted-foreground rounded-2xl border border-border">
+            <Card className="bg-white dark:bg-[#111] p-8 text-center text-slate-500 dark:text-zinc-400 rounded-2xl border border-slate-200 dark:border-white/[0.08]">
               Start a broadcast from the Campaigns tab to see live progress here.
             </Card>
           ) : (
@@ -565,7 +563,7 @@ export default function ErpWhatsApp() {
           <div className="flex items-center gap-2">
             <Label className="text-xs uppercase tracking-wider font-bold">Select Campaign</Label>
             <Select value={analyticsCampaignId || ""} onValueChange={handleViewAnalytics}>
-              <SelectTrigger className="rounded-xl w-64">
+              <SelectTrigger className="w-64 bg-white dark:bg-[#111] border border-slate-200 dark:border-white/[0.08] rounded-[10px] text-[13px] text-slate-600 dark:text-zinc-400 px-3 py-2 focus:outline-none focus:border-teal-600/50">
                 <SelectValue placeholder="Choose campaign" />
               </SelectTrigger>
               <SelectContent>
@@ -574,39 +572,39 @@ export default function ErpWhatsApp() {
                 ))}
               </SelectContent>
             </Select>
-            <Button size="sm" variant="outline" onClick={() => setAnalytics(null)} className="rounded-xl text-xs cursor-pointer">
+            <Button size="sm" variant="outline" onClick={() => setAnalytics(null)} className="bg-transparent rounded-full border border-slate-200 dark:border-white/10 text-slate-500 dark:text-zinc-400 hover:border-slate-300 dark:border-white/20 hover:text-slate-800 dark:text-zinc-200 hover:bg-slate-200/50 dark:bg-white/[0.04] px-4 py-2 text-[11px] font-semibold tracking-[0.06em] uppercase transition-all duration-300 inline-flex items-center gap-2 cursor-pointer">
               <RefreshCw size={14} className="mr-1.5" /> Refresh
             </Button>
           </div>
           {analytics ? (
             <div className="space-y-4">
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                <Card className="p-4 rounded-2xl border border-border bg-background/40">
-                  <div className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Total</div>
+                <Card className="bg-white dark:bg-[#111] border border-slate-200 dark:border-white/[0.07] rounded-[16px] p-5 hover:border-teal-600/30 hover:-translate-y-[1px] transition-all duration-[350ms]">
+                  <div className="text-[10px] font-semibold tracking-[0.16em] uppercase text-slate-500 dark:text-zinc-400">Total</div>
                   <div className="text-2xl font-bold">{analytics.total_messages || 0}</div>
                 </Card>
-                <Card className="p-4 rounded-2xl border border-border bg-background/40">
-                  <div className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Delivered</div>
+                <Card className="bg-white dark:bg-[#111] border border-slate-200 dark:border-white/[0.07] rounded-[16px] p-5 hover:border-teal-600/30 hover:-translate-y-[1px] transition-all duration-[350ms]">
+                  <div className="text-[10px] font-semibold tracking-[0.16em] uppercase text-slate-500 dark:text-zinc-400">Delivered</div>
                   <div className="text-2xl font-bold text-emerald-600">
                     {analytics.by_status?.delivered || 0}
                   </div>
-                  <div className="text-[10px] text-muted-foreground">{analytics.delivery_rate}%</div>
+                  <div className="text-[10px] text-slate-500 dark:text-zinc-400">{analytics.delivery_rate}%</div>
                 </Card>
-                <Card className="p-4 rounded-2xl border border-border bg-background/40">
-                  <div className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Read</div>
+                <Card className="bg-white dark:bg-[#111] border border-slate-200 dark:border-white/[0.07] rounded-[16px] p-5 hover:border-teal-600/30 hover:-translate-y-[1px] transition-all duration-[350ms]">
+                  <div className="text-[10px] font-semibold tracking-[0.16em] uppercase text-slate-500 dark:text-zinc-400">Read</div>
                   <div className="text-2xl font-bold text-blue-600">{analytics.by_status?.read || 0}</div>
-                  <div className="text-[10px] text-muted-foreground">{analytics.read_rate}%</div>
+                  <div className="text-[10px] text-slate-500 dark:text-zinc-400">{analytics.read_rate}%</div>
                 </Card>
-                <Card className="p-4 rounded-2xl border border-border bg-background/40">
-                  <div className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Failed</div>
+                <Card className="bg-white dark:bg-[#111] border border-slate-200 dark:border-white/[0.07] rounded-[16px] p-5 hover:border-teal-600/30 hover:-translate-y-[1px] transition-all duration-[350ms]">
+                  <div className="text-[10px] font-semibold tracking-[0.16em] uppercase text-slate-500 dark:text-zinc-400">Failed</div>
                   <div className="text-2xl font-bold text-rose-600">{analytics.by_status?.failed || 0}</div>
-                  <div className="text-[10px] text-muted-foreground">{analytics.fail_rate}%</div>
+                  <div className="text-[10px] text-slate-500 dark:text-zinc-400">{analytics.fail_rate}%</div>
                 </Card>
               </div>
               <AnalyticsCharts analytics={analytics} />
             </div>
           ) : (
-            <Card className="p-8 text-center text-muted-foreground rounded-2xl border border-border">
+            <Card className="bg-white dark:bg-[#111] p-8 text-center text-slate-500 dark:text-zinc-400 rounded-2xl border border-slate-200 dark:border-white/[0.08]">
               Select a campaign to view analytics.
             </Card>
           )}
@@ -616,23 +614,23 @@ export default function ErpWhatsApp() {
       {activeTab === "templates" && (
         <div className="space-y-4 animate-fadeIn">
           <div className="flex justify-between items-center">
-            <h3 className="font-display font-medium text-lg text-foreground">Approved Meta Templates</h3>
-            <Button size="sm" variant="outline" onClick={refreshTemplates} className="rounded-xl text-xs cursor-pointer">
+            <h3 className="font-display font-medium text-lg text-slate-800 dark:text-zinc-200">Approved Meta Templates</h3>
+            <Button size="sm" variant="outline" onClick={refreshTemplates} className="bg-transparent rounded-full border border-slate-200 dark:border-white/10 text-slate-500 dark:text-zinc-400 hover:border-slate-300 dark:border-white/20 hover:text-slate-800 dark:text-zinc-200 hover:bg-slate-200/50 dark:bg-white/[0.04] px-4 py-2 text-[11px] font-semibold tracking-[0.06em] uppercase transition-all duration-300 inline-flex items-center gap-2 cursor-pointer">
               <RefreshCw size={14} className="mr-1.5" /> Refresh
             </Button>
           </div>
           {templates.length === 0 ? (
-            <Card className="p-8 text-center text-muted-foreground rounded-2xl border border-border">
+            <Card className="bg-white dark:bg-[#111] p-8 text-center text-slate-500 dark:text-zinc-400 rounded-2xl border border-slate-200 dark:border-white/[0.08]">
               No approved templates found. Submit templates via Meta Business Manager first.
             </Card>
           ) : (
             <div className="space-y-3">
               {templates.map((t) => (
-                <Card key={t.name} className="p-4 rounded-2xl border border-border bg-background/40">
+                <Card key={t.name} className="p-4 rounded-2xl border border-slate-200 dark:border-white/[0.08] bg-slate-50 dark:bg-black/40">
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                     <div>
-                      <div className="font-bold text-foreground text-sm">{t.name}</div>
-                      <div className="text-xs text-muted-foreground mt-0.5">
+                      <div className="font-bold text-slate-800 dark:text-zinc-200 text-sm">{t.name}</div>
+                      <div className="text-xs text-slate-500 dark:text-zinc-400 mt-0.5">
                         Language: {t.language} · Category: {t.category}
                       </div>
                     </div>
@@ -644,7 +642,7 @@ export default function ErpWhatsApp() {
                           setSelectedTemplate(t.name);
                           setActiveTab("new");
                         }}
-                        className="rounded-xl text-xs cursor-pointer"
+                        className="bg-transparent rounded-full border border-slate-200 dark:border-white/10 text-slate-500 dark:text-zinc-400 hover:border-slate-300 dark:border-white/20 hover:text-slate-800 dark:text-zinc-200 hover:bg-slate-200/50 dark:bg-white/[0.04] px-4 py-2 text-[11px] font-semibold tracking-[0.06em] uppercase transition-all duration-300 inline-flex items-center gap-2 cursor-pointer"
                       >
                         Use Template
                       </Button>
@@ -656,7 +654,7 @@ export default function ErpWhatsApp() {
                           if (!phone) return;
                           waAPI.previewTemplate(t.name, { to: phone }).then(() => toast.success("Preview sent")).catch((e) => toast.error(e.response?.data?.detail || e.message));
                         }}
-                        className="rounded-xl text-xs cursor-pointer"
+                        className="bg-transparent rounded-full border border-slate-200 dark:border-white/10 text-slate-500 dark:text-zinc-400 hover:border-slate-300 dark:border-white/20 hover:text-slate-800 dark:text-zinc-200 hover:bg-slate-200/50 dark:bg-white/[0.04] px-4 py-2 text-[11px] font-semibold tracking-[0.06em] uppercase transition-all duration-300 inline-flex items-center gap-2 cursor-pointer"
                       >
                         Send Test
                       </Button>

@@ -10,6 +10,8 @@ from typing import List, Optional, Literal, Dict, Any
 
 from fastapi import APIRouter, Request, Depends, HTTPException, Query, Response, BackgroundTasks, UploadFile, File
 from fastapi.responses import StreamingResponse
+from pydantic import BaseModel
+from core.database import send_super_admin_notification
 from pydantic import BaseModel, EmailStr, Field
 
 from erp_pdf import fee_receipt_pdf, fee_receipt_thermal_pdf
@@ -518,6 +520,42 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
                     branch_broadcast_queues[branch_id].remove(client_queue)
 
         return StreamingResponse(event_generator_loop(), media_type="text/event-stream")
+
+    
+    @erp.get("/alerts")
+    async def get_alerts(user: dict = Depends(require_erp)):
+        alerts = []
+        if user["role"] in {"super_admin", "admin", "center_manager"}:
+            query = {"status": "pending_approval"}
+            if user["role"] != "super_admin":
+                query["branch_id"] = {"$in": ["all", user.get("branch_id")]}
+            pending_leads = await db.erp_leads.find(query, {"_id": 0}).to_list(50)
+            for l in pending_leads:
+                alerts.append({
+                    "id": l["id"],
+                    "type": "lead_approval",
+                    "title": "Fee Approval Required",
+                    "message": f"{l.get('name')} needs approval for ₹{l.get('proposed_fee')} in {l.get('moving_to_class')}",
+                    "link": f"/erp?lead={l['id']}",
+                    "timestamp": l.get("updated_at")
+                })
+        
+        if user["role"] in {"counsellor", "center_manager"}:
+            query = {"created_by": user["id"], "status": {"$in": ["approved_for_accounts", "rejected_fee"]}}
+            status_leads = await db.erp_leads.find(query, {"_id": 0}).sort("updated_at", -1).limit(20).to_list(20)
+            for l in status_leads:
+                status_text = "Approved" if l["status"] == "approved_for_accounts" else "Rejected"
+                alerts.append({
+                    "id": f"status_{l['id']}",
+                    "type": "lead_status",
+                    "title": f"Fee Proposal {status_text}",
+                    "message": f"Your proposal for {l.get('name')} was {status_text.lower()}.",
+                    "link": f"/erp/leads?lead={l['id']}",
+                    "timestamp": l.get("updated_at")
+                })
+                
+        alerts.sort(key=lambda x: x["timestamp"] or "", reverse=True)
+        return {"alerts": alerts[:30]}
 
     # ===== BRANCHES =====
     @erp.get("/branches")
@@ -1359,6 +1397,13 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
             "proposed_batch": payload.batch_name,
             "updated_at": now_iso()
         }, "$push": {"interactions": interaction}})
+        
+        counselor_name = user.get("name", "A counselor")
+        await send_super_admin_notification(
+            title="Action Required: Fee Approval",
+            body=f"{counselor_name} proposed ₹{payload.proposed_fee} for {lead.get('name', 'Student')} (Class {payload.moving_to_class}).",
+            target_path="/erp"
+        )
         return {"ok": True}
 
     @erp.post("/leads/{lead_id}/approve")
@@ -1516,6 +1561,7 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
             scholarship_amt = float(s["total_fee"]) * float(s.get("scholarship_percent", 0)) / 100.0
             net_fee = max(float(s["total_fee"]) - scholarship_amt - float(s.get("discount", 0)), 0)
             pending_total += max(net_fee - sum(p["amount"] for p in paid), 0)
+        all_leads = await db.erp_leads.find({}, {"_id": 0}).sort("created_at", -1).limit(50).to_list(50)
         return {
             "total_revenue": total_rev,
             "total_expense": total_exp,
@@ -1524,6 +1570,7 @@ def build_erp_router(db, get_current_user, hash_password, verify_password, requi
             "total_students": sum(r["students"] for r in rows),
             "total_branches": len(rows),
             "branches": rows,
+            "leads": all_leads,
         }
 
     @erp.get("/dashboard/branch/{branch_id}")

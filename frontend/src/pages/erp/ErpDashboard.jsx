@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { useOutletContext, Link } from "react-router-dom";
+import { useOutletContext, Link, useNavigate } from "react-router-dom";
 import { erp, isSuper, isFinance, isManagerPlus, fmtINR, fmtDate, extractItems, STUDENT_CLASSES, STUDENT_COURSES, getValidCoursesForClass } from "@/lib/erpApi";
 import { formatError, api, API_BASE } from "@/lib/api";
 import FeeMatrixConfigModal from "./modals/FeeMatrixConfigModal";
+import LeadActivityDrawer from "./modals/LeadActivityDrawer";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
 import { 
@@ -22,31 +23,27 @@ const CHART_COLORS = ['#38bdf8', '#34d399', '#fbbf24', '#fb7185', '#a78bfa', '#f
 
 // --- SHARED UI COMPONENT BLOCKS ---
 const Stat = ({ label, value, icon: Icon, accent, testid }) => (
-  <motion.div 
-    whileHover={{ y: -4, scale: 1.01 }}
-    transition={{ type: "spring", stiffness: 300 }}
-    className="bg-card rounded-2xl p-6 relative overflow-hidden group border border-border shadow-[0_2px_10px_rgba(0,0,0,0.02)] hover:shadow-[0_8px_30px_rgba(0,0,0,0.06)]" data-testid={testid}
+  <div 
+    className="bg-white dark:bg-[#111] border border-slate-200 dark:border-white/[0.07] rounded-[16px] p-5 shadow-sm dark:shadow-[inset_0_1px_0_rgba(255,255,255,0.05)] hover:border-teal-600/30 hover:-translate-y-[1px] transition-all duration-[350ms] relative overflow-hidden group" data-testid={testid}
   >
     <div className="flex items-center justify-between mb-4 relative z-10">
-      <div className="flex items-center justify-center w-12 h-12 rounded-2xl bg-muted/30 group-hover:bg-muted/60 transition-colors backdrop-blur-sm border border-border/50">
-        {Icon && <Icon size={20} className={accent || "text-muted-foreground"} strokeWidth={1.5} />}
+      <div className="flex items-center justify-center w-10 h-10 rounded-full bg-slate-200 dark:bg-white/5 border border-slate-200 dark:border-white/10 group-hover:bg-teal-600/10 group-hover:border-teal-600/20 transition-all duration-300">
+        {Icon && <Icon size={18} className={accent || "text-slate-600 dark:text-zinc-400"} strokeWidth={1.5} />}
       </div>
-      <div className="h-8 w-8 rounded-full bg-gradient-to-br from-transparent to-muted/20 opacity-0 group-hover:opacity-100 transition-opacity absolute -right-2 -top-2" />
     </div>
-    <div className="relative z-10">
-      <div className={`font-display text-4xl font-black tracking-tighter ${accent || "text-foreground"}`}>
+    <div className="relative z-10 flex flex-col-reverse">
+      <div className={`font-mono text-[26px] font-bold tracking-[-0.02em] mt-1.5 text-slate-900 dark:text-zinc-100`}>
         {value}
       </div>
-      <div className="text-[11px] font-bold text-muted-foreground mt-1.5 uppercase tracking-[0.15em]">{label}</div>
+      <div className="text-[10px] font-semibold tracking-[0.16em] uppercase text-slate-500 dark:text-zinc-400">{label}</div>
     </div>
-    <div className="absolute inset-0 bg-gradient-to-br from-transparent to-muted/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-  </motion.div>
+  </div>
 );
 
 const CustomTooltip = ({ active, payload, label }) => {
   if (active && payload && payload.length) {
     return (
-      <div className="bg-background/95 border border-border p-4 rounded-xl shadow-xl backdrop-blur-md z-50">
+      <div className="bg-slate-50 dark:bg-black/95 border border-slate-200 dark:border-white/[0.08] p-4 rounded-xl shadow-xl backdrop-blur-md z-50">
         <p className="font-bold text-sm mb-2">{label}</p>
         {payload.map((entry, index) => (
           <div key={index} className="flex items-center justify-between gap-6 text-sm mb-1 last:mb-0">
@@ -64,8 +61,11 @@ const CustomTooltip = ({ active, payload, label }) => {
 // MAIN DASHBOARD PLATFORM CONSOLE CONTAINER
 // ============================================================================
 export default function ErpDashboard() {
+  const nav = useNavigate();
   const { erpUser, selectedBranchId } = useOutletContext();
   const [data, setData] = useState(null);
+  const [dashboardLeads, setDashboardLeads] = useState([]);
+  const [leadTab, setLeadTab] = useState("all");
   const [err, setErr] = useState(null);
   const [activeModal, setActiveModal] = useState(null);
   const [showFeeMatrix, setShowFeeMatrix] = useState(false); // 'admission' | 'expense' | 'cashbook' | 'students' | 'outflow' | 'duelist'
@@ -87,13 +87,13 @@ export default function ErpDashboard() {
     <div className="flex flex-col items-center justify-center py-20 text-center" data-testid="erp-dashboard-error">
       <AlertCircle size={48} className="text-destructive mb-4" />
       <h2 className="text-xl font-bold">Dashboard Error</h2>
-      <p className="text-muted-foreground mt-2">{err}</p>
+      <p className="text-slate-500 dark:text-zinc-400 mt-2">{err}</p>
     </div>
   );
   
   if (!data) return (
     <div className="grid grid-cols-1 md:grid-cols-4 gap-4 animate-pulse p-6">
-      {[1, 2, 3, 4].map(i => <div key={i} className="h-32 bg-muted/50 rounded-2xl"></div>)}
+      {[1, 2, 3, 4].map(i => <div key={i} className="h-32 bg-slate-200/50 dark:bg-white/[0.04]/50 rounded-2xl"></div>)}
     </div>
   );
 
@@ -103,13 +103,13 @@ export default function ErpDashboard() {
     <div className="p-1 sm:p-6 space-y-8 relative">
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
         <div className="w-full md:w-auto">
-          <div className="text-[10px] uppercase tracking-[0.15em] font-bold text-accent flex items-center gap-1.5">
+          <div className="text-[10px] tracking-[0.2em] uppercase bg-teal-600/10 text-teal-600 border border-teal-600/25 rounded-full px-3 py-1 inline-flex items-center gap-1.5 w-fit">
             {isSuper(erpUser) ? "Operations Console" : "Centre Console"}
           </div>
-          <h1 className="text-3xl sm:text-4xl lg:text-[40px] font-bold tracking-tight text-foreground mt-1 break-words">
+          <h1 className="text-[32px] font-bold tracking-[-0.02em] text-slate-900 dark:text-zinc-100 mt-3 break-words">
             {isSuper(erpUser) ? "Network Overview" : data.branch?.name}
           </h1>
-          <p className="text-muted-foreground mt-2 text-sm max-w-xl leading-relaxed">
+          <p className="text-[13px] text-slate-400 dark:text-zinc-600 mt-2 max-w-xl leading-relaxed">
             {isSuper(erpUser) 
               ? `Live operational metrics across ${data.total_branches} learning branches.` 
               : `${data.branch?.address || "Active Learning Center Execution Layer Branch."}`}
@@ -118,34 +118,34 @@ export default function ErpDashboard() {
 
         {/* Command Quick Actions Bar */}
         <div className="flex flex-wrap items-center gap-2 sm:gap-3 w-full md:w-auto">
-          <Button onClick={() => setActiveModal("duelist")} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-500/10 hover:bg-amber-500/20 text-amber-600 text-xs font-medium transition-all duration-200 border border-amber-500/20 shadow-sm active:scale-[0.98] whitespace-nowrap">
+          <Button onClick={() => setActiveModal("duelist")} className="bg-transparent rounded-full border border-slate-200 dark:border-white/10 text-slate-500 dark:text-zinc-400 hover:border-slate-300 dark:border-white/20 hover:text-slate-800 dark:text-zinc-200 hover:bg-slate-200/50 dark:bg-white/[0.04] px-4 py-2 text-[11px] font-semibold tracking-[0.06em] uppercase transition-all duration-300 whitespace-nowrap inline-flex items-center gap-1.5">
             <Clock size={14} /> <span className="whitespace-nowrap">Today's Dues</span>
           </Button>
           {erpUser.role !== "counsellor" && (
-            <Button onClick={() => setActiveModal("admission")} className="inline-flex items-center justify-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-primary text-primary-foreground text-[12px] font-medium transition-all duration-200 border border-primary/20 shadow-sm hover:bg-primary/90 hover:shadow-md active:scale-[0.98]">
+            <Button onClick={() => nav("/erp/admission")} className="bg-teal-600 text-white rounded-full px-5 py-2 text-[11px] font-semibold tracking-[0.04em] uppercase shadow-[0_0_0_1px_rgba(13,148,136,0.5),0_4px_16px_rgba(13,148,136,0.25)] hover:bg-teal-700 active:scale-[0.97] transition-all duration-300 whitespace-nowrap inline-flex items-center gap-1.5">
               <Plus size={14} /> <span className="whitespace-nowrap">New Admission</span>
             </Button>
           )}
           {isSuper(erpUser) && (
-            <Button onClick={() => setShowFeeMatrix(true)} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 text-xs font-medium transition-all duration-200 border border-emerald-500/20 shadow-sm active:scale-[0.98] whitespace-nowrap">
+            <Button onClick={() => setShowFeeMatrix(true)} className="bg-transparent rounded-full border border-slate-200 dark:border-white/10 text-slate-500 dark:text-zinc-400 hover:border-slate-300 dark:border-white/20 hover:text-slate-800 dark:text-zinc-200 hover:bg-slate-200/50 dark:bg-white/[0.04] px-4 py-2 text-[11px] font-semibold tracking-[0.06em] uppercase transition-all duration-300 whitespace-nowrap inline-flex items-center gap-1.5">
               <span className="whitespace-nowrap">Fee Matrix</span>
             </Button>
           )}
           {canSeeFinance && (
-            <Button onClick={() => setActiveModal("expense")} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-background hover:bg-muted/50 text-foreground text-xs font-medium transition-all duration-200 border border-border/60 shadow-sm active:scale-[0.98] whitespace-nowrap">
+            <Button onClick={() => setActiveModal("expense")} className="bg-transparent rounded-full border border-slate-200 dark:border-white/10 text-slate-500 dark:text-zinc-400 hover:border-slate-300 dark:border-white/20 hover:text-slate-800 dark:text-zinc-200 hover:bg-slate-200/50 dark:bg-white/[0.04] px-4 py-2 text-[11px] font-semibold tracking-[0.06em] uppercase transition-all duration-300 whitespace-nowrap inline-flex items-center gap-1.5">
               <Wallet size={14} /> <span className="whitespace-nowrap">Add Expense</span>
             </Button>
           )}
-          <Button onClick={() => setActiveModal("students")} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-background hover:bg-muted/50 text-muted-foreground hover:text-foreground text-xs font-medium transition-all duration-200 border border-border/60 shadow-sm active:scale-[0.98] whitespace-nowrap">
+          <Button onClick={() => setActiveModal("students")} className="bg-transparent rounded-full border border-slate-200 dark:border-white/10 text-slate-500 dark:text-zinc-400 hover:border-slate-300 dark:border-white/20 hover:text-slate-800 dark:text-zinc-200 hover:bg-slate-200/50 dark:bg-white/[0.04] px-4 py-2 text-[11px] font-semibold tracking-[0.06em] uppercase transition-all duration-300 whitespace-nowrap inline-flex items-center gap-1.5">
             <Users size={14} /> <span className="whitespace-nowrap">Records</span>
           </Button>
           {canSeeFinance && (
-            <Button onClick={() => setActiveModal("cashbook")} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-background hover:bg-muted/50 text-muted-foreground hover:text-foreground text-xs font-medium transition-all duration-200 border border-border/60 shadow-sm active:scale-[0.98] whitespace-nowrap">
+            <Button onClick={() => setActiveModal("cashbook")} className="bg-transparent rounded-full border border-slate-200 dark:border-white/10 text-slate-500 dark:text-zinc-400 hover:border-slate-300 dark:border-white/20 hover:text-slate-800 dark:text-zinc-200 hover:bg-slate-200/50 dark:bg-white/[0.04] px-4 py-2 text-[11px] font-semibold tracking-[0.06em] uppercase transition-all duration-300 whitespace-nowrap inline-flex items-center gap-1.5">
               <IndianRupee size={14} /> <span className="whitespace-nowrap">Cashbook</span>
             </Button>
           )}
           {canSeeFinance && (
-            <Button onClick={() => setActiveModal("outflow")} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-background hover:bg-muted/50 text-muted-foreground hover:text-foreground text-xs font-medium transition-all duration-200 border border-border/60 shadow-sm active:scale-[0.98] whitespace-nowrap">
+            <Button onClick={() => setActiveModal("outflow")} className="bg-transparent rounded-full border border-slate-200 dark:border-white/10 text-slate-500 dark:text-zinc-400 hover:border-slate-300 dark:border-white/20 hover:text-slate-800 dark:text-zinc-200 hover:bg-slate-200/50 dark:bg-white/[0.04] px-4 py-2 text-[11px] font-semibold tracking-[0.06em] uppercase transition-all duration-300 whitespace-nowrap inline-flex items-center gap-1.5">
               <Layers size={14} /> <span className="whitespace-nowrap">Outflow</span>
             </Button>
           )}
@@ -154,7 +154,7 @@ export default function ErpDashboard() {
 
       {/* CORE STATISTICAL MONITORING LAYER */}
       {isSuper(erpUser) ? (
-        <SuperView d={data} />
+        <SuperView d={data} leads={data?.leads || []} leadTab={leadTab} setLeadTab={setLeadTab} refreshDashboard={refreshDashboard} />
       ) : (
         <BranchView d={data} canSeeFinance={canSeeFinance} />
       )}
@@ -179,6 +179,8 @@ export default function ErpDashboard() {
       {activeModal === "duelist" && (
         <TodayDueListModal erpUser={erpUser} onClose={() => setActiveModal(null)} />
       )}
+
+
     </div>
   );
 }
@@ -251,39 +253,39 @@ function TodayDueListModal({ erpUser, onClose }) {
 
   return (
     <div className="fixed inset-0 bg-black/30 z-50 flex justify-end backdrop-blur-sm animate-fadeIn" onClick={onClose}>
-      <div onClick={e => e.stopPropagation()} className="bg-background border-l border-border w-full max-w-2xl h-full p-6 flex flex-col justify-between overflow-y-auto shadow-2xl">
+      <div onClick={e => e.stopPropagation()} className="bg-slate-50 dark:bg-black border-l border-slate-200 dark:border-white/[0.08] w-full max-w-2xl h-full p-6 flex flex-col justify-between overflow-y-auto shadow-2xl">
         <div className="space-y-6 flex-1 flex flex-col min-h-0">
           <div className="flex justify-between items-start shrink-0">
             <div>
-              <div className="text-xs uppercase tracking-[0.2em] font-bold text-amber-400 flex items-center gap-1">
+              <div className="text-xs uppercase tracking-[0.2em] font-bold text-amber-800 dark:text-amber-400 flex items-center gap-1">
                 <Clock size={12}/> Installment Balance Core Console
               </div>
               <h2 className="font-display text-3xl font-light tracking-tight mt-1">Due Tracking Register</h2>
-              <p className="text-muted-foreground text-sm mt-1">Live algorithmic compilation matching isolated backend statement states.</p>
+              <p className="text-slate-500 dark:text-zinc-400 text-sm mt-1">Live algorithmic compilation matching isolated backend statement states.</p>
             </div>
-            <Button onClick={onClose} className="p-2 border border-border rounded-xl hover:bg-muted/50 transition"><X size={16}/></Button>
+            <Button onClick={onClose} className="p-2 border border-slate-200 dark:border-white/[0.08] rounded-xl hover:bg-slate-200/50 dark:bg-white/[0.04]/50 transition"><X size={16}/></Button>
           </div>
 
           <div className="relative w-full shrink-0">
-            <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"/>
-            <input 
+            <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 dark:text-zinc-400"/>
+            <input className="bg-slate-50 dark:bg-black border border-slate-200 dark:border-white/[0.08] rounded-[10px] text-[13px] text-slate-600 dark:text-zinc-400 focus:border-teal-600/50 px-3 py-2" 
               type="text"
               value={searchQuery} 
               onChange={e => setSearchQuery(e.target.value)} 
               placeholder="Search due tracking fields by student parameter or ID string..." 
-              className="w-full pl-9 pr-4 py-2 border border-border bg-background/50 rounded-xl text-sm focus:outline-none focus:border-amber-500/40 transition font-sans text-foreground"
+              className="w-full pl-9 pr-4 py-2 border border-slate-200 dark:border-white/[0.08] bg-slate-50 dark:bg-black/50 rounded-xl text-sm focus:outline-none focus:border-amber-500/40 transition font-sans text-slate-800 dark:text-zinc-200"
             />
           </div>
 
           {loading ? (
             <div className="flex-1 flex flex-col items-center justify-center space-y-3 py-20 text-center">
               <div className="h-6 w-6 border-2 border-amber-400 border-t-transparent rounded-full animate-spin" />
-              <div className="text-muted-foreground text-xs font-mono tracking-wider uppercase">Evaluating global collection statements matrix...</div>
+              <div className="text-slate-500 dark:text-zinc-400 text-xs font-mono tracking-wider uppercase">Evaluating global collection statements matrix...</div>
             </div>
           ) : (
-            <div className="glass-elevated rounded-2xl border border-border flex-1 overflow-y-auto overflow-x-hidden min-h-0">
+            <div className="bg-white dark:bg-[#111] border border-slate-200 dark:border-white/[0.08] shadow-2xl rounded-2xl border border-slate-200 dark:border-white/[0.08] flex-1 overflow-y-auto overflow-x-hidden min-h-0">
               <table className="w-full text-sm">
-                <thead className="bg-muted text-muted-foreground sticky top-0 backdrop-blur-md z-10 border-b border-border">
+                <thead className="bg-slate-200/50 dark:bg-white/[0.04] text-slate-500 dark:text-zinc-400 sticky top-0 backdrop-blur-md z-10 border-b border-slate-200 dark:border-white/[0.08]">
                   <tr className="text-left">
                     <th className="px-5 py-3.5 text-xs font-bold uppercase tracking-wider">Academic Record Profile</th>
                     <th className="px-5 py-3.5 text-xs font-bold uppercase tracking-wider text-right">Outstanding Deficit</th>
@@ -292,22 +294,22 @@ function TodayDueListModal({ erpUser, onClose }) {
                 </thead>
                 <tbody className="divide-y divide-border">
                   {runtimeFilteredDues.map(s => (
-                    <tr key={s.id} className="hover:bg-muted/50 transition-colors group">
+                    <tr key={s.id} className="hover:bg-slate-200/50 dark:bg-white/[0.04]/50 transition-colors group">
                       <td className="px-5 py-4">
-                        <div className="font-semibold text-sm group-hover:text-amber-400/90 transition-colors">{s.full_name}</div>
-                        <div className="text-[11px] font-mono text-muted-foreground mt-1 flex flex-wrap items-center gap-x-2 divide-x divide-border/30">
+                        <div className="font-semibold text-sm group-hover:text-amber-800 dark:text-amber-400/90 transition-colors">{s.full_name}</div>
+                        <div className="text-[11px] font-mono text-slate-500 dark:text-zinc-400 mt-1 flex flex-wrap items-center gap-x-2 divide-x divide-border/30">
                           <span>{s.student_no}</span>
                           <span className="pl-2">Batch: {s.batch || "Unallocated"}</span>
                         </div>
                       </td>
                       <td className="px-5 py-4 font-mono text-right font-bold text-sm text-rose-600">
                         {fmtINR(s.computedPending)}
-                        <div className="text-[10px] text-muted-foreground font-normal tracking-wide mt-0.5">
+                        <div className="text-[10px] text-slate-500 dark:text-zinc-400 font-normal tracking-wide mt-0.5">
                           Paid: {fmtINR(s.computedPaid)}
                         </div>
                       </td>
                       <td className="px-5 py-4 text-right">
-                        <Button 
+                        <Button className="bg-transparent rounded-full border border-slate-200 dark:border-white/10 text-slate-500 dark:text-zinc-400 hover:border-slate-300 dark:border-white/20 hover:text-slate-800 dark:text-zinc-200 hover:bg-slate-200/50 dark:bg-white/[0.04] px-4 py-2 text-[11px] font-semibold tracking-[0.06em] uppercase transition-all duration-300" 
                           onClick={() => triggeringWhatsAppNudge(s)} 
                           className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-500/10 text-emerald-600 hover:bg-emerald-500/20 text-xs font-bold transition duration-300 border border-emerald-500/10 shadow-sm"
                         >
@@ -318,7 +320,7 @@ function TodayDueListModal({ erpUser, onClose }) {
                   ))}
                   {runtimeFilteredDues.length === 0 && (
                     <tr>
-                      <td colSpan="3" className="px-5 py-16 text-center text-muted-foreground italic text-sm">
+                      <td colSpan="3" className="px-5 py-16 text-center text-slate-500 dark:text-zinc-400 italic text-sm">
                         No outstanding student due records located under validation rules.
                       </td>
                     </tr>
@@ -329,6 +331,8 @@ function TodayDueListModal({ erpUser, onClose }) {
           )}
         </div>
       </div>
+
+
     </div>
   );
 }
@@ -336,89 +340,213 @@ function TodayDueListModal({ erpUser, onClose }) {
 // ============================================================================
 // SYSTEM WORKSTATIONS SUB-CONSOLES (SUPER / BRANCH AGGREGATES)
 // ============================================================================
-function SuperView({ d }) {
+function SuperView({ d, leads, leadTab, setLeadTab, refreshDashboard }) {
+  const [deleteModal, setDeleteModal] = useState(null);
+  const [selectedLead, setSelectedLead] = useState(null);
+  const [deleting, setDeleting] = useState(false);
+
+  const handleDeleteLead = async () => {
+    if (!deleteModal) return;
+    setDeleting(true);
+    try {
+      await erp.deleteLead(deleteModal.id);
+      refreshDashboard();
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setDeleting(false);
+      setDeleteModal(null);
+    }
+  };
+  const filteredLeads = (leads || []).filter(l => {
+    if (leadTab === "all") return true;
+    if (leadTab === "new") return l.status === "new";
+    if (leadTab === "pending") return ["follow_up", "pending_approval"].includes(l.status);
+    if (leadTab === "converted") return l.status === "converted";
+    return true;
+  }).slice(0, 5);
+
   return (
-    <div className="space-y-8 animate-fadeIn">
+    <div className="space-y-6 animate-fadeIn">
+      {/* 4 Stat Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-        <Stat label="Total Revenue" value={fmtINR(d.total_revenue)} icon={TrendingUp} accent="text-emerald-600" testid="stat-revenue"/>
-        <Stat label="Total Expense" value={fmtINR(d.total_expense)} icon={TrendingDown} accent="text-rose-600" testid="stat-expense"/>
-        <Stat label="Net Income" value={fmtINR(d.net_income)} icon={Wallet} accent={d.net_income >= 0 ? "text-emerald-600" : "text-rose-600"} testid="stat-net"/>
-        <Stat label="Pending Fees" value={fmtINR(d.total_pending_fees)} icon={AlertCircle} accent="text-amber-400" testid="stat-pending"/>
+        <Stat label="Total Revenue" value={fmtINR(d.total_revenue)} icon={TrendingUp} accent="text-emerald-800 dark:text-emerald-300" testid="stat-revenue"/>
+        <Stat label="Total Expense" value={fmtINR(d.total_expense)} icon={TrendingDown} accent="text-red-800 dark:text-red-300" testid="stat-expense"/>
+        <Stat label="Net Income" value={fmtINR(d.net_income)} icon={Wallet} accent={d.net_income >= 0 ? "text-teal-800 dark:text-teal-300" : "text-red-800 dark:text-red-300"} testid="stat-net"/>
+        <Stat label="Pending Fees" value={fmtINR(d.total_pending_fees)} icon={AlertCircle} accent="text-amber-800 dark:text-yellow-300" testid="stat-pending"/>
       </div>
 
+      {/* 2-col lower */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
-        <div className="lg:col-span-2 glass-elevated rounded-2xl p-6 border border-border">
-          <div className="flex justify-between items-center mb-6">
-            <h3 className="font-display font-medium text-lg">Financial Overview (All Branches)</h3>
-            <Button className="text-xs font-bold bg-muted hover:bg-muted/80 text-foreground px-3 py-1.5 rounded-lg transition border border-border">Download Report</Button>
-          </div>
-          <div className="h-[300px] w-full min-w-0" style={{ minWidth: 0, minHeight: 300 }}>
-            <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
-              <BarChart data={d.branches || []} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
-                <XAxis dataKey="branch_name" stroke="#888" fontSize={12} tickLine={false} axisLine={false} />
-                <YAxis stroke="#888" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(v) => `₹${v/1000}k`} />
-                <RechartsTooltip content={<CustomTooltip />} cursor={{ fill: 'hsl(var(--muted))' }} />
-                <Legend iconType="circle" wrapperStyle={{ fontSize: '12px', paddingTop: '10px' }}/>
-                <Bar dataKey="revenue" name="Revenue" fill="#34d399" radius={[4, 4, 0, 0]} maxBarSize={50} />
-                <Bar dataKey="expense" name="Expense" fill="#fb7185" radius={[4, 4, 0, 0]} maxBarSize={50} />
-              </BarChart>
-            </ResponsiveContainer>
+        {/* Left Column: Prospect Leads */}
+        <div className="lg:col-span-2 bg-slate-100 dark:bg-white/[0.03] border border-slate-200 dark:border-white/[0.08] rounded-[1.75rem] p-[6px]">
+          <div className="bg-white dark:bg-[#111] rounded-[calc(1.75rem-6px)] shadow-sm dark:shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] p-5 h-full flex flex-col">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-5 gap-4 shrink-0">
+              <div>
+                <div className="text-[13px] font-semibold text-slate-900 dark:text-zinc-100">Prospect Leads</div>
+                <div className="text-[11px] text-slate-500 dark:text-zinc-400 mt-0.5">Admissions CRM pipeline</div>
+              </div>
+              <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0">
+                {["all", "new", "pending", "converted"].map(tab => (
+                  <Button
+                    key={tab}
+                    onClick={() => setLeadTab(tab)}
+                    className={`rounded-full px-4 py-1.5 text-[10px] font-semibold tracking-[0.06em] uppercase border transition-all duration-300 ${
+                      leadTab === tab
+                        ? "bg-teal-100 dark:bg-teal-600/15 border-teal-300 dark:border-teal-600/40 text-teal-800 dark:text-teal-300"
+                        : "bg-transparent border-slate-200 dark:border-white/10 text-slate-500 dark:text-zinc-400 hover:border-slate-300 dark:border-white/20 hover:text-slate-800 dark:text-zinc-200"
+                    }`}
+                  >
+                    {tab}
+                  </Button>
+                ))}
+              </div>
+            </div>
+            
+            <div className="overflow-x-auto flex-1">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="text-left">
+                    <th className="px-4 py-3 text-[10px] font-semibold tracking-[0.18em] uppercase text-slate-500 dark:text-zinc-400 border-b border-slate-200 dark:border-white/[0.06]">Lead Name</th>
+                    <th className="px-4 py-3 text-[10px] font-semibold tracking-[0.18em] uppercase text-slate-500 dark:text-zinc-400 border-b border-slate-200 dark:border-white/[0.06]">Phone</th>
+                    <th className="px-4 py-3 text-[10px] font-semibold tracking-[0.18em] uppercase text-slate-500 dark:text-zinc-400 border-b border-slate-200 dark:border-white/[0.06]">Class Target</th>
+                    <th className="px-4 py-3 text-[10px] font-semibold tracking-[0.18em] uppercase text-slate-500 dark:text-zinc-400 border-b border-slate-200 dark:border-white/[0.06]">Stage</th>
+                    <th className="px-4 py-3 text-[10px] font-semibold tracking-[0.18em] uppercase text-slate-500 dark:text-zinc-400 border-b border-slate-200 dark:border-white/[0.06] text-right">Action</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-200 dark:divide-white/[0.04]">
+                  {filteredLeads.map(l => (
+                    <tr key={l.id} onClick={() => setSelectedLead(l)} className="hover:bg-slate-100 dark:bg-white/[0.02] transition-colors cursor-pointer">
+                      <td className="px-4 py-3 font-medium text-slate-800 dark:text-zinc-200 text-[13px]">{l.name}</td>
+                      <td className="px-4 py-3 font-mono text-[12px] text-slate-600 dark:text-zinc-400">{l.phone}</td>
+                      <td className="px-4 py-3 text-[13px] text-slate-600 dark:text-zinc-400">{l.course_id}</td>
+                      <td className="px-4 py-3">
+                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-semibold tracking-[0.05em] uppercase border ${
+                          l.status === 'new' ? 'bg-blue-100 dark:bg-blue-500/20 text-blue-800 dark:text-blue-300 border-blue-300 dark:border-blue-500/20' :
+                          l.status === 'converted' ? 'bg-emerald-100 dark:bg-emerald-500/20 text-emerald-800 dark:text-emerald-300 border-emerald-300 dark:border-emerald-500/20' :
+                          l.status === 'lost' ? 'bg-rose-100 dark:bg-red-500/20 text-red-800 dark:text-red-300 border-rose-300 dark:border-red-500/20' :
+                          'bg-amber-100 dark:bg-yellow-500/20 text-amber-800 dark:text-yellow-300 border-amber-300 dark:border-yellow-500/20'
+                        }`}>
+                          {l.status}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3 text-right">
+                        <div className="flex items-center justify-end gap-1.5" onClick={e => e.stopPropagation()}>
+                          <Button onClick={() => setSelectedLead(l)} className="bg-transparent border border-slate-200 dark:border-white/10 text-slate-500 dark:text-zinc-400 hover:border-slate-300 dark:border-white/20 hover:text-slate-800 dark:text-zinc-200 rounded-lg px-2.5 py-1 text-[9px] font-bold tracking-wider uppercase transition-all">Edit</Button>
+                          <Button onClick={() => setDeleteModal(l)} className="bg-transparent border border-rose-300 dark:border-red-500/20 text-red-800 dark:text-red-300 hover:border-red-500/40 hover:bg-red-500/10 rounded-lg px-2.5 py-1 text-[9px] font-bold tracking-wider uppercase transition-all">Del</Button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                  {filteredLeads.length === 0 && (
+                    <tr>
+                      <td colSpan="4" className="px-4 py-8 text-center text-[12px] text-slate-500 dark:text-zinc-400">No leads found for this filter.</td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+
+            <div className="flex items-center justify-between mt-4 pt-3 border-t border-slate-200 dark:border-white/[0.05]">
+              <span className="text-[11px] text-slate-500 dark:text-zinc-400">Showing top {filteredLeads.length} leads</span>
+              <Button onClick={() => window.location.href = '/erp/leads'} className="bg-transparent border border-slate-200 dark:border-white/10 text-slate-500 dark:text-zinc-400 hover:border-slate-300 dark:border-white/20 hover:text-slate-800 dark:text-zinc-200 rounded-full px-4 py-1.5 text-[10px] font-semibold tracking-[0.06em] uppercase transition-all duration-300">
+                View All →
+              </Button>
+            </div>
           </div>
         </div>
 
+        {/* Right Column: Financial & Branches */}
         <div className="flex flex-col gap-5">
-          <Stat label="Active Students" value={d.total_students} icon={Users} accent="text-sky-400" testid="stat-students"/>
-          <Stat label="Operating Branches" value={d.total_branches} icon={Building2} accent="text-indigo-400" testid="stat-branches"/>
+          {/* Mini Bar Chart */}
+          <div className="bg-slate-100 dark:bg-white/[0.03] border border-slate-200 dark:border-white/[0.08] rounded-[1.75rem] p-[6px]">
+            <div className="bg-white dark:bg-[#111] rounded-[calc(1.75rem-6px)] shadow-sm dark:shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] p-5">
+              <div className="text-[11px] font-semibold tracking-[0.14em] uppercase text-slate-500 dark:text-zinc-400 mb-3">Financial Overview</div>
+              <div className="h-[100px] w-full min-w-0" style={{ minWidth: 0, minHeight: 100 }}>
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={d.branches || []} margin={{ top: 0, right: 0, left: -20, bottom: -10 }}>
+                    <XAxis dataKey="branch_name" hide />
+                    <YAxis hide />
+                    <RechartsTooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(255,255,255,0.02)' }} />
+                    <Bar dataKey="revenue" fill="rgba(13,148,136,0.55)" radius={[4, 4, 0, 0]} maxBarSize={30} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+          </div>
+
+          {/* Active Students */}
+          <div className="bg-slate-100 dark:bg-white/[0.03] border border-slate-200 dark:border-white/[0.08] rounded-[1.75rem] p-[6px]">
+            <div className="bg-white dark:bg-[#111] rounded-[calc(1.75rem-6px)] shadow-sm dark:shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] p-5">
+              <div className="text-[11px] font-semibold tracking-[0.14em] uppercase text-slate-500 dark:text-zinc-400 mb-3">Active Students</div>
+              <div className="text-[40px] font-bold text-slate-900 dark:text-zinc-100 font-mono tracking-[-0.03em] leading-none">{d.total_students}</div>
+              <div className="text-[11px] text-slate-500 dark:text-zinc-400 mt-1.5">Across {d.total_branches} branches</div>
+              
+              <div className="mt-4 flex gap-2">
+                <div className="flex-1 bg-slate-100 dark:bg-white/[0.03] border border-slate-200 dark:border-white/[0.07] rounded-[10px] p-2.5">
+                  <div className="text-[18px] font-bold text-teal-500 font-mono">{d.total_students}</div>
+                  <div className="text-[10px] text-slate-500 dark:text-zinc-400 mt-0.5">Enrolled</div>
+                </div>
+                <div className="flex-1 bg-slate-100 dark:bg-white/[0.03] border border-slate-200 dark:border-white/[0.07] rounded-[10px] p-2.5">
+                  <div className="text-[18px] font-bold text-amber-800 dark:text-amber-400 font-mono">{(d.total_students * 0.1).toFixed(0)}</div>
+                  <div className="text-[10px] text-slate-500 dark:text-zinc-400 mt-0.5">Dues Pending</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Network Branches */}
+          <div className="bg-slate-100 dark:bg-white/[0.03] border border-slate-200 dark:border-white/[0.08] rounded-[1.75rem] p-[6px]">
+            <div className="bg-white dark:bg-[#111] rounded-[calc(1.75rem-6px)] shadow-sm dark:shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] p-5">
+              <div className="text-[11px] font-semibold tracking-[0.14em] uppercase text-slate-500 dark:text-zinc-400 mb-3">Network Branches</div>
+              <div className="flex flex-col gap-2">
+                {(d.branches || []).slice(0, 5).map(b => (
+                  <div key={b.branch_id} className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <div className="w-6 h-6 rounded-md bg-teal-100 dark:bg-teal-600/15 flex items-center justify-center text-[8px] font-bold text-teal-500">
+                        {b.branch_name.substring(0, 3).toUpperCase()}
+                      </div>
+                      <span className="text-[12px] text-slate-600 dark:text-zinc-400">{b.branch_name}</span>
+                    </div>
+                    <span className="bg-emerald-100 dark:bg-emerald-500/20 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-500/20 px-2 py-0.5 rounded-full text-[9px] font-semibold uppercase tracking-wider">Active</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
         </div>
       </div>
 
-      <div className="glass-elevated rounded-2xl overflow-hidden border border-border" data-testid="branches-table">
-        <div className="px-6 py-5 border-b border-border flex items-center justify-between">
-          <h3 className="font-display font-medium text-lg">Branch Metrics Summary</h3>
-          <div className="flex gap-2">
-            <Button className="text-[10px] uppercase tracking-wider font-bold bg-primary/10 text-primary px-3 py-1.5 rounded-md transition border border-primary/20">All Time</Button>
-            <Button className="text-[10px] uppercase tracking-wider font-bold bg-muted text-muted-foreground hover:bg-muted/80 px-3 py-1.5 rounded-md transition">This Month</Button>
+
+      {/* Delete Lead Modal */}
+      {deleteModal && (
+        <div className="fixed inset-0 bg-black/60 z-50 grid place-items-center p-4 backdrop-blur-sm transition-all duration-[400ms] [transition-timing-function:cubic-bezier(0.32,0.72,0,1)]" onClick={() => !deleting && setDeleteModal(null)}>
+          <div className="bg-slate-50 dark:bg-[#111] border border-slate-200 dark:border-white/[0.08] rounded-[24px] max-w-sm w-full p-6 text-center shadow-2xl scale-100" onClick={e => e.stopPropagation()}>
+            <div className="w-14 h-14 bg-red-500/10 rounded-full flex items-center justify-center mx-auto mb-4 border border-red-500/20">
+              <Trash2 className="text-red-500" size={24} />
+            </div>
+            <h3 className="text-[18px] font-bold text-slate-900 dark:text-zinc-100 mb-2">Delete Lead?</h3>
+            <p className="text-sm text-slate-500 dark:text-zinc-400 mb-6">
+              Are you sure you want to delete <strong className="text-slate-800 dark:text-zinc-200">{deleteModal.name}</strong>?
+            </p>
+            <div className="flex gap-3">
+              <Button disabled={deleting} onClick={() => setDeleteModal(null)} className="flex-1 bg-transparent border border-slate-200 dark:border-white/10 text-slate-500 dark:text-zinc-400 hover:border-slate-300 dark:border-white/20 hover:text-slate-800 dark:text-zinc-200 hover:bg-slate-200/50 dark:bg-white/[0.04] rounded-full px-5 py-2 text-[11px] font-semibold tracking-[0.06em] uppercase transition-all duration-300">
+                Cancel
+              </Button>
+              <Button disabled={deleting} onClick={handleDeleteLead} className="flex-1 bg-red-600 text-white rounded-full px-5 py-2 text-[11px] font-semibold tracking-[0.04em] uppercase shadow-[0_0_0_1px_rgba(220,38,38,0.5),0_4px_16px_rgba(220,38,38,0.25)] hover:bg-red-700 active:scale-[0.97] transition-all duration-300 inline-flex items-center justify-center gap-1.5 disabled:opacity-50">
+                {deleting ? "Deleting..." : "Delete Lead"}
+              </Button>
+            </div>
           </div>
-          <FileText size={18} className="text-muted-foreground" />
         </div>
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead className="bg-muted">
-              <tr className="text-left text-muted-foreground">
-                <th className="px-6 py-4 font-bold text-[10px] uppercase tracking-widest">Branch Details</th>
-                <th className="px-6 py-4 font-bold text-[10px] uppercase tracking-widest text-right">Students</th>
-                <th className="px-6 py-4 font-bold text-[10px] uppercase tracking-widest text-right">Revenue</th>
-                <th className="px-6 py-4 font-bold text-[10px] uppercase tracking-widest text-right">Expense</th>
-                <th className="px-6 py-4 font-bold text-[10px] uppercase tracking-widest text-right">Net Margin</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-border">
-              {(d.branches || []).map(b => (
-                <tr key={b.branch_id} className="hover:bg-muted/50 transition-colors" data-testid={`branch-row-${b.branch_id}`}>
-                  <td className="px-6 py-4">
-                    <div className="font-medium text-base">{b.branch_name}</div>
-                    <div className="text-xs text-muted-foreground mt-0.5">{b.city}</div>
-                  </td>
-                  <td className="px-6 py-4 font-mono text-right">{b.students}</td>
-                  <td className="px-6 py-4 font-mono text-right text-emerald-600/90">{fmtINR(b.revenue)}</td>
-                  <td className="px-6 py-4 font-mono text-right text-rose-600/90">{fmtINR(b.expense)}</td>
-                  <td className="px-6 py-4 text-right">
-                    <span className={`inline-flex px-2.5 py-1 rounded-md font-mono font-bold text-xs ${b.net >= 0 ? "bg-emerald-400/10 text-emerald-600" : "bg-rose-400/10 text-rose-600"}`}>
-                      {fmtINR(b.net)}
-                    </span>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
+      )}
+
+
+      {(selectedLead) && (function(){ const liveLead = leads?.find(l => l.id === selectedLead.id) || selectedLead; return <LeadActivityDrawer lead={liveLead} onClose={() => setSelectedLead(null)} onInteractionAdded={(interaction) => { setSelectedLead(prev => ({ ...prev, interactions: [...(prev.interactions || []), interaction] })); if (refreshDashboard) refreshDashboard(); }} />; })()}
     </div>
   );
-}
-
-function BranchView({ d, canSeeFinance }) {
+}function BranchView({ d, canSeeFinance }) {
   const expenseData = Object.entries(d.expense_by_category || {}).map(([name, value]) => ({ name, value }));
 
   return (
@@ -426,20 +554,20 @@ function BranchView({ d, canSeeFinance }) {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
         {canSeeFinance && (
           <>
-            <Stat label="Gross Revenue" value={fmtINR(d.revenue)} icon={TrendingUp} accent="text-emerald-600" testid="stat-revenue"/>
-            <Stat label="Total Expense" value={fmtINR(d.expense)} icon={TrendingDown} accent="text-rose-600" testid="stat-expense"/>
+            <Stat label="Gross Revenue" value={fmtINR(d.revenue)} icon={TrendingUp} accent="text-emerald-800 dark:text-emerald-300" testid="stat-revenue"/>
+            <Stat label="Total Expense" value={fmtINR(d.expense)} icon={TrendingDown} accent="text-red-800 dark:text-red-300" testid="stat-expense"/>
           </>
         )}
-        <Stat label="Pending Fees" value={fmtINR(d.pending_fees)} icon={AlertCircle} accent="text-amber-400" testid="stat-pending"/>
-        <Stat label="Active Students" value={d.student_count} icon={Users} accent="text-sky-400" testid="stat-students"/>
+        <Stat label="Pending Fees" value={fmtINR(d.pending_fees)} icon={AlertCircle} accent="text-amber-800 dark:text-yellow-300" testid="stat-pending"/>
+        <Stat label="Active Students" value={d.student_count} icon={Users} accent="text-sky-700 dark:text-sky-400" testid="stat-students"/>
       </div>
 
       <div className={`grid grid-cols-1 ${canSeeFinance ? "lg:grid-cols-2" : "lg:grid-cols-1"} gap-5`}>
         {canSeeFinance && (
-          <div className="glass-elevated rounded-2xl p-6 flex flex-col border border-border" data-testid="expense-breakdown">
+          <div className="bg-white dark:bg-[#111] border border-slate-200 dark:border-white/[0.08] shadow-2xl rounded-2xl p-6 flex flex-col border border-slate-200 dark:border-white/[0.08]" data-testid="expense-breakdown">
             <h3 className="font-display font-medium text-lg mb-2">Expense Distribution</h3>
             {expenseData.length === 0 ? (
-               <div className="flex-1 flex items-center justify-center text-muted-foreground text-sm italic py-10">No approved expenses to chart.</div>
+               <div className="flex-1 flex items-center justify-center text-slate-500 dark:text-zinc-400 text-sm italic py-10">No approved expenses to chart.</div>
             ) : (
               <div className="h-[280px] w-full min-w-0 mt-4" style={{ minWidth: 0, minHeight: 280 }}>
                 <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
@@ -458,10 +586,10 @@ function BranchView({ d, canSeeFinance }) {
           </div>
         )}
 
-        <div className="glass-elevated rounded-2xl p-6 flex flex-col border border-border" data-testid="counsellor-performance">
+        <div className="bg-white dark:bg-[#111] border border-slate-200 dark:border-white/[0.08] shadow-2xl rounded-2xl p-6 flex flex-col border border-slate-200 dark:border-white/[0.08]" data-testid="counsellor-performance">
           <h3 className="font-display font-medium text-lg mb-2">Counsellor Conversion</h3>
           {(d.counsellor_performance || []).length === 0 ? (
-            <div className="flex-1 flex items-center justify-center text-muted-foreground text-sm italic py-10">No counsellor data available.</div>
+            <div className="flex-1 flex items-center justify-center text-slate-500 dark:text-zinc-400 text-sm italic py-10">No counsellor data available.</div>
           ) : (
             <div className="h-[280px] w-full min-w-0 mt-4" style={{ minWidth: 0, minHeight: 280 }}>
               <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
@@ -481,14 +609,14 @@ function BranchView({ d, canSeeFinance }) {
       </div>
 
       {d.recent_payments?.length > 0 && (
-        <div className="glass-elevated rounded-2xl overflow-hidden border border-border animate-fadeIn" data-testid="recent-payments">
-          <div className="px-6 py-5 border-b border-border flex items-center justify-between">
+        <div className="bg-white dark:bg-[#111] border border-slate-200 dark:border-white/[0.08] shadow-2xl rounded-2xl overflow-hidden border border-slate-200 dark:border-white/[0.08] animate-fadeIn" data-testid="recent-payments">
+          <div className="px-6 py-5 border-b border-slate-200 dark:border-white/[0.08] flex items-center justify-between">
             <h3 className="font-display font-medium text-lg">Latest Center Transactions</h3>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
-              <thead className="bg-muted">
-                <tr className="text-left text-muted-foreground">
+              <thead className="bg-slate-200/50 dark:bg-white/[0.04]">
+                <tr className="text-left text-slate-500 dark:text-zinc-400">
                   <th className="px-6 py-4 font-bold text-[10px] uppercase tracking-widest">Receipt No.</th>
                   <th className="px-6 py-4 font-bold text-[10px] uppercase tracking-widest">Student Enrollment</th>
                   <th className="px-6 py-4 font-bold text-[10px] uppercase tracking-widest">Payment Mode</th>
@@ -497,11 +625,11 @@ function BranchView({ d, canSeeFinance }) {
               </thead>
               <tbody className="divide-y divide-border">
                 {d.recent_payments.map(p => (
-                  <tr key={p.id} className="hover:bg-muted/50 transition-colors">
-                    <td className="px-6 py-4 font-mono text-xs text-muted-foreground">{p.receipt_no}</td>
+                  <tr key={p.id} className="hover:bg-slate-200/50 dark:bg-white/[0.04]/50 transition-colors">
+                    <td className="px-6 py-4 font-mono text-xs text-slate-500 dark:text-zinc-400">{p.receipt_no}</td>
                     <td className="px-6 py-4 font-medium">{p.student_no}</td>
                     <td className="px-6 py-4">
-                      <span className="inline-flex px-2 py-1 rounded bg-muted/50 text-[10px] uppercase tracking-wider font-bold text-muted-foreground">
+                      <span className="inline-flex px-2 py-1 rounded bg-slate-200/50 dark:bg-white/[0.04]/50 text-[10px] uppercase tracking-wider font-bold text-slate-500 dark:text-zinc-400">
                         {p.mode}
                       </span>
                     </td>
@@ -513,6 +641,8 @@ function BranchView({ d, canSeeFinance }) {
           </div>
         </div>
       )}
+
+
     </div>
   );
 }
@@ -541,37 +671,37 @@ function CashbookViewModal({ erpUser, onClose }) {
 
   return (
     <div className="fixed inset-0 bg-black/30 z-50 flex justify-end backdrop-blur-sm animate-fadeIn" onClick={onClose}>
-      <div onClick={e => e.stopPropagation()} className="bg-background border-l border-border w-full max-w-4xl h-full p-6 flex flex-col justify-between overflow-y-auto shadow-2xl">
+      <div onClick={e => e.stopPropagation()} className="bg-slate-50 dark:bg-black border-l border-slate-200 dark:border-white/[0.08] w-full max-w-4xl h-full p-6 flex flex-col justify-between overflow-y-auto shadow-2xl">
         <div className="space-y-6">
           <div className="flex justify-between items-start">
             <div>
               <div className="text-[10px] uppercase tracking-[0.15em] font-bold text-accent flex items-center gap-1.5">Realtime Cashbook Log</div>
               <h2 className="font-display text-3xl font-light tracking-tight mt-1">Fee Collections</h2>
-              <p className="text-muted-foreground text-sm mt-1">{items.length} records • Aggregate total {fmtINR(total)}</p>
+              <p className="text-slate-500 dark:text-zinc-400 text-sm mt-1">{items.length} records • Aggregate total {fmtINR(total)}</p>
             </div>
             <div className="flex items-center gap-2">
-              <a href={`${API_BASE}/erp/exports/payments.xlsx`} target="_blank" rel="noreferrer" className="p-2 border border-border rounded-xl hover:bg-muted/50 transition">
+              <a href={`${API_BASE}/erp/exports/payments.xlsx`} target="_blank" rel="noreferrer" className="p-2 border border-slate-200 dark:border-white/[0.08] rounded-xl hover:bg-slate-200/50 dark:bg-white/[0.04]/50 transition">
                 <Download size={16}/>
               </a>
-              <Button onClick={onClose} className="p-2 border border-border rounded-xl hover:bg-muted/50 transition"><X size={16}/></Button>
+              <Button onClick={onClose} className="p-2 border border-slate-200 dark:border-white/[0.08] rounded-xl hover:bg-slate-200/50 dark:bg-white/[0.04]/50 transition"><X size={16}/></Button>
             </div>
           </div>
 
           <div className="flex gap-3 flex-wrap">
             {isSuper(erpUser) && (
-              <select value={branchId} onChange={e => setBranchId(e.target.value)} className="border border-border rounded-xl px-3 py-2 bg-background/50 text-sm flex-1 min-w-[150px]">
+              <select value={branchId} onChange={e => setBranchId(e.target.value)} className="border border-slate-200 dark:border-white/[0.08] rounded-xl px-3 py-2 bg-slate-50 dark:bg-black/50 text-sm flex-1 min-w-[150px]">
                 <option value="">All branches</option>
                 {branches.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}
               </select>
             )}
-            <input type="date" value={from} onChange={e => setFrom(e.target.value)} className="border border-border rounded-xl px-3 py-2 bg-background/50 text-sm flex-1"/>
-            <input type="date" value={to} onChange={e => setTo(e.target.value)} className="border border-border rounded-xl px-3 py-2 bg-background/50 text-sm flex-1"/>
+            <input type="date" value={from} onChange={e => setFrom(e.target.value)} className="border border-slate-200 dark:border-white/[0.08] rounded-xl px-3 py-2 bg-slate-50 dark:bg-black/50 text-sm flex-1"/>
+            <input type="date" value={to} onChange={e => setTo(e.target.value)} className="border border-slate-200 dark:border-white/[0.08] rounded-xl px-3 py-2 bg-slate-50 dark:bg-black/50 text-sm flex-1"/>
           </div>
 
-          <div className="glass-elevated rounded-2xl overflow-hidden border border-border">
+          <div className="bg-white dark:bg-[#111] border border-slate-200 dark:border-white/[0.08] shadow-2xl rounded-2xl overflow-hidden border border-slate-200 dark:border-white/[0.08]">
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
-                <thead className="bg-muted text-muted-foreground">
+                <thead className="bg-slate-200/50 dark:bg-white/[0.04] text-slate-500 dark:text-zinc-400">
                   <tr className="text-left">
                     <th className="px-4 py-3 text-xs font-bold uppercase tracking-wider">Receipt</th>
                     <th className="px-4 py-3 text-xs font-bold uppercase tracking-wider">Date</th>
@@ -584,12 +714,12 @@ function CashbookViewModal({ erpUser, onClose }) {
                 </thead>
                 <tbody className="divide-y divide-border">
                   {items.map(p => (
-                    <tr key={p.id} className="hover:bg-muted/50 transition-colors">
+                    <tr key={p.id} className="hover:bg-slate-200/50 dark:bg-white/[0.04]/50 transition-colors">
                       <td className="px-4 py-3 font-mono text-xs">{p.receipt_no}</td>
                       <td className="px-4 py-3 text-xs">{fmtDate(p.paid_at)}</td>
                       <td className="px-4 py-3 font-mono text-xs">{p.student_no}</td>
-                      <td className="px-4 py-3 text-xs uppercase"><span className="px-1.5 py-0.5 bg-muted/50 rounded text-[10px] font-bold">{p.mode}</span></td>
-                      <td className="px-4 py-3 text-xs text-muted-foreground">{p.collected_by_name || "—"}</td>
+                      <td className="px-4 py-3 text-xs uppercase"><span className="px-1.5 py-0.5 bg-slate-200/50 dark:bg-white/[0.04]/50 rounded text-[10px] font-bold">{p.mode}</span></td>
+                      <td className="px-4 py-3 text-xs text-slate-500 dark:text-zinc-400">{p.collected_by_name || "—"}</td>
                       <td className="px-4 py-3 font-mono text-right font-bold text-emerald-600">{fmtINR(p.amount)}</td>
                       <td className="px-4 py-3 text-right">
                         <a href={`/rec%2F${encodeURIComponent(p.receipt_no)}`} target="_blank" rel="noreferrer" className="text-accent text-xs font-bold hover:underline">PDF</a>
@@ -602,6 +732,8 @@ function CashbookViewModal({ erpUser, onClose }) {
           </div>
         </div>
       </div>
+
+
     </div>
   );
 }
@@ -622,38 +754,38 @@ function StudentsViewModal({ erpUser, onClose }) {
 
   return (
     <div className="fixed inset-0 bg-black/30 z-50 flex justify-end backdrop-blur-sm animate-fadeIn" onClick={onClose}>
-      <div onClick={e => e.stopPropagation()} className="bg-background border-l border-border w-full max-w-5xl h-full p-6 flex flex-col gap-6 overflow-y-auto shadow-2xl">
+      <div onClick={e => e.stopPropagation()} className="bg-slate-50 dark:bg-black border-l border-slate-200 dark:border-white/[0.08] w-full max-w-5xl h-full p-6 flex flex-col gap-6 overflow-y-auto shadow-2xl">
         <div className="flex justify-between items-start">
           <div>
             <div className="text-[10px] uppercase tracking-[0.15em] font-bold text-accent flex items-center gap-1.5">Active Operational Database</div>
             <h2 className="font-display text-3xl font-light tracking-tight mt-1">Student Directory</h2>
-            <p className="text-muted-foreground text-sm mt-1">{items.length} records active under framework execution roles.</p>
+            <p className="text-slate-500 dark:text-zinc-400 text-sm mt-1">{items.length} records active under framework execution roles.</p>
           </div>
           <div className="flex items-center gap-2">
-            <a href={`${API_BASE}/erp/exports/students.xlsx`} target="_blank" rel="noreferrer" className="p-2 border border-border rounded-xl hover:bg-muted/50 transition">
+            <a href={`${API_BASE}/erp/exports/students.xlsx`} target="_blank" rel="noreferrer" className="p-2 border border-slate-200 dark:border-white/[0.08] rounded-xl hover:bg-slate-200/50 dark:bg-white/[0.04]/50 transition">
               <Download size={16}/>
             </a>
-            <Button onClick={onClose} className="p-2 border border-border rounded-xl hover:bg-muted/50 transition"><X size={16}/></Button>
+            <Button onClick={onClose} className="p-2 border border-slate-200 dark:border-white/[0.08] rounded-xl hover:bg-slate-200/50 dark:bg-white/[0.04]/50 transition"><X size={16}/></Button>
           </div>
         </div>
 
         <div className="flex gap-3 flex-wrap">
           <div className="relative flex-1 min-w-[250px]">
-            <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"/>
-            <input value={q} onChange={e => setQ(setQ.target.value)} placeholder="Search by full name, registration number, phone..." className="w-full pl-9 pr-4 py-2 border border-border bg-background/50 rounded-xl text-sm"/>
+            <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 dark:text-zinc-400"/>
+            <input value={q} onChange={e => setQ(setQ.target.value)} placeholder="Search by full name, registration number, phone..." className="w-full pl-9 pr-4 py-2 border border-slate-200 dark:border-white/[0.08] bg-slate-50 dark:bg-black/50 rounded-xl text-sm"/>
           </div>
           {isSuper(erpUser) && (
-            <select value={branchId} onChange={e => setBranchId(e.target.value)} className="border border-border rounded-xl px-3 py-2 bg-background/50 text-sm min-w-[180px]">
+            <select value={branchId} onChange={e => setBranchId(e.target.value)} className="border border-slate-200 dark:border-white/[0.08] rounded-xl px-3 py-2 bg-slate-50 dark:bg-black/50 text-sm min-w-[180px]">
               <option value="">All network centres</option>
               {branches.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}
             </select>
           )}
         </div>
 
-        <div className="glass-elevated rounded-2xl overflow-hidden border border-border">
+        <div className="bg-white dark:bg-[#111] border border-slate-200 dark:border-white/[0.08] shadow-2xl rounded-2xl overflow-hidden border border-slate-200 dark:border-white/[0.08]">
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
-              <thead className="bg-muted text-muted-foreground">
+              <thead className="bg-slate-200/50 dark:bg-white/[0.04] text-slate-500 dark:text-zinc-400">
                 <tr className="text-left">
                   <th className="px-4 py-3 text-xs font-bold uppercase tracking-wider">Student ID</th>
                   <th className="px-4 py-3 text-xs font-bold uppercase tracking-wider">Full Name</th>
@@ -665,13 +797,13 @@ function StudentsViewModal({ erpUser, onClose }) {
               </thead>
               <tbody className="divide-y divide-border">
                 {items.map(s => (
-                  <tr key={s.id} className="hover:bg-muted/50 transition-colors">
-                    <td className="px-4 py-3 font-mono text-xs text-muted-foreground">{s.student_no}</td>
+                  <tr key={s.id} className="hover:bg-slate-200/50 dark:bg-white/[0.04]/50 transition-colors">
+                    <td className="px-4 py-3 font-mono text-xs text-slate-500 dark:text-zinc-400">{s.student_no}</td>
                     <td className="px-4 py-3 font-bold">{s.full_name}</td>
                     <td className="px-4 py-3 font-mono text-xs">{s.contact_phone}</td>
                     <td className="px-4 py-3 text-xs">{branches.find(b => b.id === s.branch_id)?.name || s.branch_id?.slice(0,8)}</td>
-                    <td className="px-4 py-3 font-mono text-right text-sky-400 font-medium">{fmtINR(s.total_fee)}</td>
-                    <td className="px-4 py-3 text-xs text-muted-foreground">{fmtDate(s.admission_date)}</td>
+                    <td className="px-4 py-3 font-mono text-right text-sky-700 dark:text-sky-400 font-medium">{fmtINR(s.total_fee)}</td>
+                    <td className="px-4 py-3 text-xs text-slate-500 dark:text-zinc-400">{fmtDate(s.admission_date)}</td>
                   </tr>
                 ))}
               </tbody>
@@ -679,6 +811,8 @@ function StudentsViewModal({ erpUser, onClose }) {
           </div>
         </div>
       </div>
+
+
     </div>
   );
 }
@@ -715,7 +849,7 @@ function ExpensesViewModal({ erpUser, onClose, refreshRoot }) {
     <div className="fixed inset-0 bg-black/30 z-50 flex justify-end backdrop-blur-sm animate-fadeIn" onClick={onClose}>
       <div 
         onClick={e => e.stopPropagation()} 
-        className="bg-background border-l border-border w-full max-w-5xl h-full p-6 flex flex-col justify-between shadow-2xl overflow-hidden"
+        className="bg-slate-50 dark:bg-black border-l border-slate-200 dark:border-white/[0.08] w-full max-w-5xl h-full p-6 flex flex-col justify-between shadow-2xl overflow-hidden"
       >
         <div className="space-y-6 flex flex-col h-full min-h-0">
           
@@ -724,27 +858,27 @@ function ExpensesViewModal({ erpUser, onClose, refreshRoot }) {
             <div>
               <div className="text-[10px] uppercase tracking-[0.15em] font-bold text-accent flex items-center gap-1.5">Outflow Reporting Matrix</div>
               <h2 className="font-display text-3xl font-light tracking-tight mt-1">Expense Sheets</h2>
-              <p className="text-muted-foreground text-sm mt-1">
+              <p className="text-slate-500 dark:text-zinc-400 text-sm mt-1">
                 {items.length} entries registered • Total approved execution: <span className="text-rose-600 font-bold">{fmtINR(total)}</span>
               </p>
             </div>
             <div className="flex items-center gap-2">
-              <a href={`${API_BASE}/erp/exports/expenses.xlsx`} target="_blank" rel="noreferrer" className="p-2 border border-border rounded-xl hover:bg-muted/50 transition">
+              <a href={`${API_BASE}/erp/exports/expenses.xlsx`} target="_blank" rel="noreferrer" className="p-2 border border-slate-200 dark:border-white/[0.08] rounded-xl hover:bg-slate-200/50 dark:bg-white/[0.04]/50 transition">
                 <Download size={16}/>
               </a>
-              <Button onClick={onClose} className="p-2 border border-border rounded-xl hover:bg-muted/50 transition"><X size={16}/></Button>
+              <Button onClick={onClose} className="p-2 border border-slate-200 dark:border-white/[0.08] rounded-xl hover:bg-slate-200/50 dark:bg-white/[0.04]/50 transition"><X size={16}/></Button>
             </div>
           </div>
 
           {/* Filters Section (Pinned) */}
           <div className="flex gap-3 flex-wrap shrink-0">
             {isSuper(erpUser) && (
-              <select value={branchId} onChange={e => setBranchId(e.target.value)} className="border border-border rounded-xl px-3 py-2 bg-background/50 text-sm flex-1 min-w-[150px] focus:outline-none text-foreground">
+              <select value={branchId} onChange={e => setBranchId(e.target.value)} className="border border-slate-200 dark:border-white/[0.08] rounded-xl px-3 py-2 bg-slate-50 dark:bg-black/50 text-sm flex-1 min-w-[150px] focus:outline-none text-slate-800 dark:text-zinc-200">
                 <option value="">All branches</option>
                 {branches.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}
               </select>
             )}
-            <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)} className="border border-border rounded-xl px-3 py-2 bg-background/50 text-sm flex-1 min-w-[150px] focus:outline-none text-foreground">
+            <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)} className="border border-slate-200 dark:border-white/[0.08] rounded-xl px-3 py-2 bg-slate-50 dark:bg-black/50 text-sm flex-1 min-w-[150px] focus:outline-none text-slate-800 dark:text-zinc-200">
               <option value="">All statuses</option>
               <option value="pending">Pending Verification</option>
               <option value="approved">Approved & Settled</option>
@@ -753,35 +887,35 @@ function ExpensesViewModal({ erpUser, onClose, refreshRoot }) {
           </div>
 
           {/* Table Container Layer (Hard-Bound Calculation Height Grid) */}
-          <div className="glass-elevated rounded-2xl border border-border w-full overflow-hidden flex flex-col h-[calc(100vh-240px)] min-h-0">
+          <div className="bg-white dark:bg-[#111] border border-slate-200 dark:border-white/[0.08] shadow-2xl rounded-2xl border border-slate-200 dark:border-white/[0.08] w-full overflow-hidden flex flex-col h-[calc(100vh-240px)] min-h-0">
             <div className="overflow-y-auto overflow-x-auto w-full h-full custom-scrollbar">
               <table className="w-full text-sm table-auto border-collapse">
-                <thead className="bg-muted text-muted-foreground sticky top-0 z-20 shadow-[0_1px_0_rgba(255,255,255,0.05)]">
+                <thead className="bg-slate-200/50 dark:bg-white/[0.04] text-slate-500 dark:text-zinc-400 sticky top-0 z-20 shadow-[0_1px_0_rgba(255,255,255,0.05)]">
                   <tr className="text-left backdrop-blur-md">
-                    <th className="px-4 py-3.5 text-xs font-bold uppercase tracking-wider bg-muted">Date</th>
-                    <th className="px-4 py-3.5 text-xs font-bold uppercase tracking-wider bg-muted">Category</th>
-                    <th className="px-4 py-3.5 text-xs font-bold uppercase tracking-wider bg-muted">Description</th>
-                    <th className="px-4 py-3.5 text-xs font-bold uppercase tracking-wider bg-muted">Vendor/Party</th>
-                    <th className="px-4 py-3.5 text-xs font-bold uppercase tracking-wider bg-muted">Status</th>
-                    <th className="px-4 py-3.5 text-xs font-bold uppercase tracking-wider text-right bg-muted">Amount</th>
-                    <th className="px-4 py-3.5 bg-muted"></th>
+                    <th className="px-4 py-3.5 text-xs font-bold uppercase tracking-wider bg-slate-200/50 dark:bg-white/[0.04]">Date</th>
+                    <th className="px-4 py-3.5 text-xs font-bold uppercase tracking-wider bg-slate-200/50 dark:bg-white/[0.04]">Category</th>
+                    <th className="px-4 py-3.5 text-xs font-bold uppercase tracking-wider bg-slate-200/50 dark:bg-white/[0.04]">Description</th>
+                    <th className="px-4 py-3.5 text-xs font-bold uppercase tracking-wider bg-slate-200/50 dark:bg-white/[0.04]">Vendor/Party</th>
+                    <th className="px-4 py-3.5 text-xs font-bold uppercase tracking-wider bg-slate-200/50 dark:bg-white/[0.04]">Status</th>
+                    <th className="px-4 py-3.5 text-xs font-bold uppercase tracking-wider text-right bg-slate-200/50 dark:bg-white/[0.04]">Amount</th>
+                    <th className="px-4 py-3.5 bg-slate-200/50 dark:bg-white/[0.04]"></th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-border bg-background/20">
+                <tbody className="divide-y divide-border bg-slate-50 dark:bg-black/20">
                   {items.map(e => (
-                    <tr key={e.id} className="hover:bg-muted/50 transition-colors group">
-                      <td className="px-4 py-3.5 text-xs whitespace-nowrap text-muted-foreground">{fmtDate(e.expense_date)}</td>
+                    <tr key={e.id} className="hover:bg-slate-200/50 dark:bg-white/[0.04]/50 transition-colors group">
+                      <td className="px-4 py-3.5 text-xs whitespace-nowrap text-slate-500 dark:text-zinc-400">{fmtDate(e.expense_date)}</td>
                       <td className="px-4 py-3.5 text-xs whitespace-nowrap">
-                        <span className="px-2 py-0.5 bg-muted/50 rounded-md border border-border text-foreground font-medium">{e.category}</span>
+                        <span className="px-2 py-0.5 bg-slate-200/50 dark:bg-white/[0.04]/50 rounded-md border border-slate-200 dark:border-white/[0.08] text-slate-800 dark:text-zinc-200 font-medium">{e.category}</span>
                       </td>
-                      <td className="px-4 py-3.5 text-xs font-normal text-foreground max-w-xs truncate" title={e.description}>{e.description}</td>
-                      <td className="px-4 py-3.5 text-xs text-muted-foreground max-w-[150px] truncate" title={e.vendor}>{e.vendor || "—"}</td>
+                      <td className="px-4 py-3.5 text-xs font-normal text-slate-800 dark:text-zinc-200 max-w-xs truncate" title={e.description}>{e.description}</td>
+                      <td className="px-4 py-3.5 text-xs text-slate-500 dark:text-zinc-400 max-w-[150px] truncate" title={e.vendor}>{e.vendor || "—"}</td>
                       <td className="px-4 py-3.5 whitespace-nowrap"><StatusBadge s={e.status}/></td>
                       <td className="px-4 py-3.5 font-mono text-right font-bold text-rose-600 whitespace-nowrap">{fmtINR(e.amount)}</td>
                       <td className="px-4 py-3.5 text-right whitespace-nowrap">
                         {isManagerPlus(erpUser) && e.status === "pending" && (
                           <div className="flex gap-1.5 justify-end">
-                            <Button onClick={() => handleDecision(e.id, "approve")} className="p-1 text-emerald-600 hover:bg-emerald-500/10 border border-emerald-500/0 hover:border-emerald-500/20 rounded-lg transition duration-200"><Check size={14}/></Button>
+                            <Button onClick={() => handleDecision(e.id, "approve")} className="p-1 text-emerald-600 hover:bg-emerald-500/10 border border-emerald-500/0 hover:border-emerald-300 dark:border-emerald-500/20 rounded-lg transition duration-200"><Check size={14}/></Button>
                             <Button onClick={() => handleDecision(e.id, "reject")} className="p-1 text-rose-600 hover:bg-rose-500/10 border border-rose-500/0 hover:border-rose-500/20 rounded-lg transition duration-200"><Ban size={14}/></Button>
                           </div>
                         )}
@@ -790,7 +924,7 @@ function ExpensesViewModal({ erpUser, onClose, refreshRoot }) {
                   ))}
                   {items.length === 0 && (
                     <tr>
-                      <td colSpan="7" className="px-4 py-16 text-center text-muted-foreground italic tracking-wide text-sm">
+                      <td colSpan="7" className="px-4 py-16 text-center text-slate-500 dark:text-zinc-400 italic tracking-wide text-sm">
                         No financial outflow statements logged under variable matrix parameters.
                       </td>
                     </tr>
@@ -802,287 +936,12 @@ function ExpensesViewModal({ erpUser, onClose, refreshRoot }) {
 
         </div>
       </div>
+
+
     </div>
   );
 }
 
-function CreateStudentModal({ erpUser, onClose, onCreated }) {
-  const [branches, setBranches] = useState([]);
-  const [matrix, setMatrix] = useState({});
-  const [form, setForm] = useState({
-    full_name: "",
-    gender: "Male",
-    dob: "",
-    address: "",
-    contact_phone: "",
-    contact_email: "",
-    parent_name: "",
-    parent_phone: "",
-    parent_email: "",
-    current_class: STUDENT_CLASSES[0],
-    course_id: STUDENT_COURSES[0],
-    batch: "",
-    batch_timing: "",
-    course_duration: "1 Year",
-    branch_id: isSuper(erpUser) ? "" : erpUser.branch_id,
-    total_fee: "",
-    scholarship_percent: 0,
-    discount: 0,
-    additional_discount_by: "",
-    notes: "",
-  });
-  const [busy, setBusy] = useState(false);
-  const [submitted, setSubmitted] = useState(false);
-
-  const handlePhoneBlur = async () => {
-    if (form.contact_phone.length >= 10) {
-      try {
-        const res = await erp.lookupPhone(form.contact_phone);
-        if (res.type === "student") {
-          toast.error("A student is already enrolled with this number!");
-        } else if (res.type === "lead" || res.type === "scholarship") {
-          toast.success("Found existing record! Auto-filling details...");
-          const d = res.data;
-          setForm(f => ({
-            ...f,
-            full_name: f.full_name || d.name || d.full_name || "",
-            contact_email: f.contact_email || d.email || "",
-            address: f.address || d.address || "",
-            parent_name: f.parent_name || d.parent_name || d.father_name || "",
-            scholarship_percent: f.scholarship_percent || d.result_scholarship_percentage || 0
-          }));
-        }
-      } catch (err) {
-        console.error("Lookup failed", err);
-      }
-    }
-  };
-
-  const computeFinalFee = () => {
-    const total = parseFloat(form.total_fee) || 0;
-    const scholarship = parseFloat(form.scholarship_percent) || 0;
-    const discount = parseFloat(form.discount) || 0;
-    const scholarshipAmt = total * (scholarship / 100);
-    return Math.max(total - scholarshipAmt - discount, 0);
-  };
-
-  const finalFee = computeFinalFee();
-
-  useEffect(() => {
-    erp.listBranches().then(setBranches);
-    erp.getFeeMatrix().then(res => {
-      setMatrix(res.matrix || {});
-      // Auto-init fee
-      if (res.matrix?.[STUDENT_CLASSES[0]]?.[STUDENT_COURSES[0]] !== undefined) {
-        setForm(f => ({ ...f, total_fee: res.matrix[STUDENT_CLASSES[0]][STUDENT_COURSES[0]] }));
-      }
-    });
-  }, []);
-
-  useEffect(() => {
-    if (form.current_class && form.course_id && matrix[form.current_class]?.[form.course_id] !== undefined) {
-      setForm(prev => ({ ...prev, total_fee: matrix[form.current_class][form.course_id] }));
-    }
-  }, [form.current_class, form.course_id, matrix]);
-
-  const executeSubmit = async (e) => {
-    e.preventDefault();
-    setSubmitted(true);
-    if (!form.full_name.trim() || !form.contact_phone.trim() || !form.branch_id || !form.course_id || !form.dob || !form.gender || !form.address || !form.current_class || !form.total_fee) {
-      toast.error("Please fill in all required fields");
-      return;
-    }
-    if ((parseFloat(form.discount) || 0) > 0 && !form.additional_discount_by.trim()) {
-      toast.error("Please mention who authorized the additional discount");
-      return;
-    }
-
-    setBusy(true);
-    try {
-      const selectedCourse = courses.find(c => c.id === form.course_id);
-      const payload = {
-        full_name: form.full_name.trim(),
-        gender: form.gender,
-        dob: form.dob,
-        address: form.address.trim(),
-        contact_phone: form.contact_phone.trim(),
-        contact_email: form.contact_email.trim() || undefined,
-        parent_name: form.parent_name.trim() || undefined,
-        parent_phone: form.parent_phone.trim() || undefined,
-        parent_email: form.parent_email.trim() || undefined,
-        current_class: form.current_class.trim(),
-        course_id: form.course_id,
-        batch: form.batch.trim() || undefined,
-        batch_timing: form.batch_timing.trim() || undefined,
-        course_duration: form.course_duration.trim() || undefined,
-        branch_id: form.branch_id,
-        total_fee: parseFloat(form.total_fee) || (selectedCourse?.fee || 0),
-        scholarship_percent: parseFloat(form.scholarship_percent) || 0,
-        discount: parseFloat(form.discount) || 0,
-        additional_discount_by: form.additional_discount_by.trim() || undefined,
-        notes: form.notes.trim() || undefined,
-      };
-      await erp.createStudent(payload);
-      toast.success("New student academic enrollment committed successfully");
-      onCreated();
-    } catch (e) {
-      toast.error(formatError(e.response?.data?.detail) || "Failed to commit parameters");
-    } finally { setBusy(false); }
-  };
-
-  const inputCls = "w-full px-3 py-2 border border-border bg-background/50 rounded-xl text-sm focus:outline-none focus:border-accent font-mono text-foreground placeholder:text-muted-foreground/50";
-  const labelCls = "text-[10px] uppercase tracking-[0.15em] font-bold text-muted-foreground mb-1.5 block ml-1";
-
-  return (
-    <div className="fixed inset-0 bg-black/20 z-50 grid place-items-center p-4 backdrop-blur-sm overflow-y-auto animate-fadeIn" onClick={onClose}>
-      <form onClick={e => e.stopPropagation()} onSubmit={executeSubmit} className="bg-background border border-border rounded-2xl max-w-2xl w-full p-6 space-y-5 my-8 shadow-2xl">
-        <div className="flex justify-between items-start">
-          <div>
-            <div className="text-[10px] uppercase tracking-[0.15em] font-bold text-accent flex items-center gap-1.5">Admission Interface Layer</div>
-            <h3 className="font-display text-2xl font-medium mt-1">Enroll New Student</h3>
-          </div>
-          <Button type="button" onClick={onClose} className="p-1 hover:bg-muted/50 rounded-lg"><X size={18}/></Button>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <div>
-            <label className={labelCls}>Registered Name *</label>
-            <input type="text" required value={form.full_name} onChange={e => setForm({...form, full_name: e.target.value})} placeholder="Learner full name" className={inputCls} />
-          </div>
-          <div>
-            <label className={labelCls}>Gender *</label>
-            <select value={form.gender} onChange={e => setForm({...form, gender: e.target.value})} className={inputCls}>
-              <option value="Male">Male</option>
-              <option value="Female">Female</option>
-              <option value="Other">Other</option>
-            </select>
-          </div>
-          <div>
-            <label className={labelCls}>Date of Birth *</label>
-            <input type="date" required value={form.dob} onChange={e => setForm({...form, dob: e.target.value})} className={inputCls} />
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div>
-            <label className={labelCls}>Regd. Mobile Number *</label>
-            <input type="tel" required value={form.contact_phone} onChange={e => setForm({...form, contact_phone: e.target.value})} onBlur={handlePhoneBlur} placeholder="10-digit mobile number" className={inputCls} />
-          </div>
-          <div>
-            <label className={labelCls}>Regd. Email ID *</label>
-            <input type="email" required value={form.contact_email} onChange={e => setForm({...form, contact_email: e.target.value})} placeholder="name@example.com" className={inputCls} />
-          </div>
-        </div>
-
-        <div>
-          <label className={labelCls}>Residential Address *</label>
-          <textarea value={form.address} onChange={e => setForm({...form, address: e.target.value})} placeholder="Full residential address" rows={2} className={inputCls} />
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <div>
-            <label className={labelCls}>Current Class *</label>
-            <select required value={form.current_class} onChange={e => {
-              const newClass = e.target.value;
-              const valid = getValidCoursesForClass(newClass);
-              const newCourse = valid.includes(form.course_id) ? form.course_id : valid[0];
-              setForm({...form, current_class: newClass, course_id: newCourse});
-            }} className={inputCls}>
-              {STUDENT_CLASSES.map(c => <option key={c} value={c}>{c}</option>)}
-            </select>
-          </div>
-          <div>
-            <label className={labelCls}>Course *</label>
-            <select required value={form.course_id} onChange={e => setForm({...form, course_id: e.target.value})} className={inputCls}>
-              {getValidCoursesForClass(form.current_class).map(c => <option key={c} value={c}>{c}</option>)}
-            </select>
-          </div>
-          <div>
-            <label className={labelCls}>Branch *</label>
-            <select required value={form.branch_id} onChange={e => setForm({...form, branch_id: e.target.value})} disabled={!isSuper(erpUser)} className={inputCls}>
-              <option value="">Select Branch</option>
-              {branches.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}
-            </select>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <div>
-            <label className={labelCls}>Batch Name</label>
-            <input type="text" value={form.batch} onChange={e => setForm({...form, batch: e.target.value})} placeholder="e.g. NEET-2026-B1" className={inputCls} />
-          </div>
-          <div>
-            <label className={labelCls}>Morning / Afternoon / Evening</label>
-            <select value={form.batch_timing} onChange={e => setForm({...form, batch_timing: e.target.value})} className={inputCls}>
-              <option value="">Select Timing</option>
-              <option value="Morning">Morning</option>
-              <option value="Afternoon">Afternoon</option>
-              <option value="Evening">Evening</option>
-            </select>
-          </div>
-          <div>
-            <label className={labelCls}>Course Duration</label>
-            <input type="text" value={form.course_duration} onChange={e => setForm({...form, course_duration: e.target.value})} placeholder="e.g. 1 Year" className={inputCls} />
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div>
-            <label className={labelCls}>Parent / Guardian Name *</label>
-            <input type="text" required value={form.parent_name} onChange={e => setForm({...form, parent_name: e.target.value})} placeholder="Father or guardian full name" className={inputCls} />
-          </div>
-          <div>
-            <label className={labelCls}>Parent Mobile Number *</label>
-            <input type="tel" required value={form.parent_phone} onChange={e => setForm({...form, parent_phone: e.target.value})} placeholder="Primary parent mobile" className={inputCls} />
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div>
-            <label className={labelCls}>Parent Email Address</label>
-            <input type="email" value={form.parent_email} onChange={e => setForm({...form, parent_email: e.target.value})} placeholder="parent@example.com" className={inputCls} />
-          </div>
-        </div>
-
-        <div className="p-3 bg-muted/20 rounded-xl border border-border space-y-3">
-          <div className="text-[11px] uppercase tracking-wider font-bold text-muted-foreground">Fee Architecture</div>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div>
-              <label className={labelCls}>Total Course Fee (INR) *</label>
-              <input type="number" required value={form.total_fee} onChange={e => setForm({...form, total_fee: e.target.value})} placeholder="₹ 0" className={inputCls} />
-            </div>
-            <div>
-              <label className={labelCls}>Scholarship %</label>
-              <input type="number" min="0" max="100" value={form.scholarship_percent} onChange={e => setForm({...form, scholarship_percent: e.target.value})} placeholder="0 - 100" className={inputCls} />
-            </div>
-            <div>
-              <label className={labelCls}>Additional Discount (INR)</label>
-              <input type="number" min="0" value={form.discount} onChange={e => setForm({...form, discount: e.target.value})} placeholder="₹ 0" className={inputCls} />
-            </div>
-          </div>
-          {((parseFloat(form.discount) || 0) > 0) && (
-            <div>
-              <label className={labelCls}>Additional Discount By *</label>
-              <input type="text" value={form.additional_discount_by} onChange={e => setForm({...form, additional_discount_by: e.target.value})} placeholder="Name of authorizing person" className={inputCls} />
-              {submitted && !form.additional_discount_by.trim() && <p className="text-[10px] text-rose-500 mt-1">Required when additional discount is applied</p>}
-            </div>
-          )}
-          <div className="flex items-center justify-between pt-2 border-t border-border">
-            <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Computed Net Fee</span>
-            <span className="font-mono font-bold text-lg text-accent">₹ {finalFee.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
-          </div>
-        </div>
-
-        <div>
-          <label className={labelCls}>Feedback / Questions</label>
-          <textarea value={form.notes} onChange={e => setForm({...form, notes: e.target.value})} placeholder="Any feedback or questions..." rows={2} className={inputCls} />
-        </div>
-
-        <Button disabled={busy} type="submit" className="w-full w-full py-2.5 mt-2 rounded-xl bg-primary text-primary-foreground text-[13px] font-medium transition-all duration-200 border border-primary/20 shadow-sm hover:bg-primary/90 hover:shadow-md active:scale-[0.98] disabled:opacity-50">{busy ? "Committing Entry Parameters…" : "Submit Admission"}</Button>
-      </form>
-    </div>
-  );
-}
 
 function CreateExpenseModal({ erpUser, onClose, onCreated }) {
   const [branches, setBranches] = useState([]);
@@ -1106,27 +965,27 @@ function CreateExpenseModal({ erpUser, onClose, onCreated }) {
 
   return (
     <div className="fixed inset-0 bg-zinc-950/20 z-50 grid place-items-center p-4 sm:p-6 backdrop-blur-md animate-fadeIn transition-all" onClick={onClose}>
-      <form onClick={e => e.stopPropagation()} onSubmit={executeSubmit} className="bg-background/95 backdrop-blur-xl border border-border/40 rounded-3xl max-w-md w-full p-6 sm:p-8 space-y-5 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.1)]">
+      <form onClick={e => e.stopPropagation()} onSubmit={executeSubmit} className="bg-slate-50 dark:bg-black/95 backdrop-blur-xl border border-slate-200 dark:border-white/[0.08]/40 rounded-3xl max-w-md w-full p-6 sm:p-8 space-y-5 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.1)]">
         <div className="flex justify-between items-start">
           <div>
             <div className="text-[10px] uppercase tracking-[0.15em] font-bold text-accent flex items-center gap-1.5">Auditing &amp; Balances</div>
             <h3 className="font-display text-2xl font-medium mt-1">Record Cost Outflow</h3>
           </div>
-          <Button type="button" onClick={onClose} className="p-1 hover:bg-muted/50 rounded-lg"><X size={18}/></Button>
+          <Button type="button" onClick={onClose} className="p-1 hover:bg-slate-200/50 dark:bg-white/[0.04]/50 rounded-lg"><X size={18}/></Button>
         </div>
 
         {isSuper(erpUser) && (
           <div>
-            <label className="text-xs uppercase tracking-wider font-bold text-muted-foreground mb-1 block">Allocation Center Target *</label>
-            <select required value={form.branch_id} onChange={e => setForm({...form, branch_id: e.target.value})} className="w-full px-3 py-2 border border-border bg-background rounded-xl text-sm focus:outline-none">
+            <label className="text-xs uppercase tracking-wider font-bold text-slate-500 dark:text-zinc-400 mb-1 block">Allocation Center Target *</label>
+            <select required value={form.branch_id} onChange={e => setForm({...form, branch_id: e.target.value})} className="w-full px-3 py-2 border border-slate-200 dark:border-white/[0.08] bg-slate-50 dark:bg-black rounded-xl text-sm focus:outline-none">
               <option value="">— Select Target Center —</option>
               {branches.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}
             </select>
           </div>
         )}
         <div>
-          <label className="text-xs uppercase tracking-wider font-bold text-muted-foreground mb-1 block">Expense Functional Category *</label>
-          <select value={form.category} onChange={e => setForm({...form, category: e.target.value})} className="w-full px-3 py-2 border border-border bg-background rounded-xl text-sm focus:outline-none">
+          <label className="text-xs uppercase tracking-wider font-bold text-slate-500 dark:text-zinc-400 mb-1 block">Expense Functional Category *</label>
+          <select value={form.category} onChange={e => setForm({...form, category: e.target.value})} className="w-full px-3 py-2 border border-slate-200 dark:border-white/[0.08] bg-slate-50 dark:bg-black rounded-xl text-sm focus:outline-none">
             {EXP_CATEGORIES.map(c => <option key={c}>{c}</option>)}
           </select>
         </div>
@@ -1136,16 +995,18 @@ function CreateExpenseModal({ erpUser, onClose, onCreated }) {
           <InputCard label="Recipient Vendor / Party" v={form.vendor} on={v => setForm({...form, vendor: v})} />
           <InputCard label="Transaction Date *" type="date" v={form.expense_date} on={v => setForm({...form, expense_date: v})} req />
         </div>
-        <Button disabled={busy} type="submit" className="w-full w-full py-2.5 mt-2 rounded-xl bg-primary text-primary-foreground text-[13px] font-medium transition-all duration-200 border border-primary/20 shadow-sm hover:bg-primary/90 hover:shadow-md active:scale-[0.98]">{busy ? "Writing Matrix State…" : "Commit Cost Outflow Statement"}</Button>
+        <Button disabled={busy} type="submit" className="w-full w-full py-2.5 mt-2 rounded-xl bg-teal-600 text-white text-[13px] font-medium transition-all duration-200 border border-teal-600/20 shadow-sm hover:bg-teal-600/90 hover:shadow-md active:scale-[0.98]">{busy ? "Writing Matrix State…" : "Commit Cost Outflow Statement"}</Button>
       </form>
+
+
     </div>
   );
 }
 
 function StatusBadge({ s }) {
   const meta = {
-    approved: "bg-emerald-500/10 text-emerald-600 border border-emerald-500/20",
-    pending: "bg-amber-500/10 text-amber-400 border border-amber-500/20",
+    approved: "bg-emerald-500/10 text-emerald-600 border border-emerald-300 dark:border-emerald-500/20",
+    pending: "bg-amber-500/10 text-amber-800 dark:text-amber-400 border border-amber-500/20",
     rejected: "bg-rose-500/10 text-rose-600 border border-rose-500/20",
   };
   return <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${meta[s] || ""}`}>{s}</span>;
@@ -1154,8 +1015,10 @@ function StatusBadge({ s }) {
 function InputCard({ label, v, on, type = "text", req, placeholder }) {
   return (
     <div>
-      <label className="text-xs uppercase tracking-wider font-bold text-muted-foreground mb-1 block">{label}{req && " *"}</label>
-      <input type={type} value={v} required={req} placeholder={placeholder} onChange={e => on(e.target.value)} className="w-full px-4 py-2.5 border border-border/40 bg-muted/10 hover:bg-muted/20 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-accent/20 focus:border-accent/40 font-mono text-foreground placeholder:text-muted-foreground/40 transition-all" />
+      <label className="text-xs uppercase tracking-wider font-bold text-slate-500 dark:text-zinc-400 mb-1 block">{label}{req && " *"}</label>
+      <input type={type} value={v} required={req} placeholder={placeholder} onChange={e => on(e.target.value)} className="bg-slate-50 dark:bg-black border border-slate-200 dark:border-white/[0.08] rounded-[10px] text-[13px] text-slate-600 dark:text-zinc-400 focus:border-teal-600/50 px-3 py-2 w-full px-4 py-2.5 border border-slate-200 dark:border-white/[0.08]/40 bg-slate-200/50 dark:bg-white/[0.04]/10 hover:bg-slate-200/50 dark:bg-white/[0.04]/20 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-accent/20 focus:border-accent/40 font-mono text-slate-800 dark:text-zinc-200 placeholder:text-slate-500 dark:text-zinc-400/40 transition-all" />
+
+
     </div>
   );
 }
@@ -1163,11 +1026,13 @@ function InputCard({ label, v, on, type = "text", req, placeholder }) {
 function SelectCard({ label, v, on, opts, req, disabled }) {
   return (
     <div>
-      <label className="text-xs uppercase tracking-wider font-bold text-muted-foreground mb-1 block">{label}{req && " *"}</label>
-      <select value={v} onChange={e => on(e.target.value)} required={req} disabled={disabled} className="w-full px-4 py-2.5 border border-border/40 bg-muted/10 hover:bg-muted/20 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-accent/20 focus:border-accent/40 disabled:opacity-50 transition-all appearance-none cursor-pointer">
+      <label className="text-xs uppercase tracking-wider font-bold text-slate-500 dark:text-zinc-400 mb-1 block">{label}{req && " *"}</label>
+      <select value={v} onChange={e => on(e.target.value)} required={req} disabled={disabled} className="bg-slate-50 dark:bg-black border border-slate-200 dark:border-white/[0.08] rounded-[10px] text-[13px] text-slate-600 dark:text-zinc-400 focus:border-teal-600/50 px-3 py-2 w-full px-4 py-2.5 border border-slate-200 dark:border-white/[0.08]/40 bg-slate-200/50 dark:bg-white/[0.04]/10 hover:bg-slate-200/50 dark:bg-white/[0.04]/20 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-accent/20 focus:border-accent/40 disabled:opacity-50 transition-all appearance-none cursor-pointer">
         {req && <option value="">— Select Option Layer —</option>}
         {opts.map(o => <option key={o.v} value={o.v}>{o.l}</option>)}
       </select>
+
+
     </div>
   );
 }

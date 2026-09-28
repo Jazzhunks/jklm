@@ -129,13 +129,13 @@ export default function ErpExpenses() {
   };
 
   return (
-    <div className="space-y-6 flex flex-col min-h-0 animate-fadeIn" data-testid="erp-expenses-page">
+    <div className="space-y-6 bg-slate-50 dark:bg-black p-6 flex flex-col min-h-0 animate-fadeIn" data-testid="erp-expenses-page">
       {/* Header Deck */}
       <div className="flex justify-between items-start flex-wrap gap-4 shrink-0">
         <div>
-          <div className="text-xs uppercase tracking-[0.2em] font-bold text-accent">Outflow &amp; Disbursals</div>
-          <h1 className="font-display text-3xl sm:text-4xl font-light tracking-tight mt-1">Expense Sheets</h1>
-          <p className="text-muted-foreground mt-1 text-sm">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-semibold tracking-[0.2em] uppercase bg-teal-600/10 text-teal-600 border border-teal-600/25 mb-3">Outflow &amp; Disbursals</div>
+          <h1 className="text-[30px] font-bold tracking-[-0.02em] text-slate-900 dark:text-zinc-100">Expense Sheets</h1>
+          <p className="text-[13px] text-slate-400 dark:text-zinc-600 mt-1.5">
             Maker-Checker settlement pipeline, operational expenditure tracking, and vendor ledgers.
           </p>
         </div>
@@ -146,13 +146,13 @@ export default function ErpExpenses() {
             target="_blank" 
             rel="noreferrer"
           >
-            <Button className="px-3.5 py-2 border border-border rounded-xl text-xs uppercase tracking-wider font-bold text-muted-foreground hover:text-foreground hover:bg-muted/50 flex items-center gap-2 transition" data-testid="export-expenses-btn">
+            <Button className="bg-transparent rounded-full border border-slate-200 dark:border-white/10 text-slate-500 dark:text-zinc-400 hover:border-slate-300 dark:border-white/20 hover:text-slate-800 dark:text-zinc-200 hover:bg-slate-200/50 dark:bg-white/[0.04] px-4 py-2 text-[11px] font-semibold tracking-[0.06em] uppercase transition-all duration-300 inline-flex items-center gap-2" data-testid="export-expenses-btn">
               <Download size={14}/> Export Excel
             </Button>
           </a>
-          <Button 
+          <Button className="bg-transparent rounded-full border border-slate-200 dark:border-white/10 text-slate-500 dark:text-zinc-400 hover:border-slate-300 dark:border-white/20 hover:text-slate-800 dark:text-zinc-200 hover:bg-slate-200/50 dark:bg-white/[0.04] px-4 py-2 text-[11px] font-semibold tracking-[0.06em] uppercase transition-all duration-300" 
             onClick={() => setShowCreate(true)} 
-            className="px-4 py-2 bg-primary text-primary-foreground rounded-xl text-xs uppercase tracking-wider font-bold flex items-center gap-2 hover:bg-primary/90 shadow-md transition" 
+            className="bg-teal-600 text-white rounded-full px-5 py-2 text-[11px] font-semibold tracking-[0.04em] uppercase shadow-[0_0_0_1px_rgba(13,148,136,0.5),0_4px_16px_rgba(13,148,136,0.25)] hover:bg-teal-700 active:scale-[0.97] transition-all duration-300 inline-flex items-center gap-2" 
             data-testid="create-expense-btn"
           >
             <Plus size={14}/> Record Expense
@@ -162,54 +162,54 @@ export default function ErpExpenses() {
 
       {/* KPI Ribbon */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 shrink-0">
-        <div className="glass-elevated p-4 rounded-2xl border border-border">
-          <div className="flex items-center justify-between text-xs font-bold uppercase tracking-wider text-muted-foreground">
+        <div className="bg-white dark:bg-[#111] border border-slate-200 dark:border-white/[0.07] rounded-[16px] p-5 shadow-sm dark:shadow-[inset_0_1px_0_rgba(255,255,255,0.05)] hover:border-teal-600/30 hover:-translate-y-[1px] transition-all duration-[350ms]">
+          <div className="flex items-center justify-between text-[10px] font-semibold tracking-[0.16em] uppercase text-slate-500 dark:text-zinc-400">
             <span>Settled Outflow</span>
             <TrendingDown size={14} className="text-rose-500" />
           </div>
-          <div className="font-display text-2xl font-semibold mt-2 text-rose-600 font-mono">
+          <div className="text-[24px] font-bold font-mono tracking-[-0.02em] mt-2 text-red-800 dark:text-red-300">
             {fmtINR(metrics.approvedTotal)}
           </div>
-          <div className="text-[11px] text-muted-foreground mt-1">
+          <div className="text-[11px] text-slate-500 dark:text-zinc-400 mt-1">
             Approved &amp; reconciled
           </div>
         </div>
 
-        <div className="glass-elevated p-4 rounded-2xl border border-border">
-          <div className="flex items-center justify-between text-xs font-bold uppercase tracking-wider text-muted-foreground">
+        <div className="bg-white dark:bg-[#111] border border-slate-200 dark:border-white/[0.07] rounded-[16px] p-5 shadow-sm dark:shadow-[inset_0_1px_0_rgba(255,255,255,0.05)] hover:border-teal-600/30 hover:-translate-y-[1px] transition-all duration-[350ms]">
+          <div className="flex items-center justify-between text-[10px] font-semibold tracking-[0.16em] uppercase text-slate-500 dark:text-zinc-400">
             <span>Pending Review</span>
             <Clock size={14} className="text-amber-500" />
           </div>
-          <div className="font-display text-2xl font-semibold mt-2 text-amber-500 font-mono">
+          <div className="text-[24px] font-bold font-mono tracking-[-0.02em] mt-2 text-amber-800 dark:text-yellow-300">
             {fmtINR(metrics.pendingTotal)}
           </div>
-          <div className="text-[11px] text-muted-foreground mt-1">
+          <div className="text-[11px] text-slate-500 dark:text-zinc-400 mt-1">
             {metrics.pendingCount} approvals awaiting decision
           </div>
         </div>
 
-        <div className="glass-elevated p-4 rounded-2xl border border-border">
-          <div className="flex items-center justify-between text-xs font-bold uppercase tracking-wider text-muted-foreground">
+        <div className="bg-white dark:bg-[#111] border border-slate-200 dark:border-white/[0.07] rounded-[16px] p-5 shadow-sm dark:shadow-[inset_0_1px_0_rgba(255,255,255,0.05)] hover:border-teal-600/30 hover:-translate-y-[1px] transition-all duration-[350ms]">
+          <div className="flex items-center justify-between text-[10px] font-semibold tracking-[0.16em] uppercase text-slate-500 dark:text-zinc-400">
             <span>Top Category</span>
             <Wallet size={14} className="text-sky-500" />
           </div>
-          <div className="font-display text-2xl font-semibold mt-2 text-foreground truncate">
+          <div className="text-[24px] font-bold font-mono tracking-[-0.02em] mt-2 text-slate-900 dark:text-zinc-100 truncate">
             {metrics.topCat}
           </div>
-          <div className="text-[11px] text-muted-foreground mt-1">
+          <div className="text-[11px] text-slate-500 dark:text-zinc-400 mt-1">
             Highest expense allocation
           </div>
         </div>
 
-        <div className="glass-elevated p-4 rounded-2xl border border-border">
-          <div className="flex items-center justify-between text-xs font-bold uppercase tracking-wider text-muted-foreground">
+        <div className="bg-white dark:bg-[#111] border border-slate-200 dark:border-white/[0.07] rounded-[16px] p-5 shadow-sm dark:shadow-[inset_0_1px_0_rgba(255,255,255,0.05)] hover:border-teal-600/30 hover:-translate-y-[1px] transition-all duration-[350ms]">
+          <div className="flex items-center justify-between text-[10px] font-semibold tracking-[0.16em] uppercase text-slate-500 dark:text-zinc-400">
             <span>Total Records</span>
-            <FileSpreadsheet size={14} className="text-primary" />
+            <FileSpreadsheet size={14} className="text-teal-800 dark:text-teal-300" />
           </div>
-          <div className="font-display text-2xl font-semibold mt-2 text-foreground font-mono">
+          <div className="text-[24px] font-bold font-mono tracking-[-0.02em] mt-2 text-slate-900 dark:text-zinc-100">
             {totalCount}
           </div>
-          <div className="text-[11px] text-muted-foreground mt-1">
+          <div className="text-[11px] text-slate-500 dark:text-zinc-400 mt-1">
             Logged across center ledger
           </div>
         </div>
@@ -218,15 +218,15 @@ export default function ErpExpenses() {
       {/* Filter Tabs & Parameters */}
       <div className="flex flex-col md:flex-row gap-3 items-stretch md:items-center justify-between flex-wrap shrink-0">
         {/* Status Pills */}
-        <div className="flex items-center gap-1 bg-muted/40 p-1 rounded-xl border border-border overflow-x-auto custom-scrollbar">
+        <div className="flex items-center gap-1 bg-slate-200/50 dark:bg-white/[0.04]/40 p-1 rounded-xl border border-slate-200 dark:border-white/[0.08] overflow-x-auto custom-scrollbar">
           {STATUSES.map(s => (
             <Button
               key={s}
               onClick={() => { setStatusFilter(s); setPage(1); }}
-              className={`px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider transition whitespace-nowrap ${
+              className={`whitespace-nowrap ${
                 statusFilter === s
-                  ? "bg-card text-foreground shadow-xs border border-border"
-                  : "text-muted-foreground hover:text-foreground"
+                  ? "bg-teal-100 dark:bg-teal-600/15 border-teal-300 dark:border-teal-600/40 text-teal-800 dark:text-teal-300 rounded-full px-4 py-2 text-[11px] font-semibold tracking-[0.06em] uppercase border cursor-pointer transition-all duration-300"
+                  : "bg-transparent border-slate-200 dark:border-white/10 text-slate-500 dark:text-zinc-400 hover:border-slate-300 dark:border-white/20 hover:text-slate-800 dark:text-zinc-200 rounded-full px-4 py-2 text-[11px] font-semibold tracking-[0.06em] uppercase border cursor-pointer transition-all duration-300"
               }`}
             >
               {s === "all" ? "All Statuses" : s}
@@ -239,17 +239,17 @@ export default function ErpExpenses() {
           <select
             value={categoryFilter}
             onChange={e => { setCategoryFilter(e.target.value); setPage(1); }}
-            className="border border-border rounded-xl px-3 py-1.5 bg-card text-xs focus:outline-none text-foreground"
+            className="bg-white dark:bg-[#111] border border-slate-200 dark:border-white/[0.08] rounded-[10px] text-[13px] text-slate-600 dark:text-zinc-400 px-3 py-2 focus:outline-none focus:border-teal-600/50"
           >
             <option value="all">All Categories</option>
             {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
           </select>
 
           {isSuper(erpUser) && (
-            <select 
+            <select className="bg-slate-50 dark:bg-black border border-slate-200 dark:border-white/[0.08] rounded-[10px] text-[13px] text-slate-600 dark:text-zinc-400 focus:border-teal-600/50 px-3 py-2" 
               value={branchId} 
               onChange={e => { setBranchId(e.target.value); setPage(1); }} 
-              className="border border-border rounded-xl px-3 py-1.5 bg-card text-xs focus:outline-none text-foreground" 
+              className="bg-white dark:bg-[#111] border border-slate-200 dark:border-white/[0.08] rounded-[10px] text-[13px] text-slate-600 dark:text-zinc-400 px-3 py-2 focus:outline-none focus:border-teal-600/50" 
               data-testid="filter-branch"
             >
               <option value="">All Branches</option>
@@ -258,75 +258,76 @@ export default function ErpExpenses() {
           )}
 
           <div className="relative flex-1 sm:w-56">
-            <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"/>
-            <input 
+            <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 dark:text-zinc-400"/>
+            <input className="bg-slate-50 dark:bg-black border border-slate-200 dark:border-white/[0.08] rounded-[10px] text-[13px] text-slate-600 dark:text-zinc-400 focus:border-teal-600/50 px-3 py-2" 
               type="text"
               value={q} 
               onChange={handleSearchChange} 
               placeholder="Search vendor, description..." 
-              className="w-full pl-9 pr-3 py-1.5 border border-border bg-card rounded-xl text-xs focus:outline-none focus:border-primary transition text-foreground"
+              className="bg-slate-200/50 dark:bg-white/[0.04] border border-slate-200 dark:border-white/[0.08] rounded-full py-2 pl-9 pr-4 text-[13px] text-slate-600 dark:text-zinc-400 placeholder:text-zinc-700 focus:border-teal-600/50 focus:outline-none transition-all w-full"
               data-testid="search-expenses-input"
             />
           </div>
 
-          <div className="flex items-center gap-1.5 border border-border bg-card rounded-xl px-2 py-1 text-xs">
-            <span className="text-[10px] uppercase font-bold text-muted-foreground">From</span>
-            <input 
+          <div className="flex items-center gap-1.5 border border-slate-200 dark:border-white/[0.08] bg-white dark:bg-[#111] rounded-xl px-2 py-1 text-xs">
+            <span className="text-[10px] uppercase font-bold text-slate-500 dark:text-zinc-400">From</span>
+            <input className="bg-slate-50 dark:bg-black border border-slate-200 dark:border-white/[0.08] rounded-[10px] text-[13px] text-slate-600 dark:text-zinc-400 focus:border-teal-600/50 px-3 py-2" 
               type="date" 
               value={fromDate} 
               onChange={e => { setFromDate(e.target.value); setPage(1); }} 
-              className="bg-transparent border-0 p-0 text-xs text-foreground focus:outline-none" 
+              className="bg-transparent border-0 p-0 text-xs text-slate-800 dark:text-zinc-200 focus:outline-none" 
             />
           </div>
 
-          <div className="flex items-center gap-1.5 border border-border bg-card rounded-xl px-2 py-1 text-xs">
-            <span className="text-[10px] uppercase font-bold text-muted-foreground">To</span>
-            <input 
+          <div className="flex items-center gap-1.5 border border-slate-200 dark:border-white/[0.08] bg-white dark:bg-[#111] rounded-xl px-2 py-1 text-xs">
+            <span className="text-[10px] uppercase font-bold text-slate-500 dark:text-zinc-400">To</span>
+            <input className="bg-slate-50 dark:bg-black border border-slate-200 dark:border-white/[0.08] rounded-[10px] text-[13px] text-slate-600 dark:text-zinc-400 focus:border-teal-600/50 px-3 py-2" 
               type="date" 
               value={toDate} 
               onChange={e => { setToDate(e.target.value); setPage(1); }} 
-              className="bg-transparent border-0 p-0 text-xs text-foreground focus:outline-none" 
+              className="bg-transparent border-0 p-0 text-xs text-slate-800 dark:text-zinc-200 focus:outline-none" 
             />
           </div>
         </div>
       </div>
 
       {/* Main Table Grid */}
-      <div className="glass-elevated rounded-2xl border border-border w-full overflow-hidden flex flex-col flex-1 min-h-0">
-        <div className="overflow-y-auto overflow-x-auto w-full h-full custom-scrollbar">
+      <div className="bg-slate-100 dark:bg-white/[0.03] border border-slate-200 dark:border-white/[0.08] rounded-[1.75rem] p-[6px] w-full flex flex-col flex-1 min-h-0">
+        <div className="bg-white dark:bg-[#111] rounded-[calc(1.75rem-6px)] shadow-sm dark:shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] overflow-hidden p-5 flex flex-col flex-1 min-h-0">
+          <div className="overflow-y-auto overflow-x-auto w-full h-full custom-scrollbar">
           <table className="w-full text-sm table-fixed border-collapse min-w-[920px]">
-            <thead className="bg-muted text-muted-foreground sticky top-0 z-20 shadow-[0_1px_0_rgba(255,255,255,0.05)]">
+            <thead className="bg-slate-200/50 dark:bg-white/[0.04] text-slate-500 dark:text-zinc-400 sticky top-0 z-20 shadow-[0_1px_0_rgba(255,255,255,0.05)]">
               <tr className="text-left backdrop-blur-md">
-                <th className="w-[12%] px-5 py-3.5 text-xs font-bold uppercase tracking-wider bg-muted">Date</th>
-                <th className="w-[14%] px-5 py-3.5 text-xs font-bold uppercase tracking-wider bg-muted">Category</th>
-                <th className="w-[28%] px-5 py-3.5 text-xs font-bold uppercase tracking-wider bg-muted">Description</th>
-                <th className="w-[15%] px-5 py-3.5 text-xs font-bold uppercase tracking-wider bg-muted">Vendor / Party</th>
-                <th className="w-[11%] px-5 py-3.5 text-xs font-bold uppercase tracking-wider bg-muted">Status</th>
-                <th className="w-[12%] px-5 py-3.5 text-xs font-bold uppercase tracking-wider text-right bg-muted">Amount</th>
-                <th className="w-[8%] px-5 py-3.5 bg-muted text-right">Decision</th>
+                <th className="w-[12%] text-[10px] font-semibold tracking-[0.18em] uppercase text-slate-500 dark:text-zinc-400 pb-3 border-b border-slate-200 dark:border-white/[0.06] text-left px-4">Date</th>
+                <th className="w-[14%] text-[10px] font-semibold tracking-[0.18em] uppercase text-slate-500 dark:text-zinc-400 pb-3 border-b border-slate-200 dark:border-white/[0.06] text-left px-4">Category</th>
+                <th className="w-[28%] text-[10px] font-semibold tracking-[0.18em] uppercase text-slate-500 dark:text-zinc-400 pb-3 border-b border-slate-200 dark:border-white/[0.06] text-left px-4">Description</th>
+                <th className="w-[15%] text-[10px] font-semibold tracking-[0.18em] uppercase text-slate-500 dark:text-zinc-400 pb-3 border-b border-slate-200 dark:border-white/[0.06] text-left px-4">Vendor / Party</th>
+                <th className="w-[11%] text-[10px] font-semibold tracking-[0.18em] uppercase text-slate-500 dark:text-zinc-400 pb-3 border-b border-slate-200 dark:border-white/[0.06] text-left px-4">Status</th>
+                <th className="w-[12%] px-5 py-3.5 text-xs font-bold uppercase tracking-wider text-right bg-slate-200/50 dark:bg-white/[0.04]">Amount</th>
+                <th className="w-[8%] px-5 py-3.5 bg-slate-200/50 dark:bg-white/[0.04] text-right">Decision</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-border bg-background/20">
+            <tbody className="divide-y divide-border bg-slate-50 dark:bg-black/20">
               {rawItems.map(e => (
-                <tr key={e.id} className="hover:bg-muted/40 transition-colors group" data-testid={`exp-row-${e.id}`}>
-                  <td className="px-5 py-3.5 text-xs whitespace-nowrap text-muted-foreground font-mono">{fmtDate(e.expense_date)}</td>
-                  <td className="px-5 py-3.5 text-xs whitespace-nowrap">
-                    <span className="px-2 py-0.5 bg-muted/60 rounded-md border border-border text-foreground font-medium text-[11px]">
+                <tr key={e.id} className="hover:bg-slate-100 dark:bg-white/[0.02] border-b border-slate-200 dark:border-white/[0.04] transition-colors group" data-testid={`exp-row-${e.id}`}>
+                  <td className="py-3 px-4 text-[13px] text-slate-600 dark:text-zinc-400 text-xs whitespace-nowrap text-slate-500 dark:text-zinc-400 font-mono">{fmtDate(e.expense_date)}</td>
+                  <td className="py-3 px-4 text-[13px] text-slate-600 dark:text-zinc-400 text-xs whitespace-nowrap">
+                    <span className="px-2 py-0.5 bg-slate-200/50 dark:bg-white/[0.04]/60 rounded-md border border-slate-200 dark:border-white/[0.08] text-slate-800 dark:text-zinc-200 font-medium text-[11px]">
                       {e.category}
                     </span>
                   </td>
-                  <td className="px-5 py-3.5 text-xs text-foreground truncate" title={e.description}>
+                  <td className="py-3 px-4 text-[13px] text-slate-600 dark:text-zinc-400 text-xs text-slate-800 dark:text-zinc-200 truncate" title={e.description}>
                     <div className="truncate font-medium">{e.description}</div>
                     {e.decision_note && (
-                      <div className="text-[10px] text-muted-foreground italic truncate">Note: {e.decision_note}</div>
+                      <div className="text-[10px] text-slate-500 dark:text-zinc-400 italic truncate">Note: {e.decision_note}</div>
                     )}
                   </td>
-                  <td className="px-5 py-3.5 text-xs text-muted-foreground truncate" title={e.vendor}>{e.vendor || "—"}</td>
-                  <td className="px-5 py-3.5 whitespace-nowrap">
+                  <td className="py-3 px-4 text-[13px] text-slate-600 dark:text-zinc-400 text-xs text-slate-500 dark:text-zinc-400 truncate" title={e.vendor}>{e.vendor || "—"}</td>
+                  <td className="py-3 px-4 text-[13px] text-slate-600 dark:text-zinc-400 whitespace-nowrap">
                     <StatusBadge s={e.status} />
                   </td>
-                  <td className="px-5 py-3.5 font-mono text-right font-bold text-rose-600 whitespace-nowrap text-sm">{fmtINR(e.amount)}</td>
-                  <td className="px-5 py-3.5 text-right whitespace-nowrap">
+                  <td className="py-3 px-4 text-[13px] text-slate-600 dark:text-zinc-400 font-mono text-right font-bold text-rose-600 whitespace-nowrap text-sm">{fmtINR(e.amount)}</td>
+                  <td className="py-3 px-4 text-[13px] text-slate-600 dark:text-zinc-400 text-right whitespace-nowrap">
                     <div className="flex gap-1.5 justify-end items-center">
                       {isManagerPlus(erpUser) && e.status === "pending" && (
                         <>
@@ -334,7 +335,7 @@ export default function ErpExpenses() {
                             disabled={busyRows.has(e.id)}
                             onClick={() => decide(e.id, "approve")} 
                             title="Approve & Settle" 
-                            className="p-1.5 text-emerald-600 hover:bg-emerald-500/10 border border-transparent hover:border-emerald-500/20 rounded-lg transition disabled:opacity-40" 
+                            className="bg-transparent p-1.5 text-emerald-600 hover:bg-emerald-500/10 border border-transparent hover:border-emerald-300 dark:border-emerald-500/20 rounded-lg transition disabled:opacity-40" 
                             data-testid={`approve-${e.id}`}
                           >
                             <Check size={14}/>
@@ -343,7 +344,7 @@ export default function ErpExpenses() {
                             disabled={busyRows.has(e.id)}
                             onClick={() => decide(e.id, "reject")} 
                             title="Reject Outflow" 
-                            className="p-1.5 text-rose-600 hover:bg-rose-500/10 border border-transparent hover:border-rose-500/20 rounded-lg transition disabled:opacity-40" 
+                            className="bg-transparent p-1.5 text-rose-600 hover:bg-rose-500/10 border border-transparent hover:border-rose-500/20 rounded-lg transition disabled:opacity-40" 
                             data-testid={`reject-${e.id}`}
                           >
                             <Ban size={14}/>
@@ -354,7 +355,7 @@ export default function ErpExpenses() {
                         <Button 
                           onClick={() => setDeleteModal(e)} 
                           title="Purge Expense Record" 
-                          className="p-1.5 text-muted-foreground hover:text-rose-500 hover:bg-rose-500/10 border border-transparent hover:border-rose-500/20 rounded-lg transition" 
+                          className="bg-transparent p-1.5 text-slate-500 dark:text-zinc-400 hover:text-rose-500 hover:bg-rose-500/10 border border-transparent hover:border-rose-500/20 rounded-lg transition" 
                           data-testid={`delete-expense-${e.id}`}
                         >
                           <Trash2 size={14}/>
@@ -366,7 +367,7 @@ export default function ErpExpenses() {
               ))}
               {rawItems.length === 0 && (
                 <tr>
-                  <td colSpan="7" className="px-5 py-16 text-center text-muted-foreground italic text-sm">
+                  <td colSpan="7" className="px-5 py-16 text-center text-slate-500 dark:text-zinc-400 italic text-sm">
                     {isLoading ? "Loading expense sheets..." : "No expense records found matching current parameters."}
                   </td>
                 </tr>
@@ -374,17 +375,18 @@ export default function ErpExpenses() {
             </tbody>
           </table>
         </div>
+        </div>
 
         {/* Pagination Footer */}
-        <div className="px-5 py-3 border-t border-border bg-muted/30 flex items-center justify-between text-xs text-muted-foreground shrink-0">
+        <div className="px-5 py-3 border-t border-slate-200 dark:border-white/[0.08] bg-slate-200/50 dark:bg-white/[0.04]/30 flex items-center justify-between text-xs text-slate-500 dark:text-zinc-400 shrink-0">
           <div>
-            Showing <span className="font-semibold text-foreground">{rawItems.length}</span> of <span className="font-semibold text-foreground">{totalCount}</span> total items
+            Showing <span className="font-semibold text-slate-800 dark:text-zinc-200">{rawItems.length}</span> of <span className="font-semibold text-slate-800 dark:text-zinc-200">{totalCount}</span> total items
           </div>
           <div className="flex items-center gap-2">
             <Button
               onClick={() => setPage(p => Math.max(p - 1, 1))}
               disabled={page <= 1 || isLoading}
-              className="p-1.5 rounded-lg border border-border hover:bg-muted disabled:opacity-40 transition"
+              className="bg-transparent p-1.5 rounded-lg border border-slate-200 dark:border-white/[0.08] hover:bg-slate-200/50 dark:bg-white/[0.04] text-slate-500 dark:text-zinc-400 hover:text-slate-800 dark:text-zinc-200 disabled:opacity-40 transition"
             >
               <ChevronLeft size={14} />
             </Button>
@@ -394,7 +396,7 @@ export default function ErpExpenses() {
             <Button
               onClick={() => setPage(p => Math.min(p + 1, totalPages))}
               disabled={page >= totalPages || isLoading}
-              className="p-1.5 rounded-lg border border-border hover:bg-muted disabled:opacity-40 transition"
+              className="bg-transparent p-1.5 rounded-lg border border-slate-200 dark:border-white/[0.08] hover:bg-slate-200/50 dark:bg-white/[0.04] text-slate-500 dark:text-zinc-400 hover:text-slate-800 dark:text-zinc-200 disabled:opacity-40 transition"
             >
               <ChevronRight size={14} />
             </Button>
@@ -415,17 +417,17 @@ export default function ErpExpenses() {
 
       {deleteModal && (
         <div className="fixed inset-0 bg-black/50 z-50 grid place-items-center p-4 backdrop-blur-sm animate-fadeIn" onClick={() => !deleting && setDeleteModal(null)}>
-          <div onClick={e => e.stopPropagation()} className="bg-background border border-border rounded-2xl max-w-sm w-full p-6 space-y-4 shadow-2xl">
+          <div onClick={e => e.stopPropagation()} className="bg-slate-50 dark:bg-black border border-slate-200 dark:border-white/[0.08] rounded-2xl max-w-sm w-full p-6 space-y-4 shadow-2xl">
             <div className="flex items-center gap-3 text-rose-500">
               <div className="p-2.5 bg-rose-500/10 rounded-xl"><AlertTriangle size={24}/></div>
               <div>
-                <h3 className="font-display font-medium text-lg text-foreground">Purge Expense Record</h3>
+                <h3 className="font-display font-medium text-lg text-slate-800 dark:text-zinc-200">Purge Expense Record</h3>
                 <p className="text-[10px] text-rose-500 uppercase tracking-widest font-bold">Irreversible Action</p>
               </div>
             </div>
-            <p className="text-sm text-muted-foreground leading-relaxed">
-              Are you sure you want to delete expense record for <strong className="text-foreground">{deleteModal.category}</strong> ({fmtINR(deleteModal.amount)})?
-              {deleteModal.vendor && <span> Vendor: <strong className="text-foreground">{deleteModal.vendor}</strong></span>}
+            <p className="text-sm text-slate-500 dark:text-zinc-400 leading-relaxed">
+              Are you sure you want to delete expense record for <strong className="text-slate-800 dark:text-zinc-200">{deleteModal.category}</strong> ({fmtINR(deleteModal.amount)})?
+              {deleteModal.vendor && <span> Vendor: <strong className="text-slate-800 dark:text-zinc-200">{deleteModal.vendor}</strong></span>}
             </p>
             <div className="flex gap-2.5 pt-2">
               <Button
@@ -450,7 +452,7 @@ export default function ErpExpenses() {
               <Button
                 disabled={deleting}
                 onClick={() => setDeleteModal(null)}
-                className="px-4 py-2.5 border border-border rounded-xl text-xs uppercase tracking-wider font-bold text-muted-foreground hover:text-foreground hover:bg-muted/50 transition"
+                className="bg-transparent rounded-full border border-slate-200 dark:border-white/10 text-slate-500 dark:text-zinc-400 hover:border-slate-300 dark:border-white/20 hover:text-slate-800 dark:text-zinc-200 hover:bg-slate-200/50 dark:bg-white/[0.04] px-4 py-2 text-[11px] font-semibold tracking-[0.06em] uppercase transition-all duration-300 inline-flex items-center gap-2"
               >
                 Cancel
               </Button>
@@ -465,17 +467,17 @@ export default function ErpExpenses() {
 // Status Badge Component
 function StatusBadge({ s }) {
   const norm = s?.toLowerCase() || "";
-  let config = "bg-muted/50 text-muted-foreground border-border";
+  let config = "bg-slate-200/50 dark:bg-white/[0.04]/50 text-slate-500 dark:text-zinc-400 border-slate-200 dark:border-white/[0.08]";
   let label = s || "Pending";
 
   if (norm === "approved") {
-    config = "bg-emerald-500/10 text-emerald-600 border-emerald-500/20";
+    config = "bg-emerald-100 dark:bg-emerald-500/20 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-500/20 rounded-full px-2.5 py-0.5 text-[10px] font-semibold tracking-[0.05em] uppercase";
     label = "Settled";
   } else if (norm === "rejected") {
-    config = "bg-rose-500/10 text-rose-600 border-rose-500/20";
+    config = "bg-rose-100 dark:bg-red-500/20 text-red-800 dark:text-red-300 border border-rose-300 dark:border-red-500/20 rounded-full px-2.5 py-0.5 text-[10px] font-semibold tracking-[0.05em] uppercase";
     label = "Rejected";
   } else if (norm === "pending") {
-    config = "bg-amber-500/10 text-amber-500 border-amber-500/20";
+    config = "bg-amber-100 dark:bg-yellow-500/20 text-amber-800 dark:text-yellow-300 border border-amber-300 dark:border-yellow-500/20 rounded-full px-2.5 py-0.5 text-[10px] font-semibold tracking-[0.05em] uppercase";
     label = "Pending";
   }
 
@@ -534,13 +536,13 @@ function CreateExpenseModal({ onClose, onSuccess, branchId, branches, isSuper })
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fadeIn">
-      <div className="bg-card border border-border w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
-        <div className="p-5 border-b border-border flex items-center justify-between bg-muted/20">
+      <div className="bg-white dark:bg-[#111] border border-slate-200 dark:border-white/[0.08] w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+        <div className="p-5 border-b border-slate-200 dark:border-white/[0.08] flex items-center justify-between bg-slate-200/50 dark:bg-white/[0.04]/20">
           <div>
-            <h3 className="font-display text-lg font-bold text-foreground">Record Center Outflow</h3>
-            <p className="text-xs text-muted-foreground mt-0.5">Submit branch expenditure for approval and ledger entry</p>
+            <h3 className="font-display text-lg font-bold text-slate-800 dark:text-zinc-200">Record Center Outflow</h3>
+            <p className="text-xs text-slate-500 dark:text-zinc-400 mt-0.5">Submit branch expenditure for approval and ledger entry</p>
           </div>
-          <Button onClick={onClose} className="text-muted-foreground hover:text-foreground">
+          <Button onClick={onClose} className="bg-transparent border-slate-200 dark:border-white/10 text-slate-500 dark:text-zinc-400 hover:border-slate-300 dark:border-white/20 hover:text-slate-800 dark:text-zinc-200 rounded-full px-4 py-2 text-[11px] font-semibold tracking-[0.06em] uppercase border cursor-pointer transition-all duration-300">
             <X size={18} />
           </Button>
         </div>
@@ -548,13 +550,13 @@ function CreateExpenseModal({ onClose, onSuccess, branchId, branches, isSuper })
         <form onSubmit={handleSubmit} className="p-5 space-y-4 overflow-y-auto custom-scrollbar flex-1">
           {isSuper && branches.length > 0 && (
             <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-muted-foreground mb-1">
+              <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-zinc-400 mb-1">
                 Branch Location *
               </label>
               <select
                 value={targetBranchId}
                 onChange={e => setTargetBranchId(e.target.value)}
-                className="w-full px-3 py-2 border border-border bg-background rounded-xl text-xs font-semibold text-foreground focus:outline-none"
+                className="w-full px-3 py-2 border border-slate-200 dark:border-white/[0.08] bg-slate-50 dark:bg-black rounded-xl text-xs font-semibold text-slate-800 dark:text-zinc-200 focus:outline-none"
               >
                 {branches.map(b => (
                   <option key={b.id} value={b.id}>{b.name}</option>
@@ -565,19 +567,19 @@ function CreateExpenseModal({ onClose, onSuccess, branchId, branches, isSuper })
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-muted-foreground mb-1">
+              <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-zinc-400 mb-1">
                 Category *
               </label>
               <select
                 value={category}
                 onChange={e => setCategory(e.target.value)}
-                className="w-full px-3 py-2 border border-border bg-background rounded-xl text-xs font-semibold text-foreground focus:outline-none"
+                className="w-full px-3 py-2 border border-slate-200 dark:border-white/[0.08] bg-slate-50 dark:bg-black rounded-xl text-xs font-semibold text-slate-800 dark:text-zinc-200 focus:outline-none"
               >
                 {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
               </select>
             </div>
             <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-muted-foreground mb-1">
+              <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-zinc-400 mb-1">
                 Amount (INR) *
               </label>
               <input
@@ -587,13 +589,13 @@ function CreateExpenseModal({ onClose, onSuccess, branchId, branches, isSuper })
                 value={amount}
                 onChange={e => setAmount(e.target.value)}
                 placeholder="₹ 5,000"
-                className="w-full px-3 py-2 border border-border bg-background rounded-xl text-xs font-mono font-bold text-foreground focus:outline-none"
+                className="w-full px-3 py-2 border border-slate-200 dark:border-white/[0.08] bg-slate-50 dark:bg-black rounded-xl text-xs font-mono font-bold text-slate-800 dark:text-zinc-200 focus:outline-none"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-xs font-bold uppercase tracking-wider text-muted-foreground mb-1">
+            <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-zinc-400 mb-1">
               Description / Reason *
             </label>
             <textarea
@@ -602,13 +604,13 @@ function CreateExpenseModal({ onClose, onSuccess, branchId, branches, isSuper })
               value={description}
               onChange={e => setDescription(e.target.value)}
               placeholder="Detailed description of goods/services procured..."
-              className="w-full px-3 py-2 border border-border bg-background rounded-xl text-xs text-foreground focus:outline-none resize-none"
+              className="w-full px-3 py-2 border border-slate-200 dark:border-white/[0.08] bg-slate-50 dark:bg-black rounded-xl text-xs text-slate-800 dark:text-zinc-200 focus:outline-none resize-none"
             />
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-muted-foreground mb-1">
+              <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-zinc-400 mb-1">
                 Vendor / Recipient
               </label>
               <input
@@ -616,11 +618,11 @@ function CreateExpenseModal({ onClose, onSuccess, branchId, branches, isSuper })
                 value={vendor}
                 onChange={e => setVendor(e.target.value)}
                 placeholder="e.g., J&K Power Dept"
-                className="w-full px-3 py-2 border border-border bg-background rounded-xl text-xs text-foreground focus:outline-none"
+                className="w-full px-3 py-2 border border-slate-200 dark:border-white/[0.08] bg-slate-50 dark:bg-black rounded-xl text-xs text-slate-800 dark:text-zinc-200 focus:outline-none"
               />
             </div>
             <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-muted-foreground mb-1">
+              <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-zinc-400 mb-1">
                 Expense Date *
               </label>
               <input
@@ -628,13 +630,13 @@ function CreateExpenseModal({ onClose, onSuccess, branchId, branches, isSuper })
                 required
                 value={expenseDate}
                 onChange={e => setExpenseDate(e.target.value)}
-                className="w-full px-3 py-2 border border-border bg-background rounded-xl text-xs text-foreground focus:outline-none"
+                className="w-full px-3 py-2 border border-slate-200 dark:border-white/[0.08] bg-slate-50 dark:bg-black rounded-xl text-xs text-slate-800 dark:text-zinc-200 focus:outline-none"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-xs font-bold uppercase tracking-wider text-muted-foreground mb-1">
+            <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-zinc-400 mb-1">
               Receipt / Invoice Link (Optional)
             </label>
             <input
@@ -642,22 +644,22 @@ function CreateExpenseModal({ onClose, onSuccess, branchId, branches, isSuper })
               value={billUrl}
               onChange={e => setBillUrl(e.target.value)}
               placeholder="https://storage... or invoice URL"
-              className="w-full px-3 py-2 border border-border bg-background rounded-xl text-xs text-foreground focus:outline-none"
+              className="w-full px-3 py-2 border border-slate-200 dark:border-white/[0.08] bg-slate-50 dark:bg-black rounded-xl text-xs text-slate-800 dark:text-zinc-200 focus:outline-none"
             />
           </div>
 
-          <div className="pt-3 border-t border-border flex items-center justify-end gap-3">
+          <div className="pt-3 border-t border-slate-200 dark:border-white/[0.08] flex items-center justify-end gap-3">
             <Button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 text-xs font-bold text-muted-foreground hover:text-foreground transition"
+              className="bg-transparent px-4 py-2 text-xs font-bold border-slate-200 dark:border-white/10 text-slate-500 dark:text-zinc-400 hover:border-slate-300 dark:border-white/20 hover:text-slate-800 dark:text-zinc-200 rounded-full px-4 py-2 text-[11px] font-semibold tracking-[0.06em] uppercase border cursor-pointer transition-all duration-300 transition"
             >
               Cancel
             </Button>
             <Button
               type="submit"
               disabled={submitting}
-              className="px-5 py-2 bg-primary text-primary-foreground rounded-xl text-xs font-bold uppercase tracking-wider hover:bg-primary/90 shadow-md transition disabled:opacity-50"
+              className="px-5 py-2 bg-teal-600 text-white rounded-xl text-xs font-bold uppercase tracking-wider hover:bg-teal-600/90 shadow-md transition disabled:opacity-50"
             >
               {submitting ? "Submitting..." : "Submit Expense"}
             </Button>

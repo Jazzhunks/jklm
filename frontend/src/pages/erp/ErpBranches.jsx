@@ -51,40 +51,41 @@ export default function ErpBranches() {
   };
 
   return (
-    <div className="space-y-8 animate-fadeIn" data-testid="erp-branches-page">
+    <div className="space-y-8 animate-fadeIn bg-slate-50 dark:bg-black" data-testid="erp-branches-page">
       {/* Pinned Title Board */}
       <div>
-        <div className="text-xs uppercase tracking-[0.2em] font-bold text-accent">Enterprise Infrastructure</div>
-        <h1 className="font-display text-4xl font-light tracking-tight mt-1">Network Hub Centres</h1>
-        <p className="text-muted-foreground mt-1 text-sm">Configure branch roll codes, localized taxation metrics, GSTIN parameters, and legal authorized signatories for each valley hub.</p>
+        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-semibold tracking-[0.2em] uppercase bg-teal-600/10 text-teal-600 border border-teal-600/25 mb-3">Enterprise Infrastructure</div>
+        <h1 className="text-[30px] font-bold tracking-[-0.02em] text-slate-900 dark:text-zinc-100">Network Hub Centres</h1>
+        <p className="text-[13px] text-slate-400 dark:text-zinc-600 mt-1.5">Configure branch roll codes, localized taxation metrics, GSTIN parameters, and legal authorized signatories for each valley hub.</p>
       </div>
 
       {/* Grid Network Mapping */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
         {items.map(b => (
-          <div key={b.id} className="glass-elevated rounded-2xl p-6 border border-border relative overflow-hidden group hover:border-accent/20 transition-all duration-300" data-testid={`branch-card-${b.id}`}>
-            <div className="absolute right-0 top-0 opacity-[0.02] translate-x-4 -translate-y-4 group-hover:scale-110 transition-transform duration-500 text-foreground pointer-events-none">
+          <div key={b.id} className="bg-slate-100 dark:bg-white/[0.03] border border-slate-200 dark:border-white/[0.08] rounded-[1.75rem] p-[6px]" data-testid={`branch-card-${b.id}`}>
+            <div className="bg-white dark:bg-[#111] rounded-[calc(1.75rem-6px)] shadow-sm dark:shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] overflow-hidden p-5 relative group hover:border-teal-600/30 transition-all duration-[350ms]">
+            <div className="absolute right-0 top-0 opacity-[0.02] translate-x-4 -translate-y-4 group-hover:scale-110 transition-transform duration-500 text-slate-800 dark:text-zinc-200 pointer-events-none">
               <Building2 size={160} />
             </div>
             
             <div className="flex items-start justify-between relative z-10">
               <div className="space-y-1.5 max-w-[80%]">
-                <h3 className="font-display font-medium text-xl text-foreground tracking-tight flex items-center gap-2">
+                <h3 className="text-[18px] font-semibold text-slate-900 dark:text-zinc-100 flex items-center gap-2">
                   {b.name}
-                  <span className="px-2 py-0.5 rounded-md text-[11px] font-mono font-bold bg-accent/10 text-accent border border-accent/20" title="Branch Code for Student IDs">
+                  <span className="bg-teal-600/10 text-teal-800 dark:text-teal-300 text-[10px] font-bold tracking-[0.1em] uppercase px-2 py-0.5 rounded-full border border-teal-600/20" title="Branch Code for Student IDs">
                     {getBranchCode(b)}
                   </span>
                 </h3>
-                <p className="text-xs text-muted-foreground flex items-center gap-1.5 leading-relaxed">
-                  <MapPin size={13} className="text-accent shrink-0" /> {b.address}
+                <p className="text-[12px] text-slate-500 dark:text-zinc-400 flex items-center gap-1.5 leading-relaxed">
+                  <MapPin size={13} className="text-teal-800 dark:text-teal-300 shrink-0" /> {b.address}
                 </p>
-                <p className="text-xs font-mono text-muted-foreground/80 flex items-center gap-1.5 pt-0.5">
+                <p className="text-[12px] text-slate-500 dark:text-zinc-400 flex items-center gap-1.5 pt-0.5">
                   <Phone size={13} className="opacity-60 shrink-0" /> {b.phone}
                 </p>
               </div>
-              <Button 
+              <Button className="bg-transparent rounded-full border border-slate-200 dark:border-white/10 text-slate-500 dark:text-zinc-400 hover:border-slate-300 dark:border-white/20 hover:text-slate-800 dark:text-zinc-200 hover:bg-slate-200/50 dark:bg-white/[0.04] px-4 py-2 text-[11px] font-semibold tracking-[0.06em] uppercase transition-all duration-300" 
                 onClick={() => openEditModal(b)} 
-                className="text-xs uppercase tracking-wider font-bold text-accent hover:text-accent/80 transition-colors bg-accent/5 hover:bg-accent/10 border border-accent/10 px-3 py-1.5 rounded-xl" 
+                className="bg-teal-600 text-white rounded-full px-5 py-2 text-[11px] font-semibold tracking-[0.04em] uppercase shadow-[0_0_0_1px_rgba(13,148,136,0.5),0_4px_16px_rgba(13,148,136,0.25)] hover:bg-teal-700 active:scale-[0.97] transition-all duration-300 inline-flex items-center gap-2" 
                 data-testid={`edit-branch-${b.id}`}
               >
                 Configure
@@ -92,25 +93,26 @@ export default function ErpBranches() {
             </div>
 
             {/* Financial & ID Metadata Grid Segment */}
-            <div className="mt-6 grid grid-cols-2 sm:grid-cols-4 gap-3 border-t border-border pt-4 relative z-10">
+            <div className="mt-6 grid grid-cols-2 sm:grid-cols-4 gap-3 border-t border-slate-200 dark:border-white/[0.08] pt-4 relative z-10">
               <div className="space-y-0.5">
-                <div className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest">Student ID Code</div>
-                <div className="font-mono text-xs text-accent font-bold mt-0.5 tracking-wide">{getBranchCode(b)}00001</div>
+                <div className="text-[10px] font-semibold tracking-[0.16em] uppercase text-slate-500 dark:text-zinc-400">Student ID Code</div>
+                <div className="font-mono text-xs text-teal-800 dark:text-teal-300 font-bold mt-0.5 tracking-wide">{getBranchCode(b)}00001</div>
               </div>
               <div className="space-y-0.5">
-                <div className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest">Taxation GSTIN</div>
-                <div className="font-mono text-xs text-foreground font-semibold mt-0.5 tracking-wide truncate">{b.gstin || "—"}</div>
+                <div className="text-[10px] font-semibold tracking-[0.16em] uppercase text-slate-500 dark:text-zinc-400">Taxation GSTIN</div>
+                <div className="font-mono text-xs text-slate-800 dark:text-zinc-200 font-semibold mt-0.5 tracking-wide truncate">{b.gstin || "—"}</div>
               </div>
               <div className="space-y-0.5">
-                <div className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest">Legal Signatory</div>
-                <div className="text-xs text-foreground font-medium mt-0.5 truncate">{b.signatory_name || "—"}</div>
+                <div className="text-[10px] font-semibold tracking-[0.16em] uppercase text-slate-500 dark:text-zinc-400">Legal Signatory</div>
+                <div className="text-xs text-slate-800 dark:text-zinc-200 font-medium mt-0.5 truncate">{b.signatory_name || "—"}</div>
               </div>
               <div className="space-y-0.5">
-                <div className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest">State Location</div>
-                <div className="font-mono text-xs text-foreground mt-0.5">
+                <div className="text-[10px] font-semibold tracking-[0.16em] uppercase text-slate-500 dark:text-zinc-400">State Location</div>
+                <div className="font-mono text-xs text-slate-800 dark:text-zinc-200 mt-0.5">
                   {b.state_code ? `${b.state_code} (J&K)` : "01 (J&K)"}
                 </div>
               </div>
+            </div>
             </div>
           </div>
         ))}
@@ -122,19 +124,19 @@ export default function ErpBranches() {
           <form 
             onClick={e => e.stopPropagation()} 
             onSubmit={executeSave} 
-            className="bg-background border border-border rounded-2xl max-w-md w-full p-6 space-y-5 shadow-2xl relative"
+            className="bg-slate-50 dark:bg-black border border-slate-200 dark:border-white/[0.08] rounded-2xl max-w-md w-full p-6 space-y-5 shadow-2xl relative"
           >
             <div className="flex justify-between items-start">
               <div>
-                <div className="text-xs uppercase tracking-[0.2em] font-bold text-accent flex items-center gap-1">
+                <div className="text-xs uppercase tracking-[0.2em] font-bold text-teal-800 dark:text-teal-300 flex items-center gap-1">
                   <ShieldCheck size={12} /> Compliance Controller
                 </div>
                 <h3 className="font-display text-2xl font-medium mt-1">Branch Parameters</h3>
               </div>
-              <Button 
+              <Button className="bg-transparent rounded-full border border-slate-200 dark:border-white/10 text-slate-500 dark:text-zinc-400 hover:border-slate-300 dark:border-white/20 hover:text-slate-800 dark:text-zinc-200 hover:bg-slate-200/50 dark:bg-white/[0.04] px-4 py-2 text-[11px] font-semibold tracking-[0.06em] uppercase transition-all duration-300" 
                 type="button" 
                 onClick={() => setEditing(null)} 
-                className="p-1 hover:bg-muted/50 rounded-lg border border-transparent hover:border-border transition"
+                className="p-1 hover:bg-slate-200/50 dark:bg-white/[0.04]/50 rounded-lg border border-transparent hover:border-slate-200 dark:border-white/[0.08] transition"
               >
                 <X size={18}/>
               </Button>
@@ -142,56 +144,56 @@ export default function ErpBranches() {
 
             <div className="space-y-4">
               <div>
-                <label className="text-xs uppercase tracking-wider font-bold text-muted-foreground mb-1 block">
+                <label className="text-xs uppercase tracking-wider font-bold text-slate-500 dark:text-zinc-400 mb-1 block">
                   Branch Code (Student ID Prefix) *
                 </label>
-                <input 
+                <input className="bg-slate-50 dark:bg-black border border-slate-200 dark:border-white/[0.08] rounded-[10px] text-[13px] text-slate-600 dark:text-zinc-400 focus:border-teal-600/50 px-3 py-2" 
                   type="text"
                   required
                   value={form.code || ""} 
                   onChange={e => setForm({...form, code: e.target.value.toUpperCase().trim()})}
                   placeholder="e.g. PP, NFT, ANG" 
                   maxLength={6}
-                  className="w-full px-3 py-2 border border-border bg-background/50 rounded-xl text-sm font-mono font-bold text-accent placeholder:text-muted-foreground/30 focus:outline-none focus:border-accent" 
+                  className="w-full px-3 py-2 bg-white dark:bg-[#111] border border-slate-200 dark:border-white/[0.08] rounded-[10px] text-[13px] text-slate-600 dark:text-zinc-400 focus:outline-none focus:border-teal-600/50" 
                   data-testid="eb-code"
                 />
-                <p className="text-[11px] text-muted-foreground mt-1 font-sans">
-                  Students enrolled here will receive sequence IDs starting with this prefix (e.g. <span className="font-mono text-foreground font-semibold">{form.code || "PP"}00001</span>).
+                <p className="text-[11px] text-slate-500 dark:text-zinc-400 mt-1 font-sans">
+                  Students enrolled here will receive sequence IDs starting with this prefix (e.g. <span className="font-mono text-slate-800 dark:text-zinc-200 font-semibold">{form.code || "PP"}00001</span>).
                 </p>
               </div>
 
               <div>
-                <label className="text-xs uppercase tracking-wider font-bold text-muted-foreground mb-1 block">Taxation GSTIN Reference</label>
-                <input 
+                <label className="text-xs uppercase tracking-wider font-bold text-slate-500 dark:text-zinc-400 mb-1 block">Taxation GSTIN Reference</label>
+                <input className="bg-slate-50 dark:bg-black border border-slate-200 dark:border-white/[0.08] rounded-[10px] text-[13px] text-slate-600 dark:text-zinc-400 focus:border-teal-600/50 px-3 py-2" 
                   type="text"
                   value={form.gstin} 
                   onChange={e => setForm({...form, gstin: e.target.value.toUpperCase()})}
                   placeholder="01ABCDE1234F1Z5" 
-                  className="w-full px-3 py-2 border border-border bg-background/50 rounded-xl text-sm font-mono text-foreground placeholder:text-muted-foreground/30 focus:outline-none focus:border-accent/50" 
+                  className="w-full px-3 py-2 bg-white dark:bg-[#111] border border-slate-200 dark:border-white/[0.08] rounded-[10px] text-[13px] text-slate-600 dark:text-zinc-400 focus:outline-none focus:border-teal-600/50" 
                   data-testid="eb-gstin"
                 />
               </div>
               
               <div>
-                <label className="text-xs uppercase tracking-wider font-bold text-muted-foreground mb-1 block">Authorized Signatory Name</label>
-                <input 
+                <label className="text-xs uppercase tracking-wider font-bold text-slate-500 dark:text-zinc-400 mb-1 block">Authorized Signatory Name</label>
+                <input className="bg-slate-50 dark:bg-black border border-slate-200 dark:border-white/[0.08] rounded-[10px] text-[13px] text-slate-600 dark:text-zinc-400 focus:border-teal-600/50 px-3 py-2" 
                   type="text"
                   value={form.signatory_name} 
                   onChange={e => setForm({...form, signatory_name: e.target.value})} 
                   placeholder="e.g. Legal Operations Desk"
-                  className="w-full px-3 py-2 border border-border bg-background/50 rounded-xl text-sm text-foreground focus:outline-none focus:border-accent/50" 
+                  className="w-full px-3 py-2 bg-white dark:bg-[#111] border border-slate-200 dark:border-white/[0.08] rounded-[10px] text-[13px] text-slate-600 dark:text-zinc-400 focus:outline-none focus:border-teal-600/50" 
                   data-testid="eb-signatory"
                 />
               </div>
               
               <div>
-                <label className="text-xs uppercase tracking-wider font-bold text-muted-foreground mb-1 block">Jurisdiction State Code</label>
-                <input 
+                <label className="text-xs uppercase tracking-wider font-bold text-slate-500 dark:text-zinc-400 mb-1 block">Jurisdiction State Code</label>
+                <input className="bg-slate-50 dark:bg-black border border-slate-200 dark:border-white/[0.08] rounded-[10px] text-[13px] text-slate-600 dark:text-zinc-400 focus:border-teal-600/50 px-3 py-2" 
                   type="text"
                   value={form.state_code} 
                   onChange={e => setForm({...form, state_code: e.target.value})} 
                   placeholder="01" 
-                  className="w-full px-3 py-2 border border-border bg-background/50 rounded-xl text-sm font-mono text-foreground placeholder:text-muted-foreground/30 focus:outline-none focus:border-accent/50" 
+                  className="w-full px-3 py-2 bg-white dark:bg-[#111] border border-slate-200 dark:border-white/[0.08] rounded-[10px] text-[13px] text-slate-600 dark:text-zinc-400 focus:outline-none focus:border-teal-600/50" 
                   data-testid="eb-state"
                 />
               </div>
@@ -199,19 +201,19 @@ export default function ErpBranches() {
 
 
             <div className="flex gap-3 pt-2">
-              <Button 
+              <Button className="bg-transparent rounded-full border border-slate-200 dark:border-white/10 text-slate-500 dark:text-zinc-400 hover:border-slate-300 dark:border-white/20 hover:text-slate-800 dark:text-zinc-200 hover:bg-slate-200/50 dark:bg-white/[0.04] px-4 py-2 text-[11px] font-semibold tracking-[0.06em] uppercase transition-all duration-300" 
                 disabled={busy} 
                 type="submit" 
-                className="flex-1 py-3 bg-primary text-primary-foreground rounded-xl font-bold text-xs uppercase tracking-wider disabled:opacity-50 flex items-center justify-center gap-2 shadow-lg transition" 
+                className="flex-1 py-3 bg-teal-600 text-white rounded-xl font-bold text-xs uppercase tracking-wider disabled:opacity-50 flex items-center justify-center gap-2 shadow-lg transition" 
                 data-testid="eb-save"
               >
                 <Save size={14}/>
                 {busy ? "Writing Records…" : "Authorize Changes"}
               </Button>
-              <Button 
+              <Button className="bg-transparent rounded-full border border-slate-200 dark:border-white/10 text-slate-500 dark:text-zinc-400 hover:border-slate-300 dark:border-white/20 hover:text-slate-800 dark:text-zinc-200 hover:bg-slate-200/50 dark:bg-white/[0.04] px-4 py-2 text-[11px] font-semibold tracking-[0.06em] uppercase transition-all duration-300" 
                 type="button" 
                 onClick={() => setEditing(null)} 
-                className="px-4 py-3 border border-border rounded-xl text-xs uppercase tracking-wider font-bold text-muted-foreground hover:text-foreground hover:bg-muted/50 transition"
+                className="px-4 py-3 border border-slate-200 dark:border-white/[0.08] rounded-xl text-xs uppercase tracking-wider font-bold text-slate-500 dark:text-zinc-400 hover:text-slate-800 dark:text-zinc-200 hover:bg-slate-200/50 dark:bg-white/[0.04]/50 transition"
               >
                 Cancel
               </Button>

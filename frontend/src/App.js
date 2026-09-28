@@ -50,6 +50,7 @@ const MagicProxy = lazy(() => import('@/pages/MagicProxy'));
 const ErpLayout = lazy(() => import('@/pages/erp/ErpLayout'));
 const ErpDashboard = lazy(() => import('@/pages/erp/ErpDashboard'));
 const ErpStudents = lazy(() => import('@/pages/erp/ErpStudents'));
+const ErpAdmission = lazy(() => import('@/pages/erp/ErpAdmission'));
 const ErpStudentDetail = lazy(() => import('@/pages/erp/ErpStudentDetail'));
 const ErpPayments = lazy(() => import('@/pages/erp/ErpPayments'));
 const ErpExpenses = lazy(() => import('@/pages/erp/ErpExpenses'));
@@ -130,6 +131,7 @@ export default function App() {
             >
               <Route index element={<ErpDashboard />} />
               <Route path="students" element={<ErpStudents />} />
+              <Route path="admission" element={<ErpAdmission />} />
               <Route path="students/:id" element={<ErpStudentDetail />} />
               <Route path="payments" element={<ErpPayments />} />
               <Route path="expenses" element={<ErpExpenses />} />
@@ -137,8 +139,8 @@ export default function App() {
               <Route path="staff" element={<ErpStaff />} />
               <Route path="branches" element={<ErpBranches />} />
               <Route path="audit" element={<ErpAudit />} />
-              <Route path="erpidcards" element={<ErpIdCards />} />
-              <Route path="erpattendance" element={<ErpAttendance />} />
+              <Route path="id-cards" element={<ErpIdCards />} />
+              <Route path="attendance" element={<ErpAttendance />} />
               <Route path="whatsapp" element={<ErpWhatsApp />} />
             </Route>
 

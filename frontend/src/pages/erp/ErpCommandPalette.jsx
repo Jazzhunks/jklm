@@ -125,28 +125,28 @@ export default function ErpCommandPalette({ isOpen, onClose, onAction, erpUser }
       data-testid="erp-command-palette-backdrop"
     >
       <div 
-        className="w-full max-w-2xl bg-background/95 backdrop-blur-xl border border-border/40 shadow-[0_30px_80px_-15px_rgba(0,0,0,0.15)] rounded-3xl overflow-hidden flex flex-col max-h-[75vh] ring-1 ring-border/5"
+        className="w-full max-w-2xl bg-white dark:bg-[#111] border border-slate-200 dark:border-white/[0.08] shadow-2xl rounded-[1.5rem] overflow-hidden flex flex-col max-h-[75vh]"
         onClick={e => e.stopPropagation()}
         data-testid="erp-command-palette"
       >
         {/* Search Input Bar */}
-        <div className="flex items-center px-5 py-4 border-b border-border/40 bg-transparent gap-3 relative">
-          <Search size={18} className="text-primary shrink-0 animate-pulse" />
+        <div className="flex items-center px-5 py-4 border-b border-slate-200 dark:border-white/[0.08]/40 bg-transparent gap-3 relative">
+          <Search size={18} className="text-teal-800 dark:text-teal-300 shrink-0 animate-pulse" />
           <input
             ref={inputRef}
             type="text"
             value={query}
             onChange={e => { setQuery(e.target.value); setSelectedIndex(0); }}
             placeholder="Type a command, page, or search student by name/ID..."
-            className="w-full bg-transparent text-foreground text-base placeholder:text-muted-foreground/50 focus:outline-none font-medium"
+            className="w-full bg-transparent border-0 border-b border-slate-200 dark:border-white/[0.06] text-xl text-slate-800 dark:text-zinc-200 focus:ring-0 p-4"
             data-testid="command-palette-input"
           />
           {query && (
-            <Button onClick={() => setQuery("")} className="text-muted-foreground hover:text-foreground">
+            <Button onClick={() => setQuery("")} className="bg-transparent rounded-full border border-slate-200 dark:border-white/10 text-slate-500 dark:text-zinc-400 hover:border-slate-300 dark:border-white/20 hover:text-slate-800 dark:text-zinc-200 hover:bg-slate-200/50 dark:bg-white/[0.04] px-4 py-2 text-[11px] font-semibold tracking-[0.06em] uppercase transition-all duration-300 text-slate-500 dark:text-zinc-400 hover:text-slate-800 dark:text-zinc-200">
               <X size={16} />
             </Button>
           )}
-          <kbd className="hidden sm:inline-flex items-center gap-1 px-2 py-0.5 text-[10px] font-mono font-semibold text-muted-foreground bg-muted rounded border border-border">
+          <kbd className="hidden sm:inline-flex items-center gap-1 px-2 py-0.5 text-[10px] font-mono font-semibold text-slate-500 dark:text-zinc-400 bg-slate-200/50 dark:bg-white/[0.04] rounded border border-slate-200 dark:border-white/[0.08]">
             ESC
           </kbd>
         </div>
@@ -165,8 +165,8 @@ export default function ErpCommandPalette({ isOpen, onClose, onAction, erpUser }
                   <div
                     key={s.id}
                     onClick={() => handleSelect({ type: "student", data: s })}
-                    className={`flex items-center justify-between px-3 py-2.5 rounded-xl cursor-pointer text-xs transition ${
-                      isSelected ? "bg-primary/10 text-primary font-semibold" : "hover:bg-muted/40 text-foreground"
+                    className={`flex items-center justify-between px-3 py-2.5 cursor-pointer text-xs ${
+                      isSelected ? "bg-teal-600/10 text-teal-800 dark:text-teal-300 font-semibold" : "hover:bg-teal-600/10 hover:text-teal-800 dark:text-teal-300 text-slate-600 dark:text-zinc-400 transition-all rounded-lg"
                     }`}
                   >
                     <div className="flex items-center gap-3 min-w-0">
@@ -174,11 +174,11 @@ export default function ErpCommandPalette({ isOpen, onClose, onAction, erpUser }
                         {s.full_name?.[0]?.toUpperCase() || "S"}
                       </div>
                       <div className="truncate">
-                        <div className="font-medium text-foreground truncate">{s.full_name}</div>
-                        <div className="text-[10px] text-muted-foreground font-mono">{s.student_no} • {s.contact_phone || "No phone"}</div>
+                        <div className="font-medium text-slate-800 dark:text-zinc-200 truncate">{s.full_name}</div>
+                        <div className="text-[10px] text-slate-500 dark:text-zinc-400 font-mono">{s.student_no} • {s.contact_phone || "No phone"}</div>
                       </div>
                     </div>
-                    <span className="text-[10px] text-muted-foreground uppercase font-mono px-2 py-0.5 bg-muted rounded">
+                    <span className="text-[10px] text-slate-500 dark:text-zinc-400 uppercase font-mono px-2 py-0.5 bg-slate-200/50 dark:bg-white/[0.04] rounded">
                       {s.batch || "Roster"}
                     </span>
                   </div>
@@ -190,8 +190,8 @@ export default function ErpCommandPalette({ isOpen, onClose, onAction, erpUser }
           {/* Quick Actions */}
           {filteredActions.length > 0 && (
             <div className="py-2">
-              <div className="text-[10px] uppercase font-bold tracking-wider text-muted-foreground px-3 py-1 flex items-center gap-1.5">
-                <Sparkles size={12} className="text-amber-400" /> Actions
+              <div className="text-[10px] uppercase font-bold tracking-wider text-slate-500 dark:text-zinc-400 px-3 py-1 flex items-center gap-1.5">
+                <Sparkles size={12} className="text-amber-800 dark:text-amber-400" /> Actions
               </div>
               {filteredActions.map((a, idx) => {
                 const globalIndex = studentResults.length + idx;
@@ -201,15 +201,15 @@ export default function ErpCommandPalette({ isOpen, onClose, onAction, erpUser }
                   <div
                     key={a.action}
                     onClick={() => handleSelect({ type: "action", data: a })}
-                    className={`flex items-center justify-between px-3 py-2 rounded-xl cursor-pointer text-xs transition ${
-                      isSelected ? "bg-primary/10 text-primary font-semibold" : "hover:bg-muted/40 text-foreground"
+                    className={`flex items-center justify-between px-3 py-2 cursor-pointer text-xs ${
+                      isSelected ? "bg-teal-600/10 text-teal-800 dark:text-teal-300 font-semibold" : "hover:bg-teal-600/10 hover:text-teal-800 dark:text-teal-300 text-slate-600 dark:text-zinc-400 transition-all rounded-lg"
                     }`}
                   >
                     <div className="flex items-center gap-2.5">
-                      <Icon size={15} className={isSelected ? "text-primary" : "text-muted-foreground"} />
+                      <Icon size={15} className={isSelected ? "text-teal-800 dark:text-teal-300" : "text-slate-500 dark:text-zinc-400"} />
                       <span>{a.label}</span>
                     </div>
-                    <kbd className="text-[10px] font-mono text-muted-foreground">Action</kbd>
+                    <kbd className="text-[10px] font-mono text-slate-500 dark:text-zinc-400">Action</kbd>
                   </div>
                 );
               })}
@@ -219,7 +219,7 @@ export default function ErpCommandPalette({ isOpen, onClose, onAction, erpUser }
           {/* Page Jumps */}
           {filteredPages.length > 0 && (
             <div className="pt-2">
-              <div className="text-[10px] uppercase font-bold tracking-wider text-muted-foreground px-3 py-1">
+              <div className="text-[10px] uppercase font-bold tracking-wider text-slate-500 dark:text-zinc-400 px-3 py-1">
                 Navigation
               </div>
               {filteredPages.map((p, idx) => {
@@ -230,15 +230,15 @@ export default function ErpCommandPalette({ isOpen, onClose, onAction, erpUser }
                   <div
                     key={p.path}
                     onClick={() => handleSelect({ type: "page", data: p })}
-                    className={`flex items-center justify-between px-3 py-2 rounded-xl cursor-pointer text-xs transition ${
-                      isSelected ? "bg-primary/10 text-primary font-semibold" : "hover:bg-muted/40 text-foreground"
+                    className={`flex items-center justify-between px-3 py-2 cursor-pointer text-xs ${
+                      isSelected ? "bg-teal-600/10 text-teal-800 dark:text-teal-300 font-semibold" : "hover:bg-teal-600/10 hover:text-teal-800 dark:text-teal-300 text-slate-600 dark:text-zinc-400 transition-all rounded-lg"
                     }`}
                   >
                     <div className="flex items-center gap-2.5">
-                      <Icon size={15} className={isSelected ? "text-primary" : "text-muted-foreground"} />
+                      <Icon size={15} className={isSelected ? "text-teal-800 dark:text-teal-300" : "text-slate-500 dark:text-zinc-400"} />
                       <span>{p.label}</span>
                     </div>
-                    <ArrowRight size={12} className={isSelected ? "text-primary" : "text-muted-foreground/50"} />
+                    <ArrowRight size={12} className={isSelected ? "text-teal-800 dark:text-teal-300" : "text-slate-500 dark:text-zinc-400/50"} />
                   </div>
                 );
               })}
@@ -246,26 +246,26 @@ export default function ErpCommandPalette({ isOpen, onClose, onAction, erpUser }
           )}
 
           {allItems.length === 0 && (
-            <div className="py-12 text-center text-xs text-muted-foreground">
+            <div className="py-12 text-center text-xs text-slate-500 dark:text-zinc-400">
               {isSearchingStudents ? "Searching student directory..." : "No matching actions or pages found."}
             </div>
           )}
         </div>
 
         {/* Footer Shortcut Bar */}
-        <div className="px-4 py-2.5 border-t border-border bg-muted/30 text-[11px] text-muted-foreground flex items-center justify-between">
+        <div className="px-4 py-2.5 border-t border-slate-200 dark:border-white/[0.08] bg-slate-200/50 dark:bg-white/[0.04]/30 text-[11px] text-slate-500 dark:text-zinc-400 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <span className="flex items-center gap-1">
-              <kbd className="px-1.5 py-0.5 bg-card border border-border rounded font-mono text-[10px]">↑</kbd>
-              <kbd className="px-1.5 py-0.5 bg-card border border-border rounded font-mono text-[10px]">↓</kbd>
+              <kbd className="px-1.5 py-0.5 bg-white dark:bg-[#111] border border-slate-200 dark:border-white/[0.08] rounded font-mono text-[10px]">↑</kbd>
+              <kbd className="px-1.5 py-0.5 bg-white dark:bg-[#111] border border-slate-200 dark:border-white/[0.08] rounded font-mono text-[10px]">↓</kbd>
               Navigate
             </span>
             <span className="flex items-center gap-1">
-              <kbd className="px-1.5 py-0.5 bg-card border border-border rounded font-mono text-[10px]">↵</kbd>
+              <kbd className="px-1.5 py-0.5 bg-white dark:bg-[#111] border border-slate-200 dark:border-white/[0.08] rounded font-mono text-[10px]">↵</kbd>
               Open
             </span>
           </div>
-          <span className="font-semibold text-[10px] text-primary">Northend Enterprise ERP</span>
+          <span className="font-semibold text-[10px] text-teal-800 dark:text-teal-300">Northend Enterprise ERP</span>
         </div>
       </div>
     </div>

@@ -53,18 +53,18 @@ function PaymentEditModal({ payment, onClose, onUpdated }) {
 
   return (
     <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 backdrop-blur-sm animate-fadeIn" onClick={() => !busy && onClose()}>
-      <div onClick={e => e.stopPropagation()} className="bg-background border border-border rounded-2xl w-full max-w-md shadow-2xl flex flex-col max-h-[90vh]">
-        <div className="p-4 border-b border-border flex justify-between items-center bg-background/50 sticky top-0 rounded-t-2xl z-10 shrink-0">
+      <div onClick={e => e.stopPropagation()} className="bg-slate-50 dark:bg-black border border-slate-200 dark:border-white/[0.08] rounded-2xl w-full max-w-md shadow-2xl flex flex-col max-h-[90vh]">
+        <div className="p-4 border-b border-slate-200 dark:border-white/[0.08] flex justify-between items-center bg-slate-50 dark:bg-black/50 sticky top-0 rounded-t-2xl z-10 shrink-0">
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 rounded-full bg-amber-500/20 flex items-center justify-center text-amber-500">
               <Edit3 size={16}/>
             </div>
             <div>
-              <h2 className="font-display font-semibold text-foreground text-sm uppercase tracking-wider">Edit Transaction</h2>
-              <div className="text-[10px] text-muted-foreground font-mono">{payment.receipt_no}</div>
+              <h2 className="font-display font-semibold text-slate-800 dark:text-zinc-200 text-sm uppercase tracking-wider">Edit Transaction</h2>
+              <div className="text-[10px] text-slate-500 dark:text-zinc-400 font-mono">{payment.receipt_no}</div>
             </div>
           </div>
-          <Button onClick={onClose} className="p-2 hover:bg-muted rounded-full transition text-muted-foreground">
+          <Button onClick={onClose} className="bg-transparent rounded-full border border-slate-200 dark:border-white/10 text-slate-500 dark:text-zinc-400 hover:border-slate-300 dark:border-white/20 hover:text-slate-800 dark:text-zinc-200 hover:bg-slate-200/50 dark:bg-white/[0.04] px-4 py-2 text-[11px] font-semibold tracking-[0.06em] uppercase transition-all duration-300">
             <X size={18} />
           </Button>
         </div>
@@ -72,12 +72,12 @@ function PaymentEditModal({ payment, onClose, onUpdated }) {
         <form onSubmit={onSubmit} className="p-5 space-y-4 overflow-y-auto custom-scrollbar flex-1">
           <div className="space-y-3">
             <div>
-              <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-1.5 block">Amount (incl. GST)</label>
-              <input required type="number" step="0.01" value={form.amount} onChange={e => setForm({...form, amount: e.target.value})} className="w-full px-3 py-2 bg-background border border-border rounded-xl text-sm focus:outline-none focus:border-accent" />
+              <label className="text-xs font-bold text-slate-500 dark:text-zinc-400 uppercase tracking-wider mb-1.5 block">Amount (incl. GST)</label>
+              <input required type="number" step="0.01" value={form.amount} onChange={e => setForm({...form, amount: e.target.value})} className="w-full px-3 py-2 bg-white dark:bg-[#111] border border-slate-200 dark:border-white/[0.08] rounded-[10px] text-[13px] text-slate-600 dark:text-zinc-400 focus:outline-none focus:border-teal-600/50" />
             </div>
             <div>
-              <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-1.5 block">Payment Mode</label>
-              <select required value={form.mode} onChange={e => setForm({...form, mode: e.target.value})} className="w-full px-3 py-2 bg-background border border-border rounded-xl text-sm focus:outline-none focus:border-accent">
+              <label className="text-xs font-bold text-slate-500 dark:text-zinc-400 uppercase tracking-wider mb-1.5 block">Payment Mode</label>
+              <select required value={form.mode} onChange={e => setForm({...form, mode: e.target.value})} className="w-full px-3 py-2 bg-white dark:bg-[#111] border border-slate-200 dark:border-white/[0.08] rounded-[10px] text-[13px] text-slate-600 dark:text-zinc-400 focus:outline-none focus:border-teal-600/50">
                 <option value="cash">CASH</option>
                 <option value="upi">UPI</option>
                 <option value="online">ONLINE (PG)</option>
@@ -86,27 +86,27 @@ function PaymentEditModal({ payment, onClose, onUpdated }) {
               </select>
             </div>
             <div>
-              <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-1.5 block">Date & Time</label>
-              <input required type="datetime-local" value={form.paid_at} onChange={e => setForm({...form, paid_at: e.target.value})} className="w-full px-3 py-2 bg-background border border-border rounded-xl text-sm focus:outline-none focus:border-accent" />
+              <label className="text-xs font-bold text-slate-500 dark:text-zinc-400 uppercase tracking-wider mb-1.5 block">Date & Time</label>
+              <input required type="datetime-local" value={form.paid_at} onChange={e => setForm({...form, paid_at: e.target.value})} className="w-full px-3 py-2 bg-white dark:bg-[#111] border border-slate-200 dark:border-white/[0.08] rounded-[10px] text-[13px] text-slate-600 dark:text-zinc-400 focus:outline-none focus:border-teal-600/50" />
             </div>
             <div>
-              <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-1.5 block">Transaction Ref</label>
-              <input type="text" value={form.transaction_ref} onChange={e => setForm({...form, transaction_ref: e.target.value})} className="w-full px-3 py-2 bg-background border border-border rounded-xl text-sm focus:outline-none focus:border-accent" />
+              <label className="text-xs font-bold text-slate-500 dark:text-zinc-400 uppercase tracking-wider mb-1.5 block">Transaction Ref</label>
+              <input type="text" value={form.transaction_ref} onChange={e => setForm({...form, transaction_ref: e.target.value})} className="w-full px-3 py-2 bg-white dark:bg-[#111] border border-slate-200 dark:border-white/[0.08] rounded-[10px] text-[13px] text-slate-600 dark:text-zinc-400 focus:outline-none focus:border-teal-600/50" />
             </div>
             <div>
-              <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-1.5 block">Notes</label>
-              <input type="text" value={form.notes} onChange={e => setForm({...form, notes: e.target.value})} className="w-full px-3 py-2 bg-background border border-border rounded-xl text-sm focus:outline-none focus:border-accent" />
+              <label className="text-xs font-bold text-slate-500 dark:text-zinc-400 uppercase tracking-wider mb-1.5 block">Notes</label>
+              <input type="text" value={form.notes} onChange={e => setForm({...form, notes: e.target.value})} className="w-full px-3 py-2 bg-white dark:bg-[#111] border border-slate-200 dark:border-white/[0.08] rounded-[10px] text-[13px] text-slate-600 dark:text-zinc-400 focus:outline-none focus:border-teal-600/50" />
             </div>
-            <label className="flex items-center gap-2 text-xs font-semibold text-muted-foreground select-none cursor-pointer pt-2">
+            <label className="flex items-center gap-2 text-xs font-semibold text-slate-500 dark:text-zinc-400 select-none cursor-pointer pt-2">
               <input type="checkbox" checked={form.apply_gst} onChange={e => setForm({...form, apply_gst: e.target.checked})} className="rounded text-accent focus:ring-accent w-4 h-4" />
               Apply 18% GST Compliance
             </label>
           </div>
         </form>
         
-        <div className="p-4 border-t border-border bg-background/50 rounded-b-2xl flex gap-3 shrink-0">
-          <Button type="button" onClick={onClose} disabled={busy} className="flex-1 px-4 py-2.5 border border-border rounded-xl text-xs uppercase font-bold text-muted-foreground hover:bg-muted transition">Cancel</Button>
-          <Button type="submit" onClick={onSubmit} disabled={busy} className="flex-1 px-4 py-2.5 bg-accent text-accent-foreground rounded-xl text-xs uppercase font-bold shadow-lg hover:brightness-110 transition disabled:opacity-50">
+        <div className="p-4 border-t border-slate-200 dark:border-white/[0.08] bg-slate-50 dark:bg-black/50 rounded-b-2xl flex gap-3 shrink-0">
+          <Button type="button" onClick={onClose} disabled={busy} className="inline-flex items-center gap-2 rounded-full border border-slate-200 dark:border-white/10 text-slate-500 dark:text-zinc-400 hover:border-slate-300 dark:border-white/20 hover:text-slate-800 dark:text-zinc-200 hover:bg-slate-200/50 dark:bg-white/[0.04] px-4 py-2 text-[11px] font-semibold tracking-[0.06em] uppercase transition-all duration-300">Cancel</Button>
+          <Button type="submit" onClick={onSubmit} disabled={busy} className="inline-flex items-center gap-2 bg-teal-600 text-white rounded-full px-5 py-2 text-[11px] font-semibold tracking-[0.04em] uppercase shadow-[0_0_0_1px_rgba(13,148,136,0.5),0_4px_16px_rgba(13,148,136,0.25)] hover:bg-teal-700 active:scale-[0.97] transition-all duration-300">
             {busy ? "Saving..." : "Save Changes"}
           </Button>
         </div>
@@ -183,8 +183,8 @@ export default function ErpStudentDetail() {
   if (!stmt) {
     return (
       <div className="flex flex-col items-center justify-center space-y-3 py-20 text-center animate-pulse">
-        <div className="h-6 w-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-        <div className="text-muted-foreground text-xs font-mono tracking-wider uppercase">Loading Student Dossier...</div>
+        <div className="h-6 w-6 border-2 border-teal-600 border-t-transparent rounded-full animate-spin" />
+        <div className="text-slate-500 dark:text-zinc-400 text-xs font-mono tracking-wider uppercase">Loading Student Dossier...</div>
       </div>
     );
   }
@@ -262,30 +262,30 @@ export default function ErpStudentDetail() {
     <div className="space-y-6 animate-fadeIn" data-testid="erp-student-detail">
       {/* Navigation Row */}
       <div className="flex items-center justify-between shrink-0 flex-wrap gap-2">
-        <Button 
+        <Button className="bg-transparent rounded-full border border-slate-200 dark:border-white/10 text-slate-500 dark:text-zinc-400 hover:border-slate-300 dark:border-white/20 hover:text-slate-800 dark:text-zinc-200 hover:bg-slate-200/50 dark:bg-white/[0.04] px-4 py-2 text-[11px] font-semibold tracking-[0.06em] uppercase transition-all duration-300" 
           onClick={() => nav("/erp/students")} 
-          className="inline-flex items-center gap-2 text-sm font-semibold text-muted-foreground hover:text-foreground transition-colors" 
+          className="inline-flex items-center gap-2 text-sm font-semibold text-slate-500 dark:text-zinc-400 hover:text-slate-800 dark:text-zinc-200 transition-colors" 
           data-testid="back-to-students"
         >
           <ArrowLeft size={14}/> Back to directory
         </Button>
         <div className="flex items-center gap-2 flex-wrap">
-          <Button 
+          <Button className="bg-transparent rounded-full border border-slate-200 dark:border-white/10 text-slate-500 dark:text-zinc-400 hover:border-slate-300 dark:border-white/20 hover:text-slate-800 dark:text-zinc-200 hover:bg-slate-200/50 dark:bg-white/[0.04] px-4 py-2 text-[11px] font-semibold tracking-[0.06em] uppercase transition-all duration-300" 
             onClick={() => setShowEditProfile(true)} 
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 border border-border rounded-xl text-xs uppercase tracking-wider font-bold text-muted-foreground hover:text-foreground hover:bg-muted/50 transition"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 border border-slate-200 dark:border-white/[0.08] rounded-xl text-xs uppercase tracking-wider font-bold text-slate-500 dark:text-zinc-400 hover:text-slate-800 dark:text-zinc-200 hover:bg-slate-200/50 dark:bg-white/[0.04]/50 transition"
           >
             <Edit3 size={13}/> Edit Profile
           </Button>
           {s.luid && s.enrollment_number && (
-            <Button 
+            <Button className="bg-transparent rounded-full border border-slate-200 dark:border-white/10 text-slate-500 dark:text-zinc-400 hover:border-slate-300 dark:border-white/20 hover:text-slate-800 dark:text-zinc-200 hover:bg-slate-200/50 dark:bg-white/[0.04] px-4 py-2 text-[11px] font-semibold tracking-[0.06em] uppercase transition-all duration-300" 
               onClick={queueIdCard} 
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 border border-border rounded-xl text-xs uppercase tracking-wider font-bold text-primary hover:bg-primary/10 transition"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 border border-slate-200 dark:border-white/[0.08] rounded-xl text-xs uppercase tracking-wider font-bold text-teal-800 dark:text-teal-300 hover:bg-teal-600/10 transition"
             >
               <Printer size={13}/> ID Card
             </Button>
           )}
           {isSuper(erpUser) && (
-            <Button 
+            <Button className="bg-transparent rounded-full border border-slate-200 dark:border-white/10 text-slate-500 dark:text-zinc-400 hover:border-slate-300 dark:border-white/20 hover:text-slate-800 dark:text-zinc-200 hover:bg-slate-200/50 dark:bg-white/[0.04] px-4 py-2 text-[11px] font-semibold tracking-[0.06em] uppercase transition-all duration-300" 
               onClick={() => setDeleteModal({ type: "student", id: s.id, label: s.student_no || s.full_name })}
               className="inline-flex items-center gap-1.5 px-3 py-1.5 border border-rose-500/30 bg-rose-500/10 text-rose-500 rounded-xl text-xs uppercase tracking-wider font-bold hover:bg-rose-500/20 transition"
               data-testid="delete-student-btn"
@@ -297,9 +297,10 @@ export default function ErpStudentDetail() {
       </div>
 
       {/* Profile Card */}
-      <div className="glass-elevated rounded-2xl border border-border overflow-hidden">
-        <div className="bg-accent/5 border-b border-border px-6 py-5 flex items-start gap-5">
-          <label className="w-20 h-20 rounded-full overflow-hidden border-2 border-border bg-muted shrink-0 relative group/avatar cursor-pointer shadow-md" title="Click to change photo">
+      <div className="bg-slate-100 dark:bg-white/[0.03] border border-slate-200 dark:border-white/[0.08] rounded-[1.75rem] p-[6px]">
+        <div className="bg-white dark:bg-[#111] rounded-[calc(1.75rem-6px)] shadow-sm dark:shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] overflow-hidden p-0">
+        <div className="bg-accent/5 border-b border-slate-200 dark:border-white/[0.08] px-6 py-5 flex items-start gap-5">
+          <label className="w-20 h-20 rounded-full overflow-hidden border-2 border-slate-200 dark:border-white/[0.08] bg-slate-200/50 dark:bg-white/[0.04] shrink-0 relative group/avatar cursor-pointer shadow-md" title="Click to change photo">
             {s.photo_url ? (
               <img
                 src={s.photo_url.startsWith("data:") ? s.photo_url : `${API_BASE}/erp/students/${encodeURIComponent(s.id)}/photo?t=${Date.now()}`}
@@ -308,7 +309,7 @@ export default function ErpStudentDetail() {
                 onError={e => { e.target.style.display = "none"; }}
               />
             ) : (
-              <div className="w-full h-full flex items-center justify-center text-muted-foreground">
+              <div className="w-full h-full flex items-center justify-center text-slate-500 dark:text-zinc-400">
                 <User size={32} />
               </div>
             )}
@@ -321,27 +322,27 @@ export default function ErpStudentDetail() {
 
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
-              <span className="text-[10px] font-mono font-bold text-accent uppercase tracking-widest">{s.student_no}</span>
+              <span className="bg-teal-600/10 text-teal-600 text-[10px] font-semibold tracking-[0.2em] uppercase rounded-full px-3 py-1 border border-teal-600/25">{s.student_no}</span>
               <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider border ${
-                s.status === "active" ? "bg-emerald-500/10 text-emerald-600 border-emerald-500/20"
+                s.status === "active" ? "bg-emerald-500/10 text-emerald-600 border-emerald-300 dark:border-emerald-500/20"
                 : s.status === "temporary" ? "bg-amber-500/10 text-amber-600 border-amber-500/20"
-                : "bg-muted/50 text-muted-foreground border-border"
+                : "bg-slate-200/50 dark:bg-white/[0.04]/50 text-slate-500 dark:text-zinc-400 border-slate-200 dark:border-white/[0.08]"
               }`} data-testid="student-status">
                 {s.status}
               </span>
             </div>
-            <h1 className="font-display text-2xl sm:text-3xl font-medium tracking-tight text-foreground mt-0.5">{s.full_name}</h1>
-            <p className="text-muted-foreground text-sm mt-0.5 flex flex-wrap gap-x-1">
+            <h1 className="font-display text-[30px] font-bold tracking-[-0.02em] text-slate-900 dark:text-zinc-100">{s.full_name}</h1>
+            <p className="text-slate-500 dark:text-zinc-400 text-sm mt-0.5 flex flex-wrap gap-x-1">
               <span>{s.course_id || "—"}</span>
               {s.batch && <span className="font-mono text-xs">· Batch: {s.batch}</span>}
               {s.batch_timing && <span className="font-mono text-xs">· {s.batch_timing}</span>}
               <span className="text-xs">· Admitted {fmtDate(s.admission_date)}</span>
             </p>
-            <div className="flex flex-wrap gap-2 mt-2 text-xs font-mono text-muted-foreground">
-              {s.luid && <span className="px-2 py-0.5 bg-muted/50 rounded border border-border">LUID: {s.luid}</span>}
-              {s.enrollment_number && <span className="px-2 py-0.5 bg-muted/50 rounded border border-border">ENROLL: {s.enrollment_number}</span>}
-              {s.gender && <span className="px-2 py-0.5 bg-muted/50 rounded border border-border">{s.gender}</span>}
-              {s.dob && <span className="px-2 py-0.5 bg-muted/50 rounded border border-border">DOB: {s.dob}</span>}
+            <div className="flex flex-wrap gap-2 mt-2 text-xs font-mono text-slate-500 dark:text-zinc-400">
+              {s.luid && <span className="px-2 py-0.5 bg-slate-200/50 dark:bg-white/[0.04]/50 rounded border border-slate-200 dark:border-white/[0.08]">LUID: {s.luid}</span>}
+              {s.enrollment_number && <span className="px-2 py-0.5 bg-slate-200/50 dark:bg-white/[0.04]/50 rounded border border-slate-200 dark:border-white/[0.08]">ENROLL: {s.enrollment_number}</span>}
+              {s.gender && <span className="px-2 py-0.5 bg-slate-200/50 dark:bg-white/[0.04]/50 rounded border border-slate-200 dark:border-white/[0.08]">{s.gender}</span>}
+              {s.dob && <span className="px-2 py-0.5 bg-slate-200/50 dark:bg-white/[0.04]/50 rounded border border-slate-200 dark:border-white/[0.08]">DOB: {s.dob}</span>}
             </div>
           </div>
         </div>
@@ -360,35 +361,36 @@ export default function ErpStudentDetail() {
         </div>
 
         {(s.address || s.notes) && (
-          <div className="border-t border-border/50 px-6 py-4 space-y-2">
+          <div className="border-t border-slate-200 dark:border-white/[0.08]/50 px-6 py-4 space-y-2">
             {s.address && (
-              <div className="text-xs text-muted-foreground flex items-start gap-1.5">
+              <div className="text-xs text-slate-500 dark:text-zinc-400 flex items-start gap-1.5">
                 <MapPin size={13} className="text-accent mt-0.5 shrink-0"/>
                 <span>{s.address}</span>
               </div>
             )}
             {s.notes && (
-              <div className="text-xs text-muted-foreground">
+              <div className="text-xs text-slate-500 dark:text-zinc-400">
                 <span className="font-bold uppercase tracking-wider">Notes: </span>{s.notes}
               </div>
             )}
           </div>
         )}
       </div>
+    </div>
 
       {/* Fee Summary */}
       <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
         <StatCard label="Total Course Fee" value={fmtINR(stmt.total_fee)}/>
         <StatCard label="Scholarship" value={`${stmt.scholarship_percent}%`} sub={`Saved ${fmtINR(stmt.scholarship_amount)}`}/>
         <StatCard label="Flat Discount" value={fmtINR(stmt.discount)}/>
-        <StatCard label="Net Payable" value={fmtINR(stmt.net_fee)} accent="text-sky-400"/>
+        <StatCard label="Net Payable" value={fmtINR(stmt.net_fee)} accent="text-sky-700 dark:text-sky-400"/>
         <StatCard 
           label="Outstanding" 
           value={fmtINR(stmt.pending)} 
           accent={stmt.pending > 0 ? "text-rose-600" : "text-emerald-600"} 
           testid="pending-amount"
           actionElement={stmt.pending > 0 ? (
-            <Button onClick={notifyParentViaWhatsApp} className="text-[10px] font-bold uppercase tracking-wider text-emerald-600 underline block mt-1 hover:text-emerald-400">
+            <Button onClick={notifyParentViaWhatsApp} className="bg-transparent rounded-full border border-slate-200 dark:border-white/10 text-slate-500 dark:text-zinc-400 hover:border-slate-300 dark:border-white/20 hover:text-slate-800 dark:text-zinc-200 hover:bg-slate-200/50 dark:bg-white/[0.04] px-4 py-2 text-[11px] font-semibold tracking-[0.06em] uppercase transition-all duration-300">
               Nudge via WhatsApp
             </Button>
           ) : null}
@@ -396,15 +398,16 @@ export default function ErpStudentDetail() {
       </div>
 
       {/* Payment History */}
-      <div className="glass-elevated rounded-2xl overflow-hidden border border-border flex flex-col">
-        <div className="px-5 py-4 border-b border-border flex justify-between items-center bg-background/40 shrink-0">
+      <div className="bg-slate-100 dark:bg-white/[0.03] border border-slate-200 dark:border-white/[0.08] rounded-[1.75rem] p-[6px]">
+<div className="bg-white dark:bg-[#111] rounded-[calc(1.75rem-6px)] shadow-sm dark:shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] overflow-hidden flex flex-col h-full">
+        <div className="px-5 py-4 border-b border-slate-200 dark:border-white/[0.08] flex justify-between items-center bg-slate-50 dark:bg-black/40 shrink-0">
           <h3 className="font-display font-medium text-base flex items-center gap-2">
             <ClipboardList size={17} className="text-accent" /> Payment History
           </h3>
           {canRecordPayment && (
-            <Button 
+            <Button className="bg-transparent rounded-full border border-slate-200 dark:border-white/10 text-slate-500 dark:text-zinc-400 hover:border-slate-300 dark:border-white/20 hover:text-slate-800 dark:text-zinc-200 hover:bg-slate-200/50 dark:bg-white/[0.04] px-4 py-2 text-[11px] font-semibold tracking-[0.06em] uppercase transition-all duration-300" 
               onClick={() => setShowPay(true)} 
-              className="px-4 py-2 bg-primary text-primary-foreground rounded-xl text-xs uppercase tracking-wider font-bold flex items-center gap-2 hover:bg-primary/90 shadow transition shrink-0" 
+              className="px-4 py-2 bg-teal-600 text-white rounded-xl text-xs uppercase tracking-wider font-bold flex items-center gap-2 hover:bg-teal-600/90 shadow transition shrink-0" 
               data-testid="record-payment-btn"
             >
               <Plus size={14}/> Record Payment
@@ -414,29 +417,29 @@ export default function ErpStudentDetail() {
 
         <div className="overflow-y-auto overflow-x-auto w-full custom-scrollbar" style={{maxHeight: 400}}>
           <table className="w-full text-sm border-collapse min-w-[680px]">
-            <thead className="sticky top-0 z-10 bg-muted border-b border-border text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+            <thead className="sticky top-0 z-10 bg-slate-200/50 dark:bg-white/[0.04] border-b border-slate-200 dark:border-white/[0.08] text-[10px] font-bold uppercase tracking-widest text-slate-500 dark:text-zinc-400">
               <tr className="text-left">
-                <th className="px-5 py-3">Receipt</th>
-                <th className="px-5 py-3">Date</th>
-                <th className="px-5 py-3">Mode</th>
-                <th className="px-5 py-3 text-right">Base</th>
-                <th className="px-5 py-3 text-right">CGST</th>
-                <th className="px-5 py-3 text-right">SGST</th>
-                <th className="px-5 py-3 text-right">Total</th>
-                <th className="px-5 py-3 w-36"></th>
+                <th className="px-5 py-3 text-[10px] tracking-[0.18em] uppercase text-slate-500 dark:text-zinc-400 border-b border-slate-200 dark:border-white/[0.06]">Receipt</th>
+                <th className="px-5 py-3 text-[10px] tracking-[0.18em] uppercase text-slate-500 dark:text-zinc-400 border-b border-slate-200 dark:border-white/[0.06]">Date</th>
+                <th className="px-5 py-3 text-[10px] tracking-[0.18em] uppercase text-slate-500 dark:text-zinc-400 border-b border-slate-200 dark:border-white/[0.06]">Mode</th>
+                <th className="px-5 py-3 text-right text-[10px] tracking-[0.18em] uppercase text-slate-500 dark:text-zinc-400 border-b border-slate-200 dark:border-white/[0.06]">Base</th>
+                <th className="px-5 py-3 text-right text-[10px] tracking-[0.18em] uppercase text-slate-500 dark:text-zinc-400 border-b border-slate-200 dark:border-white/[0.06]">CGST</th>
+                <th className="px-5 py-3 text-right text-[10px] tracking-[0.18em] uppercase text-slate-500 dark:text-zinc-400 border-b border-slate-200 dark:border-white/[0.06]">SGST</th>
+                <th className="px-5 py-3 text-right text-[10px] tracking-[0.18em] uppercase text-slate-500 dark:text-zinc-400 border-b border-slate-200 dark:border-white/[0.06]">Total</th>
+                <th className="px-5 py-3 w-36 text-[10px] tracking-[0.18em] uppercase text-slate-500 dark:text-zinc-400 border-b border-slate-200 dark:border-white/[0.06]"></th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-border bg-background/20">
+            <tbody className="divide-y divide-border bg-slate-50 dark:bg-black/20">
               {stmt.payments.map(p => (
-                <tr key={p.id} className="hover:bg-muted/40 transition-colors">
+                <tr key={p.id} className="hover:bg-slate-100 dark:bg-white/[0.02] transition-colors">
                   <td className="px-5 py-3.5 font-mono text-xs font-semibold">{p.receipt_no}</td>
-                  <td className="px-5 py-3.5 text-xs text-muted-foreground whitespace-nowrap">{fmtDate(p.paid_at)}</td>
+                  <td className="px-5 py-3.5 text-xs text-slate-500 dark:text-zinc-400 whitespace-nowrap">{fmtDate(p.paid_at)}</td>
                   <td className="px-5 py-3.5">
-                    <span className="px-1.5 py-0.5 bg-muted/50 rounded text-[10px] font-bold text-muted-foreground uppercase">{p.mode}</span>
+                    <span className="px-1.5 py-0.5 bg-slate-200/50 dark:bg-white/[0.04]/50 rounded text-[10px] font-bold text-slate-500 dark:text-zinc-400 uppercase">{p.mode}</span>
                   </td>
-                  <td className="px-5 py-3.5 font-mono text-right text-xs text-muted-foreground">{fmtINR(p.base_amount)}</td>
-                  <td className="px-5 py-3.5 font-mono text-right text-xs text-muted-foreground/60">{fmtINR(p.cgst)}</td>
-                  <td className="px-5 py-3.5 font-mono text-right text-xs text-muted-foreground/60">{fmtINR(p.sgst)}</td>
+                  <td className="px-5 py-3.5 font-mono text-right text-xs text-slate-500 dark:text-zinc-400">{fmtINR(p.base_amount)}</td>
+                  <td className="px-5 py-3.5 font-mono text-right text-xs text-slate-500 dark:text-zinc-400/60">{fmtINR(p.cgst)}</td>
+                  <td className="px-5 py-3.5 font-mono text-right text-xs text-slate-500 dark:text-zinc-400/60">{fmtINR(p.sgst)}</td>
                   <td className="px-5 py-3.5 font-mono text-right font-bold text-emerald-600">{fmtINR(p.amount)}</td>
                   <td className="px-5 py-3.5">
                     <div className="flex items-center justify-end gap-1.5">
@@ -451,7 +454,7 @@ export default function ErpStudentDetail() {
                       <a 
                         href={`/rec%2F${encodeURIComponent(p.receipt_no)}`} 
                         target="_blank" rel="noreferrer"
-                        className="w-8 h-8 flex items-center justify-center text-muted-foreground bg-muted/10 border border-transparent hover:border-border hover:bg-muted/30 hover:text-foreground rounded-lg transition"
+                        className="w-8 h-8 flex items-center justify-center text-slate-500 dark:text-zinc-400 bg-slate-200/50 dark:bg-white/[0.04]/10 border border-transparent hover:border-slate-200 dark:border-white/[0.08] hover:bg-slate-200/50 dark:bg-white/[0.04]/30 hover:text-slate-800 dark:text-zinc-200 rounded-lg transition"
                         title="Download PDF"
                         data-testid={`download-receipt-${p.id}`}
                       >
@@ -482,7 +485,7 @@ export default function ErpStudentDetail() {
               ))}
               {stmt.payments.length === 0 && (
                 <tr>
-                  <td colSpan="8" className="px-5 py-14 text-center text-muted-foreground">
+                  <td colSpan="8" className="px-5 py-14 text-center text-slate-500 dark:text-zinc-400">
                     <ReceiptIcon size={28} className="mx-auto mb-3 opacity-30 text-accent"/>
                     <p className="text-sm">No payment records found for this student.</p>
                   </td>
@@ -493,12 +496,13 @@ export default function ErpStudentDetail() {
         </div>
 
         {stmt.payments.length > 0 && (
-          <div className="bg-muted border-t border-border px-5 py-3.5 flex items-center justify-between font-bold shrink-0">
-            <span className="text-xs uppercase tracking-wider text-muted-foreground">Total Collected</span>
+          <div className="bg-slate-200/50 dark:bg-white/[0.04] border-t border-slate-200 dark:border-white/[0.08] px-5 py-3.5 flex items-center justify-between font-bold shrink-0">
+            <span className="text-xs uppercase tracking-wider text-slate-500 dark:text-zinc-400">Total Collected</span>
             <span className="font-mono text-lg text-emerald-600">{fmtINR(stmt.total_paid)}</span>
           </div>
         )}
       </div>
+    </div>
 
       {/* Modals */}
       {showPay && (
@@ -532,17 +536,17 @@ export default function ErpStudentDetail() {
       {editPayment && <PaymentEditModal payment={editPayment} onClose={() => setEditPayment(null)} onUpdated={reload} />}
       {deleteModal && (
         <div className="fixed inset-0 bg-black/50 z-50 grid place-items-center p-4 backdrop-blur-sm animate-fadeIn" onClick={() => !deleting && setDeleteModal(null)}>
-          <div onClick={e => e.stopPropagation()} className="bg-background border border-border rounded-2xl max-w-sm w-full p-6 space-y-4 shadow-2xl">
+          <div onClick={e => e.stopPropagation()} className="bg-slate-50 dark:bg-black border border-slate-200 dark:border-white/[0.08] rounded-2xl max-w-sm w-full p-6 space-y-4 shadow-2xl">
             <div className="flex items-center gap-3 text-rose-500">
               <div className="p-2.5 bg-rose-500/10 rounded-xl"><AlertTriangle size={22}/></div>
               <div>
-                <h3 className="font-display font-medium text-lg text-foreground">Confirm Delete</h3>
+                <h3 className="font-display font-medium text-lg text-slate-800 dark:text-zinc-200">Confirm Delete</h3>
                 <p className="text-[10px] text-rose-500 uppercase tracking-widest font-bold">Irreversible Action</p>
               </div>
             </div>
-            <p className="text-sm text-muted-foreground leading-relaxed">
+            <p className="text-sm text-slate-500 dark:text-zinc-400 leading-relaxed">
               Permanently delete {deleteModal.type === "student" ? "student" : "payment"}{" "}
-              <strong className="text-foreground font-mono">{deleteModal.label}</strong>?
+              <strong className="text-slate-800 dark:text-zinc-200 font-mono">{deleteModal.label}</strong>?
               {deleteModal.type === "student" && " All records, payments, and attendance will be erased."}
             </p>
             <div className="flex gap-2.5 pt-1">
@@ -556,7 +560,7 @@ export default function ErpStudentDetail() {
               <Button
                 disabled={deleting}
                 onClick={() => setDeleteModal(null)}
-                className="px-4 py-2.5 border border-border rounded-xl text-xs uppercase tracking-wider font-bold text-muted-foreground hover:text-foreground hover:bg-muted/50 transition"
+                className="px-4 py-2.5 border border-slate-200 dark:border-white/[0.08] rounded-xl text-xs uppercase tracking-wider font-bold text-slate-500 dark:text-zinc-400 hover:text-slate-800 dark:text-zinc-200 hover:bg-slate-200/50 dark:bg-white/[0.04]/50 transition"
               >
                 Cancel
               </Button>
@@ -574,8 +578,8 @@ function FieldCard({ icon: Icon, label, v }) {
     <div className="flex items-start gap-2.5">
       {Icon && <Icon size={14} className="text-accent mt-0.5 opacity-60 shrink-0"/>}
       <div>
-        <div className="text-[10px] uppercase tracking-widest text-muted-foreground font-bold">{label}</div>
-        <div className="text-sm mt-0.5 font-medium text-foreground">{v || "—"}</div>
+        <div className="text-[10px] uppercase tracking-widest text-slate-500 dark:text-zinc-400 font-bold">{label}</div>
+        <div className="text-sm mt-0.5 font-medium text-slate-800 dark:text-zinc-200">{v || "—"}</div>
       </div>
     </div>
   );
@@ -583,11 +587,13 @@ function FieldCard({ icon: Icon, label, v }) {
 
 function StatCard({ label, value, sub, accent, actionElement, testid }) {
   return (
-    <div className="glass-elevated rounded-2xl p-5 border border-border" data-testid={testid}>
-      <div className="text-xs uppercase tracking-wider font-bold text-muted-foreground">{label}</div>
-      <div className={`font-display text-3xl font-medium mt-2 tracking-tight ${accent || "text-foreground"}`}>{value}</div>
-      {sub && <div className="text-[11px] font-mono text-muted-foreground mt-1">{sub}</div>}
-      {actionElement}
+    <div className="bg-slate-100 dark:bg-white/[0.03] border border-slate-200 dark:border-white/[0.08] rounded-[1.75rem] p-[6px]" data-testid={testid}>
+      <div className="bg-white dark:bg-[#111] rounded-[calc(1.75rem-6px)] shadow-sm dark:shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] overflow-hidden p-5">
+        <div className="text-xs uppercase tracking-wider font-bold text-slate-500 dark:text-zinc-400">{label}</div>
+        <div className={`font-display text-3xl font-medium mt-2 tracking-tight ${accent || "text-slate-800 dark:text-zinc-200"}`}>{value}</div>
+        {sub && <div className="text-[11px] font-mono text-slate-500 dark:text-zinc-400 mt-1">{sub}</div>}
+        {actionElement}
+      </div>
     </div>
   );
 }
@@ -661,7 +667,7 @@ function EditStudentProfileModal({ student, onClose, onUpdated, onPhotoSelect, e
 
   return (
     <div className="fixed inset-0 bg-black/20 z-50 grid place-items-center p-4 backdrop-blur-sm animate-fadeIn" onClick={onClose}>
-      <form onClick={e => e.stopPropagation()} onSubmit={submitProfileChanges} className="bg-background border border-border rounded-2xl max-w-md w-full p-6 space-y-5 shadow-2xl">
+      <form onClick={e => e.stopPropagation()} onSubmit={submitProfileChanges} className="bg-slate-50 dark:bg-black border border-slate-200 dark:border-white/[0.08] rounded-2xl max-w-md w-full p-6 space-y-5 shadow-2xl">
         <div className="flex justify-between items-start">
           <div>
             <div className="text-xs uppercase tracking-[0.2em] font-bold text-accent flex items-center gap-1">
@@ -669,42 +675,42 @@ function EditStudentProfileModal({ student, onClose, onUpdated, onPhotoSelect, e
             </div>
             <h3 className="font-display text-2xl font-medium mt-1">Edit Dossier State</h3>
           </div>
-          <Button type="button" onClick={onClose} className="p-1 hover:bg-muted/50 rounded-lg border border-transparent hover:border-border transition"><X size={18}/></Button>
+          <Button type="button" onClick={onClose} className="p-1 hover:bg-slate-200/50 dark:bg-white/[0.04]/50 rounded-lg border border-transparent hover:border-slate-200 dark:border-white/[0.08] transition"><X size={18}/></Button>
         </div>
 
         <div className="space-y-4 overflow-y-auto max-h-[60vh] px-1 custom-scrollbar">
           <div>
-            <label className="text-xs uppercase tracking-wider font-bold text-muted-foreground mb-1 block">Full Registration Name *</label>
-            <input required type="text" value={form.full_name} onChange={e => setForm({...form, full_name: e.target.value})} className="w-full px-3 py-2 border border-border bg-background/50 rounded-xl text-sm text-foreground focus:outline-none focus:border-accent" />
+            <label className="text-xs uppercase tracking-wider font-bold text-slate-500 dark:text-zinc-400 mb-1 block">Full Registration Name *</label>
+            <input required type="text" value={form.full_name} onChange={e => setForm({...form, full_name: e.target.value})} className="w-full px-3 py-2 bg-white dark:bg-[#111] border border-slate-200 dark:border-white/[0.08] rounded-[10px] text-[13px] text-slate-600 dark:text-zinc-400 focus:outline-none focus:border-teal-600/50" />
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="text-xs uppercase tracking-wider font-bold text-muted-foreground mb-1 block">Student Roll / ID</label>
-              <input type="text" value={form.student_no} onChange={e => setForm({...form, student_no: e.target.value})} className="w-full px-3 py-2 border border-border bg-background/50 rounded-xl text-sm font-mono focus:outline-none focus:border-accent" />
+              <label className="text-xs uppercase tracking-wider font-bold text-slate-500 dark:text-zinc-400 mb-1 block">Student Roll / ID</label>
+              <input type="text" value={form.student_no} onChange={e => setForm({...form, student_no: e.target.value})} className="w-full px-3 py-2 bg-white dark:bg-[#111] border border-slate-200 dark:border-white/[0.08] rounded-[10px] text-[13px] text-slate-600 dark:text-zinc-400 focus:outline-none focus:border-teal-600/50" />
             </div>
             <div>
-              <label className="text-xs uppercase tracking-wider font-bold text-muted-foreground mb-1 block">Admission Date</label>
-              <input type="date" value={form.admission_date} onChange={e => setForm({...form, admission_date: e.target.value})} className="w-full px-3 py-2 border border-border bg-background/50 rounded-xl text-sm focus:outline-none focus:border-accent" />
+              <label className="text-xs uppercase tracking-wider font-bold text-slate-500 dark:text-zinc-400 mb-1 block">Admission Date</label>
+              <input type="date" value={form.admission_date} onChange={e => setForm({...form, admission_date: e.target.value})} className="w-full px-3 py-2 bg-white dark:bg-[#111] border border-slate-200 dark:border-white/[0.08] rounded-[10px] text-[13px] text-slate-600 dark:text-zinc-400 focus:outline-none focus:border-teal-600/50" />
             </div>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div>
-              <label className="text-xs uppercase tracking-wider font-bold text-muted-foreground mb-1 block">Gender</label>
-              <select value={form.gender} onChange={e => setForm({...form, gender: e.target.value})} className="w-full px-3 py-2 border border-border bg-background rounded-xl text-sm text-foreground focus:outline-none">
+              <label className="text-xs uppercase tracking-wider font-bold text-slate-500 dark:text-zinc-400 mb-1 block">Gender</label>
+              <select value={form.gender} onChange={e => setForm({...form, gender: e.target.value})} className="w-full px-3 py-2 bg-white dark:bg-[#111] border border-slate-200 dark:border-white/[0.08] rounded-[10px] text-[13px] text-slate-600 dark:text-zinc-400 focus:outline-none focus:border-teal-600/50">
                 <option value="Male">Male</option>
                 <option value="Female">Female</option>
                 <option value="Other">Other</option>
               </select>
             </div>
             <div>
-              <label className="text-xs uppercase tracking-wider font-bold text-muted-foreground mb-1 block">Date of Birth</label>
-              <input type="date" value={form.dob} onChange={e => setForm({...form, dob: e.target.value})} className="w-full px-3 py-2 border border-border bg-background/50 rounded-xl text-sm focus:outline-none focus:border-accent" />
+              <label className="text-xs uppercase tracking-wider font-bold text-slate-500 dark:text-zinc-400 mb-1 block">Date of Birth</label>
+              <input type="date" value={form.dob} onChange={e => setForm({...form, dob: e.target.value})} className="w-full px-3 py-2 bg-white dark:bg-[#111] border border-slate-200 dark:border-white/[0.08] rounded-[10px] text-[13px] text-slate-600 dark:text-zinc-400 focus:outline-none focus:border-teal-600/50" />
             </div>
             <div>
-              <label className="text-xs uppercase tracking-wider font-bold text-muted-foreground mb-1 block">Board</label>
-              <select value={form.board} onChange={e => setForm({...form, board: e.target.value})} className="w-full px-3 py-2 border border-border bg-background rounded-xl text-sm text-foreground focus:outline-none">
+              <label className="text-xs uppercase tracking-wider font-bold text-slate-500 dark:text-zinc-400 mb-1 block">Board</label>
+              <select value={form.board} onChange={e => setForm({...form, board: e.target.value})} className="w-full px-3 py-2 bg-white dark:bg-[#111] border border-slate-200 dark:border-white/[0.08] rounded-[10px] text-[13px] text-slate-600 dark:text-zinc-400 focus:outline-none focus:border-teal-600/50">
                 <option value="JKBOSE">JKBOSE</option>
                 <option value="CBSE">CBSE</option>
                 <option value="ICSE">ICSE</option>
@@ -712,8 +718,8 @@ function EditStudentProfileModal({ student, onClose, onUpdated, onPhotoSelect, e
               </select>
             </div>
             <div>
-              <label className="text-xs uppercase tracking-wider font-bold text-muted-foreground mb-1 block">Category</label>
-              <select value={form.category} onChange={e => setForm({...form, category: e.target.value})} className="w-full px-3 py-2 border border-border bg-background rounded-xl text-sm text-foreground focus:outline-none">
+              <label className="text-xs uppercase tracking-wider font-bold text-slate-500 dark:text-zinc-400 mb-1 block">Category</label>
+              <select value={form.category} onChange={e => setForm({...form, category: e.target.value})} className="w-full px-3 py-2 bg-white dark:bg-[#111] border border-slate-200 dark:border-white/[0.08] rounded-[10px] text-[13px] text-slate-600 dark:text-zinc-400 focus:outline-none focus:border-teal-600/50">
                 <option value="General">General</option>
                 <option value="SC">SC</option>
                 <option value="ST">ST</option>
@@ -722,86 +728,86 @@ function EditStudentProfileModal({ student, onClose, onUpdated, onPhotoSelect, e
               </select>
             </div>
             <div>
-              <label className="text-xs uppercase tracking-wider font-bold text-muted-foreground mb-1 block">School / Institute</label>
-              <input type="text" value={form.school_institute} onChange={e => setForm({...form, school_institute: e.target.value})} className="w-full px-3 py-2 border border-border bg-background/50 rounded-xl text-sm focus:outline-none focus:border-accent" />
+              <label className="text-xs uppercase tracking-wider font-bold text-slate-500 dark:text-zinc-400 mb-1 block">School / Institute</label>
+              <input type="text" value={form.school_institute} onChange={e => setForm({...form, school_institute: e.target.value})} className="w-full px-3 py-2 bg-white dark:bg-[#111] border border-slate-200 dark:border-white/[0.08] rounded-[10px] text-[13px] text-slate-600 dark:text-zinc-400 focus:outline-none focus:border-teal-600/50" />
             </div>
           </div>
 
-          <div className={`p-3.5 rounded-xl border ${canEditFinances ? 'border-accent/30 bg-accent/5' : 'border-border/50 bg-muted/10'} space-y-3`}>
-            <div className={`text-[11px] uppercase tracking-wider font-bold ${canEditFinances ? 'text-accent' : 'text-muted-foreground'}`}>
+          <div className={`p-3.5 rounded-xl border ${canEditFinances ? 'border-accent/30 bg-accent/5' : 'border-slate-200 dark:border-white/[0.08]/50 bg-slate-200/50 dark:bg-white/[0.04]/10'} space-y-3`}>
+            <div className={`text-[11px] uppercase tracking-wider font-bold ${canEditFinances ? 'text-accent' : 'text-slate-500 dark:text-zinc-400'}`}>
               Fee Schedule & Financial Overrides {!canEditFinances && "(Read Only)"}
             </div>
             <div className="grid grid-cols-3 gap-2.5">
               <div>
-                <label className="text-[10px] uppercase font-bold text-muted-foreground mb-1 block">Gross Fee (₹)</label>
-                <input disabled={!canEditFinances} type="number" value={form.total_fee} onChange={e => setForm({...form, total_fee: e.target.value})} className="w-full px-2 py-1.5 border border-border bg-background rounded-lg text-xs font-mono focus:outline-none focus:border-accent disabled:opacity-70 disabled:bg-muted" />
+                <label className="text-[10px] uppercase font-bold text-slate-500 dark:text-zinc-400 mb-1 block">Gross Fee (₹)</label>
+                <input disabled={!canEditFinances} type="number" value={form.total_fee} onChange={e => setForm({...form, total_fee: e.target.value})} className="w-full px-3 py-2 bg-white dark:bg-[#111] border border-slate-200 dark:border-white/[0.08] rounded-[10px] text-[13px] text-slate-600 dark:text-zinc-400 focus:outline-none focus:border-teal-600/50" />
               </div>
               <div>
-                <label className="text-[10px] uppercase font-bold text-muted-foreground mb-1 block">Scholarship %</label>
-                <input disabled={!canEditFinances} type="number" min="0" max="100" value={form.scholarship_percent} onChange={e => setForm({...form, scholarship_percent: e.target.value})} className="w-full px-2 py-1.5 border border-border bg-background rounded-lg text-xs font-mono focus:outline-none focus:border-accent disabled:opacity-70 disabled:bg-muted" />
+                <label className="text-[10px] uppercase font-bold text-slate-500 dark:text-zinc-400 mb-1 block">Scholarship %</label>
+                <input disabled={!canEditFinances} type="number" min="0" max="100" value={form.scholarship_percent} onChange={e => setForm({...form, scholarship_percent: e.target.value})} className="w-full px-3 py-2 bg-white dark:bg-[#111] border border-slate-200 dark:border-white/[0.08] rounded-[10px] text-[13px] text-slate-600 dark:text-zinc-400 focus:outline-none focus:border-teal-600/50" />
               </div>
               <div>
-                <label className="text-[10px] uppercase font-bold text-muted-foreground mb-1 block">Discount (₹)</label>
-                <input disabled={!canEditFinances} type="number" min="0" value={form.discount} onChange={e => setForm({...form, discount: e.target.value})} className="w-full px-2 py-1.5 border border-border bg-background rounded-lg text-xs font-mono focus:outline-none focus:border-accent disabled:opacity-70 disabled:bg-muted" />
+                <label className="text-[10px] uppercase font-bold text-slate-500 dark:text-zinc-400 mb-1 block">Discount (₹)</label>
+                <input disabled={!canEditFinances} type="number" min="0" value={form.discount} onChange={e => setForm({...form, discount: e.target.value})} className="w-full px-3 py-2 bg-white dark:bg-[#111] border border-slate-200 dark:border-white/[0.08] rounded-[10px] text-[13px] text-slate-600 dark:text-zinc-400 focus:outline-none focus:border-teal-600/50" />
               </div>
             </div>
-            <div className="flex justify-between items-center pt-1 border-t border-border/20 text-xs">
-              <span className="text-muted-foreground">Computed Net Fee:</span>
-              <span className={`font-mono font-bold ${canEditFinances ? 'text-accent' : 'text-foreground'}`}>{fmtINR(computedNet)}</span>
+            <div className="flex justify-between items-center pt-1 border-t border-slate-200 dark:border-white/[0.08]/20 text-xs">
+              <span className="text-slate-500 dark:text-zinc-400">Computed Net Fee:</span>
+              <span className={`font-mono font-bold ${canEditFinances ? 'text-accent' : 'text-slate-800 dark:text-zinc-200'}`}>{fmtINR(computedNet)}</span>
             </div>
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="text-xs uppercase tracking-wider font-bold text-muted-foreground mb-1 block">Contact Phone *</label>
-              <input required type="text" value={form.contact_phone} onChange={e => setForm({...form, contact_phone: e.target.value})} className="w-full px-3 py-2 border border-border bg-background/50 rounded-xl text-sm font-mono focus:outline-none focus:border-accent" />
+              <label className="text-xs uppercase tracking-wider font-bold text-slate-500 dark:text-zinc-400 mb-1 block">Contact Phone *</label>
+              <input required type="text" value={form.contact_phone} onChange={e => setForm({...form, contact_phone: e.target.value})} className="w-full px-3 py-2 bg-white dark:bg-[#111] border border-slate-200 dark:border-white/[0.08] rounded-[10px] text-[13px] text-slate-600 dark:text-zinc-400 focus:outline-none focus:border-teal-600/50" />
             </div>
             <div>
-              <label className="text-xs uppercase tracking-wider font-bold text-muted-foreground mb-1 block">Email Address</label>
-              <input type="email" value={form.contact_email} onChange={e => setForm({...form, contact_email: e.target.value})} className="w-full px-3 py-2 border border-border bg-background/50 rounded-xl text-sm focus:outline-none focus:border-accent" />
-            </div>
-          </div>
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="text-xs uppercase tracking-wider font-bold text-muted-foreground mb-1 block">Parent Guardian Name</label>
-              <input type="text" value={form.parent_name} onChange={e => setForm({...form, parent_name: e.target.value})} className="w-full px-3 py-2 border border-border bg-background/50 rounded-xl text-sm focus:outline-none focus:border-accent" />
-            </div>
-            <div>
-              <label className="text-xs uppercase tracking-wider font-bold text-muted-foreground mb-1 block">Parent Mobile Handle</label>
-              <input type="text" value={form.parent_phone} onChange={e => setForm({...form, parent_phone: e.target.value})} className="w-full px-3 py-2 border border-border bg-background/50 rounded-xl text-sm font-mono focus:outline-none focus:border-accent" />
-            </div>
-            <div>
-              <label className="text-xs uppercase tracking-wider font-bold text-muted-foreground mb-1 block">Parent Email</label>
-              <input type="email" value={form.parent_email} onChange={e => setForm({...form, parent_email: e.target.value})} className="w-full px-3 py-2 border border-border bg-background/50 rounded-xl text-sm focus:outline-none focus:border-accent" />
-            </div>
-            <div>
-              <label className="text-xs uppercase tracking-wider font-bold text-muted-foreground mb-1 block">Emergency Phone</label>
-              <input type="text" value={form.emergency_phone} onChange={e => setForm({...form, emergency_phone: e.target.value})} className="w-full px-3 py-2 border border-border bg-background/50 rounded-xl text-sm font-mono focus:outline-none focus:border-accent" />
+              <label className="text-xs uppercase tracking-wider font-bold text-slate-500 dark:text-zinc-400 mb-1 block">Email Address</label>
+              <input type="email" value={form.contact_email} onChange={e => setForm({...form, contact_email: e.target.value})} className="w-full px-3 py-2 bg-white dark:bg-[#111] border border-slate-200 dark:border-white/[0.08] rounded-[10px] text-[13px] text-slate-600 dark:text-zinc-400 focus:outline-none focus:border-teal-600/50" />
             </div>
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="text-xs uppercase tracking-wider font-bold text-muted-foreground mb-1 block">Batch Code</label>
-              <input type="text" value={form.batch} onChange={e => setForm({...form, batch: e.target.value})} className="w-full px-3 py-2 border border-border bg-background/50 rounded-xl text-sm font-mono focus:outline-none focus:border-accent" />
+              <label className="text-xs uppercase tracking-wider font-bold text-slate-500 dark:text-zinc-400 mb-1 block">Parent Guardian Name</label>
+              <input type="text" value={form.parent_name} onChange={e => setForm({...form, parent_name: e.target.value})} className="w-full px-3 py-2 bg-white dark:bg-[#111] border border-slate-200 dark:border-white/[0.08] rounded-[10px] text-[13px] text-slate-600 dark:text-zinc-400 focus:outline-none focus:border-teal-600/50" />
             </div>
             <div>
-              <label className="text-xs uppercase tracking-wider font-bold text-muted-foreground mb-1 block">System Standing Status *</label>
-              <select value={form.status} onChange={e => setForm({...form, status: e.target.value})} className="w-full px-3 py-2 border border-border bg-background rounded-xl text-sm text-foreground focus:outline-none">
+              <label className="text-xs uppercase tracking-wider font-bold text-slate-500 dark:text-zinc-400 mb-1 block">Parent Mobile Handle</label>
+              <input type="text" value={form.parent_phone} onChange={e => setForm({...form, parent_phone: e.target.value})} className="w-full px-3 py-2 bg-white dark:bg-[#111] border border-slate-200 dark:border-white/[0.08] rounded-[10px] text-[13px] text-slate-600 dark:text-zinc-400 focus:outline-none focus:border-teal-600/50" />
+            </div>
+            <div>
+              <label className="text-xs uppercase tracking-wider font-bold text-slate-500 dark:text-zinc-400 mb-1 block">Parent Email</label>
+              <input type="email" value={form.parent_email} onChange={e => setForm({...form, parent_email: e.target.value})} className="w-full px-3 py-2 bg-white dark:bg-[#111] border border-slate-200 dark:border-white/[0.08] rounded-[10px] text-[13px] text-slate-600 dark:text-zinc-400 focus:outline-none focus:border-teal-600/50" />
+            </div>
+            <div>
+              <label className="text-xs uppercase tracking-wider font-bold text-slate-500 dark:text-zinc-400 mb-1 block">Emergency Phone</label>
+              <input type="text" value={form.emergency_phone} onChange={e => setForm({...form, emergency_phone: e.target.value})} className="w-full px-3 py-2 bg-white dark:bg-[#111] border border-slate-200 dark:border-white/[0.08] rounded-[10px] text-[13px] text-slate-600 dark:text-zinc-400 focus:outline-none focus:border-teal-600/50" />
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="text-xs uppercase tracking-wider font-bold text-slate-500 dark:text-zinc-400 mb-1 block">Batch Code</label>
+              <input type="text" value={form.batch} onChange={e => setForm({...form, batch: e.target.value})} className="w-full px-3 py-2 bg-white dark:bg-[#111] border border-slate-200 dark:border-white/[0.08] rounded-[10px] text-[13px] text-slate-600 dark:text-zinc-400 focus:outline-none focus:border-teal-600/50" />
+            </div>
+            <div>
+              <label className="text-xs uppercase tracking-wider font-bold text-slate-500 dark:text-zinc-400 mb-1 block">System Standing Status *</label>
+              <select value={form.status} onChange={e => setForm({...form, status: e.target.value})} className="w-full px-3 py-2 bg-white dark:bg-[#111] border border-slate-200 dark:border-white/[0.08] rounded-[10px] text-[13px] text-slate-600 dark:text-zinc-400 focus:outline-none focus:border-teal-600/50">
                 <option value="active">ACTIVE</option>
                 <option value="inactive">INACTIVE</option>
                 <option value="temporary">TEMPORARY</option>
               </select>
             </div>
             <div>
-              <label className="text-xs uppercase tracking-wider font-bold text-muted-foreground mb-1 block">Current Class</label>
-              <select value={form.current_class} onChange={e => setForm({...form, current_class: e.target.value})} className="w-full px-3 py-2 border border-border bg-background/50 rounded-xl text-sm focus:outline-none focus:border-accent">
+              <label className="text-xs uppercase tracking-wider font-bold text-slate-500 dark:text-zinc-400 mb-1 block">Current Class</label>
+              <select value={form.current_class} onChange={e => setForm({...form, current_class: e.target.value})} className="w-full px-3 py-2 bg-white dark:bg-[#111] border border-slate-200 dark:border-white/[0.08] rounded-[10px] text-[13px] text-slate-600 dark:text-zinc-400 focus:outline-none focus:border-teal-600/50">
                 <option value="">Select Class</option>
                 {STUDENT_CLASSES.map(c => <option key={c} value={c}>{c}</option>)}
               </select>
             </div>
             <div>
-              <label className="text-xs uppercase tracking-wider font-bold text-muted-foreground mb-1 block">Batch Timing</label>
-              <select value={form.batch_timing} onChange={e => setForm({...form, batch_timing: e.target.value})} className="w-full px-3 py-2 border border-border bg-background rounded-xl text-sm text-foreground focus:outline-none">
+              <label className="text-xs uppercase tracking-wider font-bold text-slate-500 dark:text-zinc-400 mb-1 block">Batch Timing</label>
+              <select value={form.batch_timing} onChange={e => setForm({...form, batch_timing: e.target.value})} className="w-full px-3 py-2 bg-white dark:bg-[#111] border border-slate-200 dark:border-white/[0.08] rounded-[10px] text-[13px] text-slate-600 dark:text-zinc-400 focus:outline-none focus:border-teal-600/50">
                 <option value="">Select Timing</option>
                 <option value="Morning">Morning</option>
                 <option value="Afternoon">Afternoon</option>
@@ -809,63 +815,63 @@ function EditStudentProfileModal({ student, onClose, onUpdated, onPhotoSelect, e
               </select>
             </div>
             <div>
-              <label className="text-xs uppercase tracking-wider font-bold text-muted-foreground mb-1 block">Course Duration</label>
-              <input type="text" value={form.course_duration} onChange={e => setForm({...form, course_duration: e.target.value})} placeholder="e.g. 1 Year" className="w-full px-3 py-2 border border-border bg-background/50 rounded-xl text-sm focus:outline-none focus:border-accent" />
+              <label className="text-xs uppercase tracking-wider font-bold text-slate-500 dark:text-zinc-400 mb-1 block">Course Duration</label>
+              <input type="text" value={form.course_duration} onChange={e => setForm({...form, course_duration: e.target.value})} placeholder="e.g. 1 Year" className="w-full px-3 py-2 bg-white dark:bg-[#111] border border-slate-200 dark:border-white/[0.08] rounded-[10px] text-[13px] text-slate-600 dark:text-zinc-400 focus:outline-none focus:border-teal-600/50" />
             </div>
           </div>
           <div>
-            <label className="text-xs uppercase tracking-wider font-bold text-muted-foreground mb-1 block">Residential Address Mapping</label>
-            <textarea value={form.address} onChange={e => setForm({...form, address: e.target.value})} rows={2} className="w-full px-3 py-2 border border-border bg-background/50 rounded-xl text-sm text-foreground focus:outline-none focus:border-accent resize-none" />
+            <label className="text-xs uppercase tracking-wider font-bold text-slate-500 dark:text-zinc-400 mb-1 block">Residential Address Mapping</label>
+            <textarea value={form.address} onChange={e => setForm({...form, address: e.target.value})} rows={2} className="w-full px-3 py-2 bg-white dark:bg-[#111] border border-slate-200 dark:border-white/[0.08] rounded-[10px] text-[13px] text-slate-600 dark:text-zinc-400 focus:outline-none focus:border-teal-600/50 resize-none" />
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="text-xs uppercase tracking-wider font-bold text-muted-foreground mb-1 block">Student LUID</label>
-              <input type="text" value={form.luid} onChange={e => setForm({...form, luid: e.target.value})} placeholder="Unique learner ID" className="w-full px-3 py-2 border border-border bg-background/50 rounded-xl text-sm font-mono focus:outline-none focus:border-accent" />
+              <label className="text-xs uppercase tracking-wider font-bold text-slate-500 dark:text-zinc-400 mb-1 block">Student LUID</label>
+              <input type="text" value={form.luid} onChange={e => setForm({...form, luid: e.target.value})} placeholder="Unique learner ID" className="w-full px-3 py-2 bg-white dark:bg-[#111] border border-slate-200 dark:border-white/[0.08] rounded-[10px] text-[13px] text-slate-600 dark:text-zinc-400 focus:outline-none focus:border-teal-600/50" />
             </div>
             <div>
-              <label className="text-xs uppercase tracking-wider font-bold text-muted-foreground mb-1 block">Enrollment Number</label>
-              <input type="text" value={form.enrollment_number} onChange={e => setForm({...form, enrollment_number: e.target.value})} placeholder="Official enrollment no" className="w-full px-3 py-2 border border-border bg-background/50 rounded-xl text-sm font-mono focus:outline-none focus:border-accent" />
+              <label className="text-xs uppercase tracking-wider font-bold text-slate-500 dark:text-zinc-400 mb-1 block">Enrollment Number</label>
+              <input type="text" value={form.enrollment_number} onChange={e => setForm({...form, enrollment_number: e.target.value})} placeholder="Official enrollment no" className="w-full px-3 py-2 bg-white dark:bg-[#111] border border-slate-200 dark:border-white/[0.08] rounded-[10px] text-[13px] text-slate-600 dark:text-zinc-400 focus:outline-none focus:border-teal-600/50" />
             </div>
             <div>
-              <label className="text-xs uppercase tracking-wider font-bold text-muted-foreground mb-1 block">Assigned Counsellor</label>
-              <select value={form.counsellor_id} onChange={e => setForm({...form, counsellor_id: e.target.value})} className="w-full px-3 py-2 border border-border bg-background rounded-xl text-sm text-foreground focus:outline-none">
+              <label className="text-xs uppercase tracking-wider font-bold text-slate-500 dark:text-zinc-400 mb-1 block">Assigned Counsellor</label>
+              <select value={form.counsellor_id} onChange={e => setForm({...form, counsellor_id: e.target.value})} className="w-full px-3 py-2 bg-white dark:bg-[#111] border border-slate-200 dark:border-white/[0.08] rounded-[10px] text-[13px] text-slate-600 dark:text-zinc-400 focus:outline-none focus:border-teal-600/50">
                 <option value="">— Select Counsellor —</option>
                 {counsellors.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
               </select>
             </div>
             <div>
-              <label className="text-xs uppercase tracking-wider font-bold text-muted-foreground mb-1 block">Documents JSON</label>
+              <label className="text-xs uppercase tracking-wider font-bold text-slate-500 dark:text-zinc-400 mb-1 block">Documents JSON</label>
               <textarea
                 value={form.documents}
                 onChange={e => setForm({...form, documents: e.target.value})}
                 placeholder='[{"type":"aadhar","url":"..."}]'
                 rows={2}
-                className="w-full px-3 py-2 border border-border bg-background/50 rounded-xl text-sm font-mono text-foreground focus:outline-none focus:border-accent resize-none"
+                className="w-full px-3 py-2 border border-slate-200 dark:border-white/[0.08] bg-slate-50 dark:bg-black/50 rounded-xl text-sm font-mono text-slate-800 dark:text-zinc-200 focus:outline-none focus:border-accent resize-none"
               />
             </div>
           </div>
           <div>
-            <label className="text-xs uppercase tracking-wider font-bold text-muted-foreground mb-1 block">Admin Notes</label>
+            <label className="text-xs uppercase tracking-wider font-bold text-slate-500 dark:text-zinc-400 mb-1 block">Admin Notes</label>
             <textarea
               value={form.notes}
               onChange={e => setForm({...form, notes: e.target.value})}
               placeholder="Internal admin remarks"
               rows={2}
-              className="w-full px-3 py-2 border border-border bg-background/50 rounded-xl text-sm text-foreground focus:outline-none focus:border-accent resize-none"
+              className="w-full px-3 py-2 border border-slate-200 dark:border-white/[0.08] bg-slate-50 dark:bg-black/50 rounded-xl text-sm text-slate-800 dark:text-zinc-200 focus:outline-none focus:border-accent resize-none"
             />
           </div>
           <div>
-            <label className="text-xs uppercase tracking-wider font-bold text-muted-foreground mb-1 block">Profile Photo</label>
-            <input type="file" accept="image/jpeg,image/png,image/webp" onChange={onPhotoSelect} className="w-full px-3 py-2 border border-border bg-background/50 rounded-xl text-sm text-foreground focus:outline-none focus:border-accent" />
-            <p className="text-[10px] text-muted-foreground mt-1">You will crop the photo to a circle before uploading.</p>
+            <label className="text-xs uppercase tracking-wider font-bold text-slate-500 dark:text-zinc-400 mb-1 block">Profile Photo</label>
+            <input type="file" accept="image/jpeg,image/png,image/webp" onChange={onPhotoSelect} className="w-full px-3 py-2 border border-slate-200 dark:border-white/[0.08] bg-slate-50 dark:bg-black/50 rounded-xl text-sm text-slate-800 dark:text-zinc-200 focus:outline-none focus:border-accent" />
+            <p className="text-[10px] text-slate-500 dark:text-zinc-400 mt-1">You will crop the photo to a circle before uploading.</p>
           </div>
         </div>
 
         <div className="flex gap-3 pt-2">
-          <Button disabled={busy} type="submit" className="flex-1 py-3 bg-primary text-primary-foreground rounded-xl font-bold text-xs uppercase tracking-wider disabled:opacity-50 transition shadow-lg flex items-center justify-center gap-2">
+          <Button disabled={busy} type="submit" className="inline-flex items-center gap-2 bg-teal-600 text-white rounded-full px-5 py-2 text-[11px] font-semibold tracking-[0.04em] uppercase shadow-[0_0_0_1px_rgba(13,148,136,0.5),0_4px_16px_rgba(13,148,136,0.25)] hover:bg-teal-700 active:scale-[0.97] transition-all duration-300">
             <Save size={14}/> {busy ? "Authorizing State Changes..." : "Authorize Dataset Mutation"}
           </Button>
-          <Button type="button" onClick={onClose} className="px-4 py-3 border border-border rounded-xl text-xs uppercase tracking-wider font-bold text-muted-foreground hover:text-foreground hover:bg-muted/50 transition">Cancel</Button>
+          <Button type="button" onClick={onClose} className="bg-transparent rounded-full border border-slate-200 dark:border-white/10 text-slate-500 dark:text-zinc-400 hover:border-slate-300 dark:border-white/20 hover:text-slate-800 dark:text-zinc-200 hover:bg-slate-200/50 dark:bg-white/[0.04] px-4 py-2 text-[11px] font-semibold tracking-[0.06em] uppercase transition-all duration-300">Cancel</Button>
         </div>
       </form>
     </div>
@@ -908,58 +914,58 @@ function RecordPaymentModal({ studentId, pending, onClose, onCreated }) {
 
   return (
     <div className="fixed inset-0 bg-black/20 z-50 grid place-items-center p-4 backdrop-blur-sm animate-fadeIn" onClick={onClose} data-testid="record-payment-modal">
-      <form onClick={e => e.stopPropagation()} onSubmit={submitPaymentTransaction} className="bg-background border border-border rounded-2xl max-w-md w-full p-6 space-y-4 shadow-2xl">
+      <form onClick={e => e.stopPropagation()} onSubmit={submitPaymentTransaction} className="bg-slate-50 dark:bg-black border border-slate-200 dark:border-white/[0.08] rounded-2xl max-w-md w-full p-6 space-y-4 shadow-2xl">
         <div>
           <div className="text-xs uppercase tracking-[0.2em] font-bold text-accent flex items-center gap-1">
             <CheckCircle size={12}/> Cash Book Intake Layer
           </div>
           <h3 className="font-display text-2xl font-medium mt-1">Log Installment Collection</h3>
-          <p className="text-sm text-muted-foreground mt-1">Outstanding sub-ledger collection boundary limit: <b className="text-rose-600 font-mono">{fmtINR(pending)}</b></p>
+          <p className="text-sm text-slate-500 dark:text-zinc-400 mt-1">Outstanding sub-ledger collection boundary limit: <b className="text-rose-600 font-mono">{fmtINR(pending)}</b></p>
         </div>
 
         <div className="space-y-4">
           <div>
-            <label className="text-xs uppercase tracking-wider font-bold text-muted-foreground mb-1 block">Amount Settled (inclusive of GST) *</label>
+            <label className="text-xs uppercase tracking-wider font-bold text-slate-500 dark:text-zinc-400 mb-1 block">Amount Settled (inclusive of GST) *</label>
             <div className="relative">
-              <span className="absolute left-3 top-1/2 -translate-y-1/2 font-mono text-xs font-bold text-muted-foreground/50">₹</span>
-              <input type="number" required value={form.amount} onChange={e => setForm({...form, amount: e.target.value})} placeholder="0.00" className="w-full pl-7 pr-3 py-2 border border-border bg-background/50 rounded-xl text-sm font-mono text-foreground focus:outline-none focus:border-accent" data-testid="rp-amount"/>
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 font-mono text-xs font-bold text-slate-500 dark:text-zinc-400/50">₹</span>
+              <input type="number" required value={form.amount} onChange={e => setForm({...form, amount: e.target.value})} placeholder="0.00" className="pl-7 w-full px-3 py-2 bg-white dark:bg-[#111] border border-slate-200 dark:border-white/[0.08] rounded-[10px] text-[13px] text-slate-600 dark:text-zinc-400 focus:outline-none focus:border-teal-600/50" data-testid="rp-amount"/>
             </div>
           </div>
           
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="text-xs uppercase tracking-wider font-bold text-muted-foreground mb-1 block">Intake Mode *</label>
-              <select value={form.mode} onChange={e => setForm({...form, mode: e.target.value})} className="w-full px-3 py-2 border border-border bg-background rounded-xl text-sm text-foreground focus:outline-none" data-testid="rp-mode">
+              <label className="text-xs uppercase tracking-wider font-bold text-slate-500 dark:text-zinc-400 mb-1 block">Intake Mode *</label>
+              <select value={form.mode} onChange={e => setForm({...form, mode: e.target.value})} className="w-full px-3 py-2 bg-white dark:bg-[#111] border border-slate-200 dark:border-white/[0.08] rounded-[10px] text-[13px] text-slate-600 dark:text-zinc-400 focus:outline-none focus:border-teal-600/50" data-testid="rp-mode">
                 {["cash", "upi", "online", "cheque", "card"].map(m => <option key={m} value={m}>{m.toUpperCase()}</option>)}
               </select>
             </div>
             <div>
-              <label className="text-xs uppercase tracking-wider font-bold text-muted-foreground mb-1 block">Next Term Due (Optional)</label>
-              <input type="date" value={form.next_due_date} onChange={e => setForm({...form, next_due_date: e.target.value})} className="w-full px-3 py-2 border border-border bg-background/50 rounded-xl text-sm font-mono text-foreground focus:outline-none" data-testid="rp-due"/>
+              <label className="text-xs uppercase tracking-wider font-bold text-slate-500 dark:text-zinc-400 mb-1 block">Next Term Due (Optional)</label>
+              <input type="date" value={form.next_due_date} onChange={e => setForm({...form, next_due_date: e.target.value})} className="w-full px-3 py-2 bg-white dark:bg-[#111] border border-slate-200 dark:border-white/[0.08] rounded-[10px] text-[13px] text-slate-600 dark:text-zinc-400 focus:outline-none focus:border-teal-600/50" data-testid="rp-due"/>
             </div>
           </div>
 
           <div>
-            <label className="text-xs uppercase tracking-wider font-bold text-muted-foreground mb-1 block">Ref / Cheque / UTR No</label>
-            <input type="text" value={form.transaction_ref} onChange={e => setForm({...form, transaction_ref: e.target.value})} placeholder="Optional UTR or Cheque #" className="w-full px-3 py-2 border border-border bg-background/50 rounded-xl text-sm text-foreground focus:outline-none focus:border-accent" data-testid="rp-ref"/>
+            <label className="text-xs uppercase tracking-wider font-bold text-slate-500 dark:text-zinc-400 mb-1 block">Ref / Cheque / UTR No</label>
+            <input type="text" value={form.transaction_ref} onChange={e => setForm({...form, transaction_ref: e.target.value})} placeholder="Optional UTR or Cheque #" className="w-full px-3 py-2 bg-white dark:bg-[#111] border border-slate-200 dark:border-white/[0.08] rounded-[10px] text-[13px] text-slate-600 dark:text-zinc-400 focus:outline-none focus:border-teal-600/50" data-testid="rp-ref"/>
           </div>
           
           <div>
-            <label className="text-xs uppercase tracking-wider font-bold text-muted-foreground mb-1 block">Transaction Context References</label>
-            <input type="text" value={form.notes} onChange={e => setForm({...form, notes: e.target.value})} placeholder="e.g. Bank reference token string or check context hashes..." className="w-full px-3 py-2 border border-border bg-background/50 rounded-xl text-sm text-foreground focus:outline-none focus:border-accent" data-testid="rp-notes"/>
+            <label className="text-xs uppercase tracking-wider font-bold text-slate-500 dark:text-zinc-400 mb-1 block">Transaction Context References</label>
+            <input type="text" value={form.notes} onChange={e => setForm({...form, notes: e.target.value})} placeholder="e.g. Bank reference token string or check context hashes..." className="w-full px-3 py-2 bg-white dark:bg-[#111] border border-slate-200 dark:border-white/[0.08] rounded-[10px] text-[13px] text-slate-600 dark:text-zinc-400 focus:outline-none focus:border-teal-600/50" data-testid="rp-notes"/>
           </div>
 
-          <label className="flex items-center gap-2 text-xs font-semibold text-muted-foreground select-none cursor-pointer group" data-testid="rp-gst-toggle">
-            <input type="checkbox" checked={form.apply_gst} onChange={e => setForm({...form, apply_gst: e.target.checked})} className="accent-primary rounded bg-background border-border" />
-            <span className="group-hover:text-foreground transition-colors">Apply standardized split compliance taxation (CGST 9% + SGST 9%)</span>
+          <label className="flex items-center gap-2 text-xs font-semibold text-slate-500 dark:text-zinc-400 select-none cursor-pointer group" data-testid="rp-gst-toggle">
+            <input type="checkbox" checked={form.apply_gst} onChange={e => setForm({...form, apply_gst: e.target.checked})} className="accent-primary rounded bg-slate-50 dark:bg-black border-slate-200 dark:border-white/[0.08]" />
+            <span className="group-hover:text-slate-800 dark:text-zinc-200 transition-colors">Apply standardized split compliance taxation (CGST 9% + SGST 9%)</span>
           </label>
         </div>
 
         <div className="flex gap-3 pt-2">
-          <Button disabled={busy} type="submit" className="flex-1 py-3 bg-primary text-primary-foreground rounded-xl font-bold text-xs uppercase tracking-wider disabled:opacity-50 transition shadow-lg flex items-center justify-center gap-2" data-testid="rp-submit">
+          <Button disabled={busy} type="submit" className="inline-flex items-center gap-2 bg-teal-600 text-white rounded-full px-5 py-2 text-[11px] font-semibold tracking-[0.04em] uppercase shadow-[0_0_0_1px_rgba(13,148,136,0.5),0_4px_16px_rgba(13,148,136,0.25)] hover:bg-teal-700 active:scale-[0.97] transition-all duration-300" data-testid="rp-submit">
              Authorize Cash Intake State
           </Button>
-          <Button type="button" onClick={onClose} className="px-4 py-3 border border-border rounded-xl text-xs uppercase tracking-wider font-bold text-muted-foreground hover:text-foreground hover:bg-muted/50 transition">Cancel</Button>
+          <Button type="button" onClick={onClose} className="bg-transparent rounded-full border border-slate-200 dark:border-white/10 text-slate-500 dark:text-zinc-400 hover:border-slate-300 dark:border-white/20 hover:text-slate-800 dark:text-zinc-200 hover:bg-slate-200/50 dark:bg-white/[0.04] px-4 py-2 text-[11px] font-semibold tracking-[0.06em] uppercase transition-all duration-300">Cancel</Button>
         </div>
       </form>
     </div>
@@ -1050,12 +1056,12 @@ function CropModal({ src, onClose, onConfirm }) {
 
   return (
     <div className="fixed inset-0 bg-black/60 z-50 grid place-items-center p-4 backdrop-blur-sm" onClick={onClose}>
-      <div onClick={e => e.stopPropagation()} className="bg-background border border-border rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-4">
+      <div onClick={e => e.stopPropagation()} className="bg-slate-50 dark:bg-black border border-slate-200 dark:border-white/[0.08] rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-4">
         <div className="flex items-center justify-between">
           <h3 className="font-display text-xl font-medium">Crop Photo for Student ID Card</h3>
-          <span className="text-[11px] text-muted-foreground font-mono">1:1 Circular ID Frame</span>
+          <span className="text-[11px] text-slate-500 dark:text-zinc-400 font-mono">1:1 Circular ID Frame</span>
         </div>
-        <div className="flex justify-center bg-muted/30 rounded-xl overflow-hidden p-2 border border-border">
+        <div className="flex justify-center bg-slate-200/50 dark:bg-white/[0.04]/30 rounded-xl overflow-hidden p-2 border border-slate-200 dark:border-white/[0.08]">
           <ReactCrop
             crop={crop}
             onChange={(c) => setCrop(c)}
@@ -1067,13 +1073,13 @@ function CropModal({ src, onClose, onConfirm }) {
           </ReactCrop>
         </div>
         <div className="flex flex-wrap gap-2 pt-1">
-          <Button onClick={handleConfirm} className="flex-1 py-2.5 bg-primary text-primary-foreground rounded-xl font-bold text-xs uppercase tracking-wider hover:opacity-90 transition" data-testid="confirm-crop-btn">
+          <Button onClick={handleConfirm} className="inline-flex items-center gap-2 bg-teal-600 text-white rounded-full px-5 py-2 text-[11px] font-semibold tracking-[0.04em] uppercase shadow-[0_0_0_1px_rgba(13,148,136,0.5),0_4px_16px_rgba(13,148,136,0.25)] hover:bg-teal-700 active:scale-[0.97] transition-all duration-300" data-testid="confirm-crop-btn">
             Confirm Crop & Save
           </Button>
-          <Button onClick={handleUseOriginal} className="px-3 py-2.5 border border-border rounded-xl text-xs uppercase tracking-wider font-semibold text-muted-foreground hover:text-foreground hover:bg-muted/50 transition">
+          <Button onClick={handleUseOriginal} className="bg-transparent rounded-full border border-slate-200 dark:border-white/10 text-slate-500 dark:text-zinc-400 hover:border-slate-300 dark:border-white/20 hover:text-slate-800 dark:text-zinc-200 hover:bg-slate-200/50 dark:bg-white/[0.04] px-4 py-2 text-[11px] font-semibold tracking-[0.06em] uppercase transition-all duration-300">
             Use Full Image
           </Button>
-          <Button onClick={onClose} className="px-3 py-2.5 border border-border rounded-xl text-xs uppercase tracking-wider font-bold text-muted-foreground hover:text-foreground hover:bg-muted/50 transition">
+          <Button onClick={onClose} className="bg-transparent rounded-full border border-slate-200 dark:border-white/10 text-slate-500 dark:text-zinc-400 hover:border-slate-300 dark:border-white/20 hover:text-slate-800 dark:text-zinc-200 hover:bg-slate-200/50 dark:bg-white/[0.04] px-4 py-2 text-[11px] font-semibold tracking-[0.06em] uppercase transition-all duration-300">
             Cancel
           </Button>
         </div>

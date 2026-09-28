@@ -86,13 +86,14 @@ export const erp = {
   deleteExpense: (id) => api.delete(`/erp/expenses/${encodeURIComponent(id)}`).then(resData).then((d) => { broadcastMutation("expense", "delete", { id }); return d; }),
 
   // --- Leads ---
+  getAlerts: () => api.get("/erp/alerts").then(resData),
   listLeads: (params = {}) => api.get("/erp/leads", { params }).then(resData),
   createLead: (body) => api.post("/erp/leads", body).then(resData).then((d) => { broadcastMutation("lead", "create", d); return d; }),
   updateLead: (id, body) => api.patch(`/erp/leads/${encodeURIComponent(id)}`, body).then(resData).then((d) => { broadcastMutation("lead", "update", { id, ...d }); return d; }),
   deleteLead: (id) => api.delete(`/erp/leads/${encodeURIComponent(id)}`).then(resData).then((d) => { broadcastMutation("lead", "delete", { id }); return d; }),
   lookupPhone: (phone) => api.get(`/erp/students/lookup?phone=${encodeURIComponent(phone)}`).then(resData),
   getFeeMatrix: () => api.get("/erp/fee-matrix").then(resData),
-  updateFeeMatrix: (matrix) => api.post("/erp/fee-matrix", { matrix }).then(resData),
+  updateFeeMatrix: (payload) => api.post("/erp/fee-matrix", payload).then(resData),
   addLeadInteraction: (id, body) => api.post(`/erp/leads/${id}/interactions`, body).then(resData).then((d) => { broadcastMutation("lead", "update", { id }); return d; }),
   proposeLead: (id, body) => api.post(`/erp/leads/${id}/propose`, body).then(resData).then((d) => { broadcastMutation("lead", "update", { id }); return d; }),
   approveLead: (id, body) => api.post(`/erp/leads/${id}/approve`, body).then(resData).then((d) => { broadcastMutation("lead", "update", { id }); return d; }),
@@ -154,14 +155,16 @@ export const STUDENT_CLASSES = [
 export const STUDENT_COURSES = [
   "Foundation",
   "IIT JEE",
-  "NEET UG"
+  "NEET UG",
+  "Test Series"
 ];
 
 export const getValidCoursesForClass = (className) => {
   if (["Biggner (8th)", "Adapt (9th)", "Elivate (10th)"].includes(className)) {
     return ["Foundation"];
   }
-  return ["IIT JEE", "NEET UG"];
+  return ["IIT JEE", "NEET UG",
+  "Test Series"];
 };
 
 

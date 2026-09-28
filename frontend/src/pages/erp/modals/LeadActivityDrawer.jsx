@@ -19,7 +19,7 @@ const parseDate = (d) => {
   } catch(e) { return d; }
 };
 
-export default function LeadActivityDrawer({ lead, onClose }) {
+export default function LeadActivityDrawer({ lead, onClose, onInteractionAdded }) {
   const queryClient = useQueryClient();
   const [noteType, setNoteType] = useState("call");
   const [notes, setNotes] = useState("");
@@ -29,12 +29,17 @@ export default function LeadActivityDrawer({ lead, onClose }) {
   const [reviewModal, setReviewModal] = useState(false);
   const [enrollModal, setEnrollModal] = useState(false);
   const [transferModal, setTransferModal] = useState(false);
+  const [localInteractions, setLocalInteractions] = useState(lead.interactions || []);
   
   const erpUser = JSON.parse(localStorage.getItem("nw_user") || "{}"); // fallback
 
   const addInteraction = useMutation({
     mutationFn: async (payload) => await erp.addLeadInteraction(lead.id, payload),
-    onSuccess: () => {
+    onSuccess: (data) => {
+      if (data && data.interaction) {
+        setLocalInteractions(prev => [...prev, data.interaction]);
+        if (onInteractionAdded) onInteractionAdded(data.interaction);
+      }
       queryClient.invalidateQueries(["erpLeads"]);
       setNotes("");
       toast.success("Activity logged successfully");
@@ -54,28 +59,28 @@ export default function LeadActivityDrawer({ lead, onClose }) {
     });
   };
 
-  const interactions = lead.interactions || [];
+  const interactions = localInteractions;
 
   return (
     <div className="fixed inset-0 z-[100] flex justify-end bg-black/40 backdrop-blur-sm transition-opacity">
-      <div className="w-full max-w-xl bg-background h-full shadow-2xl border-l border-border flex flex-col animate-in slide-in-from-right duration-300">
+      <div className="w-full max-w-xl bg-slate-50 dark:bg-black h-full shadow-2xl border-l border-slate-200 dark:border-white/[0.08] flex flex-col animate-in slide-in-from-right duration-300">
         {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b border-border/50 bg-muted/20">
+        <div className="flex items-center justify-between p-4 border-b border-slate-200 dark:border-white/[0.08]/50 bg-slate-200/50 dark:bg-white/[0.04]/20">
           <div>
             <h2 className="font-bold text-lg">{lead.name}</h2>
             <div className="flex items-center gap-2 mt-1">
               <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-accent/10 text-accent uppercase tracking-wider">{lead.source || "Manual"}</span>
-              <span className="text-xs font-medium text-muted-foreground">{lead.phone}</span>
-              <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-muted text-muted-foreground uppercase tracking-wider">{lead.status.replace("_", " ")}</span>
+              <span className="text-xs font-medium text-slate-500 dark:text-zinc-400">{lead.phone}</span>
+              <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-slate-200/50 dark:bg-white/[0.04] text-slate-500 dark:text-zinc-400 uppercase tracking-wider">{lead.status.replace("_", " ")}</span>
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <Button onClick={onClose} className="p-2 hover:bg-muted rounded-full transition"><X size={18} /></Button>
+            <Button onClick={onClose} className="p-2 hover:bg-slate-200/50 dark:bg-white/[0.04] rounded-full transition"><X size={18} /></Button>
           </div>
         </div>
         
         {/* Actions Bar */}
-        <div className="px-4 py-2 bg-card border-b border-border flex gap-2 overflow-x-auto custom-scrollbar">
+        <div className="px-4 py-2 bg-white dark:bg-[#111] border-b border-slate-200 dark:border-white/[0.08] flex gap-2 overflow-x-auto custom-scrollbar">
           {["new", "contacted", "follow_up"].includes(lead.status) && (
             <Button onClick={() => setProposeModal(true)} className="flex items-center gap-1.5 px-3 py-1.5 bg-fuchsia-500/10 text-fuchsia-500 border border-fuchsia-500/20 rounded-lg text-xs font-bold hover:bg-fuchsia-500/20 transition whitespace-nowrap">
               <Target size={14}/> Propose Fee
@@ -100,8 +105,8 @@ export default function LeadActivityDrawer({ lead, onClose }) {
         <div className="flex-1 overflow-y-auto p-4 space-y-6">
           
           {/* Add Activity Box */}
-          <div className="bg-card p-4 rounded-xl border border-border shadow-sm">
-            <h3 className="text-sm font-bold mb-3 uppercase text-muted-foreground tracking-wider">Log Activity</h3>
+          <div className="bg-white dark:bg-[#111] p-4 rounded-xl border border-slate-200 dark:border-white/[0.08] shadow-sm">
+            <h3 className="text-sm font-bold mb-3 uppercase text-slate-500 dark:text-zinc-400 tracking-wider">Log Activity</h3>
             <div className="flex gap-2 mb-3">
               {[
                 { id: "call", icon: Phone, label: "Call" },
@@ -115,7 +120,7 @@ export default function LeadActivityDrawer({ lead, onClose }) {
                     key={t.id}
                     onClick={() => setNoteType(t.id)}
                     className={`flex-1 py-1.5 flex items-center justify-center gap-1.5 text-xs font-semibold rounded-lg border transition ${
-                      active ? "bg-primary text-primary-foreground border-primary" : "bg-transparent text-muted-foreground border-border hover:bg-muted"
+                      active ? "bg-teal-600 text-white border-teal-600" : "bg-transparent text-slate-500 dark:text-zinc-400 border-slate-200 dark:border-white/[0.08] hover:bg-slate-200/50 dark:bg-white/[0.04]"
                     }`}
                   >
                     <Icon size={14} /> {t.label}
@@ -124,24 +129,24 @@ export default function LeadActivityDrawer({ lead, onClose }) {
               })}
             </div>
             <textarea
-              className="w-full bg-background border border-border/50 rounded-lg p-2.5 text-sm focus:ring-1 focus:ring-primary outline-none min-h-[80px] mb-3"
+              className="w-full bg-slate-50 dark:bg-black border border-slate-200 dark:border-white/[0.08] rounded-[10px] text-[13px] text-slate-600 dark:text-zinc-400 focus:border-teal-600/50 px-3 py-2 min-h-[80px] mb-3"
               placeholder={`Enter notes for this ${noteType}...`}
               value={notes}
               onChange={e => setNotes(e.target.value)}
             />
             <div className="flex flex-col gap-1.5">
-              <label className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider flex items-center gap-1"><Calendar size={12}/> Schedule Next Follow-up (Optional)</label>
-              <input 
+              <label className="text-[10px] uppercase font-bold text-slate-500 dark:text-zinc-400 tracking-wider flex items-center gap-1"><Calendar size={12}/> Schedule Next Follow-up (Optional)</label>
+              <input className="bg-slate-50 dark:bg-black border border-slate-200 dark:border-white/[0.08] rounded-[10px] text-[13px] text-slate-600 dark:text-zinc-400 focus:border-teal-600/50 px-3 py-2" 
                 type="datetime-local" 
                 value={nextFollowup} 
                 onChange={e => setNextFollowup(e.target.value)} 
-                className="w-full bg-background border border-border/50 rounded-lg p-2 text-xs focus:ring-1 focus:ring-primary outline-none"
+                className="w-full bg-slate-50 dark:bg-black border border-slate-200 dark:border-white/[0.08] rounded-[10px] text-[13px] text-slate-600 dark:text-zinc-400 focus:border-teal-600/50 px-3 py-2"
               />
             </div>
             <Button
               onClick={handleSave}
               disabled={isSubmitting}
-              className="mt-3 w-full py-2 bg-primary text-primary-foreground text-sm font-bold rounded-lg hover:bg-primary/90 transition disabled:opacity-50"
+              className="mt-3 w-full bg-teal-600 text-white rounded-full px-5 py-2 text-[11px] font-semibold tracking-[0.04em] uppercase shadow-[0_0_0_1px_rgba(13,148,136,0.5),0_4px_16px_rgba(13,148,136,0.25)] hover:bg-teal-700 active:scale-[0.97] transition-all duration-300 disabled:opacity-50"
             >
               {isSubmitting ? "Saving..." : "Save Activity"}
             </Button>
@@ -149,13 +154,13 @@ export default function LeadActivityDrawer({ lead, onClose }) {
 
           {/* Timeline Feed */}
           <div>
-            <h3 className="text-sm font-bold mb-4 uppercase text-muted-foreground tracking-wider flex items-center gap-2">
+            <h3 className="text-sm font-bold mb-4 uppercase text-slate-500 dark:text-zinc-400 tracking-wider flex items-center gap-2">
               <Clock size={14} /> Activity Timeline
             </h3>
             
             <div className="space-y-4 relative before:absolute before:inset-0 before:ml-5 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-transparent before:via-border before:to-transparent">
               {interactions.length === 0 ? (
-                <div className="text-center py-4 text-xs text-muted-foreground italic">No interactions recorded yet.</div>
+                <div className="text-center py-4 text-xs text-slate-500 dark:text-zinc-400 italic">No interactions recorded yet.</div>
               ) : (
                 [...interactions].reverse().map((interaction, i) => {
                   let Icon = FileText;
@@ -168,16 +173,16 @@ export default function LeadActivityDrawer({ lead, onClose }) {
                   
                   return (
                     <div key={interaction.id || i} className="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group">
-                      <div className={`flex items-center justify-center w-10 h-10 rounded-full border-2 bg-background shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 shadow-sm z-10 ${colorClass}`}>
+                      <div className={`flex items-center justify-center w-10 h-10 rounded-full border-2 bg-slate-50 dark:bg-black shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 shadow-sm z-10 ${colorClass}`}>
                         <Icon size={16} />
                       </div>
-                      <div className="w-[calc(100%-4rem)] md:w-[calc(50%-2.5rem)] bg-card border border-border/60 p-3 rounded-xl shadow-sm hover:shadow-md transition">
+                      <div className="w-[calc(100%-4rem)] md:w-[calc(50%-2.5rem)] bg-white dark:bg-[#111] border border-slate-200 dark:border-white/[0.08]/60 p-3 rounded-xl shadow-sm hover:shadow-md transition">
                         <div className="flex items-center justify-between mb-1">
-                          <span className="text-xs font-bold capitalize text-foreground">{interaction.type.replace('_', ' ')}</span>
-                          <span className="text-[10px] text-muted-foreground flex items-center gap-1"><Calendar size={10}/> {parseDate(interaction.created_at)}</span>
+                          <span className="text-xs font-bold capitalize text-slate-800 dark:text-zinc-200">{interaction.type.replace('_', ' ')}</span>
+                          <span className="text-[10px] text-slate-500 dark:text-zinc-400 flex items-center gap-1"><Calendar size={10}/> {parseDate(interaction.created_at)}</span>
                         </div>
-                        <p className="text-xs text-muted-foreground whitespace-pre-wrap">{interaction.notes}</p>
-                        <div className="mt-2 text-[9px] uppercase tracking-wider text-muted-foreground/60 font-semibold">
+                        <p className="text-xs text-slate-500 dark:text-zinc-400 whitespace-pre-wrap">{interaction.notes}</p>
+                        <div className="mt-2 text-[9px] uppercase tracking-wider text-slate-500 dark:text-zinc-400/60 font-semibold">
                           By {interaction.created_by_name || "System"}
                         </div>
                       </div>

@@ -100,13 +100,13 @@ export default function ReceiptModal({ payment, student, onClose }) {
 
       <div 
         onClick={e => e.stopPropagation()} 
-        className="bg-background/95 backdrop-blur-xl border border-border/40 rounded-3xl shadow-[0_20px_60px_-15px_rgba(0,0,0,0.1)] max-w-4xl w-full max-h-[92vh] flex flex-col shadow-2xl overflow-hidden"
+        className="bg-white dark:bg-[#111] border border-slate-200 dark:border-white/[0.08] shadow-2xl rounded-[1.5rem] overflow-hidden max-w-4xl w-full max-h-[92vh] flex flex-col"
       >
         {/* Header Bar */}
-        <div className="px-6 py-4 border-b border-border flex items-center justify-between bg-muted/20 shrink-0">
+        <div className="px-6 py-4 border-b border-slate-200 dark:border-white/[0.08] flex items-center justify-between bg-slate-200/50 dark:bg-white/[0.04]/20 shrink-0">
           <div>
             <div className="text-[10px] uppercase tracking-[0.2em] font-bold text-accent">Tax Invoice & Receipt Engine</div>
-            <h2 className="font-display text-xl font-medium mt-0.5 text-foreground">
+            <h2 className="font-display text-xl font-medium mt-0.5 text-slate-800 dark:text-zinc-200">
               Receipt #{receiptNo}
             </h2>
           </div>
@@ -114,7 +114,7 @@ export default function ReceiptModal({ payment, student, onClose }) {
           <div className="flex items-center gap-2">
             <Button 
               onClick={handleBrowserPrint}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-primary text-primary-foreground rounded-xl text-xs uppercase tracking-wider font-bold shadow hover:opacity-90 transition"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-teal-600 text-white rounded-xl text-xs uppercase tracking-wider font-bold shadow hover:opacity-90 transition"
               title="Direct Print (Thermal or A4)"
               data-testid="receipt-print-btn"
             >
@@ -124,14 +124,14 @@ export default function ReceiptModal({ payment, student, onClose }) {
               href={pdfDownloadUrl}
               target="_blank"
               rel="noreferrer"
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 border border-border bg-background rounded-xl text-xs uppercase tracking-wider font-bold text-foreground hover:bg-muted/50 transition"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 border border-slate-200 dark:border-white/[0.08] bg-slate-50 dark:bg-black rounded-xl text-xs uppercase tracking-wider font-bold text-slate-800 dark:text-zinc-200 hover:bg-slate-200/50 dark:bg-white/[0.04]/50 transition"
               data-testid="receipt-download-btn"
             >
               <Download size={14} /> PDF
             </a>
             <Button 
               onClick={handleShareWhatsApp}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 border border-emerald-500/20 bg-emerald-500/10 text-emerald-600 rounded-xl text-xs uppercase tracking-wider font-bold hover:bg-emerald-500/20 transition"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 border border-emerald-300 dark:border-emerald-500/20 bg-emerald-500/10 text-emerald-600 rounded-xl text-xs uppercase tracking-wider font-bold hover:bg-emerald-500/20 transition"
               title="Share receipt via WhatsApp"
               data-testid="receipt-whatsapp-btn"
             >
@@ -139,7 +139,7 @@ export default function ReceiptModal({ payment, student, onClose }) {
             </Button>
             <Button 
               onClick={onClose} 
-              className="p-1.5 rounded-xl border border-transparent hover:border-border hover:bg-muted/50 text-muted-foreground hover:text-foreground transition ml-1"
+              className="p-1.5 rounded-xl border border-transparent hover:border-slate-200 dark:border-white/[0.08] hover:bg-slate-200/50 dark:bg-white/[0.04]/50 text-slate-500 dark:text-zinc-400 hover:text-slate-800 dark:text-zinc-200 transition ml-1"
             >
               <X size={18} />
             </Button>
@@ -147,15 +147,15 @@ export default function ReceiptModal({ payment, student, onClose }) {
         </div>
 
         {/* Format Selector Bar */}
-        <div className="px-6 py-3 border-b border-border bg-muted/40 flex flex-wrap items-center justify-between gap-3 shrink-0">
+        <div className="px-6 py-3 border-b border-slate-200 dark:border-white/[0.08] bg-slate-200/50 dark:bg-white/[0.04]/40 flex flex-wrap items-center justify-between gap-3 shrink-0">
           <div className="flex items-center gap-1.5 text-xs">
-            <span className="font-bold text-muted-foreground uppercase tracking-wider mr-1">Output Media:</span>
+            <span className="font-bold text-slate-500 dark:text-zinc-400 uppercase tracking-wider mr-1">Output Media:</span>
             <Button
               onClick={() => setFormat("a4")}
               className={`px-3 py-1.5 rounded-lg font-bold text-xs uppercase tracking-wider transition ${
                 format === "a4" 
                   ? "bg-foreground text-background shadow" 
-                  : "bg-background border border-border text-muted-foreground hover:text-foreground"
+                  : "bg-slate-50 dark:bg-black border border-slate-200 dark:border-white/[0.08] text-slate-500 dark:text-zinc-400 hover:text-slate-800 dark:text-zinc-200"
               }`}
               data-testid="format-a4-btn"
             >
@@ -166,7 +166,7 @@ export default function ReceiptModal({ payment, student, onClose }) {
               className={`px-3 py-1.5 rounded-lg font-bold text-xs uppercase tracking-wider transition ${
                 format === "thermal-80" 
                   ? "bg-foreground text-background shadow" 
-                  : "bg-background border border-border text-muted-foreground hover:text-foreground"
+                  : "bg-slate-50 dark:bg-black border border-slate-200 dark:border-white/[0.08] text-slate-500 dark:text-zinc-400 hover:text-slate-800 dark:text-zinc-200"
               }`}
               data-testid="format-thermal-80-btn"
             >
@@ -177,7 +177,7 @@ export default function ReceiptModal({ payment, student, onClose }) {
               className={`px-3 py-1.5 rounded-lg font-bold text-xs uppercase tracking-wider transition ${
                 format === "thermal-58" 
                   ? "bg-foreground text-background shadow" 
-                  : "bg-background border border-border text-muted-foreground hover:text-foreground"
+                  : "bg-slate-50 dark:bg-black border border-slate-200 dark:border-white/[0.08] text-slate-500 dark:text-zinc-400 hover:text-slate-800 dark:text-zinc-200"
               }`}
               data-testid="format-thermal-58-btn"
             >
@@ -185,8 +185,8 @@ export default function ReceiptModal({ payment, student, onClose }) {
             </Button>
           </div>
 
-          <div className="flex items-center gap-2 text-xs text-muted-foreground">
-            <Button onClick={handleCopyLink} className="inline-flex items-center gap-1 hover:text-foreground font-mono">
+          <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-zinc-400">
+            <Button onClick={handleCopyLink} className="inline-flex items-center gap-1 hover:text-slate-800 dark:text-zinc-200 font-mono">
               <Copy size={12}/> Copy Link
             </Button>
             <span>•</span>
@@ -195,7 +195,7 @@ export default function ReceiptModal({ payment, student, onClose }) {
         </div>
 
         {/* Scrollable Receipt Preview Stage */}
-        <div className="flex-1 overflow-y-auto p-4 sm:p-8 bg-muted/20 flex justify-center items-start">
+        <div className="flex-1 overflow-y-auto p-4 sm:p-8 bg-slate-200/50 dark:bg-white/[0.04]/20 flex justify-center items-start">
           <div 
             id="printable-receipt" 
             ref={printRef}
@@ -296,7 +296,7 @@ export default function ReceiptModal({ payment, student, onClose }) {
                     </div>
                     <div className="flex justify-between font-bold text-sm text-slate-900 pt-1.5 border-t border-slate-300">
                       <span>Total Paid:</span>
-                      <span className="text-emerald-700">₹{amount.toFixed(2)}</span>
+                      <span className="text-emerald-800">₹{amount.toFixed(2)}</span>
                     </div>
                     <div className="flex justify-between text-slate-600 pt-1 text-[11px]">
                       <span>Next Due:</span>
@@ -359,7 +359,7 @@ export default function ReceiptModal({ payment, student, onClose }) {
                   </div>
                   <div className="flex justify-between font-bold text-xs text-slate-900 pt-1">
                     <span>TOTAL RECEIVED:</span>
-                    <span className="text-emerald-700">₹{amount.toFixed(2)}</span>
+                    <span className="text-emerald-800">₹{amount.toFixed(2)}</span>
                   </div>
                 </div>
 
@@ -392,8 +392,8 @@ export default function ReceiptModal({ payment, student, onClose }) {
         </div>
 
         {/* Footer Actions */}
-        <div className="px-6 py-3 border-t border-border bg-muted/20 flex items-center justify-between shrink-0">
-          <div className="text-xs text-muted-foreground flex items-center gap-1.5">
+        <div className="px-6 py-3 border-t border-slate-200 dark:border-white/[0.08] bg-slate-200/50 dark:bg-white/[0.04]/20 flex items-center justify-between shrink-0">
+          <div className="text-xs text-slate-500 dark:text-zinc-400 flex items-center gap-1.5">
             <CheckCircle2 size={13} className="text-emerald-500" />
             <span>Digital fiscal authorization valid across all Unacademy branch hubs.</span>
           </div>
@@ -401,14 +401,14 @@ export default function ReceiptModal({ payment, student, onClose }) {
           <div className="flex gap-2">
             <Button
               onClick={handleBrowserPrint}
-              className="px-4 py-2 bg-primary text-primary-foreground rounded-xl font-bold text-xs uppercase tracking-wider hover:opacity-90 transition flex items-center gap-1.5 shadow"
+              className="bg-teal-600 text-white rounded-full px-5 py-2 text-[11px] font-semibold tracking-[0.04em] uppercase shadow-[0_0_0_1px_rgba(13,148,136,0.5),0_4px_16px_rgba(13,148,136,0.25)] hover:bg-teal-700 active:scale-[0.97] transition-all duration-300 flex items-center gap-1.5"
             >
               <Printer size={13} /> Print on {format === "a4" ? "A4" : format === "thermal-80" ? "80mm POS" : "58mm POS"}
             </Button>
             <Button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 border border-border rounded-xl text-xs uppercase tracking-wider font-bold text-muted-foreground hover:text-foreground hover:bg-muted/50 transition"
+              className="bg-transparent rounded-full border border-slate-200 dark:border-white/10 text-slate-500 dark:text-zinc-400 hover:border-slate-300 dark:border-white/20 hover:text-slate-800 dark:text-zinc-200 hover:bg-slate-200/50 dark:bg-white/[0.04] px-4 py-2 text-[11px] font-semibold tracking-[0.06em] uppercase transition-all duration-300"
             >
               Close
             </Button>

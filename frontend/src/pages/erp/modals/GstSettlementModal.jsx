@@ -130,10 +130,10 @@ export default function GstSettlementModal({ onClose, defaultBranchId = "", bran
     <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-3 sm:p-6 backdrop-blur-md animate-fadeIn" onClick={onClose} data-testid="gst-settlement-modal">
       <div 
         onClick={(e) => e.stopPropagation()} 
-        className="bg-card border border-border/80 rounded-2xl w-full max-w-5xl max-h-[92vh] flex flex-col shadow-2xl overflow-hidden"
+        className="bg-white dark:bg-[#111] border border-slate-200 dark:border-white/[0.08] shadow-2xl rounded-[1.5rem] overflow-hidden w-full max-w-5xl max-h-[92vh] flex flex-col"
       >
         {/* Modal Header */}
-        <div className="p-5 sm:p-6 border-b border-border bg-muted/20 flex flex-wrap items-center justify-between gap-4 shrink-0">
+        <div className="p-5 sm:p-6 border-b border-slate-200 dark:border-white/[0.08] bg-slate-200/50 dark:bg-white/[0.04]/20 flex flex-wrap items-center justify-between gap-4 shrink-0">
           <div className="flex items-center gap-3.5">
             <div className="p-2.5 bg-indigo-500/10 text-indigo-500 rounded-xl border border-indigo-500/20">
               <Landmark size={24} />
@@ -143,7 +143,7 @@ export default function GstSettlementModal({ onClose, defaultBranchId = "", bran
                 <span className="text-xs uppercase tracking-widest font-bold text-indigo-500">Government Tax Compliance</span>
                 <span className="px-2 py-0.5 bg-accent/10 text-accent font-mono text-[10px] rounded-full font-bold">SAC 9992 (18%)</span>
               </div>
-              <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground mt-0.5">
+              <h2 className="text-lg font-bold text-slate-900 dark:text-zinc-100 text-xl sm:text-2xl mt-0.5">
                 Monthly GST Calculation &amp; Filing
               </h2>
             </div>
@@ -152,14 +152,14 @@ export default function GstSettlementModal({ onClose, defaultBranchId = "", bran
           <div className="flex items-center gap-2.5">
             <Button
               onClick={() => refetch()}
-              className="p-2 border border-border rounded-xl text-muted-foreground hover:text-foreground hover:bg-muted/40 transition"
+              className="p-2 border border-slate-200 dark:border-white/[0.08] rounded-xl text-slate-500 dark:text-zinc-400 hover:text-slate-800 dark:text-zinc-200 hover:bg-slate-200/50 dark:bg-white/[0.04]/40 transition"
               title="Refresh Tax Data"
             >
               <RefreshCw size={16} className={isFetching ? "animate-spin" : ""} />
             </Button>
             <Button
               onClick={onClose}
-              className="p-2 border border-border rounded-xl text-muted-foreground hover:text-foreground hover:bg-muted/40 transition"
+              className="p-2 border border-slate-200 dark:border-white/[0.08] rounded-xl text-slate-500 dark:text-zinc-400 hover:text-slate-800 dark:text-zinc-200 hover:bg-slate-200/50 dark:bg-white/[0.04]/40 transition"
               aria-label="Close"
             >
               <X size={18} />
@@ -168,15 +168,15 @@ export default function GstSettlementModal({ onClose, defaultBranchId = "", bran
         </div>
 
         {/* Filter Toolbar: Month and Branch Selectors */}
-        <div className="p-4 sm:px-6 bg-muted/10 border-b border-border flex flex-wrap items-center justify-between gap-3 shrink-0">
+        <div className="p-4 sm:px-6 bg-slate-200/50 dark:bg-white/[0.04]/10 border-b border-slate-200 dark:border-white/[0.08] flex flex-wrap items-center justify-between gap-3 shrink-0">
           <div className="flex items-center gap-3 flex-wrap">
             <div className="flex items-center gap-2">
-              <Calendar size={15} className="text-muted-foreground" />
-              <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Period:</span>
+              <Calendar size={15} className="text-slate-500 dark:text-zinc-400" />
+              <span className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-zinc-400">Period:</span>
               <select
                 value={selectedMonth}
                 onChange={(e) => setSelectedMonth(e.target.value)}
-                className="px-3 py-1.5 bg-background border border-border rounded-xl text-xs font-semibold text-foreground focus:ring-1 focus:ring-primary focus:outline-none"
+                className="w-full bg-slate-50 dark:bg-black border border-slate-200 dark:border-white/[0.08] rounded-[10px] text-[13px] text-slate-600 dark:text-zinc-400 focus:border-teal-600/50 px-3 py-2"
                 data-testid="gst-month-select"
               >
                 {monthOptions.map((opt) => (
@@ -189,11 +189,11 @@ export default function GstSettlementModal({ onClose, defaultBranchId = "", bran
 
             {branches.length > 0 && (
               <div className="flex items-center gap-2">
-                <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Branch:</span>
+                <span className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-zinc-400">Branch:</span>
                 <select
                   value={branchId}
                   onChange={(e) => setBranchId(e.target.value)}
-                  className="px-3 py-1.5 bg-background border border-border rounded-xl text-xs font-semibold text-foreground focus:ring-1 focus:ring-primary focus:outline-none"
+                  className="w-full bg-slate-50 dark:bg-black border border-slate-200 dark:border-white/[0.08] rounded-[10px] text-[13px] text-slate-600 dark:text-zinc-400 focus:border-teal-600/50 px-3 py-2"
                 >
                   <option value="">All Branches (Consolidated)</option>
                   {branches.map((b) => (
@@ -210,7 +210,7 @@ export default function GstSettlementModal({ onClose, defaultBranchId = "", bran
               href={exportUrl}
               target="_blank"
               rel="noreferrer"
-              className="px-3.5 py-1.5 bg-emerald-600/10 hover:bg-emerald-600/20 text-emerald-600 border border-emerald-500/20 rounded-xl text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 transition"
+              className="px-3.5 py-1.5 bg-emerald-600/10 hover:bg-emerald-600/20 text-emerald-600 border border-emerald-300 dark:border-emerald-500/20 rounded-xl text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 transition"
               data-testid="download-gst-excel-btn"
             >
               <FileSpreadsheet size={15} /> Download GSTR-1 Excel
@@ -218,7 +218,7 @@ export default function GstSettlementModal({ onClose, defaultBranchId = "", bran
             {!isPaid ? (
               <Button
                 onClick={handleOpenMarkPaid}
-                className="px-3.5 py-1.5 bg-primary text-primary-foreground rounded-xl text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 hover:bg-primary/90 transition shadow-sm"
+                className="px-3.5 py-1.5 bg-teal-600 text-white rounded-xl text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 hover:bg-teal-600/90 transition shadow-sm"
                 data-testid="mark-gst-paid-btn"
               >
                 <ShieldCheck size={15} /> Mark Month as Paid
@@ -227,7 +227,7 @@ export default function GstSettlementModal({ onClose, defaultBranchId = "", bran
               <div className="flex items-center gap-2">
                 <Button
                   onClick={handleOpenMarkPaid}
-                  className="px-3 py-1.5 border border-border text-foreground hover:bg-muted/50 rounded-xl text-xs font-bold uppercase tracking-wider transition"
+                  className="px-3 py-1.5 border border-slate-200 dark:border-white/[0.08] text-slate-800 dark:text-zinc-200 hover:bg-slate-200/50 dark:bg-white/[0.04]/50 rounded-xl text-xs font-bold uppercase tracking-wider transition"
                 >
                   Edit Challan
                 </Button>
@@ -247,7 +247,7 @@ export default function GstSettlementModal({ onClose, defaultBranchId = "", bran
           {/* Status & Challan Banner */}
           <div className={`p-4 rounded-2xl border flex flex-wrap items-center justify-between gap-4 transition ${
             isPaid 
-              ? "bg-emerald-500/5 border-emerald-500/20" 
+              ? "bg-emerald-500/5 border-emerald-300 dark:border-emerald-500/20" 
               : "bg-amber-500/5 border-amber-500/20"
           }`}>
             <div className="flex items-start gap-3">
@@ -258,7 +258,7 @@ export default function GstSettlementModal({ onClose, defaultBranchId = "", bran
               </div>
               <div>
                 <div className="flex items-center gap-2">
-                  <h4 className="text-base font-bold text-foreground">
+                  <h4 className="text-base font-bold text-slate-800 dark:text-zinc-200">
                     {isPaid ? "GST Remittance Settled & Verified" : "Monthly Tax Liability Pending Payment"}
                   </h4>
                   <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
@@ -268,16 +268,16 @@ export default function GstSettlementModal({ onClose, defaultBranchId = "", bran
                   </span>
                 </div>
                 {isPaid ? (
-                  <div className="text-xs text-muted-foreground mt-1 flex flex-wrap items-center gap-x-4 gap-y-1">
-                    <span>Challan / CIN: <strong className="font-mono text-foreground">{filing.challan_no}</strong></span>
-                    <span>Remitted On: <strong className="text-foreground">{fmtDate(filing.paid_date)}</strong></span>
-                    <span>Mode: <strong className="text-foreground">{filing.payment_mode}</strong></span>
+                  <div className="text-xs text-slate-500 dark:text-zinc-400 mt-1 flex flex-wrap items-center gap-x-4 gap-y-1">
+                    <span>Challan / CIN: <strong className="font-mono text-slate-800 dark:text-zinc-200">{filing.challan_no}</strong></span>
+                    <span>Remitted On: <strong className="text-slate-800 dark:text-zinc-200">{fmtDate(filing.paid_date)}</strong></span>
+                    <span>Mode: <strong className="text-slate-800 dark:text-zinc-200">{filing.payment_mode}</strong></span>
                     {filing.paid_by_name && (
-                      <span>Officer: <strong className="text-foreground">{filing.paid_by_name}</strong></span>
+                      <span>Officer: <strong className="text-slate-800 dark:text-zinc-200">{filing.paid_by_name}</strong></span>
                     )}
                   </div>
                 ) : (
-                  <p className="text-xs text-muted-foreground mt-1">
+                  <p className="text-xs text-slate-500 dark:text-zinc-400 mt-1">
                     Liability computed on tuition fee receipts for {selectedMonth}. GSTR-3B return &amp; PMT-06 challan must be paid to the portal by the 20th of next month.
                   </p>
                 )}
@@ -296,18 +296,18 @@ export default function GstSettlementModal({ onClose, defaultBranchId = "", bran
 
           {/* Form Drawer / Collapsible for Recording Challan */}
           {showMarkPaidForm && (
-            <form onSubmit={handleSubmitMarkPaid} className="p-5 bg-card border border-primary/30 rounded-2xl shadow-lg space-y-4 animate-fadeIn">
-              <div className="flex items-center justify-between pb-2 border-b border-border">
+            <form onSubmit={handleSubmitMarkPaid} className="p-5 bg-white dark:bg-[#111] border border-teal-600/30 rounded-2xl shadow-lg space-y-4 animate-fadeIn">
+              <div className="flex items-center justify-between pb-2 border-b border-slate-200 dark:border-white/[0.08]">
                 <div className="flex items-center gap-2">
-                  <Landmark size={18} className="text-primary" />
-                  <h3 className="text-sm font-bold uppercase tracking-wider text-foreground">
+                  <Landmark size={18} className="text-teal-800 dark:text-teal-300" />
+                  <h3 className="text-sm font-bold uppercase tracking-wider text-slate-800 dark:text-zinc-200">
                     {isPaid ? "Update Challan Details" : "Record GST Remittance Challan"}
                   </h3>
                 </div>
-                <Button 
+                <Button className="bg-transparent rounded-full border border-slate-200 dark:border-white/10 text-slate-500 dark:text-zinc-400 hover:border-slate-300 dark:border-white/20 hover:text-slate-800 dark:text-zinc-200 hover:bg-slate-200/50 dark:bg-white/[0.04] px-4 py-2 text-[11px] font-semibold tracking-[0.06em] uppercase transition-all duration-300" 
                   type="button" 
                   onClick={() => setShowMarkPaidForm(false)}
-                  className="text-muted-foreground hover:text-foreground text-xs"
+                  className="text-slate-500 dark:text-zinc-400 hover:text-slate-800 dark:text-zinc-200 text-xs"
                 >
                   Cancel
                 </Button>
@@ -315,7 +315,7 @@ export default function GstSettlementModal({ onClose, defaultBranchId = "", bran
 
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div>
-                  <label className="block text-xs font-bold uppercase tracking-wider text-muted-foreground mb-1">
+                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-zinc-400 mb-1">
                     Challan / CPIN / CIN No. *
                   </label>
                   <input
@@ -324,12 +324,12 @@ export default function GstSettlementModal({ onClose, defaultBranchId = "", bran
                     value={challanNo}
                     onChange={(e) => setChallanNo(e.target.value)}
                     placeholder="e.g. CPIN-2609-88194"
-                    className="w-full px-3 py-2 bg-background border border-border rounded-xl text-xs font-mono text-foreground focus:ring-1 focus:ring-primary focus:outline-none"
+                    className="w-full bg-slate-50 dark:bg-black border border-slate-200 dark:border-white/[0.08] rounded-[10px] text-[13px] text-slate-600 dark:text-zinc-400 focus:border-teal-600/50 px-3 py-2 font-mono"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold uppercase tracking-wider text-muted-foreground mb-1">
+                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-zinc-400 mb-1">
                     Settlement Date *
                   </label>
                   <input
@@ -337,18 +337,18 @@ export default function GstSettlementModal({ onClose, defaultBranchId = "", bran
                     required
                     value={paidDate}
                     onChange={(e) => setPaidDate(e.target.value)}
-                    className="w-full px-3 py-2 bg-background border border-border rounded-xl text-xs text-foreground focus:ring-1 focus:ring-primary focus:outline-none"
+                    className="w-full bg-slate-50 dark:bg-black border border-slate-200 dark:border-white/[0.08] rounded-[10px] text-[13px] text-slate-600 dark:text-zinc-400 focus:border-teal-600/50 px-3 py-2"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold uppercase tracking-wider text-muted-foreground mb-1">
+                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-zinc-400 mb-1">
                     Remittance Mode
                   </label>
                   <select
                     value={paymentMode}
                     onChange={(e) => setPaymentMode(e.target.value)}
-                    className="w-full px-3 py-2 bg-background border border-border rounded-xl text-xs text-foreground focus:ring-1 focus:ring-primary focus:outline-none"
+                    className="w-full bg-slate-50 dark:bg-black border border-slate-200 dark:border-white/[0.08] rounded-[10px] text-[13px] text-slate-600 dark:text-zinc-400 focus:border-teal-600/50 px-3 py-2"
                   >
                     <option value="Net Banking">Net Banking (GST Portal)</option>
                     <option value="NEFT/RTGS">NEFT / RTGS (RBI Challan)</option>
@@ -359,7 +359,7 @@ export default function GstSettlementModal({ onClose, defaultBranchId = "", bran
               </div>
 
               <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-muted-foreground mb-1">
+                <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-zinc-400 mb-1">
                   Compliance Remarks &amp; Filing Notes
                 </label>
                 <input
@@ -367,7 +367,7 @@ export default function GstSettlementModal({ onClose, defaultBranchId = "", bran
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
                   placeholder="e.g. Cleared via HDFC Corporate Account for Sept GSTR-3B"
-                  className="w-full px-3 py-2 bg-background border border-border rounded-xl text-xs text-foreground focus:ring-1 focus:ring-primary focus:outline-none"
+                  className="w-full bg-slate-50 dark:bg-black border border-slate-200 dark:border-white/[0.08] rounded-[10px] text-[13px] text-slate-600 dark:text-zinc-400 focus:border-teal-600/50 px-3 py-2"
                 />
               </div>
 
@@ -375,14 +375,14 @@ export default function GstSettlementModal({ onClose, defaultBranchId = "", bran
                 <Button
                   type="button"
                   onClick={() => setShowMarkPaidForm(false)}
-                  className="px-4 py-2 border border-border rounded-xl text-xs font-bold uppercase tracking-wider text-muted-foreground hover:bg-muted/40 transition"
+                  className="bg-transparent rounded-full border border-slate-200 dark:border-white/10 text-slate-500 dark:text-zinc-400 hover:border-slate-300 dark:border-white/20 hover:text-slate-800 dark:text-zinc-200 hover:bg-slate-200/50 dark:bg-white/[0.04] px-4 py-2 text-[11px] font-semibold tracking-[0.06em] uppercase transition-all duration-300 w-full"
                 >
                   Cancel
                 </Button>
                 <Button
                   type="submit"
                   disabled={markPaidMutation.isLoading}
-                  className="px-5 py-2 bg-primary text-primary-foreground rounded-xl text-xs font-bold uppercase tracking-wider hover:bg-primary/90 transition shadow-md disabled:opacity-50"
+                  className="bg-teal-600 text-white rounded-full px-5 py-2 text-[11px] font-semibold tracking-[0.04em] uppercase shadow-[0_0_0_1px_rgba(13,148,136,0.5),0_4px_16px_rgba(13,148,136,0.25)] hover:bg-teal-700 active:scale-[0.97] transition-all duration-300 w-full disabled:opacity-50"
                 >
                   {markPaidMutation.isLoading ? "Saving..." : "Save Settlement"}
                 </Button>
@@ -392,55 +392,55 @@ export default function GstSettlementModal({ onClose, defaultBranchId = "", bran
 
           {/* Executive KPI Grid */}
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4">
-            <div className="glass-elevated p-4 rounded-2xl border border-border/80">
-              <div className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+            <div className="bg-white dark:bg-[#111] border border-slate-200 dark:border-white/[0.08] shadow-2xl p-4 rounded-2xl border border-slate-200 dark:border-white/[0.08]/80">
+              <div className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-zinc-400">
                 Gross Invoiced
               </div>
-              <div className="font-display text-2xl font-bold text-foreground mt-1.5">
+              <div className="font-display text-2xl font-bold text-slate-800 dark:text-zinc-200 mt-1.5">
                 {fmtINR(gstData?.total_gross || 0)}
               </div>
-              <div className="text-[10px] text-muted-foreground mt-1 font-mono">
+              <div className="text-[10px] text-slate-500 dark:text-zinc-400 mt-1 font-mono">
                 {receipts.length} total receipts
               </div>
             </div>
 
-            <div className="glass-elevated p-4 rounded-2xl border border-border/80">
-              <div className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+            <div className="bg-white dark:bg-[#111] border border-slate-200 dark:border-white/[0.08] shadow-2xl p-4 rounded-2xl border border-slate-200 dark:border-white/[0.08]/80">
+              <div className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-zinc-400">
                 Taxable Value
               </div>
-              <div className="font-display text-2xl font-bold text-foreground mt-1.5">
+              <div className="font-display text-2xl font-bold text-slate-800 dark:text-zinc-200 mt-1.5">
                 {fmtINR(gstData?.total_taxable || 0)}
               </div>
-              <div className="text-[10px] text-muted-foreground mt-1">
+              <div className="text-[10px] text-slate-500 dark:text-zinc-400 mt-1">
                 Base Tuition (SAC 9992)
               </div>
             </div>
 
-            <div className="glass-elevated p-4 rounded-2xl border border-border/80">
+            <div className="bg-white dark:bg-[#111] border border-slate-200 dark:border-white/[0.08] shadow-2xl p-4 rounded-2xl border border-slate-200 dark:border-white/[0.08]/80">
               <div className="text-[11px] font-bold uppercase tracking-wider text-sky-500">
                 Central GST (9%)
               </div>
               <div className="font-display text-2xl font-bold text-sky-500 mt-1.5">
                 {fmtINR(gstData?.total_cgst || 0)}
               </div>
-              <div className="text-[10px] text-muted-foreground mt-1">
+              <div className="text-[10px] text-slate-500 dark:text-zinc-400 mt-1">
                 CGST liability
               </div>
             </div>
 
-            <div className="glass-elevated p-4 rounded-2xl border border-border/80">
+            <div className="bg-white dark:bg-[#111] border border-slate-200 dark:border-white/[0.08] shadow-2xl p-4 rounded-2xl border border-slate-200 dark:border-white/[0.08]/80">
               <div className="text-[11px] font-bold uppercase tracking-wider text-indigo-500">
                 State GST (9%)
               </div>
               <div className="font-display text-2xl font-bold text-indigo-500 mt-1.5">
                 {fmtINR(gstData?.total_sgst || 0)}
               </div>
-              <div className="text-[10px] text-muted-foreground mt-1">
+              <div className="text-[10px] text-slate-500 dark:text-zinc-400 mt-1">
                 SGST liability
               </div>
             </div>
 
-            <div className="glass-elevated p-4 rounded-2xl border border-indigo-500/20 bg-indigo-500/5 col-span-2 sm:col-span-1">
+            <div className="bg-white dark:bg-[#111] border border-slate-200 dark:border-white/[0.08] shadow-2xl p-4 rounded-2xl border border-indigo-500/20 bg-indigo-500/5 col-span-2 sm:col-span-1">
               <div className="text-[11px] font-bold uppercase tracking-wider text-indigo-500">
                 Total GST (18%)
               </div>
@@ -455,20 +455,20 @@ export default function GstSettlementModal({ onClose, defaultBranchId = "", bran
 
           {/* Mode Breakdown Pills */}
           {gstData?.mode_breakdown && (
-            <div className="p-4 bg-muted/20 rounded-2xl border border-border">
-              <div className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-2.5">
+            <div className="p-4 bg-slate-200/50 dark:bg-white/[0.04]/20 rounded-2xl border border-slate-200 dark:border-white/[0.08]">
+              <div className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-zinc-400 mb-2.5">
                 Collection Channel Classification
               </div>
               <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
                 {Object.entries(gstData.mode_breakdown).map(([modeName, info]) => (
-                  <div key={modeName} className="p-3 bg-background rounded-xl border border-border/60">
-                    <div className="text-[10px] uppercase tracking-wider font-bold text-muted-foreground">
+                  <div key={modeName} className="p-3 bg-slate-50 dark:bg-black rounded-xl border border-slate-200 dark:border-white/[0.08]/60">
+                    <div className="text-[10px] uppercase tracking-wider font-bold text-slate-500 dark:text-zinc-400">
                       {modeName}
                     </div>
-                    <div className="text-sm font-bold text-foreground mt-1">
+                    <div className="text-sm font-bold text-slate-800 dark:text-zinc-200 mt-1">
                       {fmtINR(info.gross)}
                     </div>
-                    <div className="text-[10px] text-muted-foreground mt-0.5">
+                    <div className="text-[10px] text-slate-500 dark:text-zinc-400 mt-0.5">
                       GST: {fmtINR((info.cgst || 0) + (info.sgst || 0))} ({info.count} txns)
                     </div>
                   </div>
@@ -481,70 +481,70 @@ export default function GstSettlementModal({ onClose, defaultBranchId = "", bran
           <div className="space-y-3">
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div>
-                <h3 className="text-sm font-bold uppercase tracking-wider text-foreground">
+                <h3 className="text-sm font-bold uppercase tracking-wider text-slate-800 dark:text-zinc-200">
                   Monthly Tax Invoice Ledger
                 </h3>
-                <p className="text-xs text-muted-foreground">
+                <p className="text-xs text-slate-500 dark:text-zinc-400">
                   Itemized tax breakups for all student fee receipts recorded in {selectedMonth}
                 </p>
               </div>
 
               <div className="relative w-full sm:w-64">
-                <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 dark:text-zinc-400" />
                 <input
                   type="text"
                   value={searchFilter}
                   onChange={(e) => setSearchFilter(e.target.value)}
                   placeholder="Filter student or receipt..."
-                  className="w-full pl-8 pr-3 py-1.5 bg-background border border-border rounded-xl text-xs text-foreground focus:ring-1 focus:ring-primary focus:outline-none"
+                  className="w-full bg-slate-50 dark:bg-black border border-slate-200 dark:border-white/[0.08] rounded-[10px] text-[13px] text-slate-600 dark:text-zinc-400 focus:border-teal-600/50 px-3 py-2 pl-8"
                 />
               </div>
             </div>
 
-            <div className="border border-border rounded-2xl overflow-hidden shadow-sm">
+            <div className="border border-slate-200 dark:border-white/[0.08] rounded-2xl overflow-hidden shadow-sm">
               <div className="overflow-x-auto max-h-72">
                 <table className="w-full text-left text-xs border-collapse">
-                  <thead className="bg-muted/50 sticky top-0 z-10 border-b border-border">
+                  <thead className="bg-slate-200/50 dark:bg-white/[0.04]/50 sticky top-0 z-10 border-b border-slate-200 dark:border-white/[0.08]">
                     <tr>
-                      <th className="p-3 font-bold uppercase text-[10px] tracking-wider text-muted-foreground">Date</th>
-                      <th className="p-3 font-bold uppercase text-[10px] tracking-wider text-muted-foreground">Receipt No</th>
-                      <th className="p-3 font-bold uppercase text-[10px] tracking-wider text-muted-foreground">Student</th>
-                      <th className="p-3 font-bold uppercase text-[10px] tracking-wider text-muted-foreground">Mode</th>
-                      <th className="p-3 font-bold uppercase text-[10px] tracking-wider text-muted-foreground text-right">Gross (₹)</th>
-                      <th className="p-3 font-bold uppercase text-[10px] tracking-wider text-muted-foreground text-right">Taxable (₹)</th>
-                      <th className="p-3 font-bold uppercase text-[10px] tracking-wider text-muted-foreground text-right">CGST (9%)</th>
-                      <th className="p-3 font-bold uppercase text-[10px] tracking-wider text-muted-foreground text-right">SGST (9%)</th>
+                      <th className="p-3 font-bold uppercase text-[10px] tracking-wider text-slate-500 dark:text-zinc-400">Date</th>
+                      <th className="p-3 font-bold uppercase text-[10px] tracking-wider text-slate-500 dark:text-zinc-400">Receipt No</th>
+                      <th className="p-3 font-bold uppercase text-[10px] tracking-wider text-slate-500 dark:text-zinc-400">Student</th>
+                      <th className="p-3 font-bold uppercase text-[10px] tracking-wider text-slate-500 dark:text-zinc-400">Mode</th>
+                      <th className="p-3 font-bold uppercase text-[10px] tracking-wider text-slate-500 dark:text-zinc-400 text-right">Gross (₹)</th>
+                      <th className="p-3 font-bold uppercase text-[10px] tracking-wider text-slate-500 dark:text-zinc-400 text-right">Taxable (₹)</th>
+                      <th className="p-3 font-bold uppercase text-[10px] tracking-wider text-slate-500 dark:text-zinc-400 text-right">CGST (9%)</th>
+                      <th className="p-3 font-bold uppercase text-[10px] tracking-wider text-slate-500 dark:text-zinc-400 text-right">SGST (9%)</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-border">
                     {isLoading ? (
                       <tr>
-                        <td colSpan={8} className="p-8 text-center text-muted-foreground">
+                        <td colSpan={8} className="p-8 text-center text-slate-500 dark:text-zinc-400">
                           Calculating monthly GST schedules...
                         </td>
                       </tr>
                     ) : filteredReceipts.length === 0 ? (
                       <tr>
-                        <td colSpan={8} className="p-8 text-center text-muted-foreground">
+                        <td colSpan={8} className="p-8 text-center text-slate-500 dark:text-zinc-400">
                           No receipts found for {selectedMonth}.
                         </td>
                       </tr>
                     ) : (
                       filteredReceipts.map((r) => (
-                        <tr key={r.id || r.receipt_no} className="hover:bg-muted/20 transition-colors">
-                          <td className="p-3 font-mono text-muted-foreground">{fmtDate(r.paid_at)}</td>
-                          <td className="p-3 font-mono font-semibold text-primary">{r.receipt_no}</td>
+                        <tr key={r.id || r.receipt_no} className="hover:bg-slate-200/50 dark:bg-white/[0.04]/20 transition-colors">
+                          <td className="p-3 font-mono text-slate-500 dark:text-zinc-400">{fmtDate(r.paid_at)}</td>
+                          <td className="p-3 font-mono font-semibold text-teal-800 dark:text-teal-300">{r.receipt_no}</td>
                           <td className="p-3">
-                            <div className="font-semibold text-foreground">{r.student_name || "—"}</div>
-                            <div className="text-[10px] text-muted-foreground font-mono">{r.student_no}</div>
+                            <div className="font-semibold text-slate-800 dark:text-zinc-200">{r.student_name || "—"}</div>
+                            <div className="text-[10px] text-slate-500 dark:text-zinc-400 font-mono">{r.student_no}</div>
                           </td>
-                          <td className="p-3 uppercase font-semibold text-[10px] text-muted-foreground">
+                          <td className="p-3 uppercase font-semibold text-[10px] text-slate-500 dark:text-zinc-400">
                             {r.mode || "CASH"}
                           </td>
-                          <td className="p-3 text-right font-mono font-semibold text-foreground">
+                          <td className="p-3 text-right font-mono font-semibold text-slate-800 dark:text-zinc-200">
                             {fmtINR(r.amount)}
                           </td>
-                          <td className="p-3 text-right font-mono text-muted-foreground">
+                          <td className="p-3 text-right font-mono text-slate-500 dark:text-zinc-400">
                             {fmtINR(r.base_amount)}
                           </td>
                           <td className="p-3 text-right font-mono text-sky-500">
@@ -564,15 +564,15 @@ export default function GstSettlementModal({ onClose, defaultBranchId = "", bran
         </div>
 
         {/* Modal Footer */}
-        <div className="p-4 sm:px-6 bg-muted/20 border-t border-border flex items-center justify-between gap-3 shrink-0">
-          <div className="text-xs text-muted-foreground flex items-center gap-2">
+        <div className="p-4 sm:px-6 bg-slate-200/50 dark:bg-white/[0.04]/20 border-t border-slate-200 dark:border-white/[0.08] flex items-center justify-between gap-3 shrink-0">
+          <div className="text-xs text-slate-500 dark:text-zinc-400 flex items-center gap-2">
             <Landmark size={14} className="text-indigo-500" />
             <span>State GST Jurisdiction: Jammu &amp; Kashmir (Code 01)</span>
           </div>
 
           <Button
             onClick={onClose}
-            className="px-5 py-2 border border-border rounded-xl text-xs font-bold uppercase tracking-wider text-muted-foreground hover:text-foreground hover:bg-muted/40 transition"
+            className="bg-transparent rounded-full border border-slate-200 dark:border-white/10 text-slate-500 dark:text-zinc-400 hover:border-slate-300 dark:border-white/20 hover:text-slate-800 dark:text-zinc-200 hover:bg-slate-200/50 dark:bg-white/[0.04] px-4 py-2 text-[11px] font-semibold tracking-[0.06em] uppercase transition-all duration-300 w-full"
           >
             Close
           </Button>

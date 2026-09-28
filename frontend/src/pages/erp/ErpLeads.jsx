@@ -24,17 +24,17 @@ import {
 } from "lucide-react";
 
 const STAGES = [
-  { id: "new", label: "New Leads", color: "sky", style: "border-sky-500/30 bg-sky-500/10 text-sky-400" },
-  { id: "contacted", label: "Contacted", color: "indigo", style: "border-indigo-500/30 bg-indigo-500/10 text-indigo-400" },
-  { id: "follow_up", label: "Follow-Up", color: "amber", style: "border-amber-500/30 bg-amber-500/10 text-amber-400" },
-  { id: "pending_approval", label: "Pending Approval", color: "fuchsia", style: "border-fuchsia-500/30 bg-fuchsia-500/10 text-fuchsia-400" },
-  { id: "approved_for_accounts", label: "Accounts Handoff", color: "orange", style: "border-orange-500/30 bg-orange-500/10 text-orange-400" },
-  { id: "converted", label: "Converted", color: "emerald", style: "border-emerald-500/30 bg-emerald-500/10 text-emerald-600" },
-  { id: "lost", label: "Closed / Lost", color: "rose", style: "border-rose-500/30 bg-rose-500/10 text-rose-500" },
+  { id: "new", label: "New Leads", color: "sky", style: "bg-blue-100 dark:bg-blue-500/20 text-blue-800 dark:text-blue-300 border-blue-300 dark:border-blue-500/20" },
+  { id: "contacted", label: "Contacted", color: "indigo", style: "bg-blue-100 dark:bg-blue-500/20 text-blue-800 dark:text-blue-300 border-blue-300 dark:border-blue-500/20" },
+  { id: "follow_up", label: "Follow-Up", color: "amber", style: "bg-amber-100 dark:bg-yellow-500/20 text-amber-800 dark:text-yellow-300 border-amber-300 dark:border-yellow-500/20" },
+  { id: "pending_approval", label: "Pending Approval", color: "fuchsia", style: "bg-amber-100 dark:bg-yellow-500/20 text-amber-800 dark:text-yellow-300 border-amber-300 dark:border-yellow-500/20" },
+  { id: "approved_for_accounts", label: "Accounts Handoff", color: "orange", style: "bg-amber-100 dark:bg-yellow-500/20 text-amber-800 dark:text-yellow-300 border-amber-300 dark:border-yellow-500/20" },
+  { id: "converted", label: "Converted", color: "emerald", style: "bg-emerald-100 dark:bg-emerald-500/20 text-emerald-800 dark:text-emerald-300 border-emerald-300 dark:border-emerald-500/20" },
+  { id: "lost", label: "Closed / Lost", color: "rose", style: "bg-rose-100 dark:bg-red-500/20 text-red-800 dark:text-red-300 border-rose-300 dark:border-red-500/20" },
 ];
 
 export default function ErpLeads() {
-  const { erpUser, selectedBranchId } = useOutletContext();
+  const { erpUser, selectedBranchId, academicConfig } = useOutletContext();
   const [searchParams, setSearchParams] = useSearchParams();
   const queryClient = useQueryClient();
 
@@ -138,21 +138,21 @@ export default function ErpLeads() {
   }, [items]);
 
   return (
-    <div className="space-y-6 flex flex-col min-h-0 animate-fadeIn" data-testid="erp-leads-page">
+    <div className="space-y-6 flex flex-col min-h-0 animate-fadeIn bg-slate-50 dark:bg-black" data-testid="erp-leads-page">
       {/* Header Deck */}
       <div className="flex justify-between items-start flex-wrap gap-4 shrink-0">
         <div>
-          <div className="text-xs uppercase tracking-[0.2em] font-bold text-accent">Admissions CRM &amp; Pipeline</div>
-          <h1 className="font-display text-3xl sm:text-4xl font-light tracking-tight mt-1">Prospect Leads</h1>
-          <p className="text-muted-foreground mt-1 text-sm">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-semibold tracking-[0.2em] uppercase bg-teal-600/10 text-teal-600 border border-teal-600/25 mb-3">Admissions CRM &amp; Pipeline</div>
+          <h1 className="text-[30px] font-bold tracking-[-0.02em] text-slate-900 dark:text-zinc-100">Prospect Leads</h1>
+          <p className="text-[13px] text-slate-400 dark:text-zinc-600 mt-1.5">
             Lead stage progression, counsellor follow-ups, and automated student conversions.
           </p>
         </div>
 
         <div className="flex items-center gap-3">
-          <Button 
+          <Button className="bg-transparent rounded-full border border-slate-200 dark:border-white/10 text-slate-500 dark:text-zinc-400 hover:border-slate-300 dark:border-white/20 hover:text-slate-800 dark:text-zinc-200 hover:bg-slate-200/50 dark:bg-white/[0.04] px-4 py-2 text-[11px] font-semibold tracking-[0.06em] uppercase transition-all duration-300" 
             onClick={() => setShowCreate(true)} 
-            className="px-4 py-2 bg-primary text-primary-foreground rounded-xl text-xs uppercase tracking-wider font-bold flex items-center gap-2 hover:bg-primary/90 shadow-md transition" 
+            className="bg-teal-600 text-white rounded-full px-5 py-2 text-[11px] font-semibold tracking-[0.04em] uppercase shadow-[0_0_0_1px_rgba(13,148,136,0.5),0_4px_16px_rgba(13,148,136,0.25)] hover:bg-teal-700 active:scale-[0.97] transition-all duration-300 inline-flex items-center gap-2" 
             data-testid="create-lead-btn"
           >
             <Plus size={14}/> Add Prospect
@@ -160,40 +160,79 @@ export default function ErpLeads() {
         </div>
       </div>
 
+      {/* Query Filter System */}
+      <div className="flex gap-2 flex-wrap items-center justify-between shrink-0">
+        <div className="relative flex-1 min-w-[240px] max-w-md">
+          <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 dark:text-zinc-400"/>
+          <input className="bg-slate-50 dark:bg-black border border-slate-200 dark:border-white/[0.08] rounded-[10px] text-[13px] text-slate-600 dark:text-zinc-400 focus:border-teal-600/50 px-3 py-2" 
+            type="text"
+            value={q} 
+            onChange={handleSearchChange} 
+            placeholder="Search leads..." 
+            className="w-full bg-slate-200/50 dark:bg-white/[0.04] border border-slate-200 dark:border-white/[0.08] rounded-full py-2 px-4 pl-9 text-[13px] text-slate-600 dark:text-zinc-400 placeholder:text-zinc-700 focus:border-teal-600/50 focus:bg-teal-600/[0.05] focus:outline-none transition-all duration-300" 
+            data-testid="search-leads-input"
+          />
+        </div>
+
+        <div className="flex gap-2 flex-wrap items-center">
+          {isSuper(erpUser) && (
+            <select className="bg-slate-50 dark:bg-black border border-slate-200 dark:border-white/[0.08] rounded-[10px] text-[13px] text-slate-600 dark:text-zinc-400 focus:border-teal-600/50 px-3 py-2" 
+              value={branchId} 
+              onChange={e => { setBranchId(e.target.value); setPage(1); }} 
+              className="bg-white dark:bg-[#111] border border-slate-200 dark:border-white/[0.08] rounded-[10px] text-[13px] text-slate-600 dark:text-zinc-400 px-3 py-2 focus:outline-none focus:border-teal-600/50" 
+              data-testid="filter-branch"
+            >
+              <option value="">All Branches</option>
+              {branches.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}
+            </select>
+          )}
+
+          <select
+            value={statusFilter}
+            onChange={e => { setStatusFilter(e.target.value); setPage(1); }}
+            className="bg-white dark:bg-[#111] border border-slate-200 dark:border-white/[0.08] rounded-[10px] text-[13px] text-slate-600 dark:text-zinc-400 px-3 py-2 focus:outline-none focus:border-teal-600/50"
+          >
+            <option value="all">All Stages</option>
+            {STAGES.map(s => <option key={s.id} value={s.id}>{s.label}</option>)}
+          </select>
+        </div>
+      </div>
+
       {/* Main View Area (List Only) */}
-      <div className="glass-elevated rounded-2xl border border-border w-full overflow-hidden flex flex-col flex-1 min-h-0">
+      <div className="bg-slate-100 dark:bg-white/[0.03] border border-slate-200 dark:border-white/[0.08] rounded-[1.75rem] p-[6px] w-full flex flex-col flex-1 min-h-0">
+        <div className="bg-white dark:bg-[#111] rounded-[calc(1.75rem-6px)] shadow-sm dark:shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] overflow-hidden p-5 flex flex-col flex-1 min-h-0">
           <div className="overflow-y-auto overflow-x-auto w-full h-full custom-scrollbar">
             <table className="w-full text-sm table-fixed border-collapse min-w-[880px]">
-              <thead className="bg-muted text-muted-foreground sticky top-0 z-20 shadow-[0_1px_0_rgba(255,255,255,0.05)]">
-                <tr className="text-left backdrop-blur-md">
-                  <th className="w-[18%] px-5 py-3.5 text-xs font-bold uppercase tracking-wider bg-muted">Lead Name</th>
-                  <th className="w-[15%] px-5 py-3.5 text-xs font-bold uppercase tracking-wider bg-muted">Phone</th>
-                  <th className="w-[14%] px-5 py-3.5 text-xs font-bold uppercase tracking-wider bg-muted">Class Target</th>
-                  <th className="w-[14%] px-5 py-3.5 text-xs font-bold uppercase tracking-wider bg-muted">Stage</th>
-                  <th className="w-[25%] px-5 py-3.5 text-xs font-bold uppercase tracking-wider bg-muted">Remarks</th>
-                  <th className="w-[14%] px-5 py-3.5 bg-muted text-right pr-6">Action</th>
+              <thead className="sticky top-0 z-20 bg-white dark:bg-[#111]">
+                <tr className="text-left">
+                  <th className="w-[18%] text-[10px] font-semibold tracking-[0.18em] uppercase text-slate-500 dark:text-zinc-400 pb-3 border-b border-slate-200 dark:border-white/[0.06] text-left">Lead Name</th>
+                  <th className="w-[15%] text-[10px] font-semibold tracking-[0.18em] uppercase text-slate-500 dark:text-zinc-400 pb-3 border-b border-slate-200 dark:border-white/[0.06] text-left">Phone</th>
+                  <th className="w-[14%] text-[10px] font-semibold tracking-[0.18em] uppercase text-slate-500 dark:text-zinc-400 pb-3 border-b border-slate-200 dark:border-white/[0.06] text-left">Class Target</th>
+                  <th className="w-[14%] text-[10px] font-semibold tracking-[0.18em] uppercase text-slate-500 dark:text-zinc-400 pb-3 border-b border-slate-200 dark:border-white/[0.06] text-left">Stage</th>
+                  <th className="w-[25%] text-[10px] font-semibold tracking-[0.18em] uppercase text-slate-500 dark:text-zinc-400 pb-3 border-b border-slate-200 dark:border-white/[0.06] text-left">Remarks</th>
+                  <th className="w-[14%] text-[10px] font-semibold tracking-[0.18em] uppercase text-slate-500 dark:text-zinc-400 pb-3 border-b border-slate-200 dark:border-white/[0.06] text-right pr-6">Action</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-border bg-background/20">
+              <tbody className="divide-y divide-slate-200 dark:divide-white/[0.04]">
                 {items.map(l => (
-                  <tr key={l.id} className="hover:bg-muted/40 transition-colors group">
-                    <td className="px-5 py-3.5 text-xs font-bold text-foreground truncate">{l.name}</td>
-                    <td className="px-5 py-3.5 font-mono text-xs text-muted-foreground whitespace-nowrap">{l.phone}</td>
-                    <td className="px-5 py-3.5 text-xs text-foreground truncate">{l.moving_to_class || l.present_class || "—"}</td>
-                    <td className="px-5 py-3.5 whitespace-nowrap">
-                      <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider border ${
-                        STAGES.find(s => s.id === l.status)?.style || "border-border bg-muted/50 text-muted-foreground"
+                  <tr key={l.id} onClick={() => setSelectedLead(l)} className="hover:bg-slate-100 dark:bg-white/[0.02] border-b border-slate-200 dark:border-white/[0.04] last:border-0 transition-all duration-[400ms] [transition-timing-function:cubic-bezier(0.32,0.72,0,1)] group cursor-pointer">
+                    <td className="py-3 px-4 text-[13px] text-slate-800 dark:text-zinc-200 font-medium truncate">{l.name}</td>
+                    <td className="py-3 px-4 text-[13px] font-mono text-slate-600 dark:text-zinc-400 whitespace-nowrap">{l.phone}</td>
+                    <td className="py-3 px-4 text-[13px] text-slate-600 dark:text-zinc-400 truncate">{l.moving_to_class || l.present_class || "—"}</td>
+                    <td className="py-3 px-4 whitespace-nowrap">
+                      <span className={`border rounded-full px-2.5 py-0.5 text-[10px] font-semibold tracking-[0.05em] uppercase ${
+                        STAGES.find(s => s.id === l.status)?.style || "border-slate-200 dark:border-white/[0.08] bg-slate-200/50 dark:bg-white/[0.04] text-slate-500 dark:text-zinc-400"
                       }`}>
                         {l.status}
                       </span>
                     </td>
-                    <td className="px-5 py-3.5 text-xs text-muted-foreground truncate" title={l.remarks}>{l.remarks || "—"}</td>
-                    <td className="px-5 py-3.5 text-right whitespace-nowrap pr-6">
-                      <div className="flex items-center justify-end gap-1.5">
+                    <td className="py-3 px-4 text-[13px] text-slate-600 dark:text-zinc-400 truncate" title={l.remarks}>{l.remarks || "—"}</td>
+                    <td className="py-3 px-4 text-right whitespace-nowrap pr-6">
+                      <div className="flex items-center justify-end gap-1.5" onClick={e => e.stopPropagation()}>
                         <Button
                           onClick={() => openWhatsApp(l)}
                           title="WhatsApp Chat"
-                          className="p-1.5 text-muted-foreground hover:text-emerald-500 rounded-lg transition"
+                          className="bg-transparent rounded-full border border-slate-200 dark:border-white/10 text-slate-500 dark:text-zinc-400 hover:border-slate-300 dark:border-white/20 hover:text-emerald-800 dark:text-emerald-300 hover:bg-slate-200/50 dark:bg-white/[0.04] p-1.5 transition-all duration-300 w-8 h-8 flex items-center justify-center"
                         >
                           <MessageSquare size={14} />
                         </Button>
@@ -201,7 +240,7 @@ export default function ErpLeads() {
                           <Button
                             onClick={() => setProposeModalLead(l)}
                             title="Propose Admission"
-                            className="p-1 text-muted-foreground hover:text-fuchsia-500 hover:bg-fuchsia-500/10 rounded transition"
+                            className="bg-transparent rounded-full border border-slate-200 dark:border-white/10 text-slate-500 dark:text-zinc-400 hover:border-slate-300 dark:border-white/20 hover:text-teal-800 dark:text-teal-300 hover:bg-slate-200/50 dark:bg-white/[0.04] p-1.5 transition-all duration-300 w-8 h-8 flex items-center justify-center"
                           >
                             <Target size={14} />
                           </Button>
@@ -210,7 +249,7 @@ export default function ErpLeads() {
                           <Button
                             onClick={() => setReviewModalLead(l)}
                             title="Review Proposed Fee"
-                            className="p-1 text-muted-foreground hover:text-orange-500 hover:bg-orange-500/10 rounded transition"
+                            className="bg-transparent rounded-full border border-slate-200 dark:border-white/10 text-slate-500 dark:text-zinc-400 hover:border-slate-300 dark:border-white/20 hover:text-amber-800 dark:text-yellow-300 hover:bg-slate-200/50 dark:bg-white/[0.04] p-1.5 transition-all duration-300 w-8 h-8 flex items-center justify-center"
                           >
                             <AlertCircle size={14} />
                           </Button>
@@ -219,7 +258,7 @@ export default function ErpLeads() {
                           <Button
                             onClick={() => setEnrollModalLead(l)}
                             title="Process Admission"
-                            className="p-1 text-muted-foreground hover:text-emerald-600 hover:bg-emerald-600/10 rounded transition"
+                            className="bg-transparent rounded-full border border-slate-200 dark:border-white/10 text-slate-500 dark:text-zinc-400 hover:border-slate-300 dark:border-white/20 hover:text-emerald-800 dark:text-emerald-300 hover:bg-slate-200/50 dark:bg-white/[0.04] p-1.5 transition-all duration-300 w-8 h-8 flex items-center justify-center"
                           >
                             <CheckCircle2 size={14} />
                           </Button>
@@ -228,7 +267,7 @@ export default function ErpLeads() {
                           <Button
                             onClick={() => setDeleteModal(l)}
                             title="Delete Lead"
-                            className="p-1.5 text-muted-foreground hover:text-rose-500 rounded-lg transition"
+                            className="bg-transparent rounded-full border border-slate-200 dark:border-white/10 text-slate-500 dark:text-zinc-400 hover:border-slate-300 dark:border-white/20 hover:text-red-800 dark:text-red-300 hover:bg-slate-200/50 dark:bg-white/[0.04] p-1.5 transition-all duration-300 w-8 h-8 flex items-center justify-center"
                           >
                             <Trash2 size={14} />
                           </Button>
@@ -241,7 +280,7 @@ export default function ErpLeads() {
                   <tr>
                     <td colSpan="6" className="p-4">
                       {isLoading ? (
-                        <div className="py-12 text-center text-muted-foreground">Retrieving prospect pipeline...</div>
+                        <div className="py-12 text-center text-slate-500 dark:text-zinc-400">Retrieving prospect pipeline...</div>
                       ) : (
                         <EmptyState title="No leads found" description="There are no leads matching your current criteria." />
                       )}
@@ -252,40 +291,39 @@ export default function ErpLeads() {
             </table>
           </div>
 
-      {/* Pagination Footer */}
-          <div className="px-5 py-3 border-t border-border bg-muted/30 flex items-center justify-between text-xs text-muted-foreground shrink-0">
+          {/* Pagination Footer */}
+          <div className="pt-4 mt-4 border-t border-slate-200 dark:border-white/[0.08] flex items-center justify-between text-[11px] text-slate-500 dark:text-zinc-400 shrink-0">
             <div>
-              Showing <span className="font-semibold text-foreground">{items.length}</span> of <span className="font-semibold text-foreground">{totalCount}</span> total leads
+              Showing <span className="font-semibold text-slate-800 dark:text-zinc-200">{items.length}</span> of <span className="font-semibold text-slate-800 dark:text-zinc-200">{totalCount}</span> total leads
             </div>
             <div className="flex items-center gap-2">
               <Button
                 onClick={() => setPage(p => Math.max(p - 1, 1))}
                 disabled={page <= 1 || isLoading}
-                className="p-1.5 rounded-lg border border-border hover:bg-muted disabled:opacity-40 transition"
+                className="bg-transparent rounded-full border border-slate-200 dark:border-white/10 text-slate-500 dark:text-zinc-400 hover:border-slate-300 dark:border-white/20 hover:text-slate-800 dark:text-zinc-200 hover:bg-slate-200/50 dark:bg-white/[0.04] px-2 py-1 text-[11px] font-semibold transition-all duration-300 disabled:opacity-40"
               >
                 <ChevronLeft size={14} />
               </Button>
-              <span className="font-mono text-xs">
+              <span className="font-mono text-[11px]">
                 Page {page} of {totalPages}
               </span>
               <Button
                 onClick={() => setPage(p => Math.min(p + 1, totalPages))}
                 disabled={page >= totalPages || isLoading}
-                className="p-1.5 rounded-lg border border-border hover:bg-muted disabled:opacity-40 transition"
+                className="bg-transparent rounded-full border border-slate-200 dark:border-white/10 text-slate-500 dark:text-zinc-400 hover:border-slate-300 dark:border-white/20 hover:text-slate-800 dark:text-zinc-200 hover:bg-slate-200/50 dark:bg-white/[0.04] px-2 py-1 text-[11px] font-semibold transition-all duration-300 disabled:opacity-40"
               >
                 <ChevronRight size={14} />
               </Button>
             </div>
           </div>
         </div>
-
-      
+      </div>
 
       {/* Enterprise CRM Modals */}
-      {selectedLead && <LeadActivityDrawer lead={selectedLead} onClose={() => setSelectedLead(null)} />}
-      {proposeModalLead && <LeadProposeModal lead={proposeModalLead} onClose={() => setProposeModalLead(null)} />}
+      {(selectedLead) && (function(){ const liveLead = items?.find(l => l.id === selectedLead.id) || selectedLead; return <LeadActivityDrawer lead={liveLead} onClose={() => setSelectedLead(null)} onInteractionAdded={(interaction) => { setSelectedLead(prev => ({ ...prev, interactions: [...(prev.interactions || []), interaction] })); }} />; })()}
+      {proposeModalLead && <LeadProposeModal academicConfig={academicConfig} lead={proposeModalLead} onClose={() => setProposeModalLead(null)} />}
       {reviewModalLead && <LeadReviewModal lead={reviewModalLead} onClose={() => setReviewModalLead(null)} />}
-      {enrollModalLead && <LeadEnrollModal lead={enrollModalLead} onClose={() => setEnrollModalLead(null)} />}
+      {enrollModalLead && <LeadEnrollModal academicConfig={academicConfig} lead={enrollModalLead} onClose={() => setEnrollModalLead(null)} />}
       {transferModalLead && <LeadTransferModal lead={transferModalLead} branches={branches} onClose={() => setTransferModalLead(null)} />}
 
       {/* Create Lead Modal */}
@@ -299,17 +337,17 @@ export default function ErpLeads() {
       )}
 
       {deleteModal && (
-        <div className="fixed inset-0 bg-black/50 z-50 grid place-items-center p-4 backdrop-blur-sm animate-fadeIn" onClick={() => !deleting && setDeleteModal(null)}>
-          <div onClick={e => e.stopPropagation()} className="bg-background border border-border rounded-2xl max-w-sm w-full p-6 space-y-4 shadow-2xl">
-            <div className="flex items-center gap-3 text-rose-500">
-              <div className="p-2.5 bg-rose-500/10 rounded-xl"><AlertTriangle size={24}/></div>
+        <div className="fixed inset-0 bg-black/60 z-50 grid place-items-center p-4 backdrop-blur-sm transition-all duration-[400ms] [transition-timing-function:cubic-bezier(0.32,0.72,0,1)]" onClick={() => !deleting && setDeleteModal(null)}>
+          <div onClick={e => e.stopPropagation()} className="bg-white dark:bg-[#111] border border-slate-200 dark:border-white/[0.08] rounded-[16px] max-w-sm w-full p-6 space-y-4 shadow-2xl shadow-sm dark:shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]">
+            <div className="flex items-center gap-3 text-red-500">
+              <div className="p-2.5 bg-rose-100 dark:bg-red-500/20 rounded-xl border border-rose-300 dark:border-red-500/20"><AlertTriangle size={24}/></div>
               <div>
-                <h3 className="font-display font-medium text-lg text-foreground">Purge Lead</h3>
-                <p className="text-[10px] text-rose-500 uppercase tracking-widest font-bold">Irreversible Action</p>
+                <h3 className="text-[20px] font-bold tracking-[-0.02em] text-slate-900 dark:text-zinc-100">Purge Lead</h3>
+                <p className="text-[10px] text-red-800 dark:text-red-300 uppercase tracking-widest font-bold">Irreversible Action</p>
               </div>
             </div>
-            <p className="text-sm text-muted-foreground leading-relaxed">
-              Are you sure you want to delete lead <strong className="text-foreground">{deleteModal.name}</strong> ({deleteModal.phone})?
+            <p className="text-[13px] text-slate-600 dark:text-zinc-400 leading-relaxed">
+              Are you sure you want to delete lead <strong className="text-slate-800 dark:text-zinc-200">{deleteModal.name}</strong> ({deleteModal.phone})?
             </p>
             <div className="flex gap-2.5 pt-2">
               <Button
@@ -327,14 +365,14 @@ export default function ErpLeads() {
                     setDeleting(false);
                   }
                 }}
-                className="flex-1 py-2.5 bg-rose-600 text-white rounded-xl text-xs uppercase tracking-wider font-bold hover:bg-rose-700 disabled:opacity-50 transition shadow-md flex items-center justify-center gap-1.5"
+                className="flex-1 bg-red-600 text-white rounded-full px-5 py-2 text-[11px] font-semibold tracking-[0.04em] uppercase shadow-[0_0_0_1px_rgba(220,38,38,0.5),0_4px_16px_rgba(220,38,38,0.25)] hover:bg-red-700 active:scale-[0.97] transition-all duration-300 inline-flex items-center justify-center gap-1.5 disabled:opacity-50"
               >
                 <Trash2 size={13}/> {deleting ? "Purging..." : "Confirm Purge"}
               </Button>
               <Button
                 disabled={deleting}
                 onClick={() => setDeleteModal(null)}
-                className="px-4 py-2.5 border border-border rounded-xl text-xs uppercase tracking-wider font-bold text-muted-foreground hover:text-foreground hover:bg-muted/50 transition"
+                className="bg-transparent rounded-full border border-slate-200 dark:border-white/10 text-slate-500 dark:text-zinc-400 hover:border-slate-300 dark:border-white/20 hover:text-slate-800 dark:text-zinc-200 hover:bg-slate-200/50 dark:bg-white/[0.04] px-4 py-2 text-[11px] font-semibold tracking-[0.06em] uppercase transition-all duration-300 inline-flex items-center gap-2"
               >
                 Cancel
               </Button>
@@ -396,14 +434,14 @@ function CreateLeadModal({ onClose, onCreated, defaultBranchId, branches }) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fadeIn">
-      <div className="bg-card border border-border w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
-        <div className="p-5 border-b border-border flex items-center justify-between bg-muted/20">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm transition-all duration-[400ms] [transition-timing-function:cubic-bezier(0.32,0.72,0,1)]">
+      <div className="bg-white dark:bg-[#111] border border-slate-200 dark:border-white/[0.08] w-full max-w-lg rounded-[16px] shadow-sm dark:shadow-[inset_0_1px_0_rgba(255,255,255,0.05)] overflow-hidden flex flex-col max-h-[90vh]">
+        <div className="p-5 border-b border-slate-200 dark:border-white/[0.08] flex items-center justify-between">
           <div>
-            <h3 className="font-display text-lg font-bold text-foreground">Add Prospect Lead</h3>
-            <p className="text-xs text-muted-foreground mt-0.5">Register new student inquiry into admissions funnel</p>
+            <h3 className="text-[20px] font-bold tracking-[-0.02em] text-slate-900 dark:text-zinc-100">Add Prospect Lead</h3>
+            <p className="text-[13px] text-slate-400 dark:text-zinc-600 mt-0.5">Register new student inquiry into admissions funnel</p>
           </div>
-          <Button onClick={onClose} className="text-muted-foreground hover:text-foreground">
+          <Button onClick={onClose} className="bg-transparent rounded-full border border-slate-200 dark:border-white/10 text-slate-500 dark:text-zinc-400 hover:border-slate-300 dark:border-white/20 hover:text-slate-800 dark:text-zinc-200 hover:bg-slate-200/50 dark:bg-white/[0.04] p-2 transition-all duration-300 w-8 h-8 flex items-center justify-center">
             <X size={18} />
           </Button>
         </div>
@@ -411,7 +449,7 @@ function CreateLeadModal({ onClose, onCreated, defaultBranchId, branches }) {
         <form onSubmit={handleSubmit} className="p-5 space-y-4 overflow-y-auto custom-scrollbar flex-1">
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-muted-foreground mb-1">
+              <label className="text-[10px] font-semibold tracking-[0.16em] uppercase text-slate-500 dark:text-zinc-400 mb-1 block">
                 Student Name *
               </label>
               <input
@@ -420,11 +458,11 @@ function CreateLeadModal({ onClose, onCreated, defaultBranchId, branches }) {
                 value={form.name}
                 onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
                 placeholder="e.g. Saima Mir"
-                className="w-full px-3 py-2 border border-border bg-background rounded-xl text-xs text-foreground focus:outline-none focus:border-primary"
+                className="w-full bg-slate-200/50 dark:bg-white/[0.04] border border-slate-200 dark:border-white/[0.08] rounded-[10px] py-2 px-3 text-[13px] text-slate-600 dark:text-zinc-400 placeholder:text-zinc-700 focus:border-teal-600/50 focus:bg-teal-600/[0.05] focus:outline-none transition-all duration-300"
               />
             </div>
             <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-muted-foreground mb-1">
+              <label className="text-[10px] font-semibold tracking-[0.16em] uppercase text-slate-500 dark:text-zinc-400 mb-1 block">
                 Mobile Number *
               </label>
               <input
@@ -433,14 +471,14 @@ function CreateLeadModal({ onClose, onCreated, defaultBranchId, branches }) {
                 value={form.phone}
                 onChange={e => setForm(f => ({ ...f, phone: e.target.value }))}
                 placeholder="10-digit phone #"
-                className="w-full px-3 py-2 border border-border bg-background rounded-xl text-xs font-mono text-foreground focus:outline-none focus:border-primary"
+                className="w-full bg-slate-200/50 dark:bg-white/[0.04] border border-slate-200 dark:border-white/[0.08] rounded-[10px] py-2 px-3 text-[13px] font-mono text-slate-600 dark:text-zinc-400 placeholder:text-zinc-700 focus:border-teal-600/50 focus:bg-teal-600/[0.05] focus:outline-none transition-all duration-300"
               />
             </div>
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-muted-foreground mb-1">
+              <label className="text-[10px] font-semibold tracking-[0.16em] uppercase text-slate-500 dark:text-zinc-400 mb-1 block">
                 Current Class
               </label>
               <input
@@ -448,11 +486,11 @@ function CreateLeadModal({ onClose, onCreated, defaultBranchId, branches }) {
                 value={form.present_class}
                 onChange={e => setForm(f => ({ ...f, present_class: e.target.value }))}
                 placeholder="e.g. 10th / 11th"
-                className="w-full px-3 py-2 border border-border bg-background rounded-xl text-xs text-foreground focus:outline-none"
+                className="w-full bg-slate-200/50 dark:bg-white/[0.04] border border-slate-200 dark:border-white/[0.08] rounded-[10px] py-2 px-3 text-[13px] text-slate-600 dark:text-zinc-400 placeholder:text-zinc-700 focus:border-teal-600/50 focus:bg-teal-600/[0.05] focus:outline-none transition-all duration-300"
               />
             </div>
             <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-muted-foreground mb-1">
+              <label className="text-[10px] font-semibold tracking-[0.16em] uppercase text-slate-500 dark:text-zinc-400 mb-1 block">
                 Target Track / Target Class
               </label>
               <input
@@ -460,19 +498,19 @@ function CreateLeadModal({ onClose, onCreated, defaultBranchId, branches }) {
                 value={form.moving_to_class}
                 onChange={e => setForm(f => ({ ...f, moving_to_class: e.target.value }))}
                 placeholder="e.g. NEET Repeater / JEE"
-                className="w-full px-3 py-2 border border-border bg-background rounded-xl text-xs text-foreground focus:outline-none"
+                className="w-full bg-slate-200/50 dark:bg-white/[0.04] border border-slate-200 dark:border-white/[0.08] rounded-[10px] py-2 px-3 text-[13px] text-slate-600 dark:text-zinc-400 placeholder:text-zinc-700 focus:border-teal-600/50 focus:bg-teal-600/[0.05] focus:outline-none transition-all duration-300"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-xs font-bold uppercase tracking-wider text-muted-foreground mb-1">
+            <label className="text-[10px] font-semibold tracking-[0.16em] uppercase text-slate-500 dark:text-zinc-400 mb-1 block">
               Branch *
             </label>
             <select
               value={form.branch_id}
               onChange={e => setForm(f => ({ ...f, branch_id: e.target.value }))}
-              className="w-full px-3 py-2 border border-border bg-background rounded-xl text-xs font-semibold text-foreground focus:outline-none"
+              className="w-full bg-white dark:bg-[#111] border border-slate-200 dark:border-white/[0.08] rounded-[10px] text-[13px] text-slate-600 dark:text-zinc-400 px-3 py-2 focus:outline-none focus:border-teal-600/50"
             >
               {branches.map(b => (
                 <option key={b.id} value={b.id}>{b.name}</option>
@@ -481,13 +519,13 @@ function CreateLeadModal({ onClose, onCreated, defaultBranchId, branches }) {
           </div>
 
           <div>
-            <label className="block text-xs font-bold uppercase tracking-wider text-muted-foreground mb-1">
+            <label className="text-[10px] font-semibold tracking-[0.16em] uppercase text-slate-500 dark:text-zinc-400 mb-1 block">
               Assigned Counsellor
             </label>
             <select
               value={form.counsellor_id}
               onChange={e => setForm(f => ({ ...f, counsellor_id: e.target.value }))}
-              className="w-full px-3 py-2 border border-border bg-background rounded-xl text-xs font-semibold text-foreground focus:outline-none"
+              className="w-full bg-white dark:bg-[#111] border border-slate-200 dark:border-white/[0.08] rounded-[10px] text-[13px] text-slate-600 dark:text-zinc-400 px-3 py-2 focus:outline-none focus:border-teal-600/50"
             >
               <option value="">— Select Counsellor —</option>
               {counsellors.map(c => (
@@ -497,7 +535,7 @@ function CreateLeadModal({ onClose, onCreated, defaultBranchId, branches }) {
           </div>
 
           <div>
-            <label className="block text-xs font-bold uppercase tracking-wider text-muted-foreground mb-1">
+            <label className="text-[10px] font-semibold tracking-[0.16em] uppercase text-slate-500 dark:text-zinc-400 mb-1 block">
               Address / Town
             </label>
             <input
@@ -505,12 +543,12 @@ function CreateLeadModal({ onClose, onCreated, defaultBranchId, branches }) {
               value={form.address}
               onChange={e => setForm(f => ({ ...f, address: e.target.value }))}
               placeholder="e.g. Rajbagh, Srinagar"
-              className="w-full px-3 py-2 border border-border bg-background rounded-xl text-xs text-foreground focus:outline-none"
+              className="w-full bg-slate-200/50 dark:bg-white/[0.04] border border-slate-200 dark:border-white/[0.08] rounded-[10px] py-2 px-3 text-[13px] text-slate-600 dark:text-zinc-400 placeholder:text-zinc-700 focus:border-teal-600/50 focus:bg-teal-600/[0.05] focus:outline-none transition-all duration-300"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-bold uppercase tracking-wider text-muted-foreground mb-1">
+            <label className="text-[10px] font-semibold tracking-[0.16em] uppercase text-slate-500 dark:text-zinc-400 mb-1 block">
               Counselling Notes / Remarks
             </label>
             <textarea
@@ -518,22 +556,22 @@ function CreateLeadModal({ onClose, onCreated, defaultBranchId, branches }) {
               value={form.remarks}
               onChange={e => setForm(f => ({ ...f, remarks: e.target.value }))}
               placeholder="e.g. Interested in morning batch; requested scholarship concession"
-              className="w-full px-3 py-2 border border-border bg-background rounded-xl text-xs text-foreground focus:outline-none resize-none"
+              className="w-full bg-slate-200/50 dark:bg-white/[0.04] border border-slate-200 dark:border-white/[0.08] rounded-[10px] py-2 px-3 text-[13px] text-slate-600 dark:text-zinc-400 placeholder:text-zinc-700 focus:border-teal-600/50 focus:bg-teal-600/[0.05] focus:outline-none transition-all duration-300 resize-none"
             />
           </div>
 
-          <div className="pt-3 border-t border-border flex items-center justify-end gap-3">
+          <div className="pt-4 border-t border-slate-200 dark:border-white/[0.08] flex items-center justify-end gap-3">
             <Button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 text-xs font-bold text-muted-foreground hover:text-foreground transition"
+              className="bg-transparent rounded-full border border-slate-200 dark:border-white/10 text-slate-500 dark:text-zinc-400 hover:border-slate-300 dark:border-white/20 hover:text-slate-800 dark:text-zinc-200 hover:bg-slate-200/50 dark:bg-white/[0.04] px-4 py-2 text-[11px] font-semibold tracking-[0.06em] uppercase transition-all duration-300 inline-flex items-center gap-2"
             >
               Cancel
             </Button>
             <Button
               type="submit"
               disabled={submitting}
-              className="px-5 py-2 bg-primary text-primary-foreground rounded-xl text-xs font-bold uppercase tracking-wider hover:bg-primary/90 shadow-md transition disabled:opacity-50"
+              className="bg-teal-600 text-white rounded-full px-5 py-2 text-[11px] font-semibold tracking-[0.04em] uppercase shadow-[0_0_0_1px_rgba(13,148,136,0.5),0_4px_16px_rgba(13,148,136,0.25)] hover:bg-teal-700 active:scale-[0.97] transition-all duration-300 inline-flex items-center justify-center gap-2 disabled:opacity-50"
             >
               {submitting ? "Adding..." : "Add to Pipeline"}
             </Button>
