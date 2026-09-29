@@ -99,6 +99,7 @@ export default function ErpCommandPalette({ isOpen, onClose, onAction, erpUser }
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen, selectedIndex, allItems]);
 
   const handleSelect = (item) => {

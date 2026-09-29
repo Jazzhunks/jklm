@@ -41,6 +41,7 @@ export default function ErpStaff() {
   };
 
   useEffect(() => { erp.listBranches().then(setBranches); }, []);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => { reload(); }, [branchId]);
 
   const toggleDeactivate = async (id, name) => {

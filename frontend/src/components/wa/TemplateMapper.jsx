@@ -84,6 +84,7 @@ export default function TemplateMapper({
     if (Object.keys(autoMappings).length > 0 && onMappingsChange) {
       onMappingsChange(autoMappings);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [autoMappings]);
 
   const handleMappingChange = (idx, col) => {

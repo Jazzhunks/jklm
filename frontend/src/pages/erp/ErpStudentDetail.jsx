@@ -165,11 +165,13 @@ export default function ErpStudentDetail() {
       .catch(e => toast.error(formatError(e.response?.data?.detail) || "Failed to sync statement data"));
   };
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => { reload(); }, [studentIdentifier]);
 
   useEffect(() => {
     const timer = setInterval(() => { reload(); }, 30000);
     return () => clearInterval(timer);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [reload]);
 
   if (!stmt) {

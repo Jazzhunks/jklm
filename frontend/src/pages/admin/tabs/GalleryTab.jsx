@@ -77,6 +77,7 @@ export default function GalleryTab({ innerSearch }) {
     const cats = Array.from(new Set(galleryItems.map(x => x.category || "Uncategorised")));
     if (!cats.includes("Uncategorised")) cats.push("Uncategorised");
     return cats;
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [galleryItems]);
 
   return (

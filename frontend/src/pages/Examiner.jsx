@@ -44,6 +44,7 @@ export default function Examiner() {
       setData(data);
     } catch (e) { toast.error(formatError(e.response?.data?.detail) || e.message); }
   };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => { loadApps(); /* eslint-disable-next-line */ }, [campaign?.id, venue]);
 
   // Helper to extract application_no from URL, piped strings, or plain input

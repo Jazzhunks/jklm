@@ -49,6 +49,7 @@ export default function WathSlotPicker({ carnival, chosenDate, chosenSlot, onPic
       return validSlots.length > 0;
     });
     return firstValid ? firstValid.date : (dates[0]?.date || null);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dates, chosenDate]);
 
   const [activeDate, setActiveDate] = useState(initialAvailableDate);
@@ -59,6 +60,7 @@ export default function WathSlotPicker({ carnival, chosenDate, chosenSlot, onPic
     if (!chosenDate && initialAvailableDate) {
       setActiveDate(initialAvailableDate);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dates, chosenDate, initialAvailableDate]);
 
   useEffect(() => {

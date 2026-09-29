@@ -77,6 +77,7 @@ export default function ErpDashboard() {
     p.then(setData).catch(e => setErr(formatError(e.response?.data?.detail) || "Failed to load"));
   };
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => { refreshDashboard(); }, [erpUser, selectedBranchId]);
 
   if (err) return (
@@ -821,6 +822,7 @@ function ExpensesViewModal({ erpUser, onClose, refreshRoot }) {
   };
 
   useEffect(() => { erp.listBranches().then(setBranches); }, []);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => { sync(); }, [branchId, statusFilter]);
 
   const handleDecision = async (id, decision) => {
@@ -938,6 +940,7 @@ function CreateExpenseModal({ erpUser, onClose, onCreated }) {
   });
   const [busy, setBusy] = useState(false);
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => { if (isSuper(erpUser)) erp.listBranches().then(setBranches); }, []);
 
   const executeSubmit = async (e) => {

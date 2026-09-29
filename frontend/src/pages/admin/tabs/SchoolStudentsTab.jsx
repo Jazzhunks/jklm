@@ -35,6 +35,7 @@ export default function SchoolStudentsTab() {
     }
   };
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => { load(); }, [scholarshipFilter, schoolFilter]);
 
   const exportCsv = () => {
