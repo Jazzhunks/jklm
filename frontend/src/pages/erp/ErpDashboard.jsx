@@ -7,11 +7,7 @@ import FeeMatrixConfigModal from "./modals/FeeMatrixConfigModal";
 import LeadActivityDrawer from "./modals/LeadActivityDrawer";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
-import { 
-  TrendingUp, TrendingDown, Users, AlertCircle, Building2, 
-  Plus, IndianRupee, FileText, ArrowUpRight, ArrowDownRight, Wallet, 
-  MapPinSimple, Download, Search, X, Check, Ban, Layers, MessageSquare, Clock
-} from "lucide-react";
+import { TrendingUp, TrendingDown, Users, AlertCircle, Plus, IndianRupee, Wallet, Download, Search, X, Check, Ban, Layers, MessageSquare, Clock } from "lucide-react";
 import { 
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, 
   ResponsiveContainer, PieChart, Pie, Cell, Legend 
@@ -180,7 +176,6 @@ export default function ErpDashboard() {
         <TodayDueListModal erpUser={erpUser} onClose={() => setActiveModal(null)} />
       )}
 
-
     </div>
   );
 }
@@ -331,7 +326,6 @@ function TodayDueListModal({ erpUser, onClose }) {
           )}
         </div>
       </div>
-
 
     </div>
   );
@@ -518,7 +512,6 @@ function SuperView({ d, leads, leadTab, setLeadTab, refreshDashboard }) {
         </div>
       </div>
 
-
       {/* Delete Lead Modal */}
       {deleteModal && (
         <div className="fixed inset-0 bg-black/60 z-50 grid place-items-center p-4 backdrop-blur-sm transition-all duration-[400ms] [transition-timing-function:cubic-bezier(0.32,0.72,0,1)]" onClick={() => !deleting && setDeleteModal(null)}>
@@ -541,7 +534,6 @@ function SuperView({ d, leads, leadTab, setLeadTab, refreshDashboard }) {
           </div>
         </div>
       )}
-
 
       {(selectedLead) && (function(){ const liveLead = leads?.find(l => l.id === selectedLead.id) || selectedLead; return <LeadActivityDrawer lead={liveLead} onClose={() => setSelectedLead(null)} onInteractionAdded={(interaction) => { setSelectedLead(prev => ({ ...prev, interactions: [...(prev.interactions || []), interaction] })); if (refreshDashboard) refreshDashboard(); }} />; })()}
     </div>
@@ -642,7 +634,6 @@ function SuperView({ d, leads, leadTab, setLeadTab, refreshDashboard }) {
         </div>
       )}
 
-
     </div>
   );
 }
@@ -733,7 +724,6 @@ function CashbookViewModal({ erpUser, onClose }) {
         </div>
       </div>
 
-
     </div>
   );
 }
@@ -811,7 +801,6 @@ function StudentsViewModal({ erpUser, onClose }) {
           </div>
         </div>
       </div>
-
 
     </div>
   );
@@ -937,11 +926,9 @@ function ExpensesViewModal({ erpUser, onClose, refreshRoot }) {
         </div>
       </div>
 
-
     </div>
   );
 }
-
 
 function CreateExpenseModal({ erpUser, onClose, onCreated }) {
   const [branches, setBranches] = useState([]);
@@ -998,7 +985,6 @@ function CreateExpenseModal({ erpUser, onClose, onCreated }) {
         <Button disabled={busy} type="submit" className="w-full w-full py-2.5 mt-2 rounded-xl bg-teal-600 text-white text-[13px] font-medium transition-all duration-200 border border-teal-600/20 shadow-sm hover:bg-teal-600/90 hover:shadow-md active:scale-[0.98]">{busy ? "Writing Matrix State…" : "Commit Cost Outflow Statement"}</Button>
       </form>
 
-
     </div>
   );
 }
@@ -1018,7 +1004,6 @@ function InputCard({ label, v, on, type = "text", req, placeholder }) {
       <label className="text-xs uppercase tracking-wider font-bold text-slate-500 dark:text-zinc-400 mb-1 block">{label}{req && " *"}</label>
       <input type={type} value={v} required={req} placeholder={placeholder} onChange={e => on(e.target.value)} className="bg-slate-50 dark:bg-black border border-slate-200 dark:border-white/[0.08] rounded-[10px] text-[13px] text-slate-600 dark:text-zinc-400 focus:border-teal-600/50 px-3 py-2 w-full px-4 py-2.5 border border-slate-200 dark:border-white/[0.08]/40 bg-slate-200/50 dark:bg-white/[0.04]/10 hover:bg-slate-200/50 dark:bg-white/[0.04]/20 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-accent/20 focus:border-accent/40 font-mono text-slate-800 dark:text-zinc-200 placeholder:text-slate-500 dark:text-zinc-400/40 transition-all" />
 
-
     </div>
   );
 }
@@ -1031,7 +1016,6 @@ function SelectCard({ label, v, on, opts, req, disabled }) {
         {req && <option value="">— Select Option Layer —</option>}
         {opts.map(o => <option key={o.v} value={o.v}>{o.l}</option>)}
       </select>
-
 
     </div>
   );

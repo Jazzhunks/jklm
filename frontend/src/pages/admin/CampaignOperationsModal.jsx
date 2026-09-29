@@ -3,7 +3,7 @@ import { useState, useMemo } from "react";
 import { api, formatError } from "@/lib/api";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { Terminal, X, UserPlus, Download, Loader2, FileSpreadsheet, UploadCloud, Printer, ClipboardList, Wand2, CheckCircle2, AlertCircle, Send } from "lucide-react";
+import { Terminal, X, UserPlus, Download, Loader2, FileSpreadsheet, UploadCloud, Printer, ClipboardList, Wand2, AlertCircle, Send } from "lucide-react";
 
 const CLASSES = ["Class 7", "Class 8", "Class 9", "Class 10", "Class 11", "Class 12", "Dropper (JEE)", "Dropper (NEET)"];
 

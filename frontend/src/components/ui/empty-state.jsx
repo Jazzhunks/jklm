@@ -1,5 +1,5 @@
 import React from 'react';
-import { FileX2 } from 'lucide-react';
+import { FileX2 } from "lucide-react";
 import { motion } from 'framer-motion';
 
 export function EmptyState({ icon: Icon = FileX2, title = "No results found", description = "Try adjusting your filters or search query.", action }) {

@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { useQueryClient, useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { erp } from "@/lib/erpApi";
-import { X, Phone, MessageCircle, Mail, FileText, CheckCircle2, Clock, Calendar, Target, AlertCircle, Replace, Trash2 } from "lucide-react";
+import { X, Phone, MessageCircle, Mail, FileText, CheckCircle2, Clock, Calendar, Target, AlertCircle, Replace } from "lucide-react";
 import LeadProposeModal from "@/pages/erp/modals/LeadProposeModal";
 import LeadReviewModal from "@/pages/erp/modals/LeadReviewModal";
 import LeadEnrollModal from "@/pages/erp/modals/LeadEnrollModal";

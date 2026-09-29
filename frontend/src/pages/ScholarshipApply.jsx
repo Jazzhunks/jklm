@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { api, formatError } from "@/lib/api";
 import { toast } from "sonner";
-import { ArrowLeft, Loader2, MapPin, ChevronDown, Check, Download, ArrowRight } from "lucide-react";
+import { Loader2, MapPin, Check, Download, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { OtpInput } from "@/components/ui/OtpInput";
 import { Input } from "@/components/ui/input";

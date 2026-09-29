@@ -4,7 +4,7 @@ import { useOutletContext } from "react-router-dom";
 import { toast } from "sonner";
 import { erp, isSuper, extractItems } from "@/lib/erpApi";
 import { formatError, api } from "@/lib/api";
-import { Printer, Search, CheckSquare, Square, Contact2, X } from "lucide-react";
+import { Printer, Search, CheckSquare, Square } from "lucide-react";
 
 export default function ErpIdCards() {
   const { erpUser, selectedBranchId } = useOutletContext();
@@ -67,22 +67,6 @@ export default function ErpIdCards() {
 
   const clearSelection = () => setSelectedIds(new Set());
 
-  const downloadIdCard = async (student) => {
-    try {
-      const url = `/erp/students/${encodeURIComponent(student.id)}/id-card`;
-      const res = await api.get(url, { responseType: 'blob' });
-      const blob = res.data;
-      const a = document.createElement("a");
-      a.href = URL.createObjectURL(blob);
-      a.download = `id-card-${student.enrollment_number || student.student_no}.pdf`;
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-    } catch (e) {
-      toast.error(formatError(e) || "Failed to download ID card");
-    }
-  };
-
   const handleGenerateAndPrint = async () => {
     if (selectedIds.size === 0) {
       toast.error("Select at least one student to generate ID cards");
@@ -134,7 +118,7 @@ export default function ErpIdCards() {
       <div className="flex gap-3 flex-wrap shrink-0">
         <div className="relative flex-1 min-w-[250px]">
           <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 dark:text-zinc-400"/>
-          <input className="bg-slate-50 dark:bg-black border border-slate-200 dark:border-white/[0.08] rounded-[10px] text-[13px] text-slate-600 dark:text-zinc-400 focus:border-teal-600/50 px-3 py-2" 
+          <input 
             type="text"
             value={searchQuery} 
             onChange={e => setSearchQuery(e.target.value)} 
@@ -143,7 +127,7 @@ export default function ErpIdCards() {
           />
         </div>
         {isSuper(erpUser) && (
-          <select className="bg-slate-50 dark:bg-black border border-slate-200 dark:border-white/[0.08] rounded-[10px] text-[13px] text-slate-600 dark:text-zinc-400 focus:border-teal-600/50 px-3 py-2" 
+          <select 
             value={branchId} 
             onChange={e => setBranchId(e.target.value)} 
             className="min-w-[200px] bg-white dark:bg-[#111] border border-slate-200 dark:border-white/[0.08] rounded-[10px] text-[13px] text-slate-600 dark:text-zinc-400 px-3 py-2 focus:outline-none focus:border-teal-600/50"

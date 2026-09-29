@@ -2,11 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { api, formatError } from "@/lib/api";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
-import {
-  Send, MessageCircle, Search, User, Phone, GraduationCap,
-  RefreshCw, FileText, Paperclip, X, Check, CheckCheck, ChevronLeft,
-  Megaphone, PlusCircle, Layers, Radio, Sparkles
-} from "lucide-react";
+import { Send, MessageCircle, Search, User, Phone, GraduationCap, RefreshCw, FileText, Paperclip, X, Check, CheckCheck, ChevronLeft, Megaphone, PlusCircle } from "lucide-react";
 
 export default function WhatsAppInbox() {
   const [threads, setThreads] = useState([]);

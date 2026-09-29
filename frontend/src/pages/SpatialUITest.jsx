@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Eye, Shield, Cpu, Activity, Zap, Layers, Maximize, Settings, LogOut, Search, Bell, Monitor, Droplet, Box, Layers as LayersIcon } from 'lucide-react';
+import { Layers, Monitor, Droplet, Box } from "lucide-react";
 
 export default function DesignPlayground() {
   const [theme, setTheme] = useState('glass'); // glass, neumorphic, clay, skeuomorphic, flat

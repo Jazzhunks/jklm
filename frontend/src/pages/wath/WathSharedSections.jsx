@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, useRef } from "react";
+import { useMemo, useState } from "react";
 import { createPortal } from "react-dom";
 import { Helmet } from "react-helmet-async";
 import { Link, useSearchParams } from "react-router-dom";
@@ -13,7 +13,6 @@ import {
   CalendarBlank, Coins, ChartLineUp, ArrowRight, ArrowDown, ArrowUp, FileText,
   Download, Check, WhatsappLogo, Question, Certificate, IdentificationCard, X, CaretDown
 } from "@phosphor-icons/react";
-
 
 const EASE = [0.16, 1, 0.3, 1];
 const SLABS = [

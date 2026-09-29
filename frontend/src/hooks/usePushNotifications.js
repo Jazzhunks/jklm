@@ -1,4 +1,4 @@
-import { useEffect, useCallback } from "react";
+import { useCallback } from "react";
 import { toast } from "sonner";
 import { api } from "@/lib/api";
 

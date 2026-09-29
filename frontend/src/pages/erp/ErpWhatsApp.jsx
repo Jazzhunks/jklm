@@ -15,22 +15,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Card } from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
-import {
-  MessageSquare,
-  Plus,
-  Send,
-  Upload,
-  Play,
-  BarChart3,
-  FileSpreadsheet,
-  Users,
-  Loader2,
-  CheckCircle2,
-  AlertCircle,
-  RefreshCw,
-  LayoutTemplate,
-} from "lucide-react";
+import { MessageSquare, Plus, Send, Upload, Play, BarChart3, FileSpreadsheet, Loader2, RefreshCw, LayoutTemplate } from "lucide-react";
 import TemplateMapper from "@/components/wa/TemplateMapper";
 import BroadcastProgress from "@/components/wa/BroadcastProgress";
 import AnalyticsCharts from "@/components/wa/AnalyticsCharts";

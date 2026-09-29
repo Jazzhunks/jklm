@@ -5,9 +5,7 @@ import { api, API_BASE, formatError } from "@/lib/api";
 import { useAuth } from "@/contexts/AuthContext";
 import GlassPanel from "@/components/GlassPanel";
 import { Eyebrow, Reveal } from "@/components/Cinematic";
-import {
-  Upload, Calendar, Clock, School, FileText, CheckCircle2, XCircle, Loader2, ArrowLeft, RefreshCw, Download
-} from "lucide-react";
+import { Upload, Calendar, Clock, School, FileText, CheckCircle2, XCircle, Loader2, RefreshCw, Download } from "lucide-react";
 
 const ALLOWED_CLASSES = ["7th Class", "8th Class", "9th Class", "10th Class", "11th Class", "12th Class"];
 const ALLOWED_COURSES = ["Foundation", "NEET", "IIT JEE"];

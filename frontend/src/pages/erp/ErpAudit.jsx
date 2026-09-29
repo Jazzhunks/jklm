@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { erp, fmtDate } from "@/lib/erpApi";
-import { Search, ShieldAlert, X, Eye, FileText, Calendar, ShieldCheck } from "lucide-react";
+import { Search, X, Eye, ShieldCheck } from "lucide-react";
 
 export default function ErpAudit() {
   const [items, setItems] = useState([]);

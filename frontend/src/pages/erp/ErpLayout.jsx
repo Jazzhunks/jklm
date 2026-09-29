@@ -6,11 +6,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { erp, isSuper, isManagerPlus, isERPUser } from "@/lib/erpApi";
 import ErpCommandPalette from "./ErpCommandPalette";
 import ProfileModal from "./modals/ProfileModal";
-import {
-  LayoutDashboard, Users, Receipt, Wallet, UserPlus, Building2,
-  ScrollText, LogOut, Menu, X, GraduationCap, Contact2, QrCode, MessageSquare,
-  Search, Bell, UserCog, ChevronRight, Clock, Plus, Shield, Sun, Moon
-} from "lucide-react";
+import { LayoutDashboard, Users, Receipt, Wallet, UserPlus, Building2, ScrollText, LogOut, Menu, X, GraduationCap, Contact2, QrCode, MessageSquare, Search, Bell, UserCog, ChevronRight, Clock, Plus, Sun, Moon } from "lucide-react";
 
 const NAV = [
   { group: "Executive" },
@@ -31,7 +27,6 @@ const NAV = [
   { to: "/erp/whatsapp", label: "WhatsApp Nexus", icon: MessageSquare, show: (u) => isSuper(u) },
 ];
 
-
 const DEFAULT_CLASSES = ["Biggner (8th)", "Adapt (9th)", "Elivate (10th)", "Triumph (11th)", "Zenith (12th)", "12th Pass"];
 const DEFAULT_COURSES = ["Foundation", "Medical (PCB)", "Non-Medical (PCM)", "Commerce", "Arts/Humanities", "IIT JEE", "NEET UG", "Test Series"];
 
@@ -47,7 +42,6 @@ export default function ErpLayout() {
   const [academicConfig, setAcademicConfig] = useState({ classes: DEFAULT_CLASSES, courses: DEFAULT_COURSES, matrix: {} });
 
   const [theme, setTheme] = useState(localStorage.getItem('erp-theme') || 'dark');
-
 
   const { data: alertsData } = useQuery({
     queryKey: ["erpAlerts"],

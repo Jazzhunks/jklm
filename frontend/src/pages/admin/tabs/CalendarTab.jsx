@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api";
-import { Loader2, Calendar as CalendarIcon, ChevronLeft, ChevronRight, CircleAlert, Trophy, Megaphone, PenTool } from "lucide-react";
+import { Loader2, ChevronLeft, ChevronRight, CircleAlert, Trophy, Megaphone, PenTool } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const TYPE_COLORS = {

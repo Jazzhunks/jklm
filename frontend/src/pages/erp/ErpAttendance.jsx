@@ -5,10 +5,7 @@ import { toast } from "sonner";
 import { erp, isSuper, isManagerPlus, fmtDate, extractItems } from "@/lib/erpApi";
 import { formatError, API_BASE } from "@/lib/api";
 import { Html5Qrcode, Html5QrcodeSupportedFormats } from "html5-qrcode";
-import { 
-  QrCode, Users, Clock, ShieldAlert, Wifi, WifiOff, FileDown,
-  Terminal, Search, UserCheck, CheckCircle2, AlertCircle, Volume2, VolumeX, User, X
-} from "lucide-react";
+import { QrCode, Users, Clock, ShieldAlert, Wifi, WifiOff, FileDown, Terminal, Search, UserCheck, CheckCircle2, AlertCircle, X } from "lucide-react";
 
 export default function ErpAttendance() {
   const { erpUser, selectedBranchId } = useOutletContext();
@@ -230,8 +227,7 @@ export default function ErpAttendance() {
         {/* OPERATION CONTROL PACKET LAYOUT */}
         <div className="flex items-center gap-3">
           <a href={buildExcelExportUrl()} target="_blank" rel="noreferrer" className="block">
-            <Button className="bg-transparent rounded-full border border-slate-200 dark:border-white/10 text-slate-500 dark:text-zinc-400 hover:border-slate-300 dark:border-white/20 hover:text-slate-800 dark:text-zinc-200 hover:bg-slate-200/50 dark:bg-white/[0.04] px-4 py-2 text-[11px] font-semibold tracking-[0.06em] uppercase transition-all duration-300" 
-              disabled={!branchId}
+            <Button disabled={!branchId}
               className="bg-teal-600 text-white rounded-full px-5 py-2 text-[11px] font-semibold tracking-[0.04em] uppercase shadow-[0_0_0_1px_rgba(13,148,136,0.5),0_4px_16px_rgba(13,148,136,0.25)] hover:bg-teal-700 active:scale-[0.97] transition-all duration-300 inline-flex items-center gap-2"
             >
               <FileDown size={14} className="text-emerald-600" /> Export Today's Excel
@@ -280,8 +276,7 @@ export default function ErpAttendance() {
               placeholder={branchId ? "Scan badge barcode or type Enrollment Number (e.g. NES-SRI-0001)..." : "Select an operational branch first..."}
               className="flex-1 px-3 py-2 bg-white dark:bg-[#111] border border-slate-200 dark:border-white/[0.08] rounded-[10px] text-[13px] text-slate-600 dark:text-zinc-400 focus:outline-none focus:border-teal-600/50"
             />
-            <Button className="bg-transparent rounded-full border border-slate-200 dark:border-white/10 text-slate-500 dark:text-zinc-400 hover:border-slate-300 dark:border-white/20 hover:text-slate-800 dark:text-zinc-200 hover:bg-slate-200/50 dark:bg-white/[0.04] px-4 py-2 text-[11px] font-semibold tracking-[0.06em] uppercase transition-all duration-300" 
-              type="submit"
+            <Button type="submit"
               disabled={processingScan || !scanInput.trim() || !branchId}
               className="bg-teal-600 text-white rounded-full px-5 py-2 text-[11px] font-semibold tracking-[0.04em] uppercase shadow-[0_0_0_1px_rgba(13,148,136,0.5),0_4px_16px_rgba(13,148,136,0.25)] hover:bg-teal-700 active:scale-[0.97] transition-all duration-300 inline-flex items-center gap-2 shrink-0"
             >

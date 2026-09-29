@@ -10,18 +10,13 @@ import LeadProposeModal from "@/pages/erp/modals/LeadProposeModal";
 import LeadReviewModal from "@/pages/erp/modals/LeadReviewModal";
 import LeadEnrollModal from "@/pages/erp/modals/LeadEnrollModal";
 import LeadTransferModal from "@/pages/erp/modals/LeadTransferModal";
-import { Replace } from "lucide-react";
+
 import { isFinance, STUDENT_CLASSES } from "@/lib/erpApi";
 import { erp, isSuper, isManagerPlus, fmtDate, extractItems, extractTotal } from "@/lib/erpApi";
 import { formatError, api } from "@/lib/api";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip as RechartsTooltip, Legend } from "recharts";
-import { TrendingUp, Users, Target, Activity } from "lucide-react";
-import { 
-  Plus, X, Search, Smartphone, Edit3, MessageSquare, Calendar, 
-  Milestone, LayoutGrid, List, ChevronLeft, ChevronRight, 
-  ArrowRight, CheckCircle2, UserCheck, AlertCircle, Clock,
-  Trash2, AlertTriangle
-} from "lucide-react";
+import { Target } from "lucide-react";
+import { Plus, X, Search, MessageSquare, List, ChevronLeft, ChevronRight, CheckCircle2, AlertCircle, Trash2, AlertTriangle } from "lucide-react";
 
 const STAGES = [
   { id: "new", label: "New Leads", color: "sky", style: "bg-blue-100 dark:bg-blue-500/20 text-blue-800 dark:text-blue-300 border-blue-300 dark:border-blue-500/20" },
@@ -164,8 +159,7 @@ export default function ErpLeads() {
       <div className="flex gap-2 flex-wrap items-center justify-between shrink-0">
         <div className="relative flex-1 min-w-[240px] max-w-md">
           <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 dark:text-zinc-400"/>
-          <input className="bg-slate-50 dark:bg-black border border-slate-200 dark:border-white/[0.08] rounded-[10px] text-[13px] text-slate-600 dark:text-zinc-400 focus:border-teal-600/50 px-3 py-2" 
-            type="text"
+          <input type="text"
             value={q} 
             onChange={handleSearchChange} 
             placeholder="Search leads..." 

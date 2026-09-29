@@ -4,7 +4,7 @@ import { Eyebrow, Reveal } from "@/components/Cinematic";
 import { galleryAPI } from "@/lib/api";
 import PageHero from "@/components/PageHero";
 import GlassPanel from "@/components/GlassPanel";
-import { Play, FileText, Image as ImageIcon, ArrowUpRight, Maximize2 } from "lucide-react";
+import { Play, Maximize2 } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 
 const CARD_SIZES = ["tall", "wide", "standard", "standard", "tall", "wide"];

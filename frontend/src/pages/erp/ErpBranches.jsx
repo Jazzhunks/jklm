@@ -83,7 +83,7 @@ export default function ErpBranches() {
                   <Phone size={13} className="opacity-60 shrink-0" /> {b.phone}
                 </p>
               </div>
-              <Button className="bg-transparent rounded-full border border-slate-200 dark:border-white/10 text-slate-500 dark:text-zinc-400 hover:border-slate-300 dark:border-white/20 hover:text-slate-800 dark:text-zinc-200 hover:bg-slate-200/50 dark:bg-white/[0.04] px-4 py-2 text-[11px] font-semibold tracking-[0.06em] uppercase transition-all duration-300" 
+              <Button 
                 onClick={() => openEditModal(b)} 
                 className="bg-teal-600 text-white rounded-full px-5 py-2 text-[11px] font-semibold tracking-[0.04em] uppercase shadow-[0_0_0_1px_rgba(13,148,136,0.5),0_4px_16px_rgba(13,148,136,0.25)] hover:bg-teal-700 active:scale-[0.97] transition-all duration-300 inline-flex items-center gap-2" 
                 data-testid={`edit-branch-${b.id}`}
@@ -133,7 +133,7 @@ export default function ErpBranches() {
                 </div>
                 <h3 className="font-display text-2xl font-medium mt-1">Branch Parameters</h3>
               </div>
-              <Button className="bg-transparent rounded-full border border-slate-200 dark:border-white/10 text-slate-500 dark:text-zinc-400 hover:border-slate-300 dark:border-white/20 hover:text-slate-800 dark:text-zinc-200 hover:bg-slate-200/50 dark:bg-white/[0.04] px-4 py-2 text-[11px] font-semibold tracking-[0.06em] uppercase transition-all duration-300" 
+              <Button 
                 type="button" 
                 onClick={() => setEditing(null)} 
                 className="p-1 hover:bg-slate-200/50 dark:bg-white/[0.04]/50 rounded-lg border border-transparent hover:border-slate-200 dark:border-white/[0.08] transition"
@@ -147,7 +147,7 @@ export default function ErpBranches() {
                 <label className="text-xs uppercase tracking-wider font-bold text-slate-500 dark:text-zinc-400 mb-1 block">
                   Branch Code (Student ID Prefix) *
                 </label>
-                <input className="bg-slate-50 dark:bg-black border border-slate-200 dark:border-white/[0.08] rounded-[10px] text-[13px] text-slate-600 dark:text-zinc-400 focus:border-teal-600/50 px-3 py-2" 
+                <input 
                   type="text"
                   required
                   value={form.code || ""} 
@@ -164,7 +164,7 @@ export default function ErpBranches() {
 
               <div>
                 <label className="text-xs uppercase tracking-wider font-bold text-slate-500 dark:text-zinc-400 mb-1 block">Taxation GSTIN Reference</label>
-                <input className="bg-slate-50 dark:bg-black border border-slate-200 dark:border-white/[0.08] rounded-[10px] text-[13px] text-slate-600 dark:text-zinc-400 focus:border-teal-600/50 px-3 py-2" 
+                <input 
                   type="text"
                   value={form.gstin} 
                   onChange={e => setForm({...form, gstin: e.target.value.toUpperCase()})}
@@ -176,7 +176,7 @@ export default function ErpBranches() {
               
               <div>
                 <label className="text-xs uppercase tracking-wider font-bold text-slate-500 dark:text-zinc-400 mb-1 block">Authorized Signatory Name</label>
-                <input className="bg-slate-50 dark:bg-black border border-slate-200 dark:border-white/[0.08] rounded-[10px] text-[13px] text-slate-600 dark:text-zinc-400 focus:border-teal-600/50 px-3 py-2" 
+                <input 
                   type="text"
                   value={form.signatory_name} 
                   onChange={e => setForm({...form, signatory_name: e.target.value})} 
@@ -188,7 +188,7 @@ export default function ErpBranches() {
               
               <div>
                 <label className="text-xs uppercase tracking-wider font-bold text-slate-500 dark:text-zinc-400 mb-1 block">Jurisdiction State Code</label>
-                <input className="bg-slate-50 dark:bg-black border border-slate-200 dark:border-white/[0.08] rounded-[10px] text-[13px] text-slate-600 dark:text-zinc-400 focus:border-teal-600/50 px-3 py-2" 
+                <input 
                   type="text"
                   value={form.state_code} 
                   onChange={e => setForm({...form, state_code: e.target.value})} 
@@ -199,9 +199,8 @@ export default function ErpBranches() {
               </div>
             </div>
 
-
             <div className="flex gap-3 pt-2">
-              <Button className="bg-transparent rounded-full border border-slate-200 dark:border-white/10 text-slate-500 dark:text-zinc-400 hover:border-slate-300 dark:border-white/20 hover:text-slate-800 dark:text-zinc-200 hover:bg-slate-200/50 dark:bg-white/[0.04] px-4 py-2 text-[11px] font-semibold tracking-[0.06em] uppercase transition-all duration-300" 
+              <Button 
                 disabled={busy} 
                 type="submit" 
                 className="flex-1 py-3 bg-teal-600 text-white rounded-xl font-bold text-xs uppercase tracking-wider disabled:opacity-50 flex items-center justify-center gap-2 shadow-lg transition" 
@@ -210,7 +209,7 @@ export default function ErpBranches() {
                 <Save size={14}/>
                 {busy ? "Writing Records…" : "Authorize Changes"}
               </Button>
-              <Button className="bg-transparent rounded-full border border-slate-200 dark:border-white/10 text-slate-500 dark:text-zinc-400 hover:border-slate-300 dark:border-white/20 hover:text-slate-800 dark:text-zinc-200 hover:bg-slate-200/50 dark:bg-white/[0.04] px-4 py-2 text-[11px] font-semibold tracking-[0.06em] uppercase transition-all duration-300" 
+              <Button 
                 type="button" 
                 onClick={() => setEditing(null)} 
                 className="px-4 py-3 border border-slate-200 dark:border-white/[0.08] rounded-xl text-xs uppercase tracking-wider font-bold text-slate-500 dark:text-zinc-400 hover:text-slate-800 dark:text-zinc-200 hover:bg-slate-200/50 dark:bg-white/[0.04]/50 transition"

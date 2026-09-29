@@ -2,6 +2,13 @@ import { useEffect, useRef } from "react";
 import { Progress } from "@/components/ui/progress";
 import { Card } from "@/components/ui/card";
 
+const STAT_CARDS = [
+  { label: "Total", key: "total_rows", cls: "" },
+  { label: "Processed", key: "processed", cls: "" },
+  { label: "Success", key: "success", cls: "text-emerald-600" },
+  { label: "Errors", key: "errors", cls: "text-rose-600" },
+];
+
 export default function BroadcastProgress({ jobStatus }) {
   const logRef = useRef(null);
 
@@ -19,22 +26,12 @@ export default function BroadcastProgress({ jobStatus }) {
   return (
     <div className="space-y-4">
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <Card className="p-4 rounded-2xl border border-border bg-background/40">
-          <div className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Total</div>
-          <div className="text-2xl font-bold">{jobStatus.total_rows || 0}</div>
-        </Card>
-        <Card className="p-4 rounded-2xl border border-border bg-background/40">
-          <div className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Processed</div>
-          <div className="text-2xl font-bold">{jobStatus.processed || 0}</div>
-        </Card>
-        <Card className="p-4 rounded-2xl border border-border bg-background/40">
-          <div className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Success</div>
-          <div className="text-2xl font-bold text-emerald-600">{jobStatus.success || 0}</div>
-        </Card>
-        <Card className="p-4 rounded-2xl border border-border bg-background/40">
-          <div className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Errors</div>
-          <div className="text-2xl font-bold text-rose-600">{jobStatus.errors || 0}</div>
-        </Card>
+        {STAT_CARDS.map(({ label, key, cls }) => (
+          <Card key={key} className="p-4 rounded-2xl border border-border bg-background/40">
+            <div className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">{label}</div>
+            <div className={`text-2xl font-bold ${cls}`}>{jobStatus[key] || 0}</div>
+          </Card>
+        ))}
       </div>
 
       <div className="space-y-1">

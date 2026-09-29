@@ -3,11 +3,7 @@ import { Button } from "@/components/ui/button";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { erp, fmtINR, fmtDate } from "@/lib/erpApi";
-import { 
-  FileSpreadsheet, ShieldCheck, AlertCircle, CheckCircle2, 
-  X, Download, Calendar, Landmark, CreditCard, Clock, 
-  Search, RefreshCw, ExternalLink, ChevronRight, Hash
-} from "lucide-react";
+import { FileSpreadsheet, ShieldCheck, AlertCircle, CheckCircle2, X, Download, Calendar, Landmark, Search, RefreshCw } from "lucide-react";
 
 export default function GstSettlementModal({ onClose, defaultBranchId = "", branches = [] }) {
   const queryClient = useQueryClient();

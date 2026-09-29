@@ -15,6 +15,5 @@ export function useBroadcastUpload() {
     },
     onError: (e) => toast.error(e.response?.data?.detail || e.message || "Upload failed")
   });
-  // ponytail: standard react-query replaces hand-rolled mutation state
   return { uploading: isPending, result: data, upload: mutateAsync };
 }

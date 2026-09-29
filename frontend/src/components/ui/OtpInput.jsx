@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import { useRef } from "react";
 
 export function OtpInput({ length = 6, value = "", onChange, disabled = false }) {
   const inputsRef = useRef([]);

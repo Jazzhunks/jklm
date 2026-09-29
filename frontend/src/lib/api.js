@@ -1,5 +1,4 @@
 import axios from "axios";
-import { toast } from "sonner";
 
 // ============================================================================
 // AXIOS CLIENT CONFIGURATION
@@ -144,15 +143,6 @@ api.interceptors.response.use(
       });
     }
 
-    if (
-      status === 401 &&
-      typeof window !== "undefined" &&
-      !window.location.pathname.includes("/login") &&
-      !isRedirecting
-    ) {
-      isRedirecting = true;
-      window.location.href = "/login?session_expired=true";
-    }
     return Promise.reject(error);
   }
 );

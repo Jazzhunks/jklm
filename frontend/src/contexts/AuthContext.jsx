@@ -55,7 +55,7 @@ export function AuthProvider({ children }) {
     setLoading(true);
     try {
       const { data } = await api.post("/auth/login", { email, password }, {
-        signal: options.signal // Wire upstream controller cancellation signals
+        signal: options.signal
       });
       
       if (data?.access_token) {
@@ -117,7 +117,6 @@ export function AuthProvider({ children }) {
   };
 
   return (
-    // Provided formatError securely to Context value object mapping
     <AuthCtx.Provider value={{ user, loading, login, otpLogin, register, logout, refresh, formatError }}>
       {children}
     </AuthCtx.Provider>

@@ -7,11 +7,7 @@ import { useOutletContext, Link, useSearchParams, useNavigate } from "react-rout
 import { toast } from "sonner";
 import { erp, isSuper, isManagerPlus, canManageStudents, fmtINR, fmtDate, extractItems, extractTotal, STUDENT_CLASSES, STUDENT_COURSES, getValidCoursesForClass } from "@/lib/erpApi";
 import { api, formatError, API_BASE } from "@/lib/api";
-import { 
-  Search, Plus, Download, X, GraduationCap, Users, User, 
-  Mail, Smartphone, ChevronLeft, ChevronRight, Filter, BookOpen, 
-  CheckCircle2, AlertCircle, ArrowUpRight, Trash2, AlertTriangle
-} from "lucide-react";
+import { Search, Plus, Download, GraduationCap, ChevronLeft, ChevronRight, Filter, BookOpen, CheckCircle2, ArrowUpRight, Trash2, AlertTriangle } from "lucide-react";
 
 export default function ErpStudents() {
   const nav = useNavigate();
@@ -187,8 +183,7 @@ export default function ErpStudents() {
       <div className="flex gap-2 flex-wrap items-center justify-between shrink-0">
         <div className="relative flex-1 min-w-[240px] max-w-md">
           <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 dark:text-zinc-400"/>
-          <input className="bg-slate-50 dark:bg-black border border-slate-200 dark:border-white/[0.08] rounded-[10px] text-[13px] text-slate-600 dark:text-zinc-400 focus:border-teal-600/50 px-3 py-2" 
-            type="text"
+          <input type="text"
             value={q} 
             onChange={handleSearch} 
             placeholder="Search by student name, roll #, LUID, or phone..." 

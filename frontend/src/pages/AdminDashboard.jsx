@@ -2,12 +2,7 @@ import React, { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { api } from "@/lib/api";
 import { useNavigate } from "react-router-dom";
-import {
-  Search, Menu, X, RefreshCw, BarChart, UserCircle2, Calendar as CalendarIcon,
-  GraduationCap, ClipboardList, Trophy, Briefcase, Terminal,
-  Building2, MessageSquare, Megaphone, HelpCircle, Bell,
-  Users, Image, FileText, AlertCircle,
-} from "lucide-react";
+import { Search, Menu, X, RefreshCw, BarChart, UserCircle2, GraduationCap, ClipboardList, Trophy, Briefcase, Terminal, Building2, MessageSquare, Megaphone, HelpCircle, Bell, Users, Image, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import NotificationCenter from "@/components/NotificationCenter.jsx";
 

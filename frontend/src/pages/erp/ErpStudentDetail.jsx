@@ -6,16 +6,10 @@ import { erp, isSuper, isFinance, fmtINR, fmtDate } from "@/lib/erpApi";
 import { formatError } from "@/lib/api";
 import { api, API_BASE } from "@/lib/api";
 import { STUDENT_CLASSES } from "@/lib/erpApi";
-import { 
-  ArrowLeft, Plus, FileDown, Receipt as ReceiptIcon, Edit3, 
-  X, Save, CheckCircle, Smartphone, Mail, MapPin, Milestone, User, Users, ClipboardList, Badge, Printer, Camera,
-  Trash2, AlertTriangle
-} from "lucide-react";
+import { ArrowLeft, Plus, FileDown, Edit3, X, Save, CheckCircle, Smartphone, Mail, MapPin, Milestone, User, Users, ClipboardList, Badge, Printer, Camera, Trash2, AlertTriangle } from "lucide-react";
 import ReactCrop, { centerCrop, makeAspectCrop, convertToPixelCrop } from "react-image-crop";
 import "react-image-crop/dist/ReactCrop.css";
 import ReceiptModal from "./modals/ReceiptModal";
-
-
 
 function PaymentEditModal({ payment, onClose, onUpdated }) {
   const [form, setForm] = useState({
@@ -178,8 +172,6 @@ export default function ErpStudentDetail() {
     return () => clearInterval(timer);
   }, [reload]);
 
-
-
   if (!stmt) {
     return (
       <div className="flex flex-col items-center justify-center space-y-3 py-20 text-center animate-pulse">
@@ -257,7 +249,6 @@ export default function ErpStudentDetail() {
     }
   };
 
-
   return (
     <div className="space-y-6 animate-fadeIn" data-testid="erp-student-detail">
       {/* Navigation Row */}
@@ -277,8 +268,7 @@ export default function ErpStudentDetail() {
             <Edit3 size={13}/> Edit Profile
           </Button>
           {s.luid && s.enrollment_number && (
-            <Button className="bg-transparent rounded-full border border-slate-200 dark:border-white/10 text-slate-500 dark:text-zinc-400 hover:border-slate-300 dark:border-white/20 hover:text-slate-800 dark:text-zinc-200 hover:bg-slate-200/50 dark:bg-white/[0.04] px-4 py-2 text-[11px] font-semibold tracking-[0.06em] uppercase transition-all duration-300" 
-              onClick={queueIdCard} 
+            <Button onClick={queueIdCard} 
               className="inline-flex items-center gap-1.5 px-3 py-1.5 border border-slate-200 dark:border-white/[0.08] rounded-xl text-xs uppercase tracking-wider font-bold text-teal-800 dark:text-teal-300 hover:bg-teal-600/10 transition"
             >
               <Printer size={13}/> ID Card

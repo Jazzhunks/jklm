@@ -3,7 +3,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerFooter, DrawerDescription } from "@/components/ui/drawer";
 import { Button } from "@/components/ui/button";
-import { Save, X, Trophy } from "lucide-react";
+import { Save, Trophy } from "lucide-react";
 import { AdminInput, AdminTextarea, AdminCheckbox } from "@/components/admin";
 import { resultEditorSchema } from "@/lib/schemas";
 

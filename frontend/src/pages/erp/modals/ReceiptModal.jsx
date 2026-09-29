@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { useState, useRef } from "react";
 import { API_BASE, formatError } from "@/lib/api";
 import { fmtINR, fmtDate } from "@/lib/erpApi";
-import { Printer, Download, Share2, X, FileText, CheckCircle2, Copy } from "lucide-react";
+import { Printer, Download, Share2, X, CheckCircle2, Copy } from "lucide-react";
 import { toast } from "sonner";
 
 export default function ReceiptModal({ payment, student, onClose }) {

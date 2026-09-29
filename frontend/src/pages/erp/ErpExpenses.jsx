@@ -5,11 +5,7 @@ import { useOutletContext, useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
 import { erp, isSuper, isManagerPlus, fmtINR, fmtDate, extractItems, extractTotal } from "@/lib/erpApi";
 import { formatError, API_BASE } from "@/lib/api";
-import { 
-  Plus, Download, X, Check, Ban, Wallet, Search, Calendar, 
-  ChevronLeft, ChevronRight, AlertCircle, CheckCircle2, TrendingDown,
-  Building, Clock, FileSpreadsheet, Trash2, AlertTriangle
-} from "lucide-react";
+import { Plus, Download, X, Check, Ban, Wallet, Search, ChevronLeft, ChevronRight, AlertCircle, CheckCircle2, TrendingDown, Clock, FileSpreadsheet, Trash2, AlertTriangle } from "lucide-react";
 
 const CATEGORIES = ["Salary", "Rent", "Electricity", "Internet", "Marketing", "Maintenance", "Miscellaneous"];
 const STATUSES = ["all", "pending", "approved", "rejected"];
@@ -259,11 +255,10 @@ export default function ErpExpenses() {
 
           <div className="relative flex-1 sm:w-56">
             <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 dark:text-zinc-400"/>
-            <input className="bg-slate-50 dark:bg-black border border-slate-200 dark:border-white/[0.08] rounded-[10px] text-[13px] text-slate-600 dark:text-zinc-400 focus:border-teal-600/50 px-3 py-2" 
-              type="text"
-              value={q} 
-              onChange={handleSearchChange} 
-              placeholder="Search vendor, description..." 
+            <input type="text"
+              value={q}
+              onChange={handleSearchChange}
+              placeholder="Search vendor, description..."
               className="bg-slate-200/50 dark:bg-white/[0.04] border border-slate-200 dark:border-white/[0.08] rounded-full py-2 pl-9 pr-4 text-[13px] text-slate-600 dark:text-zinc-400 placeholder:text-zinc-700 focus:border-teal-600/50 focus:outline-none transition-all w-full"
               data-testid="search-expenses-input"
             />
@@ -271,20 +266,20 @@ export default function ErpExpenses() {
 
           <div className="flex items-center gap-1.5 border border-slate-200 dark:border-white/[0.08] bg-white dark:bg-[#111] rounded-xl px-2 py-1 text-xs">
             <span className="text-[10px] uppercase font-bold text-slate-500 dark:text-zinc-400">From</span>
-            <input className="bg-slate-50 dark:bg-black border border-slate-200 dark:border-white/[0.08] rounded-[10px] text-[13px] text-slate-600 dark:text-zinc-400 focus:border-teal-600/50 px-3 py-2" 
-              type="date" 
-              value={fromDate} 
-              onChange={e => { setFromDate(e.target.value); setPage(1); }} 
+            <input type="date"
+              value={fromDate}
+              onChange={e => { setFromDate(e.target.value); setPage(1); }}
+              placeholder=""
               className="bg-transparent border-0 p-0 text-xs text-slate-800 dark:text-zinc-200 focus:outline-none" 
             />
           </div>
 
           <div className="flex items-center gap-1.5 border border-slate-200 dark:border-white/[0.08] bg-white dark:bg-[#111] rounded-xl px-2 py-1 text-xs">
             <span className="text-[10px] uppercase font-bold text-slate-500 dark:text-zinc-400">To</span>
-            <input className="bg-slate-50 dark:bg-black border border-slate-200 dark:border-white/[0.08] rounded-[10px] text-[13px] text-slate-600 dark:text-zinc-400 focus:border-teal-600/50 px-3 py-2" 
-              type="date" 
-              value={toDate} 
-              onChange={e => { setToDate(e.target.value); setPage(1); }} 
+            <input type="date"
+              value={toDate}
+              onChange={e => { setToDate(e.target.value); setPage(1); }}
+              placeholder=""
               className="bg-transparent border-0 p-0 text-xs text-slate-800 dark:text-zinc-200 focus:outline-none" 
             />
           </div>
@@ -652,7 +647,7 @@ function CreateExpenseModal({ onClose, onSuccess, branchId, branches, isSuper })
             <Button
               type="button"
               onClick={onClose}
-              className="bg-transparent px-4 py-2 text-xs font-bold border-slate-200 dark:border-white/10 text-slate-500 dark:text-zinc-400 hover:border-slate-300 dark:border-white/20 hover:text-slate-800 dark:text-zinc-200 rounded-full px-4 py-2 text-[11px] font-semibold tracking-[0.06em] uppercase border cursor-pointer transition-all duration-300 transition"
+              className="bg-transparent rounded-full border border-slate-200 dark:border-white/10 text-slate-500 dark:text-zinc-400 hover:border-slate-300 dark:border-white/20 hover:text-slate-800 dark:text-zinc-200 px-4 py-2 text-[11px] font-semibold tracking-[0.06em] uppercase cursor-pointer transition-all duration-300"
             >
               Cancel
             </Button>

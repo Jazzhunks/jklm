@@ -24,7 +24,6 @@ export default function Register() {
   const [phoneError, setPhoneError] = useState("");
   const [verifyError, setVerifyError] = useState("");
 
-
 async function validatePhoneNumber(): Promise<boolean> {
     const digits = f.phone.replace(/\D/g, "");
     if (digits.length !== 10) {

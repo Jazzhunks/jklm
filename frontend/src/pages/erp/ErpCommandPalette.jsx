@@ -2,11 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { erp } from "@/lib/erpApi";
-import { 
-  Search, LayoutDashboard, GraduationCap, Receipt, Wallet, 
-  UserPlus, QrCode, Contact2, Users, Building2, MessageSquare, 
-  ScrollText, ArrowRight, CornerDownLeft, Sparkles, User, X
-} from "lucide-react";
+import { Search, LayoutDashboard, GraduationCap, Receipt, Wallet, UserPlus, QrCode, Contact2, Users, Building2, MessageSquare, ScrollText, ArrowRight, Sparkles, User, X } from "lucide-react";
 
 export default function ErpCommandPalette({ isOpen, onClose, onAction, erpUser }) {
   const [query, setQuery] = useState("");

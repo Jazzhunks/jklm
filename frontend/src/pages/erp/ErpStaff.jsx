@@ -76,9 +76,7 @@ export default function ErpStaff() {
             {filteredItems.length} active enterprise execution profiles mapped in directory view.
           </p>
         </div>
-        <Button className="bg-transparent rounded-full border border-slate-200 dark:border-white/10 text-slate-500 dark:text-zinc-400 hover:border-slate-300 dark:border-white/20 hover:text-slate-800 dark:text-zinc-200 hover:bg-slate-200/50 dark:bg-white/[0.04] px-4 py-2 text-[11px] font-semibold tracking-[0.06em] uppercase transition-all duration-300" 
-          onClick={() => setShowCreate(true)} 
-          className="bg-teal-600 text-white rounded-full px-5 py-2 text-[11px] font-semibold tracking-[0.04em] uppercase shadow-[0_0_0_1px_rgba(13,148,136,0.5),0_4px_16px_rgba(13,148,136,0.25)] hover:bg-teal-700 active:scale-[0.97] transition-all duration-300 inline-flex items-center gap-2" 
+        <Button onClick={() => setShowCreate(true)} className="bg-teal-600 text-white rounded-full px-5 py-2 text-[11px] font-semibold tracking-[0.04em] uppercase shadow-[0_0_0_1px_rgba(13,148,136,0.5),0_4px_16px_rgba(13,148,136,0.25)] hover:bg-teal-700 active:scale-[0.97] transition-all duration-300 inline-flex items-center gap-2" 
           data-testid="create-staff-btn"
         >
           <Plus size={14}/> Add Staff Member
@@ -141,21 +139,13 @@ export default function ErpStaff() {
                     <td className="py-3 px-4 text-[13px] text-slate-600 dark:text-zinc-400 font-mono whitespace-nowrap">{fmtDate(s.created_at)}</td>
                     <td className="py-3 px-4 text-right whitespace-nowrap">
                       <div className="flex justify-end gap-2">
-                        <Button className="bg-transparent rounded-full border border-slate-200 dark:border-white/10 text-slate-500 dark:text-zinc-400 hover:border-slate-300 dark:border-white/20 hover:text-slate-800 dark:text-zinc-200 hover:bg-slate-200/50 dark:bg-white/[0.04] px-4 py-2 text-[11px] font-semibold tracking-[0.06em] uppercase transition-all duration-300" 
-                          onClick={() => setEditingStaff(s)}
-                          disabled={s.active === false}
-                          title="Edit Profile Configuration"
-                          className="bg-transparent rounded-full border border-slate-200 dark:border-white/10 text-slate-500 dark:text-zinc-400 hover:border-slate-300 dark:border-white/20 hover:text-slate-800 dark:text-zinc-200 hover:bg-slate-200/50 dark:bg-white/[0.04] px-4 py-2 text-[11px] font-semibold tracking-[0.06em] uppercase transition-all duration-300 inline-flex items-center gap-2 disabled:opacity-30 p-1.5 w-8 h-8 justify-center"
+                        <Button onClick={() => setEditingStaff(s)} disabled={s.active === false} title="Edit Profile Configuration" className="bg-transparent rounded-full border border-slate-200 dark:border-white/10 text-slate-500 dark:text-zinc-400 hover:border-slate-300 dark:border-white/20 hover:text-slate-800 dark:text-zinc-200 hover:bg-slate-200/50 dark:bg-white/[0.04] px-4 py-2 text-[11px] font-semibold tracking-[0.06em] uppercase transition-all duration-300 inline-flex items-center gap-2 disabled:opacity-30 p-1.5 w-8 h-8 justify-center"
                         >
                           <Edit3 size={14}/>
                         </Button>
                         
                         {s.active !== false ? (
-                          <Button className="bg-transparent rounded-full border border-slate-200 dark:border-white/10 text-slate-500 dark:text-zinc-400 hover:border-slate-300 dark:border-white/20 hover:text-slate-800 dark:text-zinc-200 hover:bg-slate-200/50 dark:bg-white/[0.04] px-4 py-2 text-[11px] font-semibold tracking-[0.06em] uppercase transition-all duration-300" 
-                            disabled={busyRows.has(s.id)}
-                            onClick={() => toggleDeactivate(s.id, s.name)} 
-                            title="Revoke Permissions" 
-                            className="bg-transparent rounded-full border border-slate-200 dark:border-white/10 text-rose-500 hover:border-rose-500/20 hover:text-rose-800 dark:text-rose-400 hover:bg-rose-500/10 px-4 py-2 text-[11px] font-semibold tracking-[0.06em] uppercase transition-all duration-300 inline-flex items-center gap-2 disabled:opacity-40 p-1.5 w-8 h-8 justify-center" 
+                          <Button disabled={busyRows.has(s.id)} onClick={() => toggleDeactivate(s.id, s.name)} title="Revoke Permissions" className="bg-transparent rounded-full border border-slate-200 dark:border-white/10 text-rose-500 hover:border-rose-500/20 hover:text-rose-800 dark:text-rose-400 hover:bg-rose-500/10 px-4 py-2 text-[11px] font-semibold tracking-[0.06em] uppercase transition-all duration-300 inline-flex items-center gap-2 disabled:opacity-40 p-1.5 w-8 h-8 justify-center" 
                             data-testid={`deactivate-${s.id}`}
                           >
                             <UserX size={14}/>
@@ -245,14 +235,14 @@ function CreateStaffModal({ erpUser, branches, onClose, onCreated }) {
         <div className="space-y-4">
           <div>
             <label className="text-[10px] font-semibold tracking-[0.16em] uppercase text-slate-500 dark:text-zinc-400 mb-1 block">Full Name *</label>
-            <input required placeholder="E.g. Junaid Ahmad" value={form.name} onChange={e => setForm({...form, name: e.target.value})} className="bg-slate-50 dark:bg-black border border-slate-200 dark:border-white/[0.08] rounded-[10px] text-[13px] text-slate-600 dark:text-zinc-400 focus:border-teal-600/50 px-3 py-2 w-full bg-slate-200/50 dark:bg-white/[0.04] border border-slate-200 dark:border-white/[0.08] rounded-full py-2 px-4 text-[13px] text-slate-600 dark:text-zinc-400 placeholder:text-zinc-700 focus:border-teal-600/50 focus:bg-teal-600/[0.05] focus:outline-none transition-all duration-300" data-testid="cs-name"/>
+            <input required placeholder="E.g. Junaid Ahmad" value={form.name} onChange={e => setForm({...form, name: e.target.value})} className="w-full bg-slate-200/50 dark:bg-white/[0.04] border border-slate-200 dark:border-white/[0.08] rounded-full py-2 px-4 text-[13px] text-slate-600 dark:text-zinc-400 placeholder:text-zinc-700 focus:border-teal-600/50 focus:bg-teal-600/[0.05] focus:outline-none transition-all duration-300" data-testid="cs-name"/>
           </div>
           
           <div>
             <label className="text-[10px] font-semibold tracking-[0.16em] uppercase text-slate-500 dark:text-zinc-400 mb-1 block">System Login Email *</label>
             <div className="relative">
               <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 dark:text-zinc-400"><Mail size={14}/></span>
-              <input required type="email" placeholder="username@northendedu.com" value={form.email} onChange={e => setForm({...form, email: e.target.value})} className="bg-slate-50 dark:bg-black border border-slate-200 dark:border-white/[0.08] rounded-[10px] text-[13px] text-slate-600 dark:text-zinc-400 focus:border-teal-600/50 px-3 py-2 w-full bg-slate-200/50 dark:bg-white/[0.04] border border-slate-200 dark:border-white/[0.08] rounded-full py-2 px-4 pl-10 text-[13px] font-mono text-slate-600 dark:text-zinc-400 placeholder:text-zinc-700 focus:border-teal-600/50 focus:bg-teal-600/[0.05] focus:outline-none transition-all duration-300" data-testid="cs-email"/>
+              <input required type="email" placeholder="username@northendedu.com" value={form.email} onChange={e => setForm({...form, email: e.target.value})} className="w-full bg-slate-200/50 dark:bg-white/[0.04] border border-slate-200 dark:border-white/[0.08] rounded-full py-2 px-4 pl-10 text-[13px] font-mono text-slate-600 dark:text-zinc-400 placeholder:text-zinc-700 focus:border-teal-600/50 focus:bg-teal-600/[0.05] focus:outline-none transition-all duration-300" data-testid="cs-email"/>
             </div>
           </div>
           
@@ -260,7 +250,7 @@ function CreateStaffModal({ erpUser, branches, onClose, onCreated }) {
             <label className="text-[10px] font-semibold tracking-[0.16em] uppercase text-slate-500 dark:text-zinc-400 mb-1 block">Primary Mobile Handle</label>
             <div className="relative">
               <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 dark:text-zinc-400"><Smartphone size={14}/></span>
-              <input type="text" placeholder="Contact string" value={form.phone} onChange={e => setForm({...form, phone: e.target.value})} className="bg-slate-50 dark:bg-black border border-slate-200 dark:border-white/[0.08] rounded-[10px] text-[13px] text-slate-600 dark:text-zinc-400 focus:border-teal-600/50 px-3 py-2 w-full bg-slate-200/50 dark:bg-white/[0.04] border border-slate-200 dark:border-white/[0.08] rounded-full py-2 px-4 pl-10 text-[13px] font-mono text-slate-600 dark:text-zinc-400 placeholder:text-zinc-700 focus:border-teal-600/50 focus:bg-teal-600/[0.05] focus:outline-none transition-all duration-300" data-testid="cs-phone"/>
+              <input type="text" placeholder="Contact string" value={form.phone} onChange={e => setForm({...form, phone: e.target.value})} className="w-full bg-slate-200/50 dark:bg-white/[0.04] border border-slate-200 dark:border-white/[0.08] rounded-full py-2 px-4 pl-10 text-[13px] font-mono text-slate-600 dark:text-zinc-400 placeholder:text-zinc-700 focus:border-teal-600/50 focus:bg-teal-600/[0.05] focus:outline-none transition-all duration-300" data-testid="cs-phone"/>
             </div>
           </div>
           
@@ -268,7 +258,7 @@ function CreateStaffModal({ erpUser, branches, onClose, onCreated }) {
             <label className="text-[10px] font-semibold tracking-[0.16em] uppercase text-slate-500 dark:text-zinc-400 mb-1 block">Initial Security Password *</label>
             <div className="relative">
               <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 dark:text-zinc-400"><KeyRound size={14}/></span>
-              <input required type="password" placeholder="••••••••••••" value={form.password} onChange={e => setForm({...form, password: e.target.value})} className="bg-slate-50 dark:bg-black border border-slate-200 dark:border-white/[0.08] rounded-[10px] text-[13px] text-slate-600 dark:text-zinc-400 focus:border-teal-600/50 px-3 py-2 w-full bg-slate-200/50 dark:bg-white/[0.04] border border-slate-200 dark:border-white/[0.08] rounded-full py-2 px-4 pl-10 text-[13px] font-mono text-slate-600 dark:text-zinc-400 placeholder:text-zinc-700 focus:border-teal-600/50 focus:bg-teal-600/[0.05] focus:outline-none transition-all duration-300" data-testid="cs-password"/>
+              <input required type="password" placeholder="••••••••••••" value={form.password} onChange={e => setForm({...form, password: e.target.value})} className="w-full bg-slate-200/50 dark:bg-white/[0.04] border border-slate-200 dark:border-white/[0.08] rounded-full py-2 px-4 pl-10 text-[13px] font-mono text-slate-600 dark:text-zinc-400 placeholder:text-zinc-700 focus:border-teal-600/50 focus:bg-teal-600/[0.05] focus:outline-none transition-all duration-300" data-testid="cs-password"/>
             </div>
           </div>
 
@@ -352,14 +342,14 @@ function UpdateStaffModal({ erpUser, branches, staffMember, onClose, onUpdated }
         <div className="space-y-4">
           <div>
             <label className="text-[10px] font-semibold tracking-[0.16em] uppercase text-slate-500 dark:text-zinc-400 mb-1 block">Full Name *</label>
-            <input required placeholder="E.g. Junaid Ahmad" value={form.name} onChange={e => setForm({...form, name: e.target.value})} className="bg-slate-50 dark:bg-black border border-slate-200 dark:border-white/[0.08] rounded-[10px] text-[13px] text-slate-600 dark:text-zinc-400 focus:border-teal-600/50 px-3 py-2 w-full bg-slate-200/50 dark:bg-white/[0.04] border border-slate-200 dark:border-white/[0.08] rounded-full py-2 px-4 text-[13px] text-slate-600 dark:text-zinc-400 placeholder:text-zinc-700 focus:border-teal-600/50 focus:bg-teal-600/[0.05] focus:outline-none transition-all duration-300" />
+            <input required placeholder="E.g. Junaid Ahmad" value={form.name} onChange={e => setForm({...form, name: e.target.value})} className="w-full bg-slate-200/50 dark:bg-white/[0.04] border border-slate-200 dark:border-white/[0.08] rounded-full py-2 px-4 text-[13px] text-slate-600 dark:text-zinc-400 placeholder:text-zinc-700 focus:border-teal-600/50 focus:bg-teal-600/[0.05] focus:outline-none transition-all duration-300" />
           </div>
           
           <div>
             <label className="text-[10px] font-semibold tracking-[0.16em] uppercase text-slate-500 dark:text-zinc-400 mb-1 block">Primary Mobile Handle</label>
             <div className="relative">
               <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 dark:text-zinc-400"><Smartphone size={14}/></span>
-              <input type="text" placeholder="Contact string" value={form.phone} onChange={e => setForm({...form, phone: e.target.value})} className="bg-slate-50 dark:bg-black border border-slate-200 dark:border-white/[0.08] rounded-[10px] text-[13px] text-slate-600 dark:text-zinc-400 focus:border-teal-600/50 px-3 py-2 w-full bg-slate-200/50 dark:bg-white/[0.04] border border-slate-200 dark:border-white/[0.08] rounded-full py-2 px-4 pl-10 text-[13px] font-mono text-slate-600 dark:text-zinc-400 placeholder:text-zinc-700 focus:border-teal-600/50 focus:bg-teal-600/[0.05] focus:outline-none transition-all duration-300" />
+              <input type="text" placeholder="Contact string" value={form.phone} onChange={e => setForm({...form, phone: e.target.value})} className="w-full bg-slate-200/50 dark:bg-white/[0.04] border border-slate-200 dark:border-white/[0.08] rounded-full py-2 px-4 pl-10 text-[13px] font-mono text-slate-600 dark:text-zinc-400 placeholder:text-zinc-700 focus:border-teal-600/50 focus:bg-teal-600/[0.05] focus:outline-none transition-all duration-300" />
             </div>
           </div>
           
@@ -370,7 +360,7 @@ function UpdateStaffModal({ erpUser, branches, staffMember, onClose, onUpdated }
             </div>
             <div className="relative">
               <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 dark:text-zinc-400"><KeyRound size={14}/></span>
-              <input type="password" placeholder="Leave empty to retain current password" value={form.new_password} onChange={e => setForm({...form, new_password: e.target.value})} className="bg-slate-50 dark:bg-black border border-slate-200 dark:border-white/[0.08] rounded-[10px] text-[13px] text-slate-600 dark:text-zinc-400 focus:border-teal-600/50 px-3 py-2 w-full bg-slate-200/50 dark:bg-white/[0.04] border border-slate-200 dark:border-white/[0.08] rounded-full py-2 px-4 pl-10 text-[13px] font-mono text-slate-600 dark:text-zinc-400 placeholder:text-zinc-700 focus:border-teal-600/50 focus:bg-teal-600/[0.05] focus:outline-none transition-all duration-300" />
+              <input type="password" placeholder="Leave empty to retain current password" value={form.new_password} onChange={e => setForm({...form, new_password: e.target.value})} className="w-full bg-slate-200/50 dark:bg-white/[0.04] border border-slate-200 dark:border-white/[0.08] rounded-full py-2 px-4 pl-10 text-[13px] font-mono text-slate-600 dark:text-zinc-400 placeholder:text-zinc-700 focus:border-teal-600/50 focus:bg-teal-600/[0.05] focus:outline-none transition-all duration-300" />
             </div>
           </div>
 

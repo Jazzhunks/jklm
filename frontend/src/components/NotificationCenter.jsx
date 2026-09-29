@@ -1,9 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { 
-  Bell, Info, CheckCircle2, AlertCircle, XCircle, MessageSquare, 
-  Trophy, GraduationCap, Banknote, UserPlus, Landmark, ExternalLink
-} from "lucide-react";
+import { Bell, Info, CheckCircle2, AlertCircle, XCircle, MessageSquare, Trophy, GraduationCap, Banknote, UserPlus, Landmark, ExternalLink } from "lucide-react";
 import { toast } from "sonner";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";

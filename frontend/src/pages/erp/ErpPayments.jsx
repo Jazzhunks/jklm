@@ -6,18 +6,11 @@ import { useOutletContext, useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
 import { erp, isSuper, fmtINR, fmtDate, extractItems, extractTotal } from "@/lib/erpApi";
 import { API_BASE, formatError } from "@/lib/api";
-import { 
-  Download, Search, Calendar, FileText, CreditCard, Banknote, Wallet,
-  Plus, MessageSquare, CheckCircle, ChevronLeft, ChevronRight, 
-  ArrowUpRight, DollarSign, X, Receipt as ReceiptIcon, ShieldCheck, Printer,
-  Trash2, Edit3, AlertTriangle, Landmark
-} from "lucide-react";
+import { Download, Search, CreditCard, Banknote, Plus, ChevronLeft, ChevronRight, ArrowUpRight, DollarSign, X, ShieldCheck, Trash2, Edit3, AlertTriangle, Landmark } from "lucide-react";
 import ReceiptModal from "./modals/ReceiptModal";
 import GstSettlementModal from "./modals/GstSettlementModal";
 
-
 const MODES = ["all", "cash", "upi", "online", "cheque", "card"];
-
 
 function PaymentEditModal({ payment, onClose }) {
   const queryClient = useQueryClient();
@@ -117,7 +110,6 @@ function PaymentEditModal({ payment, onClose }) {
     </div>
   );
 }
-
 
 function TreasuryTransferModal({ branchId, onClose, onUpdated }) {
   const [busy, setBusy] = useState(false);
@@ -289,7 +281,6 @@ function TreasuryView({ branchId }) {
 
 export default function ErpPayments() {
 
-
   const { erpUser, selectedBranchId } = useOutletContext();
   const [searchParams, setSearchParams] = useSearchParams();
   const queryClient = useQueryClient();
@@ -422,8 +413,18 @@ export default function ErpPayments() {
       
       {/* Tabs */}
       <div className="flex gap-2 border-b border-slate-200 dark:border-white/[0.08] mb-2 mt-4 px-6 pb-2">
-        <Button onClick={() => setActiveTab("ledger")} className={`transition-all duration-300 ${activeTab === "ledger" ? "bg-teal-100 dark:bg-teal-600/15 border-teal-300 dark:border-teal-600/40 text-teal-800 dark:text-teal-300 rounded-full px-4 py-2 text-[11px] font-semibold tracking-[0.06em] uppercase border" : "bg-transparent border-slate-200 dark:border-white/10 text-slate-500 dark:text-zinc-400 hover:border-slate-300 dark:border-white/20 hover:text-slate-800 dark:text-zinc-200 rounded-full px-4 py-2 text-[11px] font-semibold tracking-[0.06em] uppercase border"}`}>Student Payments</Button>
-        <Button onClick={() => setActiveTab("treasury")} className={`transition-all duration-300 ${activeTab === "treasury" ? "bg-teal-100 dark:bg-teal-600/15 border-teal-300 dark:border-teal-600/40 text-teal-800 dark:text-teal-300 rounded-full px-4 py-2 text-[11px] font-semibold tracking-[0.06em] uppercase border" : "bg-transparent border-slate-200 dark:border-white/10 text-slate-500 dark:text-zinc-400 hover:border-slate-300 dark:border-white/20 hover:text-slate-800 dark:text-zinc-200 rounded-full px-4 py-2 text-[11px] font-semibold tracking-[0.06em] uppercase border"}`}>Treasury & Banking</Button>
+        {[
+          { id: "ledger", label: "Student Payments" },
+          { id: "treasury", label: "Treasury & Banking" }
+        ].map(tab => (
+          <Button 
+            key={tab.id}
+            onClick={() => setActiveTab(tab.id)} 
+            className={`transition-all duration-300 ${activeTab === tab.id ? "bg-teal-100 dark:bg-teal-600/15 border-teal-300 dark:border-teal-600/40 text-teal-800 dark:text-teal-300 rounded-full px-4 py-2 text-[11px] font-semibold tracking-[0.06em] uppercase border" : "bg-transparent border-slate-200 dark:border-white/10 text-slate-500 dark:text-zinc-400 hover:border-slate-300 dark:border-white/20 hover:text-slate-800 dark:text-zinc-200 rounded-full px-4 py-2 text-[11px] font-semibold tracking-[0.06em] uppercase border"}`}
+          >
+            {tab.label}
+          </Button>
+        ))}
       </div>
 
       {activeTab === 'ledger' && (
@@ -507,8 +508,7 @@ export default function ErpPayments() {
         <div className="flex gap-2 flex-wrap items-center">
           <div className="relative flex-1 sm:w-64">
             <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 dark:text-zinc-400"/>
-            <input className="bg-slate-50 dark:bg-black border border-slate-200 dark:border-white/[0.08] rounded-[10px] text-[13px] text-slate-600 dark:text-zinc-400 focus:border-teal-600/50 px-3 py-2" 
-              type="text"
+            <input type="text"
               value={q} 
               onChange={handleSearchChange} 
               placeholder="Search receipt, student ID, collector..." 

@@ -1,13 +1,10 @@
 import { createPortal } from "react-dom";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { api, formatError } from "@/lib/api";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
-import {
-  Plus, Pencil, Trash2, Play, Pause, XCircle, Calendar, Clock,
-  Users, ChevronRight, RefreshCw, CheckCircle2, PowerOff, GraduationCap,
-} from "lucide-react";
+import { Plus, Pencil, Trash2, XCircle, Calendar, Clock, Users, RefreshCw, CheckCircle2, PowerOff, GraduationCap } from "lucide-react";
 
 const MODES = [
   { id: "exam", label: "Normal WATH Exam", desc: "Show the permanent WATH scholarship exam page.", icon: GraduationCap },

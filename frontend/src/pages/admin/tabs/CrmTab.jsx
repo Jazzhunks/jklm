@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api";
-import { Loader2, Search, UserCircle2, Mail, Phone, Calendar, ArrowRight, Activity, BookOpen, Trophy, Briefcase, MessageSquare } from "lucide-react";
+import { Loader2, Search, UserCircle2, Mail, Phone, Calendar, Activity, BookOpen, Trophy, Briefcase, MessageSquare } from "lucide-react";
 import { useDebounce } from "@/hooks/useDebounce";
 
 export default function CrmTab() {
