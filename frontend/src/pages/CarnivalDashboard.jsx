@@ -2,7 +2,8 @@ import React, { useState, useMemo, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowLeft, Users, Calendar, GraduationCap, Download, Upload, Loader2, Target, Eye, Database, ListChecks } from "lucide-react";
-import { api, formatError, fmtDate } from "@/lib/api";
+import { api, formatError } from "@/lib/api";
+import { fmtDate } from "@/lib/erpApi";
 import { toast } from "sonner";
 import BulkProgressModal from "./admin/BulkProgressModal";
 
